@@ -1,0 +1,3 @@
+module mcgamgameeanalysis = GammaGammaEEMC {
+  untracked string   outfilename               = "ee.genlevel.root"
+}

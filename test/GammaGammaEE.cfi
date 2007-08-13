@@ -1,0 +1,16 @@
+module gamgameeanalysis = GammaGammaEE {
+  InputTag RecoTrackLabel 	      = recoTracks
+  InputTag GlobalMuonCollectionLabel = muons
+  InputTag ElectronCollectionLabel   = pixelMatchGsfElectrons
+  InputTag JetCollectionLabel	     = midPointCone5CaloJets
+  InputTag MetLabel		     = met
+  InputTag PhotonCollectionLabel     = correctedPhotons
+
+  double DielectronMaxdEt	     = 2000.0
+  double DielectronMindphi	     = 0.0
+  int32 JetMultMax		     = 1000
+  double HighestJetEMax		     = 5000.0
+  double SumJetEMax		     = 10000.0
+
+  untracked string   outfilename               = "ee.recolevel.root"
+}

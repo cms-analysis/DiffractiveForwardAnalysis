@@ -1,0 +1,3 @@
+module mcgamgammumuanalysis = GammaGammaMuMuMC {
+  untracked string   outfilename               = "mumu.genlevel.root"
+}
