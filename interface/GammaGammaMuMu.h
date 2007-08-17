@@ -32,6 +32,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   edm::InputTag theJetLabel;
   edm::InputTag theMetLabel;
   edm::InputTag thePhotonLabel;
+  edm::InputTag theCaloTowLabel;
 
   double mudptmax;
   double mudphimin;
@@ -66,8 +67,17 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double JetCand_e[30];
   double JetCand_eta[30];
   double JetCand_phi[30];
+  double HighestJet_e;
+  double SumJet_e;
 
   double Etmiss;
+
+  int nCaloCand;
+  double CaloTower_e[100];
+  double CaloTower_eta[100];
+  double CaloTower_phi[100];
+  double HighestCaloTower_e;
+  double SumCalo_e;
 
   double eventWeight;
 

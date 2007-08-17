@@ -5,6 +5,7 @@ module gamgameeanalysis = GammaGammaEE {
   InputTag JetCollectionLabel	     = midPointCone5CaloJets
   InputTag MetLabel		     = met
   InputTag PhotonCollectionLabel     = correctedPhotons
+  InputTag CaloTowerLabel              = towerMaker 
 
   double DielectronMaxdEt	     = 2000.0
   double DielectronMindphi	     = 0.0

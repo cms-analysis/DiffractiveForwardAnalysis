@@ -5,6 +5,7 @@ module gamgammumuanalysis = GammaGammaMuMu {
   InputTag JetCollectionLabel	     = midPointCone5CaloJets
   InputTag MetLabel		     = met
   InputTag PhotonCollectionLabel     = correctedPhotons
+  InputTag CaloTowerLabel	     = towerMaker
 
   double DimuonMaxdpt                = 2000.0
   double DimuonMindphi		     = 0.0

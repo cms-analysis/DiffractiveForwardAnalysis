@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.1 2006/09/21 10:27:18 anonymous Exp $
+// $Id: GammaGammaEE.cc,v 1.1 2007/08/13 07:28:17 jjhollar Exp $
 //
 //
 
@@ -30,6 +30,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaEE.h"
 
@@ -74,7 +75,7 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   theJetLabel        = pset.getParameter<edm::InputTag>("JetCollectionLabel");
   theMetLabel        = pset.getParameter<edm::InputTag>("MetLabel");
   thePhotonLabel     = pset.getParameter<edm::InputTag>("PhotonCollectionLabel");
-
+  theCaloTowLabel    = pset.getParameter<edm::InputTag>("CaloTowerLabel");
 
   eldetmax           = pset.getParameter<double>("DielectronMaxdEt");
   eldphimin          = pset.getParameter<double>("DielectronMindphi");
@@ -110,6 +111,15 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("JetCand_e",JetCand_e,"JetCand_e[nJetCand]/D");
   thetree->Branch("JetCand_eta",JetCand_eta,"JetCand_eta[nJetCand]/D");
   thetree->Branch("JetCand_phi",JetCand_phi,"JetCand_phi[nJetCand]/D");
+  thetree->Branch("HighestJet_e",&HighestJet_e,"HighestJet_e/D");
+  thetree->Branch("SumJet_e",&SumJet_e,"SumJet_e/D");
+
+  thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
+  thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
+  thetree->Branch("CaloTower_eta",CaloTower_eta,"CaloTower_eta[nCaloCand]/D"); 
+  thetree->Branch("CaloTower_phi",CaloTower_phi,"CaloTower_phi[nCaloCand]/D"); 
+  thetree->Branch("HighestCaloTower_e",&HighestCaloTower_e,"HighestCaloTower_e/D");
+  thetree->Branch("SumCalo_e",&SumCalo_e,"SumCalo_e/D");
 
   thetree->Branch("ElEl_mass",&ElEl_mass,"ElEl_mass/D");
   thetree->Branch("ElEl_dphi",&ElEl_dphi,"ElEl_dphi/D");
@@ -137,6 +147,7 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 {
   nEleCand=0;
   nJetCand=0;
+  nCaloCand=0;
 
   ElEl_mass = -1;
   ElEl_dphi = -1;
@@ -197,10 +208,18 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   const reco::CaloMETCollection* mets = pMET.product();
   reco::CaloMETCollection::const_iterator met;
 
+  // Get the CaloTower collection from the event 
+  edm::Handle<CaloTowerCollection> caloTowers;  
+  event.getByLabel(theCaloTowLabel,caloTowers);  
+  const CaloTowerCollection* towers = caloTowers.product();  
+  CaloTowerCollection::const_iterator calo;  
+
   double highestejet = -1.0;
   double totalejet = -1.0;
+  double highestetower = -1.0; 
+  double totalecalo = -1.0; 
 
-  // If this event contains a di-mu/e/gamma candidate, look at Jets & MET
+  // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers
   if(nEleCand == 2)
     {
       for ( jet = jets->begin(); jet != jets->end() && nJetCand<JETMAX; ++jet )
@@ -219,9 +238,28 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  nJetCand++;
 	}
 
+      HighestJet_e = highestejet;
+      SumJet_e = totalejet;
+
       met = mets->begin();
       float e_met = met->energy();
       Etmiss = e_met;
+
+      for (calo = towers->begin(); calo != towers->end(); ++calo )
+	{
+	  CaloTower_e[nCaloCand]=calo->energy(); 
+	  CaloTower_phi[nCaloCand]=calo->phi(); 
+	  CaloTower_eta[nCaloCand]=calo->eta(); 
+	  
+	  totalecalo = totalecalo + CaloTower_e[nCaloCand]; 
+	  if(CaloTower_e[nCaloCand] > highestetower) 
+	    highestetower = CaloTower_e[nCaloCand]; 
+	  
+	  nCaloCand++;
+	}
+      
+      SumCalo_e = totalecalo;
+      HighestCaloTower_e = highestetower;
     }
 
   // Check for di-objects
