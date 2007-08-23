@@ -1,5 +1,5 @@
 module gamgameeanalysis = GammaGammaEE {
-  InputTag RecoTrackLabel 	      = recoTracks
+  InputTag RecoTrackLabel 	      = pixelTracks
   InputTag GlobalMuonCollectionLabel = muons
   InputTag ElectronCollectionLabel   = pixelMatchGsfElectrons
   InputTag JetCollectionLabel	     = midPointCone5CaloJets

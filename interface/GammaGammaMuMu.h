@@ -68,6 +68,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double JetCand_eta[30];
   double JetCand_phi[30];
   double HighestJet_e;
+  double HighestJet_eta;
+  double HighestJet_phi;
   double SumJet_e;
 
   double Etmiss;
@@ -77,7 +79,19 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double CaloTower_eta[100];
   double CaloTower_phi[100];
   double HighestCaloTower_e;
+  double HighestCaloTower_eta;
+  double HighestCaloTower_phi;
   double SumCalo_e;
+
+  int nTrackCand;
+  double TrackCand_px[4];
+  double TrackCand_py[4];
+  double TrackCand_pz[4];
+  double TrackCand_p[4];
+  double TrackCand_eta[4];
+  double TrackCand_pt[4];
+  double TrackCand_phi[4];
+  int TrackCand_charge[4];
 
   double eventWeight;
 

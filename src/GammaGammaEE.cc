@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.1 2007/08/13 07:28:17 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.2 2007/08/17 12:46:21 jjhollar Exp $
 //
 //
 
@@ -112,6 +112,8 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("JetCand_eta",JetCand_eta,"JetCand_eta[nJetCand]/D");
   thetree->Branch("JetCand_phi",JetCand_phi,"JetCand_phi[nJetCand]/D");
   thetree->Branch("HighestJet_e",&HighestJet_e,"HighestJet_e/D");
+  thetree->Branch("HighestJet_eta",&HighestJet_eta,"HighestJet_eta/D"); 
+  thetree->Branch("HighestJet_phi",&HighestJet_phi,"HighestJet_phi/D"); 
   thetree->Branch("SumJet_e",&SumJet_e,"SumJet_e/D");
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
@@ -119,7 +121,18 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("CaloTower_eta",CaloTower_eta,"CaloTower_eta[nCaloCand]/D"); 
   thetree->Branch("CaloTower_phi",CaloTower_phi,"CaloTower_phi[nCaloCand]/D"); 
   thetree->Branch("HighestCaloTower_e",&HighestCaloTower_e,"HighestCaloTower_e/D");
+  thetree->Branch("HighestCaloTower_eta",&HighestCaloTower_eta,"HighestCaloTower_eta/D");
+  thetree->Branch("HighestCaloTower_phi",&HighestCaloTower_phi,"HighestCaloTower_phi/D"); 
   thetree->Branch("SumCalo_e",&SumCalo_e,"SumCalo_e/D");
+
+  thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
+  thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
+  thetree->Branch("TrackCand_py",TrackCand_py,"TrackCand_py[nTrackCand]/D");
+  thetree->Branch("TrackCand_pz",TrackCand_pz,"TrackCand_pz[nTrackCand]/D");
+  thetree->Branch("TrackCand_p",TrackCand_p,"TrackCand_p[nTrackCand]/D");
+  thetree->Branch("TrackCand_pt",TrackCand_pt,"TrackCand_pt[nTrackCand]/D");
+  thetree->Branch("TrackCand_eta",TrackCand_eta,"TrackCand_eta[nTrackCand]/D");
+  thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nTrackCand]/D");
 
   thetree->Branch("ElEl_mass",&ElEl_mass,"ElEl_mass/D");
   thetree->Branch("ElEl_dphi",&ElEl_dphi,"ElEl_dphi/D");
@@ -148,6 +161,7 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nEleCand=0;
   nJetCand=0;
   nCaloCand=0;
+  nTrackCand=0;
 
   ElEl_mass = -1;
   ElEl_dphi = -1;
@@ -214,12 +228,22 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   const CaloTowerCollection* towers = caloTowers.product();  
   CaloTowerCollection::const_iterator calo;  
 
+  // Get the track collection from the event
+  edm::Handle<reco::TrackCollection> recoTracks;
+  event.getByLabel(recTrackLabel, recoTracks);
+  const TrackCollection* tracks = recoTracks.product();
+  TrackCollection::const_iterator track;
+
   double highestejet = -1.0;
+  double highestejeteta = -999.0;
+  double highestejetphi = -999.0;
   double totalejet = -1.0;
   double highestetower = -1.0; 
+  double highestetowereta = -999.0;
+  double highestetowerphi = -999.0;
   double totalecalo = -1.0; 
 
-  // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers
+  // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
   if(nEleCand == 2)
     {
       for ( jet = jets->begin(); jet != jets->end() && nJetCand<JETMAX; ++jet )
@@ -233,12 +257,17 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
 	  totalejet = totalejet + JetCand_e[nJetCand];
 	  if(JetCand_e[nJetCand] > highestejet)
-	    highestejet = JetCand_e[nJetCand];
-
+	    {
+	      highestejet = JetCand_e[nJetCand];
+	      highestejeteta = JetCand_eta[nJetCand];
+	      highestejetphi = JetCand_phi[nJetCand];
+	    }
 	  nJetCand++;
 	}
 
       HighestJet_e = highestejet;
+      HighestJet_eta = highestejeteta;
+      HighestJet_phi = highestejetphi;
       SumJet_e = totalejet;
 
       met = mets->begin();
@@ -253,13 +282,31 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  
 	  totalecalo = totalecalo + CaloTower_e[nCaloCand]; 
 	  if(CaloTower_e[nCaloCand] > highestetower) 
-	    highestetower = CaloTower_e[nCaloCand]; 
-	  
+	    {
+	      highestetower = CaloTower_e[nCaloCand]; 
+	      highestetowereta = CaloTower_eta[nCaloCand];
+	      highestetowerphi = CaloTower_phi[nCaloCand];
+	    }
 	  nCaloCand++;
 	}
       
       SumCalo_e = totalecalo;
       HighestCaloTower_e = highestetower;
+      HighestCaloTower_eta = highestetowereta;
+      HighestCaloTower_phi = highestetowerphi;
+
+      for(track = tracks->begin(); track != tracks->end(); ++ track)
+	{
+	  TrackCand_p[nTrackCand]=track->p();
+	  TrackCand_px[nTrackCand]=track->px();
+	  TrackCand_py[nTrackCand]=track->py();
+	  TrackCand_pz[nTrackCand]=track->pz();
+	  TrackCand_pt[nTrackCand]=track->pt();
+	  TrackCand_eta[nTrackCand]=track->eta();
+	  TrackCand_phi[nTrackCand]=track->phi();
+	  TrackCand_charge[nTrackCand]=track->charge();
+	  nTrackCand++; 
+	}
     }
 
   // Check for di-objects
