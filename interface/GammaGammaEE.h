@@ -84,6 +84,7 @@ class GammaGammaEE : public edm::EDAnalyzer {
   double SumCalo_e;
 
   int nTrackCand;
+  int TRACKMAX;
   double TrackCand_px[100];
   double TrackCand_py[100];
   double TrackCand_pz[100];

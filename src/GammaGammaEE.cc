@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.2 2007/08/17 12:46:21 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.3 2007/08/23 07:58:00 jjhollar Exp $
 //
 //
 
@@ -88,7 +88,8 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   //  nEvt=0;
   ELEMAX=10;
   JETMAX=30;
-  
+  TRACKMAX=100;
+
   thefile = new TFile(rootfilename.c_str(),"recreate");
   thefile->cd();
   thetree= new TTree("ntp1","ntp1");
@@ -295,7 +296,7 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestCaloTower_eta = highestetowereta;
       HighestCaloTower_phi = highestetowerphi;
 
-      for(track = tracks->begin(); track != tracks->end(); ++ track)
+      for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track)
 	{
 	  TrackCand_p[nTrackCand]=track->p();
 	  TrackCand_px[nTrackCand]=track->px();
