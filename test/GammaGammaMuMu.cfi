@@ -1,6 +1,6 @@
 module gamgammumuanalysis = GammaGammaMuMu {
   InputTag RecoTrackLabel 	      = pixelTracks
-  InputTag GlobalMuonCollectionLabel = muons
+  InputTag GlobalMuonCollectionLabel = trackerMuons
   InputTag ElectronCollectionLabel   = pixelMatchGsfElectrons
   InputTag JetCollectionLabel	     = midPointCone5CaloJets
   InputTag MetLabel		     = met
