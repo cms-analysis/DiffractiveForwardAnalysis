@@ -76,6 +76,7 @@ class GammaGammaEE : public edm::EDAnalyzer {
 
   int nCaloCand;
   double CaloTower_e[1000];
+  double CaloTower_et[1000];
   double CaloTower_eta[1000];
   double CaloTower_phi[1000];
   double HighestCaloTower_e;

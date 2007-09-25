@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.3 2007/08/23 07:58:00 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.4 2007/09/04 14:21:38 jjhollar Exp $
 //
 //
 
@@ -119,6 +119,7 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
+  thetree->Branch("CaloTower_et",CaloTower_et,"CaloTower_et[nCaloCand]/D");
   thetree->Branch("CaloTower_eta",CaloTower_eta,"CaloTower_eta[nCaloCand]/D"); 
   thetree->Branch("CaloTower_phi",CaloTower_phi,"CaloTower_phi[nCaloCand]/D"); 
   thetree->Branch("HighestCaloTower_e",&HighestCaloTower_e,"HighestCaloTower_e/D");
@@ -278,6 +279,7 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       for (calo = towers->begin(); calo != towers->end(); ++calo )
 	{
 	  CaloTower_e[nCaloCand]=calo->energy(); 
+	  CaloTower_et[nCaloCand]=calo->et();
 	  CaloTower_phi[nCaloCand]=calo->phi(); 
 	  CaloTower_eta[nCaloCand]=calo->eta(); 
 	  
