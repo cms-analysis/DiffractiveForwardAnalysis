@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.5 2007/09/25 06:31:31 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.6 2007/09/26 13:42:41 jjhollar Exp $
 //
 //
 
@@ -126,6 +126,11 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("HighestCaloTower_e",&HighestCaloTower_e,"HighestCaloTower_e/D");
   thetree->Branch("HighestCaloTower_eta",&HighestCaloTower_eta,"HighestCaloTower_eta/D");
   thetree->Branch("HighestCaloTower_phi",&HighestCaloTower_phi,"HighestCaloTower_phi/D"); 
+  thetree->Branch("HighestCaloTower_dr",&HighestCaloTower_dr,"HighestCaloTower_dr/D");
+  thetree->Branch("HighestEtCaloTower_et",&HighestEtCaloTower_et,"HighestEtCaloTower_et/D");
+  thetree->Branch("HighestEtCaloTower_eta",&HighestEtCaloTower_eta,"HighestEtCaloTower_eta/D");
+  thetree->Branch("HighestEtCaloTower_phi",&HighestEtCaloTower_phi,"HighestEtCaloTower_phi/D"); 
+  thetree->Branch("HighestEtCaloTower_dr",&HighestEtCaloTower_dr,"HighestEtCaloTower_dr/D");
   thetree->Branch("SumCalo_e",&SumCalo_e,"SumCalo_e/D");
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
@@ -242,8 +247,13 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double highestejetphi = -999.0;
   double totalejet = -1.0;
   double highestetower = -1.0; 
+  double highestetowerdr = -999.0;
   double highestetowereta = -999.0;
   double highestetowerphi = -999.0;
+  double highestettower = -1.0; 
+  double highestettowerdr = -999.0;
+  double highestettowereta = -999.0;
+  double highestettowerphi = -999.0;
   double totalecalo = -1.0; 
 
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
@@ -284,13 +294,6 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  CaloTower_phi[nCaloCand]=calo->phi(); 
 	  CaloTower_eta[nCaloCand]=calo->eta(); 
 	  
-	  totalecalo = totalecalo + CaloTower_e[nCaloCand]; 
-	  if(CaloTower_e[nCaloCand] > highestetower) 
-	    {
-	      highestetower = CaloTower_e[nCaloCand]; 
-	      highestetowereta = CaloTower_eta[nCaloCand];
-	      highestetowerphi = CaloTower_phi[nCaloCand];
-	    }
 
 	  float calodr1 = sqrt(((CaloTower_eta[nCaloCand]-EleCand_eta[0])*(CaloTower_eta[nCaloCand]-EleCand_eta[0])) + 
 			       ((CaloTower_phi[nCaloCand]-EleCand_phi[0])*(CaloTower_phi[nCaloCand]-EleCand_phi[0])));
@@ -301,6 +304,23 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	    CaloTower_dr[nCaloCand] = calodr1;
 	  else
 	    CaloTower_dr[nCaloCand] = calodr2;
+
+	  totalecalo = totalecalo + CaloTower_e[nCaloCand]; 
+	  if(CaloTower_e[nCaloCand] > highestetower) 
+	    {
+	      highestetower = CaloTower_e[nCaloCand]; 
+	      highestetowereta = CaloTower_eta[nCaloCand];
+	      highestetowerphi = CaloTower_phi[nCaloCand];
+	      highestetowerdr = CaloTower_dr[nCaloCand];
+	    }
+
+	  if(CaloTower_et[nCaloCand] > highestettower) 
+	    {
+	      highestettower = CaloTower_et[nCaloCand]; 
+	      highestettowereta = CaloTower_eta[nCaloCand];
+	      highestettowerphi = CaloTower_phi[nCaloCand];
+	      highestettowerdr = CaloTower_dr[nCaloCand];
+	    }
 
 	  nCaloCand++;
 	}

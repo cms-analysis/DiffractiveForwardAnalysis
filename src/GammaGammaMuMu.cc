@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.5 2007/09/25 06:31:31 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.6 2007/09/26 13:42:41 jjhollar Exp $
 //
 //
 
@@ -121,9 +121,15 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("CaloTower_eta",CaloTower_eta,"CaloTower_eta[nCaloCand]/D"); 
   thetree->Branch("CaloTower_phi",CaloTower_phi,"CaloTower_phi[nCaloCand]/D"); 
   thetree->Branch("CaloTower_dr",CaloTower_dr,"CaloTower_dr[nCaloCand]/D");
+
   thetree->Branch("HighestCaloTower_e",&HighestCaloTower_e,"HighestCaloTower_e/D");
   thetree->Branch("HighestCaloTower_eta",&HighestCaloTower_eta,"HighestCaloTower_eta/D");
   thetree->Branch("HighestCaloTower_phi",&HighestCaloTower_phi,"HighestCaloTower_phi/D"); 
+  thetree->Branch("HighestCaloTower_dr",&HighestCaloTower_dr,"HighestCaloTower_dr/D");
+  thetree->Branch("HighestEtCaloTower_et",&HighestEtCaloTower_et,"HighestEtCaloTower_et/D");
+  thetree->Branch("HighestEtCaloTower_eta",&HighestEtCaloTower_eta,"HighestEtCaloTower_eta/D");
+  thetree->Branch("HighestEtCaloTower_phi",&HighestEtCaloTower_phi,"HighestEtCaloTower_phi/D"); 
+  thetree->Branch("HighestEtCaloTower_dr",&HighestEtCaloTower_dr,"HighestEtCaloTower_dr/D");
   thetree->Branch("SumCalo_e",&SumCalo_e,"SumCalo_e/D");
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
@@ -238,8 +244,13 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double highestejetphi = -999.0;
   double totalejet = -1.0;
   double highestetower = -1.0; 
+  double highestetowerdr = -999.0;
   double highestetowereta = -999.0;
   double highestetowerphi = -999.0;
+  double highestettower = -1.0; 
+  double highestettowerdr = -999.0;
+  double highestettowereta = -999.0;
+  double highestettowerphi = -999.0;
   double totalecalo = -1.0; 
 
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
@@ -280,14 +291,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  CaloTower_phi[nCaloCand]=calo->phi(); 
 	  CaloTower_eta[nCaloCand]=calo->eta(); 
 	  
-	  totalecalo = totalecalo + CaloTower_e[nCaloCand]; 
-	  if(CaloTower_e[nCaloCand] > highestetower) 
-	    {
-	      highestetower = CaloTower_e[nCaloCand]; 
-	      highestetowereta = CaloTower_eta[nCaloCand];
-	      highestetowerphi = CaloTower_phi[nCaloCand];
-	    }
-
 	  float calodr1 = sqrt(((CaloTower_eta[nCaloCand]-MuonCand_eta[0])*(CaloTower_eta[nCaloCand]-MuonCand_eta[0])) + 
 			       ((CaloTower_phi[nCaloCand]-MuonCand_phi[0])*(CaloTower_phi[nCaloCand]-MuonCand_phi[0])));
 	  float calodr2 = sqrt(((CaloTower_eta[nCaloCand]-MuonCand_eta[1])*(CaloTower_eta[nCaloCand]-MuonCand_eta[1])) + 
@@ -298,6 +301,24 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  else
 	    CaloTower_dr[nCaloCand] = calodr2;
 
+	  totalecalo = totalecalo + CaloTower_e[nCaloCand]; 
+
+	  if(CaloTower_e[nCaloCand] > highestetower) 
+	    {
+	      highestetower = CaloTower_e[nCaloCand]; 
+	      highestetowereta = CaloTower_eta[nCaloCand];
+	      highestetowerphi = CaloTower_phi[nCaloCand];
+	      highestetowerdr = CaloTower_dr[nCaloCand];
+	    }
+
+	  if(CaloTower_et[nCaloCand] > highestettower) 
+	    {
+	      highestettower = CaloTower_et[nCaloCand]; 
+	      highestettowereta = CaloTower_eta[nCaloCand];
+	      highestettowerphi = CaloTower_phi[nCaloCand];
+	      highestettowerdr = CaloTower_dr[nCaloCand];
+	    }
+
 	  nCaloCand++;
 	}
       
@@ -305,6 +326,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestCaloTower_e = highestetower;
       HighestCaloTower_eta = highestetowereta;
       HighestCaloTower_phi = highestetowerphi;
+      HighestCaloTower_dr = highestetowerdr;
+      HighestEtCaloTower_et = highestettower;
+      HighestEtCaloTower_eta = highestettowereta;
+      HighestEtCaloTower_phi = highestettowerphi;
+      HighestEtCaloTower_dr = highestettowerdr;
 
       for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track)
 	{

@@ -83,6 +83,11 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double HighestCaloTower_e;
   double HighestCaloTower_eta;
   double HighestCaloTower_phi;
+  double HighestCaloTower_dr;
+  double HighestEtCaloTower_et;
+  double HighestEtCaloTower_eta;
+  double HighestEtCaloTower_phi;
+  double HighestEtCaloTower_dr;
   double SumCalo_e;
 
   int nTrackCand;
