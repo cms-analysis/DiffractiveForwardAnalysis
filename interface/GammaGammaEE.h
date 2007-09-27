@@ -36,9 +36,9 @@ class GammaGammaEE : public edm::EDAnalyzer {
 
   double eldetmax;
   double eldphimin;
-  int njetsmax;
-  double highestjetemax;
-  double sumjetemax;
+  double drisocalo;
+  double caloethresh;
+  double caloetthresh;
 
   std::string rootfilename;
 
@@ -75,6 +75,8 @@ class GammaGammaEE : public edm::EDAnalyzer {
   double Etmiss;
 
   int nCaloCand;
+  int nExtraCaloTowersE;
+  int nExtraCaloTowersEt;
   double CaloTower_e[1000];
   double CaloTower_et[1000];
   double CaloTower_eta[1000];

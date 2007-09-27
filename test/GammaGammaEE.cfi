@@ -9,9 +9,9 @@ module gamgameeanalysis = GammaGammaEE {
 
   double DielectronMaxdEt	     = 2000.0
   double DielectronMindphi	     = 0.0
-  int32 JetMultMax		     = 1000
-  double HighestJetEMax		     = 5000.0
-  double SumJetEMax		     = 10000.0
+  double CaloTowerdR                 = 0.3 
+  double CaloTowerEthreshold         = 1.0 
+  double CaloTowerEtthreshold        = 1.0 
 
   untracked string   outfilename               = "ee.recolevel.root"
 }

@@ -9,6 +9,10 @@ module gamgammumuanalysis = GammaGammaMuMu {
 
   double DimuonMaxdpt                = 2000.0
   double DimuonMindphi		     = 0.0
+  double CaloTowerdR		     = 0.3
+  double CaloTowerEthreshold	     = 1.0
+  double CaloTowerEtthreshold	     = 1.0
+
   int32 JetMultMax		     = 1000
   double HighestJetEMax		     = 5000.0
   double SumJetEMax		     = 10000.0

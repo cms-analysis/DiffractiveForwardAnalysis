@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.6 2007/09/26 13:42:41 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.7 2007/09/27 06:39:17 jjhollar Exp $
 //
 //
 
@@ -79,9 +79,9 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
 
   mudptmax           = pset.getParameter<double>("DimuonMaxdpt");
   mudphimin          = pset.getParameter<double>("DimuonMindphi");
-  njetsmax           = pset.getParameter<int>("JetMultMax");
-  highestjetemax     = pset.getParameter<double>("HighestJetEMax");
-  sumjetemax         = pset.getParameter<double>("SumJetEMax");
+  drisocalo          = pset.getParameter<double>("CaloTowerdR");
+  caloethresh        = pset.getParameter<double>("CaloTowerEthreshold");
+  caloetthresh       = pset.getParameter<double>("CaloTowerEtthreshold");
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
 
@@ -121,7 +121,6 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("CaloTower_eta",CaloTower_eta,"CaloTower_eta[nCaloCand]/D"); 
   thetree->Branch("CaloTower_phi",CaloTower_phi,"CaloTower_phi[nCaloCand]/D"); 
   thetree->Branch("CaloTower_dr",CaloTower_dr,"CaloTower_dr[nCaloCand]/D");
-
   thetree->Branch("HighestCaloTower_e",&HighestCaloTower_e,"HighestCaloTower_e/D");
   thetree->Branch("HighestCaloTower_eta",&HighestCaloTower_eta,"HighestCaloTower_eta/D");
   thetree->Branch("HighestCaloTower_phi",&HighestCaloTower_phi,"HighestCaloTower_phi/D"); 
@@ -131,6 +130,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("HighestEtCaloTower_phi",&HighestEtCaloTower_phi,"HighestEtCaloTower_phi/D"); 
   thetree->Branch("HighestEtCaloTower_dr",&HighestEtCaloTower_dr,"HighestEtCaloTower_dr/D");
   thetree->Branch("SumCalo_e",&SumCalo_e,"SumCalo_e/D");
+  thetree->Branch("nExtraCaloTowersE",&nExtraCaloTowersE,"nExtraCaloTowersE/I");
+  thetree->Branch("nExtraCaloTowersEt",&nExtraCaloTowersEt,"nExtraCaloTowersEt/I");
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
   thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
@@ -169,6 +170,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
+  nExtraCaloTowersE=0;
+  nExtraCaloTowersEt=0;
 
   MuMu_mass = -1;
   MuMu_dphi = -1;
@@ -319,6 +322,14 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	      highestettowerdr = CaloTower_dr[nCaloCand];
 	    }
 
+	  if(CaloTower_dr[nCaloCand] > drisocalo)
+	    {
+	      if(CaloTower_e[nCaloCand] > caloethresh)
+		nExtraCaloTowersE++;
+	      if(CaloTower_et[nCaloCand] > caloetthresh)
+		nExtraCaloTowersEt++;
+	    }
+
 	  nCaloCand++;
 	}
       
@@ -358,10 +369,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }
 
   // "Exclusivity" cuts
-  if(nJetCand > njetsmax || 
-     highestejet > highestjetemax || 
-     totalejet > sumjetemax)
-    passed = false;
 
   if(passed == true)
     thetree->Fill();

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.6 2007/09/26 13:42:41 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.7 2007/09/27 06:39:17 jjhollar Exp $
 //
 //
 
@@ -79,9 +79,9 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
 
   eldetmax           = pset.getParameter<double>("DielectronMaxdEt");
   eldphimin          = pset.getParameter<double>("DielectronMindphi");
-  njetsmax           = pset.getParameter<int>("JetMultMax");
-  highestjetemax     = pset.getParameter<double>("HighestJetEMax");
-  sumjetemax         = pset.getParameter<double>("SumJetEMax");
+  drisocalo          = pset.getParameter<double>("CaloTowerdR");
+  caloethresh        = pset.getParameter<double>("CaloTowerEthreshold");
+  caloetthresh       = pset.getParameter<double>("CaloTowerEtthreshold");
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
 
@@ -132,6 +132,8 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("HighestEtCaloTower_phi",&HighestEtCaloTower_phi,"HighestEtCaloTower_phi/D"); 
   thetree->Branch("HighestEtCaloTower_dr",&HighestEtCaloTower_dr,"HighestEtCaloTower_dr/D");
   thetree->Branch("SumCalo_e",&SumCalo_e,"SumCalo_e/D");
+  thetree->Branch("nExtraCaloTowersE",&nExtraCaloTowersE,"nExtraCaloTowersE/I");
+  thetree->Branch("nExtraCaloTowersEt",&nExtraCaloTowersEt,"nExtraCaloTowersEt/I");
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
   thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
@@ -170,6 +172,8 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
+  nExtraCaloTowersE=0;
+  nExtraCaloTowersEt=0;
 
   ElEl_mass = -1;
   ElEl_dphi = -1;
@@ -325,11 +329,24 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  nCaloCand++;
 	}
       
+      if(CaloTower_dr[nCaloCand] > drisocalo)
+	{
+	  if(CaloTower_e[nCaloCand] > caloethresh)
+	    nExtraCaloTowersE++;
+	  if(CaloTower_et[nCaloCand] > caloetthresh)
+	    nExtraCaloTowersEt++;
+	}
+
       SumCalo_e = totalecalo;
       HighestCaloTower_e = highestetower;
       HighestCaloTower_eta = highestetowereta;
       HighestCaloTower_phi = highestetowerphi;
-
+      HighestCaloTower_dr = highestetowerdr;
+      HighestEtCaloTower_et = highestettower;
+      HighestEtCaloTower_eta = highestettowereta;
+      HighestEtCaloTower_phi = highestettowerphi;
+      HighestEtCaloTower_dr = highestettowerdr;
+      
       for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track)
 	{
 	  TrackCand_p[nTrackCand]=track->p();
@@ -356,10 +373,6 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }
 
   // "Exclusivity" cuts
-  if(nJetCand > njetsmax || 
-     highestejet > highestjetemax || 
-     totalejet > sumjetemax)
-    passed = false;
 
   if(passed == true)
     thetree->Fill();
