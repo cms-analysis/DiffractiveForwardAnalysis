@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.7 2007/09/27 06:39:17 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.8 2007/09/27 15:32:22 jjhollar Exp $
 //
 //
 
@@ -321,6 +321,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	      highestettowerphi = CaloTower_phi[nCaloCand];
 	      highestettowerdr = CaloTower_dr[nCaloCand];
 	    }
+
 
 	  if(CaloTower_dr[nCaloCand] > drisocalo)
 	    {

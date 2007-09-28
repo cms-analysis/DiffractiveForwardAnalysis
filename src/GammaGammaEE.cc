@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.7 2007/09/27 06:39:17 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.8 2007/09/27 15:32:22 jjhollar Exp $
 //
 //
 
@@ -326,16 +326,17 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	      highestettowerdr = CaloTower_dr[nCaloCand];
 	    }
 
+	  if(CaloTower_dr[nCaloCand] > drisocalo)
+	    {
+	      if(CaloTower_e[nCaloCand] > caloethresh)
+		nExtraCaloTowersE++;
+	      if(CaloTower_et[nCaloCand] > caloetthresh)
+		nExtraCaloTowersEt++;
+	    }
+	  
 	  nCaloCand++;
-	}
-      
-      if(CaloTower_dr[nCaloCand] > drisocalo)
-	{
-	  if(CaloTower_e[nCaloCand] > caloethresh)
-	    nExtraCaloTowersE++;
-	  if(CaloTower_et[nCaloCand] > caloetthresh)
-	    nExtraCaloTowersEt++;
-	}
+
+	}      
 
       SumCalo_e = totalecalo;
       HighestCaloTower_e = highestetower;
