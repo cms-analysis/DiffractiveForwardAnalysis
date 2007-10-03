@@ -75,8 +75,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double Etmiss;
 
   int nCaloCand;
-  int nExtraCaloTowersE;
-  int nExtraCaloTowersEt;
+  int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5; 
+  int nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4, nExtraCaloTowersEt5; 
   double CaloTower_e[1000];
   double CaloTower_et[1000];
   double CaloTower_eta[1000];
