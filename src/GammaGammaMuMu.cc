@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.9 2007/09/28 09:15:55 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.10 2007/10/03 12:10:46 jjhollar Exp $
 //
 //
 
@@ -137,11 +137,11 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersE4",&nExtraCaloTowersE4,"nExtraCaloTowersE4/I");  
   thetree->Branch("nExtraCaloTowersE5",&nExtraCaloTowersE5,"nExtraCaloTowersE5/I");  
  
+  thetree->Branch("nExtraCaloTowersEt0pt1",&nExtraCaloTowersEt0pt1,"nExtraCaloTowersEt0pt1/I"); 
+  thetree->Branch("nExtraCaloTowersEt0pt2",&nExtraCaloTowersEt0pt2,"nExtraCaloTowersEt0pt2/I"); 
+  thetree->Branch("nExtraCaloTowersEt0pt5",&nExtraCaloTowersEt0pt5,"nExtraCaloTowersEt0pt5/I"); 
   thetree->Branch("nExtraCaloTowersEt1",&nExtraCaloTowersEt1,"nExtraCaloTowersEt1/I"); 
   thetree->Branch("nExtraCaloTowersEt2",&nExtraCaloTowersEt2,"nExtraCaloTowersEt2/I"); 
-  thetree->Branch("nExtraCaloTowersEt3",&nExtraCaloTowersEt3,"nExtraCaloTowersEt3/I"); 
-  thetree->Branch("nExtraCaloTowersEt4",&nExtraCaloTowersEt4,"nExtraCaloTowersEt4/I"); 
-  thetree->Branch("nExtraCaloTowersEt5",&nExtraCaloTowersEt5,"nExtraCaloTowersEt5/I"); 
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
   thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
@@ -185,11 +185,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersE3=0; 
   nExtraCaloTowersE4=0; 
   nExtraCaloTowersE5=0; 
+  nExtraCaloTowersEt0pt1=0; 
+  nExtraCaloTowersEt0pt2=0;
+  nExtraCaloTowersEt0pt5=0;  
   nExtraCaloTowersEt1=0; 
-  nExtraCaloTowersEt2=0;
-  nExtraCaloTowersEt3=0;  
-  nExtraCaloTowersEt4=0; 
-  nExtraCaloTowersEt5=0;  
+  nExtraCaloTowersEt2=0;  
 
   MuMu_mass = -1;
   MuMu_dphi = -1;
@@ -354,16 +354,16 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
               if(CaloTower_e[nCaloCand] > 5.0)  
                 nExtraCaloTowersE5++;  
  
-              if(CaloTower_et[nCaloCand] > 1.0) 
-                nExtraCaloTowersEt1++; 
+              if(CaloTower_et[nCaloCand] > 0.1) 
+                nExtraCaloTowersEt0pt1++; 
+              if(CaloTower_et[nCaloCand] > 0.2)  
+                nExtraCaloTowersEt0pt2++;  
+	      if(CaloTower_et[nCaloCand] > 0.5)  
+                nExtraCaloTowersEt0pt5++;  
+              if(CaloTower_et[nCaloCand] > 1.0)  
+                nExtraCaloTowersEt1++;  
               if(CaloTower_et[nCaloCand] > 2.0)  
                 nExtraCaloTowersEt2++;  
-              if(CaloTower_et[nCaloCand] > 3.0)  
-                nExtraCaloTowersEt3++;  
-              if(CaloTower_et[nCaloCand] > 4.0)  
-                nExtraCaloTowersEt4++;  
-              if(CaloTower_et[nCaloCand] > 4.0)  
-                nExtraCaloTowersEt5++;  
 	    }
 
 	  nCaloCand++;

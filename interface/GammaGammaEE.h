@@ -76,7 +76,7 @@ class GammaGammaEE : public edm::EDAnalyzer {
 
   int nCaloCand;
   int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5;
-  int nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4, nExtraCaloTowersEt5;
+  int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2;
   double CaloTower_e[1000];
   double CaloTower_et[1000];
   double CaloTower_eta[1000];
