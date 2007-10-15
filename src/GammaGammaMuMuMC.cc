@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMuMC.cc,v 1.1 2006/09/21 10:27:18 anonymous Exp $
+// $Id: GammaGammaMuMuMC.cc,v 1.1 2007/08/13 07:28:17 jjhollar Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 // C++
 #include <memory>
@@ -38,6 +39,7 @@
 using namespace edm;
 using namespace std;
 using namespace HepMC;
+using namespace reco;
 
 //
 // constants, enums and typedefs
@@ -115,31 +117,29 @@ GammaGammaMuMuMC::analyze(const edm::Event& event, const edm::EventSetup& iSetup
   if((nEvt%10==0 && nEvt<=100)||(nEvt%100==0 && nEvt>100))
     std::cout << "reading event " << nEvt << std::endl;
   
-  
   // step 1: fill some basic MC information into the root tree
-  edm::Handle<HepMCProduct> evt;
-  event.getByLabel("source", evt);
-  
+  Handle<CandidateCollection> genParticles;
+  event.getByLabel( "genParticleCandidates", genParticles );
+
   nMCPar=0;
   nGenMuonCand = 0;
   nGenProtCand = 0;
 
-  HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
-  
-  for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) 
+  for ( size_t i = 0; i < genParticles->size(); ++ i ) 
     {
-       MCPar_status[nMCPar]=(*p)->status();
-       MCPar_px[nMCPar]=(*p)->momentum().x();
-       MCPar_py[nMCPar]=(*p)->momentum().y();
-       MCPar_pz[nMCPar]=(*p)->momentum().z();
-       //       MCPar_e[nMCPar]=(*p)->momentum().e();//(*p)->energy() does not work!!;
+      const Candidate & p = (*genParticles)[ i ];
+
+       MCPar_status[nMCPar]= p.status();
+       MCPar_px[nMCPar]=p.px();
+       MCPar_py[nMCPar]=p.py();
+       MCPar_pz[nMCPar]=p.pz();
        MCPar_phi[nMCPar]=atan2(MCPar_py[nMCPar],MCPar_px[nMCPar]);
-       MCPar_eta[nMCPar] = (*p)->momentum().eta();
-       MCPar_pdgid[nMCPar]=(*p)->pdg_id();
-       MCPar_mass[nMCPar]=(*p)->momentum().m();
+       MCPar_eta[nMCPar] = p.eta();
+       MCPar_pdgid[nMCPar]=p.pdgId();
+       MCPar_mass[nMCPar]=p.mass();
        MCPar_e[nMCPar] = sqrt(MCPar_mass[nMCPar]*MCPar_mass[nMCPar] + (MCPar_px[nMCPar]*MCPar_px[nMCPar] + MCPar_py[nMCPar]*MCPar_py[nMCPar] + MCPar_pz[nMCPar]*MCPar_pz[nMCPar])); 
 
-       if (abs((*p)->pdg_id()) == 13)
+       if(abs(p.pdgId()) == 13)
 	{
 	  GenMuonCand_px[nGenMuonCand] = MCPar_px[nMCPar];
 	  GenMuonCand_py[nGenMuonCand] = MCPar_py[nMCPar];
@@ -155,7 +155,7 @@ GammaGammaMuMuMC::analyze(const edm::Event& event, const edm::EventSetup& iSetup
 	  
 	  nGenMuonCand++;
 	}
-      if ((*p)->pdg_id() == 2212)
+      if (p.pdgId() == 2212)
 	{
 	  GenProtCand_px[nGenProtCand] = MCPar_px[nMCPar];
 	   GenProtCand_py[nGenProtCand] = MCPar_py[nMCPar];
