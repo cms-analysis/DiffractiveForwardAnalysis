@@ -11,9 +11,10 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
       htmp[5] = GetMuMuHist(thevar,6);
       htmp[6] = GetMuMuHist(thevar,7);
       htmp[7] = GetMuMuHist(thevar,8);
+      //      htmp[8] = GetMuMuHist(thevar,9);
 
       // Draw stacked histograms for mass plots
-      if(thevar > 4)
+      if(thevar > 4 && thevar < 7)
 	{
 	  htmp[0]->Clone("htot");
 	  htot->Add(htmp[1]);
@@ -23,6 +24,7 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 	  htot->Add(htmp[5]);
 	  htot->Add(htmp[6]);
 	  htot->Add(htmp[7]);
+	  //	  htot->Add(htmp[8]);
 	  
 	  htmp[1]->Clone("hdytot");
 	  hdytot->Add(htmp[2]);
@@ -45,12 +47,13 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 	  hups3tot->Add(htmp[4]);
 	  
 	  htot->Draw("hist");
+	  //	  htmp[8]->Draw("histsame");
 	  hdytot->Draw("histsame");
 	  hups1tot->Draw("histsame");
 	  hups2tot->Draw("histsame");
 	  hups3tot->Draw("histsame");
 	  htmp[4]->Draw("histsame");
-
+	  
 	  TLegend *l1 = new TLegend(0.6,0.6,0.9,0.9);
 	  l1->AddEntry(htot,"#gamma #gamma #rightarrow #mu^{+}#mu^{-} plus backgrounds");
 	  l1->AddEntry(hdytot,"Drell-Yan");
@@ -58,9 +61,26 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 	  l1->AddEntry(hups2tot,"#Upsilon (2S)");
 	  l1->AddEntry(hups3tot,"#Upsilon (3S)");
 	  l1->AddEntry(htmp[4],"W^{+}W^{-}");	  
+	  //	  l1->AddEntry(htmp[8],"Singly inelastic #gamma #gamma #rightarrow #mu^{+}#mu^{-}");
 	  l1->Draw("same");
 	}
-      // Otherwise draw signal and the sum of backgrounds overlaid
+      else if(thevar == 8)
+	{
+          htmp[1]->Clone("htot");
+          htot->Add(htmp[2]);
+          htot->Add(htmp[3]);
+	  htot->Add(htmp[4]);
+          htot->Add(htmp[5]);
+          htot->Add(htmp[6]);
+          htot->Add(htmp[7]);
+
+	  htot->SetLineColor(1);
+	  htot->SetMarkerStyle(20);
+	  htot->SetLineWidth(3);
+	  htot->Draw("e");
+	  htmp[0]->Draw("same");
+	}
+      // Otherwise draw signal and the sum of backgrounds overlaid      
       else
 	{
 	  TH1F *hsig = htmp[0];
@@ -70,13 +90,17 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 	  hbkg->Add(htmp[4]);
 	  if(thevar == 3)
 	    hbkg->Scale(0.08);
+	  else if(thevar == 1)
+	    hbkg->Scale(0.05);
+	  else if(thevar == 7)
+	    hbkg->Scale(0.03);
 	  else
-	    hbkg->Scale(0.2);
+	    hbkg->Scale(0.02);
 	  hbkg->SetMaximum(hsig->GetMaximum() + (0.2 * hsig->GetMaximum()));
 	  hbkg->Draw("hist");
 	  hsig->Draw("histsame");
 
-	  TLegend *l1 = new TLegend(0.6,0.6,0.9,0.9);
+	  TLegend *l1 = new TLegend(0.6,0.6,0.8,0.8);
 	  l1->AddEntry(hsig,"#gamma #gamma #rightarrow #mu^{+}#mu^{-}");
 	  l1->AddEntry(hbkg,"Backgrounds");
 	  l1->Draw("same");
@@ -106,7 +130,7 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 	  htmp[4]->Draw("histsame");
 
 	  TLegend *l1 = new TLegend(0.6,0.6,0.8,0.8);
-	  l1->AddEntry(htot,"#gamma #gamma #rightarrow #e^{+}#e^{-} plus backgrounds");
+	  l1->AddEntry(htot,"#gamma #gamma #rightarrow e^{+} e^{-} plus backgrounds");
 	  l1->AddEntry(hdytot,"Drell-Yan");
 	  l1->AddEntry(htmp[4],"W^{+}W^{-}");	  
 	  l1->Draw("same");
@@ -119,7 +143,7 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 	  hbkg->Add(htmp[3]);
 	  hbkg->Add(htmp[4]);
 	  if(thevar == 4 || thevar == 3)
-	    hbkg->Scale(0.1);
+	    hbkg->Scale(0.05);
 	  else
 	    hbkg->Scale(0.2);
 	  hbkg->SetMaximum(hsig->GetMaximum() + (0.2 * hsig->GetMaximum()));
@@ -140,12 +164,14 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
 {
   Double_t ecalocut = 5.0;
-  Double_t etcalocut = 2.0;
+  Double_t etcalocut = 1.0;
   Double_t deltarcut = 0.3;
-  Double_t ntrackcut = 4;
+  Double_t ntrackcut = 3;
   Double_t dptcut = 2.0;
   Double_t dphicut = 2.9;
   Double_t xsec = 0.0;
+  Double_t upsloveto = 9.0;
+  Double_t upshiveto = 11.0;
   TString st = "";
   Double_t lumi = 100.0;
   Int_t linecolor = 1;
@@ -192,6 +218,11 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
     st = "upsilonmumu.starlight3s.anal.root";
     fillcolor = 1;
     break;
+  case 9:
+    xsec = 76.2 * lumi / 20000.0;
+    st = "gamgammumu.lpairinelastic.anal.root";
+    fillcolor = 5;
+    break;
   default:
     break;
   }
@@ -207,14 +238,16 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
   TH1F *hnextracaloe;
   TH1F *hnextracaloet;
   TH1F *hntrack;
+  TH1F *hncalofinal;
 
   hmll = new TH1F("mll","mll",100,0,200);
   hmll2 = new TH1F("mll2","mll2",100,0,200);
   hdphi = new TH1F("hdphi","hdphi",192,0.0,3.2);
-  hdpt = new TH1F("hdpt","hdpt",320,-40,40);
+  hdpt = new TH1F("hdpt","hdpt",240,-20,20);
   hnextracaloe = new TH1F("hnextracaloe","hnextracaloe",50,0,50);
   hnextracaloet = new TH1F("hnextracaloet","hnextracaloet",50,0,50);
   hntrack = new TH1F("hntrack","hntrack",50,0,50);
+  hncalofinal = new TH1F("hncalofinal","hncalofinal",50,0,50);
 
   TH2F *hntrackncalo = new TH2F("hntrackncalo","hntrackncalo",500,0,100,500,0,100);
   TH2F *hdr = new TH2F("hdr","hdr",400,-6.0,6.0,400,-6.0,6.0);  
@@ -233,6 +266,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
   Double_t deltarb;
 
   Double_t caloe[1000];
+  Double_t caloet[1000];
   Double_t caloeta[1000];
   Double_t calophi[1000];
 
@@ -245,6 +279,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
   tr1->SetBranchAddress("nTrackCand",&ntracks);
   tr1->SetBranchAddress("nMuonCand",&nmuons);
   tr1->SetBranchAddress("CaloTower_e",&caloe);
+  tr1->SetBranchAddress("CaloTower_et",&caloet);
   tr1->SetBranchAddress("CaloTower_eta",&caloeta);
   tr1->SetBranchAddress("CaloTower_phi",&calophi);
   tr1->SetBranchAddress("nCaloCand",&ncalo);
@@ -253,6 +288,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
   Int_t nisocalo = 0;
   Int_t ntotsig = tr1->GetEntries();
   Int_t ndphipass, ndptpass, ncalopass, ntrackpass = 0;
+  Int_t nupspass = 0;
   Int_t ntotpass = 0;
 
   for(Int_t i = 0;i < ent1;i++)
@@ -269,6 +305,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
 	  deltara = sqrt((caloeta[x]-mueta[0])*(caloeta[x]-mueta[0]) + (calophi[x]-muphi[0])*(calophi[x]-muphi[0]));
 	  deltarb = sqrt((caloeta[x]-mueta[1])*(caloeta[x]-mueta[1]) + (calophi[x]-muphi[1])*(calophi[x]-muphi[1]));
 	  if(deltara > 0.3 && deltarb > 0.3 && caloe[x] > ecalocut)
+	  //	  if(deltara > 0.3 && deltarb > 0.3 && caloet[x] > etcalocut)
 	    nisocalo++;
 
 	  if(caloe[x] > ecalocut)
@@ -297,22 +334,33 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
 		  ncalopass++;
 		  if(ntracks < ntrackcut)
 		    {
+		      ntrackpass++;
 		      ntotpass++;
-		      hmll2->Fill(mumumass);
+		      if(mumumass < upsloveto || mumumass > upshiveto)
+			{
+			  nupspass++;
+			  hmll2->Fill(mumumass);
+			}
 		    }
+		}
+	      if(ntracks < 200)
+		{
+		  if(mumumass < upsloveto || mumumass > upshiveto)
+		    hncalofinal->Fill(nisocalo);
 		}
 	    }
 	}
     }
 
-  Double_t eff = (Double_t)ntotpass/(Double_t)ntotsig;
+  Double_t eff = (Double_t)ntrackpass/(Double_t)ntotsig;
   cout << "Efficiency/rejection for file: " << st << endl;
   cout << "\td(phi) eff = " << (Double_t)ndphipass/(Double_t)ntotsig << endl;
   cout << "\td(pt) eff = " << (Double_t)ndptpass/(Double_t)ntotsig << endl;
   cout << "\tcalo excl eff = " << (Double_t)ncalopass/(Double_t)ntotsig << endl;
-  cout << "\tTotal eff = " << eff << endl;
+  cout << "\ttrack excl eff = " << eff << endl;
+  cout << "\tUpsilon veto eff = " << (Double_t)nupspass/(Double_t)ntotsig << endl;
   //  cout << "Eff = " << eff << endl;
-
+  cout << "N(sig) = " << (Double_t)nupspass * xsec << " +- " << sqrt(nupspass) * xsec << endl;
 
 
   if(0){
@@ -429,6 +477,39 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
   hmll->Draw("hist");
   return(hmll);
   }
+
+  if(plotvar == 7){
+  hnextracaloet->SetFillColor(fillcolor);
+  hnextracaloet->SetMaximum(10000);
+  hnextracaloet->Scale(1);
+  hnextracaloet->SetStats(0);
+  hnextracaloet->SetTitle(0);
+  hnextracaloet->SetXTitle("Tower multiplicity");
+  hnextracaloet->Sumw2();
+  hnextracaloet->Scale(xsec);
+  hnextracaloet->SetLineColor(linecolor);
+  hnextracaloet->SetLineWidth(linewidth);
+  hnextracaloet->Scale(200.0);
+  hnextracaloet->Draw("hist");
+  return(hnextracaloet);
+  }
+
+  if(plotvar == 8){
+    hncalofinal->SetFillColor(fillcolor);
+    hncalofinal->SetMaximum(10000);
+    hncalofinal->Scale(xsec);
+    hncalofinal->SetStats(0);
+    hncalofinal->SetTitle(0);
+    hncalofinal->SetXTitle("Tower multiplicity");
+    hncalofinal->Sumw2();
+    hncalofinal->Scale(xsec);
+    hncalofinal->SetLineColor(linecolor);
+    hncalofinal->SetLineWidth(linewidth);
+    hncalofinal->Scale(200.0);
+    hncalofinal->Draw("hist");
+    return(hncalofinal);
+  }
+
 }
 
 // Return histogrammed quantities for e+e- events
@@ -437,7 +518,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1)
   Double_t ecalocut = 5.0;
   Double_t etcalocut = 2.0;
   Double_t deltarcut = 0.3;
-  Double_t ntrackcut = 4;
+  Double_t ntrackcut = 3;
   Double_t dptcut = 5.0;
   Double_t dphicut = 2.7;
   Double_t xsec = 0.0;
@@ -497,7 +578,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1)
   hmll = new TH1F("mll","mll",100,0,200);
   hmll2 = new TH1F("mll2","mll2",100,0,200);
   hdphi = new TH1F("hdphi","hdphi",196,0.0,3.2);
-  hdpt = new TH1F("hdpt","hdpt",320,-40,40);
+  hdpt = new TH1F("hdpt","hdpt",240,-20,20);
   hnextracaloe = new TH1F("hnextracaloe","hnextracaloe",50,0,50);
   hnextracaloet = new TH1F("hnextracaloet","hnextracaloet",50,0,50);
   hntrack = new TH1F("hntrack","hntrack",50,0,50);
@@ -598,8 +679,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1)
   cout << "\tcalo excl eff = " << (Double_t)ncalopass/(Double_t)ntotsig << endl;
   cout << "\tTotal eff = " << eff << endl;
   //  cout << "Eff = " << eff << endl;
-
-
+  cout << "N(sig) = " << (Double_t)ntotpass * xsec << " +- " << sqrt(ntotpass) * xsec << endl;
 
   if(0){
   gStyle->SetPalette(51);
