@@ -1,17 +1,162 @@
-void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
+void setTDRStyle() {
+  TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
+
+// For the canvas:
+  tdrStyle->SetCanvasBorderMode(0);
+  tdrStyle->SetCanvasColor(kWhite);
+  tdrStyle->SetCanvasDefH(600); //Height of canvas
+  tdrStyle->SetCanvasDefW(600); //Width of canvas
+  tdrStyle->SetCanvasDefX(0);   //POsition on screen
+  tdrStyle->SetCanvasDefY(0);
+
+// For the Pad:
+  tdrStyle->SetPadBorderMode(0);
+  // tdrStyle->SetPadBorderSize(Width_t size = 1);
+  tdrStyle->SetPadColor(kWhite);
+  tdrStyle->SetPadGridX(false);
+  tdrStyle->SetPadGridY(false);
+  tdrStyle->SetGridColor(0);
+  tdrStyle->SetGridStyle(3);
+  tdrStyle->SetGridWidth(1);
+
+// For the frame:
+  tdrStyle->SetFrameBorderMode(0);
+  tdrStyle->SetFrameBorderSize(1);
+  tdrStyle->SetFrameFillColor(0);
+  tdrStyle->SetFrameFillStyle(0);
+  tdrStyle->SetFrameLineColor(1);
+  tdrStyle->SetFrameLineStyle(1);
+  tdrStyle->SetFrameLineWidth(1);
+
+// For the histo:
+  // tdrStyle->SetHistFillColor(1);
+  // tdrStyle->SetHistFillStyle(0);
+  tdrStyle->SetHistLineColor(1);
+  tdrStyle->SetHistLineStyle(0);
+  tdrStyle->SetHistLineWidth(1);
+  // tdrStyle->SetLegoInnerR(Float_t rad = 0.5);
+  // tdrStyle->SetNumberContours(Int_t number = 20);
+
+  tdrStyle->SetEndErrorSize(2);
+  //tdrStyle->SetErrorMarker(20);
+  tdrStyle->SetErrorX(0.);
+  
+  tdrStyle->SetMarkerStyle(20);
+
+//For the fit/function:
+  tdrStyle->SetOptFit(1);
+  tdrStyle->SetFitFormat("5.4g");
+  tdrStyle->SetFuncColor(2);
+  tdrStyle->SetFuncStyle(1);
+  tdrStyle->SetFuncWidth(1);
+
+//For the date:
+  tdrStyle->SetOptDate(0);
+  // tdrStyle->SetDateX(Float_t x = 0.01);
+  // tdrStyle->SetDateY(Float_t y = 0.01);
+
+// For the statistics box:
+  tdrStyle->SetOptFile(0);
+  tdrStyle->SetOptStat(0); // To display the mean and RMS:   SetOptStat("mr");
+  tdrStyle->SetStatColor(kWhite);
+  tdrStyle->SetStatFont(42);
+  tdrStyle->SetStatFontSize(0.025);
+  tdrStyle->SetStatTextColor(1);
+  tdrStyle->SetStatFormat("6.4g");
+  tdrStyle->SetStatBorderSize(1);
+  tdrStyle->SetStatH(0.1);
+  tdrStyle->SetStatW(0.15);
+  // tdrStyle->SetStatStyle(Style_t style = 1001);
+  // tdrStyle->SetStatX(Float_t x = 0);
+  // tdrStyle->SetStatY(Float_t y = 0);
+
+// Margins:
+  tdrStyle->SetPadTopMargin(0.05);
+  tdrStyle->SetPadBottomMargin(0.13);
+  tdrStyle->SetPadLeftMargin(0.13);
+  tdrStyle->SetPadRightMargin(0.05);
+
+// For the Global title:
+
+//  tdrStyle->SetOptTitle(0);
+  tdrStyle->SetTitleFont(42);
+  tdrStyle->SetTitleColor(1);
+  tdrStyle->SetTitleTextColor(1);
+  tdrStyle->SetTitleFillColor(10);
+  tdrStyle->SetTitleFontSize(0.05);
+  // tdrStyle->SetTitleH(0); // Set the height of the title box
+  // tdrStyle->SetTitleW(0); // Set the width of the title box
+  // tdrStyle->SetTitleX(0); // Set the position of the title box
+  // tdrStyle->SetTitleY(0.985); // Set the position of the title box
+  // tdrStyle->SetTitleStyle(Style_t style = 1001);
+  // tdrStyle->SetTitleBorderSize(2);
+
+// For the axis titles:
+
+  tdrStyle->SetTitleColor(1, "XYZ");
+  tdrStyle->SetTitleFont(42, "XYZ");
+  tdrStyle->SetTitleSize(0.06, "XYZ");
+  // tdrStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
+  // tdrStyle->SetTitleYSize(Float_t size = 0.02);
+  tdrStyle->SetTitleXOffset(0.9);
+  tdrStyle->SetTitleYOffset(1.05);
+  // tdrStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
+
+// For the axis labels:
+
+  tdrStyle->SetLabelColor(1, "XYZ");
+  tdrStyle->SetLabelFont(42, "XYZ");
+  tdrStyle->SetLabelOffset(0.007, "XYZ");
+  tdrStyle->SetLabelSize(0.05, "XYZ");
+
+// For the axis:
+
+  tdrStyle->SetAxisColor(1, "XYZ");
+  tdrStyle->SetStripDecimals(kTRUE);
+  tdrStyle->SetTickLength(0.03, "XYZ");
+  tdrStyle->SetNdivisions(510, "XYZ");
+  tdrStyle->SetPadTickX(1);  // To get tick marks on the opposite side of the frame
+  tdrStyle->SetPadTickY(1);
+
+// Change for log plots:
+  tdrStyle->SetOptLogx(0);
+  tdrStyle->SetOptLogy(0);
+  tdrStyle->SetOptLogz(0);
+
+// Postscript options:
+  // tdrStyle->SetPaperSize(15.,15.);
+  // tdrStyle->SetLineScalePS(Float_t scale = 3);
+  // tdrStyle->SetLineStyleString(Int_t i, const char* text);
+  // tdrStyle->SetHeaderPS(const char* header);
+  // tdrStyle->SetTitlePS(const char* pstitle);
+
+  // tdrStyle->SetBarOffset(Float_t baroff = 0.5);
+  // tdrStyle->SetBarWidth(Float_t barwidth = 0.5);
+  // tdrStyle->SetPaintTextFormat(const char* format = "g");
+  // tdrStyle->SetPalette(Int_t ncolors = 0, Int_t* colors = 0);
+  // tdrStyle->SetTimeOffset(Double_t toffset);
+  // tdrStyle->SetHistMinimumZero(kTRUE);
+
+// personnal additions
+  tdrStyle->cd();
+
+}
+
+void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
 {
+ setTDRStyle();
   TH1F *htmp[8]; 
   if(theleptonmode == 1)
     {
-      htmp[0] = GetMuMuHist(thevar,1);
-      htmp[1] = GetMuMuHist(thevar,2);
-      htmp[2] = GetMuMuHist(thevar,3);
-      htmp[3] = GetMuMuHist(thevar,4);
-      htmp[4] = GetMuMuHist(thevar,5);
-      htmp[5] = GetMuMuHist(thevar,6);
-      htmp[6] = GetMuMuHist(thevar,7);
-      htmp[7] = GetMuMuHist(thevar,8);
-      //      htmp[8] = GetMuMuHist(thevar,9);
+      htmp[0] = GetMuMuHist(thevar,1,save);
+      htmp[1] = GetMuMuHist(thevar,2,save);
+      htmp[2] = GetMuMuHist(thevar,3,save);
+      htmp[3] = GetMuMuHist(thevar,4,save);
+      htmp[4] = GetMuMuHist(thevar,5,save);
+      htmp[5] = GetMuMuHist(thevar,6,save);
+      htmp[6] = GetMuMuHist(thevar,7,save);
+      htmp[7] = GetMuMuHist(thevar,8,save);
+      htmp[8] = GetMuMuHist(thevar,9,save);
 
       // Draw stacked histograms for mass plots
       if(thevar > 4 && thevar < 7)
@@ -24,7 +169,8 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 	  htot->Add(htmp[5]);
 	  htot->Add(htmp[6]);
 	  htot->Add(htmp[7]);
-	  //	  htot->Add(htmp[8]);
+	  htot->Add(htmp[8]);
+		htot->SetLineWidth(4);
 	  
 	  htmp[1]->Clone("hdytot");
 	  hdytot->Add(htmp[2]);
@@ -47,21 +193,22 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 	  hups3tot->Add(htmp[4]);
 	  
 	  htot->Draw("hist");
-	  //	  htmp[8]->Draw("histsame");
 	  hdytot->Draw("histsame");
+	  htmp[8]->Draw("histsame");
 	  hups1tot->Draw("histsame");
 	  hups2tot->Draw("histsame");
 	  hups3tot->Draw("histsame");
 	  htmp[4]->Draw("histsame");
 	  
-	  TLegend *l1 = new TLegend(0.6,0.6,0.9,0.9);
-	  l1->AddEntry(htot,"#gamma #gamma #rightarrow #mu^{+}#mu^{-} plus backgrounds");
-	  l1->AddEntry(hdytot,"Drell-Yan");
-	  l1->AddEntry(hups1tot,"#Upsilon (1S)");
-	  l1->AddEntry(hups2tot,"#Upsilon (2S)");
-	  l1->AddEntry(hups3tot,"#Upsilon (3S)");
-	  l1->AddEntry(htmp[4],"W^{+}W^{-}");	  
-	  //	  l1->AddEntry(htmp[8],"Singly inelastic #gamma #gamma #rightarrow #mu^{+}#mu^{-}");
+	  TLegend *l1 = new TLegend(0.55,0.72,0.91,0.91);
+	  l1->AddEntry(htot,"#gamma #gamma #rightarrow #mu^{+}#mu^{-} plus backgrounds","lf");
+	  l1->AddEntry(hdytot,"Drell-Yan","lf");
+	  l1->AddEntry(hups1tot,"#Upsilon (1S)","lf");
+	  l1->AddEntry(hups2tot,"#Upsilon (2S)","lf");
+	  l1->AddEntry(hups3tot,"#Upsilon (3S)","lf");
+	  l1->AddEntry(htmp[4],"W^{+}W^{-}","lf");	  
+	  l1->AddEntry(htmp[8],"Singly inelastic #gamma #gamma #rightarrow #mu^{+}#mu^{-}","lf");
+	  l1->SetFillColor(0);
 	  l1->Draw("same");
 	}
       else if(thevar == 8)
@@ -82,7 +229,7 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 	}
       // Otherwise draw signal and the sum of backgrounds overlaid      
       else
-	{
+	{	// for elastic mumu
 	  TH1F *hsig = htmp[0];
 	  TH1F *hbkg = htmp[1];
 	  hbkg->Add(htmp[2]);
@@ -100,19 +247,32 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 	  hbkg->Draw("hist");
 	  hsig->Draw("histsame");
 
-	  TLegend *l1 = new TLegend(0.6,0.6,0.8,0.8);
-	  l1->AddEntry(hsig,"#gamma #gamma #rightarrow #mu^{+}#mu^{-}");
-	  l1->AddEntry(hbkg,"Backgrounds");
+	  TLegend *l1 = new TLegend(0.55,0.72,0.91,0.91);
+	  l1->AddEntry(hsig,"#gamma #gamma #rightarrow #mu^{+}#mu^{-}","lf");
+	  l1->AddEntry(hbkg,"Backgrounds","lf");
+	  l1->SetFillColor(kWhite);
+	  l1->SetBorderSize(0);
 	  l1->Draw("same");
+
+		// for inelastics mumu
+/*	  TH1F *hsig = htmp[8];
+		hsig->SetFillColor(15);
+		hsig->SetFillStyle(3003);
+          TLegend *l1 = new TLegend(0.55,0.72,0.91,0.91);
+          l1->AddEntry(hsig,"#gamma #gamma #rightarrow #mu^{+}#mu^{-} inel","lf");
+          l1->SetFillColor(kWhite);
+          l1->SetBorderSize(0);
+          l1->Draw("same");	*/
+
 	}
     }
 
   if(theleptonmode == 2)
     {
-      htmp[0] = GetEEHist(thevar,1);
-      htmp[2] = GetEEHist(thevar,3);
-      htmp[3] = GetEEHist(thevar,4);
-      htmp[4] = GetEEHist(thevar,5);
+      htmp[0] = GetEEHist(thevar,1,save);
+      htmp[2] = GetEEHist(thevar,3,save);
+      htmp[3] = GetEEHist(thevar,4,save);
+      htmp[4] = GetEEHist(thevar,5,save);
 
       // Draw stacked histograms for mass plots
       if(thevar > 4)
@@ -126,13 +286,16 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 	  hdytot->Add(htmp[3]);
 	  
 	  htot->Draw("hist");
+		htot->SetLineWidth(4);
 	  hdytot->Draw("histsame");
+		hdytot->SetFillColor(10);
 	  htmp[4]->Draw("histsame");
 
-	  TLegend *l1 = new TLegend(0.6,0.6,0.8,0.8);
-	  l1->AddEntry(htot,"#gamma #gamma #rightarrow e^{+} e^{-} plus backgrounds");
-	  l1->AddEntry(hdytot,"Drell-Yan");
-	  l1->AddEntry(htmp[4],"W^{+}W^{-}");	  
+	  TLegend *l1 = new TLegend(0.55,0.72,0.91,0.91);
+	  l1->AddEntry(htot,"#gamma #gamma #rightarrow e^{+} e^{-} plus backgrounds","lf");
+	  l1->AddEntry(hdytot,"Drell-Yan","lf");
+	  l1->AddEntry(htmp[4],"W^{+}W^{-}","lf");	  
+	  l1->SetFillColor(0);
 	  l1->Draw("same");
 	}
       // Otherwise draw signal and the sum of backgrounds overlaid
@@ -150,21 +313,23 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode)
 	  hbkg->Draw("hist");
 	  hsig->Draw("histsame");
 
-	  TLegend *l1 = new TLegend(0.6,0.6,0.8,0.8);
-	  l1->AddEntry(hsig,"#gamma #gamma #rightarrow e^{+}e^{-}");
-	  l1->AddEntry(hbkg,"Backgrounds");
+	  TLegend *l1 = new TLegend(0.55,0.72,0.91,0.91);
+	  l1->AddEntry(hsig,"#gamma #gamma #rightarrow e^{+}e^{-}","lf");
+	  l1->AddEntry(hbkg,"Backgrounds","lf");
+	  l1->SetFillColor(kWhite);
+	  l1->SetBorderSize(0);
 	  l1->Draw("same");
 	}
     }
 
-
+	gPad->SetLogy();
 }
 
 // Return histogrammed quantities for mu+mu- samples
-TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
+TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
 {
   Double_t ecalocut = 5.0;
-  Double_t etcalocut = 1.0;
+  Double_t etcalocut = 0.2; 
   Double_t deltarcut = 0.3;
   Double_t ntrackcut = 3;
   Double_t dptcut = 2.0;
@@ -176,27 +341,32 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
   Double_t lumi = 100.0;
   Int_t linecolor = 1;
   Int_t linewidth = 0;
-  Int_t fillcolor = 2;
+  Int_t fillcolor = kWhite; //15;
+  Int_t fillstyle = 1001;
 
   switch(physsample) {
   case 1:
     xsec = 74.65 * lumi / 100000.0;
     st = "gamgammumu.lpair.anal.root";
-    linecolor = 4;
-    linewidth = 2;
-    fillcolor = 0;
+    linecolor = 1;
+    linewidth = 3;
+    fillcolor = 15;
+    fillstyle = 3003;
     break;
   case 2:
     xsec = 0.5 * 37820.0 * lumi / 10000.0;
     st = "dymumu.610.anal.root";
+    fillcolor = 10;
     break;
   case 3:
     xsec = 0.5 * 5951.0 * lumi / 38800.0;
     st = "dymumu.1040.anal.root";
+    fillcolor = 10;
     break;
   case 4:
     xsec = 0.5 * 1797.0 * lumi / 22000.0;
     st = "dymumu.40.anal.root";
+    fillcolor = 10;
     break;
   case 5:
     xsec = 7.5 * 0.9 * lumi / 1000.0;
@@ -305,7 +475,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
 	  deltara = sqrt((caloeta[x]-mueta[0])*(caloeta[x]-mueta[0]) + (calophi[x]-muphi[0])*(calophi[x]-muphi[0]));
 	  deltarb = sqrt((caloeta[x]-mueta[1])*(caloeta[x]-mueta[1]) + (calophi[x]-muphi[1])*(calophi[x]-muphi[1]));
 	  if(deltara > 0.3 && deltarb > 0.3 && caloe[x] > ecalocut)
-	  //	  if(deltara > 0.3 && deltarb > 0.3 && caloet[x] > etcalocut)
+	  //  if(deltara > 0.3 && deltarb > 0.3 && caloet[x] > etcalocut) ///////// change here
 	    nisocalo++;
 
 	  if(caloe[x] > ecalocut)
@@ -329,7 +499,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
 	  if(fabs(mupt[0]-mupt[1]) < dptcut)
 	    {
 	      ndptpass++;
-	      if(nisocalo < 5)
+	      if(nisocalo < 5) 
 		{
 		  ncalopass++;
 		  if(ntracks < ntrackcut)
@@ -396,6 +566,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
   hntrack->Scale(100.0);
   hntrack->SetLineColor(linecolor);
   hntrack->SetFillColor(fillcolor);
+  hntrack->SetFillStyle(fillstyle);
   hntrack->SetLineWidth(linewidth);
   hntrack->Draw("hist");
   return(hntrack);
@@ -403,6 +574,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
 
   if(plotvar == 2){
   hnextracaloe->SetFillColor(fillcolor);
+  hnextracaloe->SetFillStyle(fillstyle);
   hnextracaloe->SetMaximum(10000);
   hnextracaloe->Scale(1);
   hnextracaloe->SetStats(0);
@@ -419,6 +591,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
 
   if(plotvar == 3){
   hdpt->SetFillColor(fillcolor);
+  hdpt->SetFillStyle(fillstyle);
   hdpt->SetMaximum(6000);
   hdpt->SetStats(0);
   hdpt->SetTitle(0);
@@ -435,6 +608,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
 
   if(plotvar == 4){
   hdphi->SetFillColor(fillcolor);
+  hdphi->SetFillStyle(fillstyle);
   hdphi->SetMaximum(8000);
   hdphi->SetStats(0);
   hdphi->SetTitle(0);
@@ -452,6 +626,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
   hmll2->Sumw2();
   hmll2->Scale(xsec);
   hmll2->SetFillColor(fillcolor);
+  hmll2->SetFillStyle(fillstyle);
   hmll2->SetLineColor(linecolor);
   hmll2->SetLineWidth(linewidth);
   hmll2->SetMinimum(0.001);
@@ -472,6 +647,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
   hmll->SetStats(0);
   hmll->SetXTitle("m (#mu #mu)");
   hmll->SetFillColor(fillcolor);
+  hmll->SetFillStyle(fillstyle);
   hmll->SetLineColor(linecolor);
   hmll->SetLineWidth(linewidth);
   hmll->Draw("hist");
@@ -480,6 +656,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
 
   if(plotvar == 7){
   hnextracaloet->SetFillColor(fillcolor);
+  hnextracaloet->SetFillStyle(fillstyle);
   hnextracaloet->SetMaximum(10000);
   hnextracaloet->Scale(1);
   hnextracaloet->SetStats(0);
@@ -496,6 +673,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
 
   if(plotvar == 8){
     hncalofinal->SetFillColor(fillcolor);
+    hncalofinal->SetFillStyle(fillstyle);
     hncalofinal->SetMaximum(10000);
     hncalofinal->Scale(xsec);
     hncalofinal->SetStats(0);
@@ -513,7 +691,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1)
 }
 
 // Return histogrammed quantities for e+e- events
-TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1)
+TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
 {
   Double_t ecalocut = 5.0;
   Double_t etcalocut = 2.0;
@@ -526,27 +704,32 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1)
   Double_t lumi = 100.0;
   Int_t linecolor = 1;
   Int_t linewidth = 0;
-  Int_t fillcolor = 2;
+  Int_t fillcolor = kWhite; //15;
+  Int_t fillstyle = 1001;
 
   switch(physsample) {
   case 1:
     xsec = 10.35 * lumi / 100000.0;
     st = "gamgamee.lpair.anal.root";
-    linecolor = 4;
-    linewidth = 2;
-    fillcolor = 0;
+    linecolor = 1;
+    linewidth = 3;
+    fillcolor = 15;
+    fillstyle = 3003;
     break;
   case 2:
     xsec = 0.5 * 37820.0 * lumi / 10000.0;
     st = "dyee.610.anal.root";
+    fillcolor = 10;
     break;
   case 3:
     xsec = 0.5 * 5951.0 * lumi / 38800.0;
     st = "dyee.1040.anal.root";
+    fillcolor = 10;
     break;
   case 4:
     xsec = 0.5 * 1797.0 * lumi / 22000.0;
     st = "dyee.40.anal.root";
+    fillcolor = 10;
     break;
   case 5:
     xsec = 7.5 * 0.9 * lumi / 1000.0;
@@ -714,6 +897,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1)
   hntrack->Scale(100.0);
   hntrack->SetLineColor(linecolor);
   hntrack->SetFillColor(fillcolor);
+  hntrack->SetFillStyle(fillstyle);
   hntrack->SetLineWidth(linewidth);
   hntrack->Draw("hist");
   return(hntrack);
@@ -721,6 +905,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1)
 
   if(plotvar == 2){
   hnextracaloe->SetFillColor(fillcolor);
+  hnextracaloe->SetFillStyle(fillstyle);
   hnextracaloe->SetMaximum(10000);
   hnextracaloe->Scale(1);
   hnextracaloe->SetStats(0);
@@ -737,6 +922,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1)
 
   if(plotvar == 3){
   hdpt->SetFillColor(fillcolor);
+  hdpt->SetFillStyle(fillstyle);
   hdpt->SetMaximum(6000);
   hdpt->SetStats(0);
   hdpt->SetTitle(0);
@@ -753,6 +939,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1)
 
   if(plotvar == 4){
   hdphi->SetFillColor(fillcolor);
+  hdphi->SetFillStyle(fillstyle);
   hdphi->SetMaximum(8000);
   hdphi->SetStats(0);
   hdphi->SetTitle(0);
@@ -770,6 +957,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1)
   hmll2->Sumw2();
   hmll2->Scale(xsec);
   hmll2->SetFillColor(fillcolor);
+  hmll2->SetFillStyle(fillstyle);
   hmll2->SetLineColor(linecolor);
   hmll2->SetLineWidth(linewidth);
   hmll2->SetMinimum(0.001);
@@ -790,6 +978,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1)
   hmll->SetStats(0);
   hmll->SetXTitle("m (e e)");
   hmll->SetFillColor(fillcolor);
+  hmll->SetFillStyle(fillstyle);
   hmll->SetLineColor(linecolor);
   hmll->SetLineWidth(linewidth);
   hmll->Draw("hist");
