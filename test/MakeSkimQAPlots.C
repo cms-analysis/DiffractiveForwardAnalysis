@@ -1,4 +1,4 @@
-void MakeSkimQAPlots()
+void MakeSkimQAPlots(TString dataset = "")
 {
   gStyle->SetMarkerStyle(20);
   gStyle->SetLineWidth(3);
@@ -18,7 +18,7 @@ void MakeSkimQAPlots()
   TH1F *hzm = new TH1F("hzm","hzm",50,60,120);
   TH1F *hze = new TH1F("hze","hze",50,60,120);
 
-  TCanvas *c1 = new TCanvas("#mu^{+}#mu^{-}","#mu^{+}#mu^{-}");
+  TCanvas *c1 = new TCanvas("c1","#mu^{+}#mu^{-}",1400,800);
   c1->Divide(3,3);
   c1->cd(1);
   hpsim->SetXTitle("#psi mass");
@@ -41,8 +41,12 @@ void MakeSkimQAPlots()
   c1->SetLogy();
   t1->Draw("CaloTower_e");
   c1->SetLogy(0);
+  c1->cd(9);
+  t1->Draw("nExtraCaloTowersE5");
+  TString muname = "dimuons.skimqa." + dataset + ".png";
+  c1->SaveAs(muname);
 
-  TCanvas *c2 = new TCanvas("e^{+}e^{-}","e^{+}e^{-}");
+  TCanvas *c2 = new TCanvas("c2","e^{+}e^{-}",1400,800);
   c2->Divide(3,3);
   c2->cd(1);
   hpsie->SetXTitle("#psi mass");
@@ -65,4 +69,10 @@ void MakeSkimQAPlots()
   c2->SetLogy();
   t2->Draw("CaloTower_e");
   c2->SetLogy(0);
+  c2->cd(9);
+  t2->Draw("nExtraCaloTowersE5");
+  TString elname = "dielectrons.skimqa." + dataset + ".png";
+  c2->SaveAs(elname);
+
+
 }
