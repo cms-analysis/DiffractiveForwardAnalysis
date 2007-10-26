@@ -4,9 +4,17 @@ void MakeSkimQAPlots(TString dataset = "")
   gStyle->SetLineWidth(3);
   gStyle->SetPadColor(10);
   gStyle->SetCanvasColor(10);
+  gStyle->SetTitleFont(42, "XYZ");
+  gStyle->SetTitleSize(0.06, "XYZ");
+  gStyle->SetTitleXOffset(0.7);
+  gStyle->SetTitleYOffset(1.05);
 
-  TFile *f1 = new TFile("mumu.recolevel.root");
-  TFile *f2 = new TFile("ee.recolevel.root");
+
+  TString fname1("mumu.recolevel." + dataset + ".root");
+  TString fname2("ee.recolevel." + dataset + ".root");
+
+  TFile *f1 = new TFile(fname1);
+  TFile *f2 = new TFile(fname2);
 
   TTree *t1 = f1->Get("ntp1");
   TTree *t2 = f2->Get("ntp1");
@@ -31,18 +39,30 @@ void MakeSkimQAPlots(TString dataset = "")
   t1->Draw("MuMu_mass >> hzm");
   c1->cd(4);
   t1->Draw("MuonCand_pt");
+  htemp->SetXTitle("p_{T} (#mu)");
+  htemp->Draw();
   c1->cd(5);
   t1->Draw("MuonCand_pt[0]-MuonCand_pt[1]");
+  htemp->SetXTitle("#Delta p_{T}");
+  htemp->Draw();
   c1->cd(6);
   t1->Draw("MuMu_dphi");
+  htemp->SetXTitle("#Delta #phi");
+  htemp->Draw();
   c1->cd(7);
   t1->Draw("CaloTower_eta");
+  htemp->SetXTitle("#eta (towers)");
+  htemp->Draw();
   c1->cd(8);
   c1->SetLogy();
   t1->Draw("CaloTower_e");
+  htemp->SetXTitle("E (towers)");
+  htemp->Draw();
   c1->SetLogy(0);
   c1->cd(9);
   t1->Draw("nExtraCaloTowersE5");
+  htemp->SetXTitle("Extra towers (E > 5 GeV)");
+  htemp->Draw();
   TString muname = "dimuons.skimqa." + dataset + ".png";
   c1->SaveAs(muname);
 
@@ -59,18 +79,30 @@ void MakeSkimQAPlots(TString dataset = "")
   t2->Draw("ElEl_mass >> hze");
   c2->cd(4);
   t2->Draw("EleCand_et");
+  htemp->SetXTitle("E_{T} (e)");
+  htemp->Draw();
   c2->cd(5);
   t2->Draw("EleCand_et[0]-EleCand_et[1]");
+  htemp->SetXTitle("#Delta E_{T}");
+  htemp->Draw();
   c2->cd(6);
   t2->Draw("ElEl_dphi");
+  htemp->SetXTitle("#Delta #phi");
+  htemp->Draw();
   c2->cd(7);
   t2->Draw("CaloTower_eta");
+  htemp->SetXTitle("#eta (towers)");
+  htemp->Draw();
   c2->cd(8);
   c2->SetLogy();
   t2->Draw("CaloTower_e");
+  htemp->SetXTitle("E (towers)");
+  htemp->Draw();
   c2->SetLogy(0);
   c2->cd(9);
   t2->Draw("nExtraCaloTowersE5");
+  htemp->SetXTitle("Extra towers (E > 5 GeV)");
+  htemp->Draw();
   TString elname = "dielectrons.skimqa." + dataset + ".png";
   c2->SaveAs(elname);
 
