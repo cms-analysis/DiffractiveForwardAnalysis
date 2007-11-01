@@ -48,6 +48,9 @@ class GammaGammaMuMuMC : public edm::EDAnalyzer {
   double MCPar_mass[50];
   int MCPar_pdgid[50];
 
+  int HitInZDC;
+  int HitInCastor;
+
   int nGenMuonCand;
   int MUONMAX;// used to set maximum of arrays
   double GenMuonCand_px[4];

@@ -1,4 +1,4 @@
 module mcgamgameeanalysis = GammaGammaEEMC {
-  bool FillAllMCParticles                      = false 
+  bool FillAllMCParticles                      = false
   untracked string   outfilename               = "ee.genlevel.root"
 }

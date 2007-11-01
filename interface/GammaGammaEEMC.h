@@ -46,6 +46,9 @@ class GammaGammaEEMC : public edm::EDAnalyzer {
   double MCPar_mass[50];
   int MCPar_pdgid[50];
 
+  int HitInZDC; 
+  int HitInCastor; 
+
   int nGenEleCand;
   int ELEMAX;// used to set maximum of arrays
   double GenEleCand_px[4];

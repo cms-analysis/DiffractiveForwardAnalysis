@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMuMC.cc,v 1.2 2007/10/15 09:42:16 jjhollar Exp $
+// $Id: GammaGammaMuMuMC.cc,v 1.3 2007/11/01 10:19:59 jjhollar Exp $
 //
 //
 
@@ -95,6 +95,9 @@ GammaGammaMuMuMC::GammaGammaMuMuMC(const edm::ParameterSet& pset)
       thetree->Branch("MCPar_status",MCPar_status,"MCPar_status[nMCPar]/I");
     }
 
+  thetree->Branch("HitInZDC",&HitInZDC,"HitInZDC/I");
+  thetree->Branch("HitInCastor",&HitInCastor,"HitInCastor/I");
+
   thetree->Branch("GenMuMu_mass",&GenMuMu_mass,"GenMuMu_mass/D");
   thetree->Branch("GenMuMu_dphi",&GenMuMu_dphi,"GenMuMu_dphi/D");
 
@@ -122,6 +125,8 @@ GammaGammaMuMuMC::analyze(const edm::Event& event, const edm::EventSetup& iSetup
   nGenMuonCand=0;
   nGenProtCand=0;
   nMCPar=0;
+  HitInZDC=0;
+  HitInCastor=0;
 
   GenMuMu_mass = -1;
   GenMuMu_dphi = -1;
@@ -135,10 +140,6 @@ GammaGammaMuMuMC::analyze(const edm::Event& event, const edm::EventSetup& iSetup
   // step 1: fill some basic MC information into the root tree
   Handle<CandidateCollection> genParticles;
   event.getByLabel( "genParticleCandidates", genParticles );
-
-  nMCPar=0;
-  nGenMuonCand = 0;
-  nGenProtCand = 0;
 
   for ( size_t i = 0; i < genParticles->size(); ++ i ) 
     {
@@ -179,6 +180,13 @@ GammaGammaMuMuMC::analyze(const edm::Event& event, const edm::EventSetup& iSetup
 	   
 	   nGenProtCand++; 
 	}       
+
+      if(MCPar_pdgid[nMCPar] == 22 && abs(MCPar_eta[nMCPar]) > 8.6 && MCPar_e[nMCPar] > 20.0) 
+	HitInZDC++;
+      if(MCPar_pdgid[nMCPar] == 2112 && abs(MCPar_eta[nMCPar]) > 8.6 && MCPar_e[nMCPar] > 50.0)
+	HitInZDC++;
+      if((MCPar_pdgid[nMCPar] != 22 && MCPar_pdgid[nMCPar] != 2112) && (abs(MCPar_eta[nMCPar]) > 5.2 && abs(MCPar_eta[nMCPar]) < 6.6))
+	HitInCastor++;
 
       nMCPar++;
     }
