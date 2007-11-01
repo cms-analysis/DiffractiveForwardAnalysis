@@ -273,6 +273,7 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
       htmp[2] = GetEEHist(thevar,3,save);
       htmp[3] = GetEEHist(thevar,4,save);
       htmp[4] = GetEEHist(thevar,5,save);
+      htmp[8] = GetEEHist(thevar,9,save);
 
       // Draw stacked histograms for mass plots
       if(thevar > 4)
@@ -281,7 +282,8 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
 	  htot->Add(htmp[2]);
 	  htot->Add(htmp[3]);
 	  htot->Add(htmp[4]);
-	  
+	  htot->Add(htmp[8]);
+
 	  htmp[2]->Clone("hdytot");
 	  hdytot->Add(htmp[3]);
 	  
@@ -289,6 +291,7 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
 		htot->SetLineWidth(4);
 	  hdytot->Draw("histsame");
 		hdytot->SetFillColor(10);
+		htmp[8]->Draw("histsame");
 	  htmp[4]->Draw("histsame");
 
 	  TLegend *l1 = new TLegend(0.55,0.72,0.91,0.91);
@@ -741,6 +744,11 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
   case 7:
     break;
   case 8:
+    break;
+  case 9:
+    xsec = 13.6 * lumi / 18000.0;
+    st = "gamgamee.lpairinelastic.anal.root";
+    fillcolor = 5;
     break;
   default:
     break;
