@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMuMC.cc,v 1.1 2007/08/13 07:28:17 jjhollar Exp $
+// $Id: GammaGammaMuMuMC.cc,v 1.2 2007/10/15 09:42:16 jjhollar Exp $
 //
 //
 
@@ -56,6 +56,7 @@ GammaGammaMuMuMC::GammaGammaMuMuMC(const edm::ParameterSet& pset)
 {
    //now do what ever initialization is needed
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
+  fillallmc          = pset.getParameter<bool>("FillAllMCParticles");
 
   //  nEvt=0;
   MUONMAX=10;
@@ -80,6 +81,19 @@ GammaGammaMuMuMC::GammaGammaMuMuMC(const edm::ParameterSet& pset)
   thetree->Branch("GenMuonCand_eta",GenMuonCand_eta,"GenMuonCand_eta[nGenMuonCand]/D");
   thetree->Branch("GenMuonCand_phi",GenMuonCand_phi,"GenMuonCand_phi[nGenMuonCand]/D");
   thetree->Branch("GenMuonCand_charge",GenMuonCand_charge,"GenMuonCand_charge[nGenMuonCand]/I");
+
+  if(fillallmc == true)
+    {
+      thetree->Branch("nMCPar",&nMCPar,"nMCPar/I"); 
+      thetree->Branch("MCPar_px",MCPar_px,"MCPar_px[nMCPar]/D"); 
+      thetree->Branch("MCPar_py",MCPar_py,"MCPar_py[nMCPar]/D"); 
+      thetree->Branch("MCPar_pz",MCPar_pz,"MCPar_pz[nMCPar]/D"); 
+      thetree->Branch("MCPar_e",MCPar_e,"MCPar_e[nMCPar]/D"); 
+      thetree->Branch("MCPar_eta",MCPar_eta,"MCPar_eta[nMCPar]/D"); 
+      thetree->Branch("MCPar_phi",MCPar_phi,"MCPar_phi[nMCPar]/D"); 
+      thetree->Branch("MCPar_pdgid",MCPar_pdgid,"MCPar_pdgid[nMCPar]/I");
+      thetree->Branch("MCPar_status",MCPar_status,"MCPar_status[nMCPar]/I");
+    }
 
   thetree->Branch("GenMuMu_mass",&GenMuMu_mass,"GenMuMu_mass/D");
   thetree->Branch("GenMuMu_dphi",&GenMuMu_dphi,"GenMuMu_dphi/D");
@@ -107,6 +121,7 @@ GammaGammaMuMuMC::analyze(const edm::Event& event, const edm::EventSetup& iSetup
 {
   nGenMuonCand=0;
   nGenProtCand=0;
+  nMCPar=0;
 
   GenMuMu_mass = -1;
   GenMuMu_dphi = -1;

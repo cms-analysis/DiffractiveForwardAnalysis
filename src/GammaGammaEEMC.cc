@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEEMC.cc,v 1.1 2007/08/13 07:28:17 jjhollar Exp $
+// $Id: GammaGammaEEMC.cc,v 1.2 2007/10/15 09:42:16 jjhollar Exp $
 //
 //
 
@@ -56,6 +56,7 @@ GammaGammaEEMC::GammaGammaEEMC(const edm::ParameterSet& pset)
 {
    //now do what ever initialization is needed
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
+  fillallmc          = pset.getParameter<bool>("FillAllMCParticles");
 
   //  nEvt=0;
   ELEMAX=10;
@@ -81,6 +82,19 @@ GammaGammaEEMC::GammaGammaEEMC(const edm::ParameterSet& pset)
   thetree->Branch("GenProtCand_py",GenProtCand_py,"GenProtCand_py[nGenProtCand]/D");
   thetree->Branch("GenProtCand_pz",GenProtCand_pz,"GenProtCand_pz[nGenProtCand]/D");
   thetree->Branch("GenProtCand_e",GenProtCand_e,"GenProtCand_e[nGenProtCand]/D");
+
+  if(fillallmc == true)
+    {
+      thetree->Branch("nMCPar",&nMCPar,"nMCPar/I"); 
+      thetree->Branch("MCPar_px",MCPar_px,"MCPar_px[nMCPar]/D"); 
+      thetree->Branch("MCPar_py",MCPar_py,"MCPar_py[nMCPar]/D"); 
+      thetree->Branch("MCPar_pz",MCPar_pz,"MCPar_pz[nMCPar]/D"); 
+      thetree->Branch("MCPar_e",MCPar_e,"MCPar_e[nMCPar]/D"); 
+      thetree->Branch("MCPar_eta",MCPar_eta,"MCPar_eta[nMCPar]/D"); 
+      thetree->Branch("MCPar_phi",MCPar_phi,"MCPar_phi[nMCPar]/D"); 
+      thetree->Branch("MCPar_pdgid",MCPar_pdgid,"MCPar_pdgid[nMCPar]/I");
+      thetree->Branch("MCPar_status",MCPar_status,"MCPar_status[nMCPar]/I");
+    }
 
   thetree->Branch("GenElEl_mass",&GenElEl_mass,"GenElEl_mass/D");
   thetree->Branch("GenElEl_dphi",&GenElEl_dphi,"GenElEl_dphi/D");

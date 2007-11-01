@@ -29,6 +29,7 @@ class GammaGammaMuMuMC : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   
   std::string rootfilename;
+  bool fillallmc;
 
   TFile *thefile;
   TTree *thetree;
