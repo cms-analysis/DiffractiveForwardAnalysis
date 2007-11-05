@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.11 2007/10/03 13:12:29 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.12 2007/11/05 09:47:50 jjhollar Exp $
 //
 //
 
@@ -205,11 +205,6 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   ElEl_dphi = -1;
 
   bool passed = true;
-
-  Handle<double> weightHandle; 
-  event.getByLabel ("weight", weightHandle); 
-  double weight = *weightHandle; 
-  
 
  //using namespace edm;
   using reco::TrackCollection;
