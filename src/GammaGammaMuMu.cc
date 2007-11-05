@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.10 2007/10/03 12:10:46 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.11 2007/10/03 13:12:29 jjhollar Exp $
 //
 //
 
@@ -31,6 +31,7 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaMuMu.h"
 
@@ -154,8 +155,13 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
 
   thetree->Branch("MuMu_mass",&MuMu_mass,"MuMu_mass/D");
   thetree->Branch("MuMu_dphi",&MuMu_dphi,"MuMu_dphi/D");
+
+  thetree->Branch("HitInZDC",&HitInZDC,"HitInZDC/I");
+  thetree->Branch("HitInCastor",&HitInCastor,"HitInCastor/I");
   
   thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
+
+  thetree->Branch("weight",&weight,"weight/D"); 
 }
 
 
@@ -190,11 +196,18 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersEt0pt5=0;  
   nExtraCaloTowersEt1=0; 
   nExtraCaloTowersEt2=0;  
+  HitInZDC=0;
+  HitInCastor=0;
 
   MuMu_mass = -1;
   MuMu_dphi = -1;
 
   bool passed = true;
+
+  Handle<double> weightHandle;
+  event.getByLabel ("weight", weightHandle);
+  double weight = *weightHandle;
+  
 
  //using namespace edm;
   using reco::TrackCollection;
@@ -391,6 +404,33 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  TrackCand_charge[nTrackCand]=track->charge();
 	  nTrackCand++; 
 	}
+    }
+
+
+  // Check for particles in ZDC/Castor acceptance. 
+  // Use MC truth for now, replace with real RECO when available
+  double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;
+  int MCPar_pdgid;
+
+  Handle<CandidateCollection> genParticles;
+  event.getByLabel( "genParticleCandidates", genParticles );
+  for ( size_t i = 0; i < genParticles->size(); ++ i ) 
+    {
+      const Candidate & p = (*genParticles)[ i ];
+      MCPar_pdgid=p.pdgId();
+      MCPar_eta=p.eta();
+      MCPar_px=p.px();
+      MCPar_py=p.py();
+      MCPar_pz=p.pz();
+      MCPar_mass=p.mass();
+      MCPar_e = sqrt(MCPar_mass*MCPar_mass + (MCPar_px*MCPar_px + MCPar_py*MCPar_py + MCPar_pz*MCPar_pz));
+
+      if(MCPar_pdgid == 22 && abs(MCPar_eta) > 8.6 && MCPar_e > 20.0) 
+	HitInZDC++;
+      if(MCPar_pdgid == 2112 && abs(MCPar_eta) > 8.6 && MCPar_e > 50.0)
+	HitInZDC++;
+      if((MCPar_pdgid != 22 && MCPar_pdgid != 2112) && (abs(MCPar_eta) > 5.2 && abs(MCPar_eta) < 6.6))
+	HitInCastor++;
     }
 
   // Check for di-objects

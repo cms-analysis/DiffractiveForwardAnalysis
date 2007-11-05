@@ -72,6 +72,9 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double HighestJet_phi;
   double SumJet_e;
 
+  int HitInZDC; 
+  int HitInCastor; 
+
   double Etmiss;
 
   int nCaloCand;
@@ -103,7 +106,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double TrackCand_phi[100];
   int TrackCand_charge[100];
 
-  double eventWeight;
+  double weight;
 
 };
 #endif
