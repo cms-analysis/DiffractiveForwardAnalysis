@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.12 2007/11/05 09:47:51 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.13 2007/11/05 10:45:31 jjhollar Exp $
 //
 //
 
@@ -161,7 +161,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   
   thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
 
-  thetree->Branch("weight",&weight,"weight/D"); 
+  thetree->Branch("evweight",&evweight,"evweight/D"); 
 }
 
 
@@ -186,6 +186,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
+
   nExtraCaloTowersE1=0;
   nExtraCaloTowersE2=0;
   nExtraCaloTowersE3=0; 
@@ -206,6 +207,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
  //using namespace edm;
   using reco::TrackCollection;
+
+  Handle< double> weightHandle;
+  event.getByLabel ("weight", weightHandle);
+  evweight = * weightHandle;
   
   // Get the muon track collection from the event
   Handle<reco::MuonCollection> muons;

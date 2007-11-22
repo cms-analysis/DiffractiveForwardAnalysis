@@ -13,11 +13,16 @@ void MakeSkimQAPlots(TString dataset = "")
   TString fname1("mumu.recolevel." + dataset + ".root");
   TString fname2("ee.recolevel." + dataset + ".root");
 
-  TFile *f1 = new TFile(fname1);
-  TFile *f2 = new TFile(fname2);
+  //  TFile *f1 = new TFile(fname1);
+  //  TFile *f2 = new TFile(fname2);
 
-  TTree *t1 = f1->Get("ntp1");
-  TTree *t2 = f2->Get("ntp1");
+  //  TTree *t1 = f1->Get("ntp1");
+  //  TTree *t2 = f2->Get("ntp1");
+
+  TChain *t1 = new TChain("ntp1");
+  t1->Add("crab_0_071121_090253/res/mumu.recolevel_*.root");
+  TChain *t2 = new TChain("ntp1");
+  t2->Add("crab_0_071121_102409/res/ee.recolevel_*.root");
 
   TH1F *hpsim = new TH1F("hpsim","hpsim",50,2.5,4.5);
   TH1F *hpsie = new TH1F("hpsie","hpsie",50,2.5,4.5);

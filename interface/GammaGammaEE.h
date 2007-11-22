@@ -106,7 +106,7 @@ class GammaGammaEE : public edm::EDAnalyzer {
   double TrackCand_phi[100];
   int TrackCand_charge[100];
 
-  double weight;
+  double evweight;
 
 };
 #endif
