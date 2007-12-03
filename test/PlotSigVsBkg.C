@@ -145,7 +145,7 @@ void setTDRStyle() {
 void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
 {
  setTDRStyle();
-  TH1F *htmp[8]; 
+  TH1F *htmp[12]; 
   if(theleptonmode == 1)
     {
       htmp[0] = GetMuMuHist(thevar,1,save);
@@ -158,20 +158,70 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
       htmp[7] = GetMuMuHist(thevar,8,save);
       htmp[8] = GetMuMuHist(thevar,9,save);
 
+      TFile *fx = new TFile("mumu.stew.histos.root");
+      if(thevar == 6)
+	htmp[9] = (TH1F *)fx->Get("hm");
+      if(thevar == 5)
+	htmp[9] = (TH1F *)fx->Get("hm2");
+
+      TFile *fy = new TFile("mumu.gumbo.histos.root");
+      if(thevar == 6)
+        htmp[10] = (TH1F *)fy->Get("hm");
+      if(thevar == 5)
+        htmp[10] = (TH1F *)fy->Get("hm2");
+
+      TFile *fz = new TFile("mumu.chowder.histos.root");
+      if(thevar == 6)
+        htmp[11] = (TH1F *)fz->Get("hm");
+      if(thevar == 5)
+        htmp[11] = (TH1F *)fz->Get("hm2");
+
       // Draw stacked histograms for mass plots
-      if(thevar > 4 && thevar < 7)
+      if((thevar > 4 && thevar < 7) || thevar == 9)
 	{
 	  htmp[0]->Clone("htot");
-	  htot->Add(htmp[1]);
-	  htot->Add(htmp[2]);
-	  htot->Add(htmp[3]);
+	  //	  htot->Add(htmp[1]);
+	  //	  htot->Add(htmp[2]);
+	  //	  htot->Add(htmp[3]);
 	  htot->Add(htmp[4]);
 	  htot->Add(htmp[5]);
 	  htot->Add(htmp[6]);
 	  htot->Add(htmp[7]);
 	  htot->Add(htmp[8]);
-		htot->SetLineWidth(4);
-	  
+	  htot->Add(htmp[9]);
+	  htot->Add(htmp[10]);
+	  htot->Add(htmp[11]);
+	  htot->SetLineWidth(4);
+
+	  htmp[9]->Clone("stewtot");
+	  //	  stewtot->Add(htmp[1]);
+	  //	  stewtot->Add(htmp[2]);
+	  //	  stewtot->Add(htmp[3]);
+	  stewtot->Add(htmp[4]);
+	  stewtot->Add(htmp[5]);
+	  stewtot->Add(htmp[6]);
+	  stewtot->Add(htmp[7]);
+	  stewtot->Add(htmp[8]);
+	  stewtot->Add(htmp[10]);
+	  stewtot->Add(htmp[11]);
+
+	  htmp[10]->Clone("gumtot");
+	  gumtot->Add(htmp[4]);
+	  gumtot->Add(htmp[5]);
+	  gumtot->Add(htmp[6]);
+	  gumtot->Add(htmp[7]);
+	  gumtot->Add(htmp[8]);
+	  gumtot->Add(htmp[11]);
+	  gumtot->SetFillColor(2);
+
+	  htmp[11]->Clone("chowtot");
+	  chowtot->Add(htmp[4]);
+	  chowtot->Add(htmp[5]);
+	  chowtot->Add(htmp[6]);
+	  chowtot->Add(htmp[7]);
+	  chowtot->Add(htmp[8]);
+	  chowtot->SetFillColor(7);
+
 	  htmp[1]->Clone("hdytot");
 	  hdytot->Add(htmp[2]);
 	  hdytot->Add(htmp[3]);
@@ -184,29 +234,53 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
 	  hups1tot->Add(htmp[4]);
 	  hups1tot->Add(htmp[6]);
 	  hups1tot->Add(htmp[7]);
+	  hups1tot->Add(htmp[8]);
 	  
 	  htmp[6]->Clone("hups2tot");
 	  hups2tot->Add(htmp[4]);
 	  hups2tot->Add(htmp[7]);
+	  hups2tot->Add(htmp[8]);
 
 	  htmp[7]->Clone("hups3tot");
 	  hups3tot->Add(htmp[4]);
+	  hups3tot->Add(htmp[8]);
 	  
+	  htmp[8]->Clone("hinel");
+	  hinel->Add(htmp[4]);
+
+	  htmp[4]->Clone("hww");
+
+	  htot->SetMinimum(0.1);
+	  //	  htot->SetLineColor(4);
 	  htot->Draw("hist");
-	  hdytot->Draw("histsame");
-	  htmp[8]->Draw("histsame");
+	  stewtot->Draw("histsame");
+	  gumtot->Draw("histsame");
+	  chowtot->Draw("histsame");
+	  //	  hdytot->Draw("histsame");
 	  hups1tot->Draw("histsame");
 	  hups2tot->Draw("histsame");
 	  hups3tot->Draw("histsame");
-	  htmp[4]->Draw("histsame");
+	  hinel->Draw("histsame");
+	  hww->Draw("histsame");
 	  
-	  TLegend *l1 = new TLegend(0.55,0.72,0.91,0.91);
-	  l1->AddEntry(htot,"#gamma #gamma #rightarrow #mu^{+}#mu^{-} plus backgrounds","lf");
-	  l1->AddEntry(hdytot,"Drell-Yan","lf");
-	  l1->AddEntry(hups1tot,"#Upsilon (1S)","lf");
-	  l1->AddEntry(hups2tot,"#Upsilon (2S)","lf");
-	  l1->AddEntry(hups3tot,"#Upsilon (3S)","lf");
-	  l1->AddEntry(htmp[4],"W^{+}W^{-}","lf");	  
+	  TLegend *l1 = new TLegend(0.55,0.62,0.91,0.91);
+	  l1->AddEntry(htot,"Elastic #gamma #gamma #rightarrow #mu^{+}#mu^{-} plus all other contributions","lf");
+	  if(stewtot->GetEntries() > 0)
+	    l1->AddEntry(stewtot,"CSA07 'Stew'","lf");
+	  if(gumtot->GetEntries() > 0)
+	    l1->AddEntry(gumtot,"CSA07 'Gumbo'","lf");
+	  if(chowtot->GetEntries() > 0)
+	    l1->AddEntry(chowtot,"CSA07 'Chowder'","lf");
+	  //	  if(hdytot->GetEntries() > 0)
+	  //	    l1->AddEntry(hdytot,"Drell-Yan","lf");
+	  if(hups1tot->GetEntries() > 0)
+	    l1->AddEntry(hups1tot,"Exclusive #Upsilon (1S)","lf");
+	  if(hups2tot->GetEntries() > 0)
+	    l1->AddEntry(hups2tot,"Exclusive #Upsilon (2S)","lf");
+	  if(hups3tot->GetEntries() > 0)
+	    l1->AddEntry(hups3tot,"Exclusive #Upsilon (3S)","lf");
+	  if(htmp[4]->GetEntries() > 0)
+	    l1->AddEntry(htmp[4],"W^{+}W^{-}","lf");	  
 	  l1->AddEntry(htmp[8],"Singly inelastic #gamma #gamma #rightarrow #mu^{+}#mu^{-}","lf");
 	  l1->SetFillColor(0);
 	  l1->Draw("same");
@@ -276,28 +350,32 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
       htmp[8] = GetEEHist(thevar,9,save);
 
       // Draw stacked histograms for mass plots
-      if(thevar > 4)
+      if(thevar > 4 || thevar == 9)
 	{	  
 	  htmp[0]->Clone("htot");
 	  htot->Add(htmp[2]);
 	  htot->Add(htmp[3]);
 	  htot->Add(htmp[4]);
 	  htot->Add(htmp[8]);
-
+	  
 	  htmp[2]->Clone("hdytot");
 	  hdytot->Add(htmp[3]);
 	  
 	  htot->Draw("hist");
-		htot->SetLineWidth(4);
+	  htot->SetLineWidth(4);
 	  hdytot->Draw("histsame");
-		hdytot->SetFillColor(10);
-		htmp[8]->Draw("histsame");
+	  hdytot->SetFillColor(10);
+	  htmp[8]->Draw("histsame");
 	  htmp[4]->Draw("histsame");
 
 	  TLegend *l1 = new TLegend(0.55,0.72,0.91,0.91);
-	  l1->AddEntry(htot,"#gamma #gamma #rightarrow e^{+} e^{-} plus backgrounds","lf");
-	  l1->AddEntry(hdytot,"Drell-Yan","lf");
-	  l1->AddEntry(htmp[4],"W^{+}W^{-}","lf");	  
+	  l1->AddEntry(htot,"elastic #gamma #gamma #rightarrow e^{+} e^{-} plus backgrounds","lf");
+	  if(hdytot->GetEntries() > 0)
+	    l1->AddEntry(hdytot,"Drell-Yan","lf");
+	  if(htmp[4]->GetEntries() > 0)
+	    l1->AddEntry(htmp[4],"W^{+}W^{-}","lf");	  
+	  if(htmp[8]->GetEntries() > 0)
+	    l1->AddEntry(htmp[8],"Singly inelastic #gamma #gamma #rightarrow e^{+}e^{-}","lf");
 	  l1->SetFillColor(0);
 	  l1->Draw("same");
 	}
@@ -341,6 +419,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   Double_t upsloveto = 9.0;
   Double_t upshiveto = 11.0;
   TString st = "";
+  TString st2 = "";
   Double_t lumi = 100.0;
   Int_t linecolor = 1;
   Int_t linewidth = 0;
@@ -357,7 +436,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
     fillstyle = 3003;
     break;
   case 2:
-    xsec = 0.5 * 37820.0 * lumi / 10000.0;
+    xsec = 0.5 * 37820.0 * lumi / 96500.0;
     st = "dymumu.610.anal.root";
     fillcolor = 10;
     break;
@@ -395,6 +474,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
     xsec = 76.2 * lumi / 20000.0;
     st = "gamgammumu.lpairinelastic.anal.root";
     fillcolor = 5;
+    st2 = "gamgammumu.lpairinelastic.gen.root";
     break;
   default:
     break;
@@ -404,6 +484,15 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
 
   TTree *tr1 = f1->Get("ntp1");
 
+  //  TFile *f2;
+  //  TTree *tr2;
+
+  //  if(st2 != "")
+  //    {
+  //      f2 = new TFile(st2);
+  //      tr2 = f2->Get("ntp1");
+  //    }
+
   TH1F *hmll;
   TH1F *hmll2;
   TH1F *hdphi;
@@ -412,15 +501,17 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   TH1F *hnextracaloet;
   TH1F *hntrack;
   TH1F *hncalofinal;
+  TH1F *sumpt;
 
-  hmll = new TH1F("mll","mll",100,0,200);
-  hmll2 = new TH1F("mll2","mll2",100,0,200);
+  hmll = new TH1F("mll","mll",50,0,200);
+  hmll2 = new TH1F("mll2","mll2",50,0,200);
   hdphi = new TH1F("hdphi","hdphi",192,0.0,3.2);
   hdpt = new TH1F("hdpt","hdpt",240,-20,20);
   hnextracaloe = new TH1F("hnextracaloe","hnextracaloe",50,0,50);
   hnextracaloet = new TH1F("hnextracaloet","hnextracaloet",50,0,50);
   hntrack = new TH1F("hntrack","hntrack",50,0,50);
   hncalofinal = new TH1F("hncalofinal","hncalofinal",50,0,50);
+  sumpt = new TH1F("sumpt","sumpt",9,0,180);
 
   TH2F *hntrackncalo = new TH2F("hntrackncalo","hntrackncalo",500,0,100,500,0,100);
   TH2F *hdr = new TH2F("hdr","hdr",400,-6.0,6.0,400,-6.0,6.0);  
@@ -435,6 +526,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   Int_t njets;
   Int_t ntracks;
   Int_t ncalo;
+  Int_t zdchit, hitincastor;
   Double_t deltara;
   Double_t deltarb;
 
@@ -457,6 +549,12 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   tr1->SetBranchAddress("CaloTower_phi",&calophi);
   tr1->SetBranchAddress("nCaloCand",&ncalo);
 
+  //  if(tr2)
+  //    {
+  tr1->SetBranchAddress("HitInZDC",&zdchit);
+  tr1->SetBranchAddress("HitInCastor",&hitincastor);
+  //    }
+
   Int_t ent1 = tr1->GetEntries();
   Int_t nisocalo = 0;
   Int_t ntotsig = tr1->GetEntries();
@@ -464,8 +562,14 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   Int_t nupspass = 0;
   Int_t ntotpass = 0;
 
+  TRandom rnd1;
+
   for(Int_t i = 0;i < ent1;i++)
     {
+      // Stupid trick - ignore half of events with Castor hits to simulate presecnce of only one Castor
+      Double_t castorrnd1 = rnd1.Uniform();
+      if(hitincastor == 1 && castorrnd1 < 0.5)
+	hitincastor = 0;
       nisocalo = 0;
       tr1->GetEntry(i);
       hdphi->Fill(mumudphi);
@@ -509,16 +613,19 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
 		    {
 		      ntrackpass++;
 		      ntotpass++;
-		      if(mumumass < upsloveto || mumumass > upshiveto)
+		      //		      if(mumumass < upsloveto || mumumass > upshiveto)
+		      //		      if(zdchit == 0 && hitincastor == 0)
 			{
 			  nupspass++;
 			  hmll2->Fill(mumumass);
+			  sumpt->Fill(mupt[0]+mupt[1]);
 			}
 		    }
 		}
 	      if(ntracks < 200)
 		{
-		  if(mumumass < upsloveto || mumumass > upshiveto)
+		  //		  if(mumumass < upsloveto || mumumass > upshiveto)
+		  //		  if(zdchit == 0 && hitincastor == 0)
 		    hncalofinal->Fill(nisocalo);
 		}
 	    }
@@ -691,13 +798,29 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
     return(hncalofinal);
   }
 
+  if(plotvar == 9){
+    sumpt->Sumw2();
+    sumpt->Scale(xsec);
+    sumpt->SetMinimum(0.001);
+    sumpt->SetMaximum(20.0*lumi);
+    sumpt->SetTitle(0);
+    sumpt->SetStats(0);
+    sumpt->SetXTitle("#Sigma pt (#mu #mu)");
+    sumpt->SetFillColor(fillcolor);
+    sumpt->SetFillStyle(fillstyle);
+    sumpt->SetLineColor(linecolor);
+    sumpt->SetLineWidth(linewidth);
+    sumpt->Draw("hist");
+    return(sumpt);
+  }
+
 }
 
 // Return histogrammed quantities for e+e- events
 TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
 {
   Double_t ecalocut = 5.0;
-  Double_t etcalocut = 2.0;
+  Double_t etcalocut = 1.0;
   Double_t deltarcut = 0.3;
   Double_t ntrackcut = 3;
   Double_t dptcut = 5.0;
@@ -720,7 +843,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
     fillstyle = 3003;
     break;
   case 2:
-    xsec = 0.5 * 37820.0 * lumi / 10000.0;
+    xsec = 0.5 * 37820.0 * lumi / 96500.0;
     st = "dyee.610.anal.root";
     fillcolor = 10;
     break;
@@ -746,10 +869,9 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
   case 8:
     break;
   case 9:
-    xsec = 13.6 * lumi / 18000.0;
+    xsec = 13.6 * lumi * 0.9 / 20000.0;
     st = "gamgamee.lpairinelastic.anal.root";
     fillcolor = 5;
-    break;
   default:
     break;
   }
@@ -765,14 +887,16 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
   TH1F *hnextracaloe;
   TH1F *hnextracaloet;
   TH1F *hntrack;
+  TH1F *sumpt;
 
-  hmll = new TH1F("mll","mll",100,0,200);
-  hmll2 = new TH1F("mll2","mll2",100,0,200);
+  hmll = new TH1F("mll","mll",50,0,200);
+  hmll2 = new TH1F("mll2","mll2",50,0,200);
   hdphi = new TH1F("hdphi","hdphi",196,0.0,3.2);
   hdpt = new TH1F("hdpt","hdpt",240,-20,20);
   hnextracaloe = new TH1F("hnextracaloe","hnextracaloe",50,0,50);
   hnextracaloet = new TH1F("hnextracaloet","hnextracaloet",50,0,50);
   hntrack = new TH1F("hntrack","hntrack",50,0,50);
+  sumpt = new TH1F("sumpt","sumpt",9,0,180);
 
   TH2F *hntrackncalo = new TH2F("hntrackncalo","hntrackncalo",500,0,100,500,0,100);
   TH2F *hdr = new TH2F("hdr","hdr",400,-6.0,6.0,400,-6.0,6.0);  
@@ -787,10 +911,12 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
   Int_t njets;
   Int_t ntracks;
   Int_t ncalo;
+  Int_t zdchit, hitincastor;
   Double_t deltara;
   Double_t deltarb;
 
   Double_t caloe[1000];
+  Double_t caloet[1000];
   Double_t caloeta[1000];
   Double_t calophi[1000];
 
@@ -803,9 +929,13 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
   tr1->SetBranchAddress("nTrackCand",&ntracks);
   tr1->SetBranchAddress("nEleCand",&nelectrons);
   tr1->SetBranchAddress("CaloTower_e",&caloe);
+  tr1->SetBranchAddress("CaloTower_et",&caloet);
   tr1->SetBranchAddress("CaloTower_eta",&caloeta);
   tr1->SetBranchAddress("CaloTower_phi",&calophi);
   tr1->SetBranchAddress("nCaloCand",&ncalo);
+
+  tr1->SetBranchAddress("HitInZDC",&zdchit);
+  tr1->SetBranchAddress("HitInCastor",&hitincastor);
 
   Int_t ent1 = tr1->GetEntries();
   Int_t nisocalo = 0;
@@ -813,8 +943,14 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
   Int_t ndphipass, ndptpass, ncalopass, ntrackpass = 0;
   Int_t ntotpass = 0;
 
+  TRandom rnd2;
+
   for(Int_t i = 0;i < ent1;i++)
     {
+      // Stupid trick - ignore half of events with Castor hits to simulate presecnce of only one Castor
+      Double_t castorrnd2 = rnd2.Uniform();
+      if(hitincastor == 1 && castorrnd2 < 0.5)
+        hitincastor = 0;
       nisocalo = 0;
       tr1->GetEntry(i);
       hdphi->Fill(eleldphi);
@@ -826,7 +962,8 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
 	{
 	  deltara = sqrt((caloeta[x]-eleeta[0])*(caloeta[x]-eleeta[0]) + (calophi[x]-elephi[0])*(calophi[x]-elephi[0]));
 	  deltarb = sqrt((caloeta[x]-eleeta[1])*(caloeta[x]-eleeta[1]) + (calophi[x]-elephi[1])*(calophi[x]-elephi[1]));
-	  if(deltara > 0.3 && deltarb > 0.3 && caloe[x] > ecalocut)
+	  //	  if(deltara > 0.3 && deltarb > 0.3 && caloe[x] > ecalocut)
+	  if(deltara > 0.3 && deltarb > 0.3 && caloet[x] > etcalocut) ///////// change here
 	    nisocalo++;
 
 	  if(caloe[x] > ecalocut)
@@ -855,8 +992,12 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
 		  ncalopass++;
 		  if(ntracks < ntrackcut)
 		    {
-		      ntotpass++;
-		      hmll2->Fill(elelmass);
+		      //		      if(zdchit == 0 && hitincastor == 0)
+			{
+			  ntotpass++;
+			  hmll2->Fill(elelmass);
+			  sumpt->Fill(elept[0]+elept[1]);
+			}
 		    }
 		}
 	    }
@@ -992,4 +1133,21 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
   hmll->Draw("hist");
   return(hmll);
   }
+
+  if(plotvar == 9){
+    sumpt->Sumw2();
+    sumpt->Scale(xsec);
+    sumpt->SetMinimum(0.001);
+    sumpt->SetMaximum(20.0*lumi);
+    sumpt->SetTitle(0);
+    sumpt->SetStats(0);
+    sumpt->SetXTitle("#Sigma E_{T} (e e)");
+    sumpt->SetFillColor(fillcolor);
+    sumpt->SetFillStyle(fillstyle);
+    sumpt->SetLineColor(linecolor);
+    sumpt->SetLineWidth(linewidth);
+    sumpt->Draw("hist");
+    return(sumpt);
+  }
+
 }
