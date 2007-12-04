@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMuMC.cc,v 1.3 2007/11/01 10:19:59 jjhollar Exp $
+// $Id: GammaGammaMuMuMC.cc,v 1.4 2007/11/01 15:43:41 jjhollar Exp $
 //
 //
 
@@ -141,7 +141,7 @@ GammaGammaMuMuMC::analyze(const edm::Event& event, const edm::EventSetup& iSetup
   Handle<CandidateCollection> genParticles;
   event.getByLabel( "genParticleCandidates", genParticles );
 
-  for ( size_t i = 0; i < genParticles->size(); ++ i ) 
+  for ( size_t i = 0; i < genParticles->size() && i < 500; ++ i ) 
     {
       const Candidate & p = (*genParticles)[ i ];
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.13 2007/11/05 10:45:31 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.14 2007/11/22 14:16:04 jjhollar Exp $
 //
 //
 
@@ -163,7 +163,7 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   
   thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
 
-  thetree->Branch("evweight",&evweight,"evweight/D");
+  //  thetree->Branch("evweight",&evweight,"evweight/D");
 }
 
 
@@ -210,9 +210,9 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
  //using namespace edm;
   using reco::TrackCollection;
   
-  Handle< double> weightHandle; 
-  event.getByLabel ("weight", weightHandle); 
-  evweight = * weightHandle; 
+  //  Handle< double> weightHandle; 
+  //  event.getByLabel ("weight", weightHandle); 
+  //  evweight = * weightHandle; 
 
   // Get the electron track collection from the event
   edm::Handle<reco::PixelMatchGsfElectronCollection> pTracks;
