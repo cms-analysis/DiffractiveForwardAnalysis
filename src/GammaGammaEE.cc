@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.14 2007/11/22 14:16:04 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.15 2007/12/04 13:13:25 jjhollar Exp $
 //
 //
 
@@ -81,8 +81,6 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   eldetmax           = pset.getParameter<double>("DielectronMaxdEt");
   eldphimin          = pset.getParameter<double>("DielectronMindphi");
   drisocalo          = pset.getParameter<double>("CaloTowerdR");
-  caloethresh        = pset.getParameter<double>("CaloTowerEthreshold");
-  caloetthresh       = pset.getParameter<double>("CaloTowerEtthreshold");
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
 

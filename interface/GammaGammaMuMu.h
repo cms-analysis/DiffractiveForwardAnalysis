@@ -39,8 +39,6 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double mudptmax;
   double mudphimin;
   double drisocalo; 
-  double caloethresh; 
-  double caloetthresh; 
 
   std::string rootfilename;
 

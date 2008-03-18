@@ -37,8 +37,6 @@ class GammaGammaEE : public edm::EDAnalyzer {
   double eldetmax;
   double eldphimin;
   double drisocalo;
-  double caloethresh;
-  double caloetthresh;
 
   std::string rootfilename;
 
