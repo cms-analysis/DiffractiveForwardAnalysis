@@ -38,15 +38,15 @@ class GammaGammaMuMuMC : public edm::EDAnalyzer {
 
   int nMCPar;
   int MCPARMAX;// used to set maximum of arrays
-  int MCPar_status[50];
-  double MCPar_px[50];
-  double MCPar_py[50];
-  double MCPar_pz[50];
-  double MCPar_e[50];
-  double MCPar_phi[50];
-  double MCPar_eta[50];
-  double MCPar_mass[50];
-  int MCPar_pdgid[50];
+  int MCPar_status[500];
+  double MCPar_px[500];
+  double MCPar_py[500];
+  double MCPar_pz[500];
+  double MCPar_e[500];
+  double MCPar_phi[500];
+  double MCPar_eta[500];
+  double MCPar_mass[500];
+  int MCPar_pdgid[500];
 
   int HitInZDC;
   int HitInCastor;

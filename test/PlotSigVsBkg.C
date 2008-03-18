@@ -158,23 +158,97 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
       htmp[7] = GetMuMuHist(thevar,8,save);
       htmp[8] = GetMuMuHist(thevar,9,save);
 
+      if(thevar == 10)
+        {
+	  htmp[0]->Sumw2(); htmp[8]->Sumw2();
+	  //	  htmp[0]->Add(htmp[8]);
+	  htmp[8]->SetMaximum(300.0);
+          htmp[0]->Draw("hist");
+	  TH1F *ha = GetMuMuHist(12,9);
+	  ha->SetFillColor(0); ha->SetLineWidth(3); ha->SetLineStyle(2);
+	  ha->Sumw2();
+	  htmp[8]->Draw("hist");
+	  ha->Draw("histsame");
+          htmp[0]->Draw("histsame");
+	  //	  htmp[0]->Draw("histsame");
+	  TLegend *l1 = new TLegend(0.15,0.62,0.51,0.91);
+          l1->AddEntry(htmp[0],"Elastic #gamma #gamma #rightarrow #mu^{+}#mu^{-}","lf");
+	  l1->AddEntry(ha,"Singly inelastic #gamma #gamma #rightarrow #mu^{+}#mu^{-}","lf");
+          l1->AddEntry(htmp[8],"Singly inelastic #gamma #gamma #rightarrow #mu^{+}#mu^{-} with Castor and ZDC vetoes","lf");
+	  l1->SetFillColor(0); l1->SetTextSize(0.03);
+	  l1->Draw("same");
+	  return;
+        }
+
+      if(thevar == 11)
+        {
+          htmp[8]->SetMaximum(375.0);
+          htmp[0]->Sumw2(); htmp[8]->Sumw2();
+	  //          htmp[0]->Add(htmp[8]);
+          TH1F *ha = GetMuMuHist(13,9);
+          ha->SetFillColor(0); ha->SetLineWidth(3); ha->SetLineStyle(2);
+          ha->Sumw2();
+          htmp[8]->Draw("hist");
+	  ha->Draw("histsame");
+          htmp[0]->Draw("histsame");
+          //      htmp[0]->Draw("histsame");
+          TLegend *l1 = new TLegend(0.15,0.62,0.51,0.91);
+          l1->AddEntry(htmp[0],"Elastic #gamma #gamma #rightarrow #mu^{+}#mu^{-}","lf");
+          l1->AddEntry(ha,"Singly inelastic #gamma #gamma #rightarrow #mu^{+}#mu^{-}","lf");
+          l1->AddEntry(htmp[8],"Singly inelastic #gamma #gamma #rightarrow #mu^{+}#mu^{-} with Castor and ZDC vetoes","lf");
+          l1->SetFillColor(0); l1->SetTextSize(0.03);
+          l1->Draw("same");
+          return;
+        }
+
+
       TFile *fx = new TFile("mumu.stew.histos.root");
       if(thevar == 6)
 	htmp[9] = (TH1F *)fx->Get("hm");
       if(thevar == 5)
 	htmp[9] = (TH1F *)fx->Get("hm2");
+      if(thevar == 1)
+        htmp[9] = (TH1F *)fx->Get("hntrack");
+      if(thevar == 2)
+        htmp[9] = (TH1F *)fx->Get("hnextracaloe");
+      if(thevar == 3)
+        htmp[9] = (TH1F *)fx->Get("hdpt");
+      if(thevar == 4)
+        htmp[9] = (TH1F *)fx->Get("hdphi");
+
+      TFile *fz = new TFile("mumu.chowder.histos.root");
+
 
       TFile *fy = new TFile("mumu.gumbo.histos.root");
       if(thevar == 6)
         htmp[10] = (TH1F *)fy->Get("hm");
       if(thevar == 5)
         htmp[10] = (TH1F *)fy->Get("hm2");
+      if(thevar == 1)
+	htmp[10] = (TH1F *)fy->Get("hntrack");
+      if(thevar == 2)
+        htmp[10] = (TH1F *)fy->Get("hnextracaloe");
+      if(thevar == 3)
+        htmp[10] = (TH1F *)fy->Get("hdpt");
+      if(thevar == 4)
+        htmp[10] = (TH1F *)fy->Get("hdphi");
 
       TFile *fz = new TFile("mumu.chowder.histos.root");
       if(thevar == 6)
         htmp[11] = (TH1F *)fz->Get("hm");
       if(thevar == 5)
         htmp[11] = (TH1F *)fz->Get("hm2");
+      if(thevar == 1)
+        htmp[11] = (TH1F *)fz->Get("hntrack");
+      if(thevar == 2)
+        htmp[11] = (TH1F *)fz->Get("hnextracaloe");
+      if(thevar == 3)
+        htmp[11] = (TH1F *)fz->Get("hdpt");
+      if(thevar == 4)
+        htmp[11] = (TH1F *)fz->Get("hdphi");
+
+      htmp[9]->SetFillColor(10);
+      htmp[10]->SetFillColor(10);
 
       // Draw stacked histograms for mass plots
       if((thevar > 4 && thevar < 7) || thevar == 9)
@@ -190,7 +264,7 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
 	  htot->Add(htmp[8]);
 	  htot->Add(htmp[9]);
 	  htot->Add(htmp[10]);
-	  htot->Add(htmp[11]);
+	  //	  htot->Add(htmp[11]);
 	  htot->SetLineWidth(4);
 
 	  htmp[9]->Clone("stewtot");
@@ -203,7 +277,8 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
 	  stewtot->Add(htmp[7]);
 	  stewtot->Add(htmp[8]);
 	  stewtot->Add(htmp[10]);
-	  stewtot->Add(htmp[11]);
+	  //	  stewtot->Add(htmp[11]);
+	  stewtot->SetFillColor(11);
 
 	  htmp[10]->Clone("gumtot");
 	  gumtot->Add(htmp[4]);
@@ -211,8 +286,8 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
 	  gumtot->Add(htmp[6]);
 	  gumtot->Add(htmp[7]);
 	  gumtot->Add(htmp[8]);
-	  gumtot->Add(htmp[11]);
-	  gumtot->SetFillColor(2);
+	  //	  gumtot->Add(htmp[11]);
+	  gumtot->SetFillColor(10);
 
 	  htmp[11]->Clone("chowtot");
 	  chowtot->Add(htmp[4]);
@@ -251,34 +326,37 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
 	  htmp[4]->Clone("hww");
 
 	  htot->SetMinimum(0.1);
-	  //	  htot->SetLineColor(4);
 	  htot->Draw("hist");
 	  stewtot->Draw("histsame");
 	  gumtot->Draw("histsame");
 	  chowtot->Draw("histsame");
+
 	  //	  hdytot->Draw("histsame");
 	  hups1tot->Draw("histsame");
-	  hups2tot->Draw("histsame");
-	  hups3tot->Draw("histsame");
+	  //	  hups2tot->Draw("histsame");
+	  //	  hups3tot->Draw("histsame");
 	  hinel->Draw("histsame");
 	  hww->Draw("histsame");
 	  
-	  TLegend *l1 = new TLegend(0.55,0.62,0.91,0.91);
-	  l1->AddEntry(htot,"Elastic #gamma #gamma #rightarrow #mu^{+}#mu^{-} plus all other contributions","lf");
+	  TLegend *l1 = new TLegend(0.45,0.66,0.91,0.92);
+	  //	  TLegend *l1 = new TLegend(0.55,0.62,0.91,0.91);
+	  l1->SetTextSize(0.03);
+	  l1->AddEntry(htot,"Elastic #gamma #gamma #rightarrow #mu^{+}#mu^{-}","lf");
 	  if(stewtot->GetEntries() > 0)
 	    l1->AddEntry(stewtot,"CSA07 'Stew'","lf");
 	  if(gumtot->GetEntries() > 0)
 	    l1->AddEntry(gumtot,"CSA07 'Gumbo'","lf");
-	  if(chowtot->GetEntries() > 0)
-	    l1->AddEntry(chowtot,"CSA07 'Chowder'","lf");
+	  //	  if(chowtot->GetEntries() > 0)
+	  //	    l1->AddEntry(chowtot,"CSA07 'Chowder'","lf");
 	  //	  if(hdytot->GetEntries() > 0)
 	  //	    l1->AddEntry(hdytot,"Drell-Yan","lf");
 	  if(hups1tot->GetEntries() > 0)
-	    l1->AddEntry(hups1tot,"Exclusive #Upsilon (1S)","lf");
-	  if(hups2tot->GetEntries() > 0)
-	    l1->AddEntry(hups2tot,"Exclusive #Upsilon (2S)","lf");
-	  if(hups3tot->GetEntries() > 0)
-	    l1->AddEntry(hups3tot,"Exclusive #Upsilon (3S)","lf");
+	    l1->AddEntry(hups1tot,"Exclusive #Upsilon (1S,2S,3S)","lf");
+	    //	    l1->AddEntry(hups1tot,"Exclusive #Upsilon (1S)","lf");
+	  //	  if(hups2tot->GetEntries() > 0)
+	  //	    l1->AddEntry(hups2tot,"Exclusive #Upsilon (2S)","lf");
+	  //	  if(hups3tot->GetEntries() > 0)
+	  //	    l1->AddEntry(hups3tot,"Exclusive #Upsilon (3S)","lf");
 	  if(htmp[4]->GetEntries() > 0)
 	    l1->AddEntry(htmp[4],"W^{+}W^{-}","lf");	  
 	  l1->AddEntry(htmp[8],"Singly inelastic #gamma #gamma #rightarrow #mu^{+}#mu^{-}","lf");
@@ -305,21 +383,35 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
       else
 	{	// for elastic mumu
 	  TH1F *hsig = htmp[0];
-	  TH1F *hbkg = htmp[1];
-	  hbkg->Add(htmp[2]);
-	  hbkg->Add(htmp[3]);
-	  hbkg->Add(htmp[4]);
+	  //	  TH1F *hbkg = htmp[1];
+	  //	  hbkg->Add(htmp[2]);
+	  //	  hbkg->Add(htmp[3]);
+	  //	  hbkg->Add(htmp[4]);
+	  TH1F *hbkg = htmp[9];
+	  hbkg->Add(htmp[10]);
+	  //	  hbkg->Add(htmp[11]);
 	  if(thevar == 3)
-	    hbkg->Scale(0.08);
+	    hbkg->Scale(0.0008);
 	  else if(thevar == 1)
-	    hbkg->Scale(0.05);
+	    hbkg->Scale(0.0005);
 	  else if(thevar == 7)
-	    hbkg->Scale(0.03);
+	    hbkg->Scale(0.003);
 	  else
-	    hbkg->Scale(0.02);
-	  hbkg->SetMaximum(hsig->GetMaximum() + (0.2 * hsig->GetMaximum()));
+	    hbkg->Scale(0.002);
+	  hbkg->SetMaximum(hsig->GetMaximum() + (10.2 * hsig->GetMaximum()));
+	  hbkg->SetMinimum(0.1);
+	  hbkg->SetLineWidth(3);
+	  hbkg->SetTitle(0);
 	  hbkg->Draw("hist");
 	  hsig->Draw("histsame");
+
+	  if(0){
+	  TLine *ln = new TLine(-2,hsig->GetMinimum(),-2,hsig->GetMaximum() + (10.2 * hsig->GetMaximum()));
+          TLine *ln2 = new TLine(2.0,hsig->GetMinimum(),2.0,hsig->GetMaximum() + (10.2 * hsig->GetMaximum()));
+	  ln->SetLineStyle(2); ln2->SetLineStyle(2);
+	  ln->SetLineWidth(3); ln2->SetLineWidth(3);
+	  ln->Draw("same");  ln2->Draw("same");
+	  }
 
 	  TLegend *l1 = new TLegend(0.55,0.72,0.91,0.91);
 	  l1->AddEntry(hsig,"#gamma #gamma #rightarrow #mu^{+}#mu^{-}","lf");
@@ -349,29 +441,86 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
       htmp[4] = GetEEHist(thevar,5,save);
       htmp[8] = GetEEHist(thevar,9,save);
 
+      TFile *fv = new TFile("ee.stew.histos.root");
+      if(thevar == 6)
+        htmp[9] = (TH1F *)fv->Get("hm");
+      if(thevar == 5)
+        htmp[9] = (TH1F *)fv->Get("hm2");
+      if(thevar == 1)
+        htmp[9] = (TH1F *)fv->Get("hntrack");
+      if(thevar == 2)
+        htmp[9] = (TH1F *)fv->Get("hnextracaloe");
+      if(thevar == 3)
+        htmp[9] = (TH1F *)fv->Get("hdpt");
+      if(thevar == 4)
+        htmp[9] = (TH1F *)fv->Get("hdphi");
+
+
+      TFile *fw = new TFile("ee.gumbo.histos.root");
+      if(thevar == 6)
+        htmp[10] = (TH1F *)fw->Get("hm");
+      if(thevar == 5)
+        htmp[10] = (TH1F *)fw->Get("hm2");
+      if(thevar == 1)
+        htmp[10] = (TH1F *)fw->Get("hntrack");
+      if(thevar == 2)
+        htmp[10] = (TH1F *)fw->Get("hnextracaloe");
+      if(thevar == 3)
+        htmp[10] = (TH1F *)fw->Get("hdpt");
+      if(thevar == 4)
+        htmp[10] = (TH1F *)fw->Get("hdphi");
+
+      htmp[9]->SetFillColor(10);
+      htmp[10]->SetFillColor(10);
+
       // Draw stacked histograms for mass plots
       if(thevar > 4 || thevar == 9)
 	{	  
 	  htmp[0]->Clone("htot");
-	  htot->Add(htmp[2]);
-	  htot->Add(htmp[3]);
+	  //	  htot->Add(htmp[2]);
+	  //	  htot->Add(htmp[3]);
 	  htot->Add(htmp[4]);
 	  htot->Add(htmp[8]);
-	  
-	  htmp[2]->Clone("hdytot");
-	  hdytot->Add(htmp[3]);
+	  htot->Add(htmp[9]);
+	  htot->Add(htmp[10]);
+
+          htmp[9]->Clone("stewtot");
+          //      stewtot->Add(htmp[1]);
+          //      stewtot->Add(htmp[2]);
+          //      stewtot->Add(htmp[3]);
+          stewtot->Add(htmp[4]);
+          stewtot->Add(htmp[8]);
+          stewtot->Add(htmp[10]);
+          stewtot->SetFillColor(11);
+
+          htmp[10]->Clone("gumtot");
+          gumtot->Add(htmp[4]);
+          gumtot->Add(htmp[8]);
+	  //          gumtot->SetFillColor(15);
+	  gumtot->SetFillColor(10);
+
+	  //	  htmp[2]->Clone("hdytot");
+	  //	  hdytot->Add(htmp[3]);
 	  
 	  htot->Draw("hist");
+          stewtot->Draw("histsame");
+          gumtot->Draw("histsame");
 	  htot->SetLineWidth(4);
-	  hdytot->Draw("histsame");
-	  hdytot->SetFillColor(10);
+	  //	  hdytot->Draw("histsame");
+	  //	  hdytot->SetFillColor(10);
 	  htmp[8]->Draw("histsame");
 	  htmp[4]->Draw("histsame");
 
-	  TLegend *l1 = new TLegend(0.55,0.72,0.91,0.91);
-	  l1->AddEntry(htot,"elastic #gamma #gamma #rightarrow e^{+} e^{-} plus backgrounds","lf");
-	  if(hdytot->GetEntries() > 0)
-	    l1->AddEntry(hdytot,"Drell-Yan","lf");
+	  TLegend *l1 = new TLegend(0.45,0.66,0.91,0.92);
+	  //	  TLegend *l1 = new TLegend(0.55,0.72,0.91,0.91);
+	  l1->SetTextSize(0.03);
+	  l1->AddEntry(htot,"elastic #gamma #gamma #rightarrow e^{+} e^{-}","lf");
+	  if(stewtot->GetEntries() > 0)
+            l1->AddEntry(stewtot,"CSA07 'Stew'","lf");
+          if(gumtot->GetEntries() > 0)
+            l1->AddEntry(gumtot,"CSA07 'Gumbo'","lf");
+	  //	  if(hdytot->GetEntries() > 0)
+	    //	    l1->AddEntry(hdytot,"Drell-Yan","lf");
 	  if(htmp[4]->GetEntries() > 0)
 	    l1->AddEntry(htmp[4],"W^{+}W^{-}","lf");	  
 	  if(htmp[8]->GetEntries() > 0)
@@ -383,16 +532,29 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
       else
 	{
 	  TH1F *hsig = htmp[0];
-	  TH1F *hbkg = htmp[2];
-	  hbkg->Add(htmp[3]);
-	  hbkg->Add(htmp[4]);
+	  //	  TH1F *hbkg = htmp[2];
+	  //	  hbkg->Add(htmp[3]);
+	  //	  hbkg->Add(htmp[4]);
+	  TH1F *hbkg = htmp[9];
+	  hbkg->Add(htmp[10]);
 	  if(thevar == 4 || thevar == 3)
-	    hbkg->Scale(0.05);
+	    hbkg->Scale(0.005);
 	  else
-	    hbkg->Scale(0.2);
-	  hbkg->SetMaximum(hsig->GetMaximum() + (0.2 * hsig->GetMaximum()));
+	    hbkg->Scale(0.002);
+	  hbkg->SetMaximum(hsig->GetMaximum() + (10.2 * hsig->GetMaximum()));
+	  hbkg->SetMinimum(0.1);
+	  hbkg->SetTitle(0);
+	  hbkg->SetLineWidth(3);
 	  hbkg->Draw("hist");
 	  hsig->Draw("histsame");
+
+	  if(0){
+          TLine *ln = new TLine(5,hsig->GetMinimum(),5,hsig->GetMaximum() + (10.2 * hsig->GetMaximum()));
+          TLine *ln2 = new TLine(5,hsig->GetMinimum(),5,hsig->GetMaximum() + (10.2 * hsig->GetMaximum()));
+          ln->SetLineStyle(2); ln2->SetLineStyle(2);
+          ln->SetLineWidth(3); ln2->SetLineWidth(3);
+          ln->Draw("same"); //  ln2->Draw("same");
+	  }
 
 	  TLegend *l1 = new TLegend(0.55,0.72,0.91,0.91);
 	  l1->AddEntry(hsig,"#gamma #gamma #rightarrow e^{+}e^{-}","lf");
@@ -403,7 +565,7 @@ void PlotSigVsBkg(Int_t thevar = 6,Int_t theleptonmode, bool save=false)
 	}
     }
 
-	gPad->SetLogy();
+  //	gPad->SetLogy();
 }
 
 // Return histogrammed quantities for mu+mu- samples
@@ -432,8 +594,9 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
     st = "gamgammumu.lpair.anal.root";
     linecolor = 1;
     linewidth = 3;
-    fillcolor = 15;
-    fillstyle = 3003;
+    fillcolor = 1;
+    //    fillstyle = 3001;
+    fillstyle = 3004;
     break;
   case 2:
     xsec = 0.5 * 37820.0 * lumi / 96500.0;
@@ -458,21 +621,29 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   case 6:
     xsec = 39.0 * lumi / 10000.0;
     st = "upsilonmumu.starlight.anal.root";
-    fillcolor = 3;
+    //    fillcolor = 3;
+    fillcolor = 1;
+    fillstyle = 3006;
     break;
   case 7:
     xsec = 13.0 * lumi / 3359.0;
     st = "upsilonmumu.starlight2s.anal.root";
-    fillcolor = 6;
+    //    fillcolor = 6;
+    fillcolor = 1;
+    fillstyle = 3006;
     break;
   case 8:
     xsec = 10.0 * lumi / 2636.0;
     st = "upsilonmumu.starlight3s.anal.root";
+    //    fillcolor = 1;
     fillcolor = 1;
+    fillstyle = 3006;
     break;
   case 9:
+    //    xsec = 76.2 * lumi / 20000.0;
+    //    st = "gamgammumu.lpairinelastic.anal.root";
     xsec = 76.2 * lumi / 20000.0;
-    st = "gamgammumu.lpairinelastic.anal.root";
+    st = "gamgammumu.lpairinelasticcteq.anal.root";
     fillcolor = 5;
     st2 = "gamgammumu.lpairinelastic.gen.root";
     break;
@@ -502,9 +673,14 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   TH1F *hntrack;
   TH1F *hncalofinal;
   TH1F *sumpt;
+  TH1F *hdptlumi;
+  TH1F *hdphilumi;
+  TH1F *hdptlumi2;
+  TH1F *hdphilumi2;
 
   hmll = new TH1F("mll","mll",50,0,200);
-  hmll2 = new TH1F("mll2","mll2",50,0,200);
+  //  hmll2 = new TH1F("mll2","mll2",25,0,100);
+  hmll2 = new TH1F("mll2","mll2",9,0,180);
   hdphi = new TH1F("hdphi","hdphi",192,0.0,3.2);
   hdpt = new TH1F("hdpt","hdpt",240,-20,20);
   hnextracaloe = new TH1F("hnextracaloe","hnextracaloe",50,0,50);
@@ -512,6 +688,10 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   hntrack = new TH1F("hntrack","hntrack",50,0,50);
   hncalofinal = new TH1F("hncalofinal","hncalofinal",50,0,50);
   sumpt = new TH1F("sumpt","sumpt",9,0,180);
+  hdphilumi = new TH1F("hdphilumi","hdphilumi",50,2.9,3.2);
+  hdptlumi = new TH1F("hdptlumi","hdptlumi",50,-2,2);
+  hdphilumi2 = new TH1F("hdphilumi2","hdphilumi2",50,2.9,3.2);
+  hdptlumi2 = new TH1F("hdptlumi2","hdptlumi2",50,-2,2);
 
   TH2F *hntrackncalo = new TH2F("hntrackncalo","hntrackncalo",500,0,100,500,0,100);
   TH2F *hdr = new TH2F("hdr","hdr",400,-6.0,6.0,400,-6.0,6.0);  
@@ -526,7 +706,8 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   Int_t njets;
   Int_t ntracks;
   Int_t ncalo;
-  Int_t zdchit, hitincastor;
+  Int_t zdchit = 0;
+  Int_t hitincastor = 0;
   Double_t deltara;
   Double_t deltarb;
 
@@ -549,11 +730,8 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   tr1->SetBranchAddress("CaloTower_phi",&calophi);
   tr1->SetBranchAddress("nCaloCand",&ncalo);
 
-  //  if(tr2)
-  //    {
   tr1->SetBranchAddress("HitInZDC",&zdchit);
   tr1->SetBranchAddress("HitInCastor",&hitincastor);
-  //    }
 
   Int_t ent1 = tr1->GetEntries();
   Int_t nisocalo = 0;
@@ -561,17 +739,22 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   Int_t ndphipass, ndptpass, ncalopass, ntrackpass = 0;
   Int_t nupspass = 0;
   Int_t ntotpass = 0;
+  Int_t castorhits = 0;
 
   TRandom rnd1;
 
   for(Int_t i = 0;i < ent1;i++)
     {
+      tr1->GetEntry(i);
+      nisocalo = 0;
+
       // Stupid trick - ignore half of events with Castor hits to simulate presecnce of only one Castor
       Double_t castorrnd1 = rnd1.Uniform();
-      if(hitincastor == 1 && castorrnd1 < 0.5)
-	hitincastor = 0;
-      nisocalo = 0;
-      tr1->GetEntry(i);
+      if(hitincastor > 0 && castorrnd1 < 0.5)
+      	{
+      	  hitincastor = 0;
+      	}
+
       hdphi->Fill(mumudphi);
       hdpt->Fill((mupt[0]-mupt[1]));
       hmll->Fill(mumumass);
@@ -613,16 +796,26 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
 		    {
 		      ntrackpass++;
 		      ntotpass++;
-		      //		      if(mumumass < upsloveto || mumumass > upshiveto)
-		      //		      if(zdchit == 0 && hitincastor == 0)
+
+		      hdphilumi2->Fill(mumudphi);
+		      hdptlumi2->Fill(mupt[0]-mupt[1]);
+
+		      if((zdchit == 0) && (hitincastor == 0))
+		      //		      if(1)
+		      //		      if((mumumass < 9.0 || mumumass > 11.0) && (zdchit == 0) && (hitincastor == 0))
+		      //		      if((mumumass < 9.0 || mumumass > 11.0))
 			{
 			  nupspass++;
+			  if(castorhits > 0)
+			    cout << "Hey! " << hitincastor << endl;
 			  hmll2->Fill(mumumass);
 			  sumpt->Fill(mupt[0]+mupt[1]);
+			  hdptlumi->Fill(mupt[0]-mupt[1]);
+			  hdphilumi->Fill(mumudphi);
 			}
 		    }
 		}
-	      if(ntracks < 200)
+	      if(ntracks < 3)
 		{
 		  //		  if(mumumass < upsloveto || mumumass > upshiveto)
 		  //		  if(zdchit == 0 && hitincastor == 0)
@@ -631,8 +824,9 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
 	    }
 	}
     }
-
+  
   Double_t eff = (Double_t)ntrackpass/(Double_t)ntotsig;
+  cout << "Raw total signal events before cuts = " << ntotsig << endl;
   cout << "Efficiency/rejection for file: " << st << endl;
   cout << "\td(phi) eff = " << (Double_t)ndphipass/(Double_t)ntotsig << endl;
   cout << "\td(pt) eff = " << (Double_t)ndptpass/(Double_t)ntotsig << endl;
@@ -705,7 +899,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   hdpt->SetMaximum(6000);
   hdpt->SetStats(0);
   hdpt->SetTitle(0);
-  hdpt->SetXTitle("|#Delta p_{T}(#mu #mu)|");
+  hdpt->SetXTitle("#Delta p_{T}(#mu #mu) (GeV)");
   hdpt->Draw("hist");
   hdpt->Sumw2();
   hdpt->Scale(xsec);
@@ -743,7 +937,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   hmll2->SetMaximum(50.0*lumi);
   hmll2->SetTitle(0);
   hmll2->SetStats(0);
-  hmll2->SetXTitle("m (#mu #mu)");
+  hmll2->SetXTitle("m (#mu #mu) (GeV)");
   hmll2->Draw("hist");
   return(hmll2);
   }
@@ -755,7 +949,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
   hmll->SetMaximum(20.0*lumi);
   hmll->SetTitle(0);
   hmll->SetStats(0);
-  hmll->SetXTitle("m (#mu #mu)");
+  hmll->SetXTitle("m (#mu #mu) (GeV)");
   hmll->SetFillColor(fillcolor);
   hmll->SetFillStyle(fillstyle);
   hmll->SetLineColor(linecolor);
@@ -805,7 +999,7 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
     sumpt->SetMaximum(20.0*lumi);
     sumpt->SetTitle(0);
     sumpt->SetStats(0);
-    sumpt->SetXTitle("#Sigma pt (#mu #mu)");
+    sumpt->SetXTitle("#Sigma pt (#mu #mu) (GeV)");
     sumpt->SetFillColor(fillcolor);
     sumpt->SetFillStyle(fillstyle);
     sumpt->SetLineColor(linecolor);
@@ -813,6 +1007,71 @@ TH1F *GetMuMuHist(Int_t plotvar = 6,Int_t physsample = 1, bool save = false)
     sumpt->Draw("hist");
     return(sumpt);
   }
+
+  if(plotvar == 10){
+    hdptlumi->Sumw2();
+    hdptlumi->Scale(xsec);
+    hdptlumi->SetMinimum(0.001);
+    hdptlumi->SetMaximum(20.0*lumi);
+    hdptlumi->SetTitle(0);
+    hdptlumi->SetStats(0);
+    hdptlumi->SetXTitle("#Delta p_{T} (#mu #mu) (GeV)");
+    hdptlumi->SetFillColor(fillcolor);
+    hdptlumi->SetFillStyle(fillstyle);
+    hdptlumi->SetLineColor(linecolor);
+    hdptlumi->SetLineWidth(linewidth);
+    hdptlumi->Draw("hist");
+    return(hdptlumi);
+  }
+
+  if(plotvar == 11){
+    hdphilumi->Sumw2();
+    hdphilumi->Scale(xsec);
+    hdphilumi->SetMinimum(0.001);
+    hdphilumi->SetMaximum(20.0*lumi);
+    hdphilumi->SetTitle(0);
+    hdphilumi->SetStats(0);
+    hdphilumi->SetXTitle("|#Delta #phi (#mu #mu)|");
+    hdphilumi->SetFillColor(fillcolor);
+    hdphilumi->SetFillStyle(fillstyle);
+    hdphilumi->SetLineColor(linecolor);
+    hdphilumi->SetLineWidth(linewidth);
+    hdphilumi->Draw("hist");
+    return(hdphilumi);
+  }
+
+  if(plotvar == 12){
+    hdptlumi2->Sumw2();
+    hdptlumi2->Scale(xsec);
+    hdptlumi2->SetMinimum(0.001);
+    hdptlumi2->SetMaximum(20.0*lumi);
+    hdptlumi2->SetTitle(0);
+    hdptlumi2->SetStats(0);
+    hdptlumi2->SetXTitle("#Delta p_{T} (#mu #mu)");
+    hdptlumi2->SetFillColor(fillcolor);
+    hdptlumi2->SetFillStyle(fillstyle);
+    hdptlumi2->SetLineColor(linecolor);
+    hdptlumi2->SetLineWidth(linewidth);
+    hdptlumi2->Draw("hist");
+    return(hdptlumi2);
+  }
+
+  if(plotvar == 13){
+    hdphilumi2->Sumw2();
+    hdphilumi2->Scale(xsec);
+    hdphilumi2->SetMinimum(0.001);
+    hdphilumi2->SetMaximum(20.0*lumi);
+    hdphilumi2->SetTitle(0);
+    hdphilumi2->SetStats(0);
+    hdphilumi2->SetXTitle("|#Delta #phi (#mu #mu)|");
+    hdphilumi2->SetFillColor(fillcolor);
+    hdphilumi2->SetFillStyle(fillstyle);
+    hdphilumi2->SetLineColor(linecolor);
+    hdphilumi2->SetLineWidth(linewidth);
+    hdphilumi2->Draw("hist");
+    return(hdphilumi2);
+  }
+
 
 }
 
@@ -839,8 +1098,8 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
     st = "gamgamee.lpair.anal.root";
     linecolor = 1;
     linewidth = 3;
-    fillcolor = 15;
-    fillstyle = 3003;
+    fillcolor = 1;
+    fillstyle = 3004;
     break;
   case 2:
     xsec = 0.5 * 37820.0 * lumi / 96500.0;
@@ -870,7 +1129,8 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
     break;
   case 9:
     xsec = 13.6 * lumi * 0.9 / 20000.0;
-    st = "gamgamee.lpairinelastic.anal.root";
+    //    st = "gamgamee.lpairinelastic.anal.root";
+    st = "gamgamee.lpairinelasticcteq.anal.root";
     fillcolor = 5;
   default:
     break;
@@ -890,7 +1150,8 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
   TH1F *sumpt;
 
   hmll = new TH1F("mll","mll",50,0,200);
-  hmll2 = new TH1F("mll2","mll2",50,0,200);
+  //  hmll2 = new TH1F("mll2","mll2",25,0,100);
+  hmll2 = new TH1F("mll2","mll2",9,0,180);
   hdphi = new TH1F("hdphi","hdphi",196,0.0,3.2);
   hdpt = new TH1F("hdpt","hdpt",240,-20,20);
   hnextracaloe = new TH1F("hnextracaloe","hnextracaloe",50,0,50);
@@ -911,7 +1172,8 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
   Int_t njets;
   Int_t ntracks;
   Int_t ncalo;
-  Int_t zdchit, hitincastor;
+  Int_t zdchit = 0;
+  Int_t hitincastor = 0;
   Double_t deltara;
   Double_t deltarb;
 
@@ -947,12 +1209,16 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
 
   for(Int_t i = 0;i < ent1;i++)
     {
-      // Stupid trick - ignore half of events with Castor hits to simulate presecnce of only one Castor
-      Double_t castorrnd2 = rnd2.Uniform();
-      if(hitincastor == 1 && castorrnd2 < 0.5)
-        hitincastor = 0;
       nisocalo = 0;
       tr1->GetEntry(i);
+
+      // Stupid trick - ignore half of events with Castor hits to simulate presecnce of only one Castor
+      Double_t castorrnd2 = rnd2.Uniform();
+      if(hitincastor > 0 && castorrnd2 < 0.5)
+	{
+	  hitincastor = 0;
+	}
+
       hdphi->Fill(eleldphi);
       hdpt->Fill((elept[0]-elept[1]));
       hmll->Fill(elelmass);
@@ -992,7 +1258,9 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
 		  ncalopass++;
 		  if(ntracks < ntrackcut)
 		    {
-		      //		      if(zdchit == 0 && hitincastor == 0)
+		      ntrackpass++;
+		      if(zdchit == 0 && hitincastor == 0)
+			//		      if(1)
 			{
 			  ntotpass++;
 			  hmll2->Fill(elelmass);
@@ -1005,10 +1273,12 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
     }
 
   Double_t eff = (Double_t)ntotpass/(Double_t)ntotsig;
+  cout << "Raw total signal events before cuts = " << ntotsig << endl;
   cout << "Efficiency/rejection for file: " << st << endl;
   cout << "\td(phi) eff = " << (Double_t)ndphipass/(Double_t)ntotsig << endl;
   cout << "\td(pt) eff = " << (Double_t)ndptpass/(Double_t)ntotsig << endl;
   cout << "\tcalo excl eff = " << (Double_t)ncalopass/(Double_t)ntotsig << endl;
+  cout << "\tN(tracks) eff = " << (Double_t)ntrackpass/(Double_t)ntotsig << endl;
   cout << "\tTotal eff = " << eff << endl;
   //  cout << "Eff = " << eff << endl;
   cout << "N(sig) = " << (Double_t)ntotpass * xsec << " +- " << sqrt(ntotpass) * xsec << endl;
@@ -1075,7 +1345,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
   hdpt->SetMaximum(6000);
   hdpt->SetStats(0);
   hdpt->SetTitle(0);
-  hdpt->SetXTitle("|#Delta E_{T}(e e)|");
+  hdpt->SetXTitle("#Delta E_{T}(e e) (GeV)");
   hdpt->Draw("hist");
   hdpt->Sumw2();
   hdpt->Scale(xsec);
@@ -1113,7 +1383,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
   hmll2->SetMaximum(5.0*lumi);
   hmll2->SetTitle(0);
   hmll2->SetStats(0);
-  hmll2->SetXTitle("m (e e)");
+  hmll2->SetXTitle("m (e e) (GeV)");
   hmll2->Draw("hist");
   return(hmll2);
   }
@@ -1125,7 +1395,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
   hmll->SetMaximum(2.0*lumi);
   hmll->SetTitle(0);
   hmll->SetStats(0);
-  hmll->SetXTitle("m (e e)");
+  hmll->SetXTitle("m (e e) (GeV)");
   hmll->SetFillColor(fillcolor);
   hmll->SetFillStyle(fillstyle);
   hmll->SetLineColor(linecolor);
@@ -1141,7 +1411,7 @@ TH1F *GetEEHist(Int_t plotvar = 6,Int_t physsample = 1,bool save=false)
     sumpt->SetMaximum(20.0*lumi);
     sumpt->SetTitle(0);
     sumpt->SetStats(0);
-    sumpt->SetXTitle("#Sigma E_{T} (e e)");
+    sumpt->SetXTitle("#Sigma E_{T} (e e) (GeV)");
     sumpt->SetFillColor(fillcolor);
     sumpt->SetFillStyle(fillstyle);
     sumpt->SetLineColor(linecolor);

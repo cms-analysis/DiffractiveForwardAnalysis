@@ -9,6 +9,8 @@
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
+
 #include <TFile.h>
 #include <TH1D.h>
 #include <TTree.h>
@@ -107,6 +109,14 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int TrackCand_charge[100];
 
   double evweight;
+
+  AcceptanceTableHelper helper420beam1;   
+  AcceptanceTableHelper helper420beam2;   
+  AcceptanceTableHelper helper220beam1;   
+  AcceptanceTableHelper helper220beam2;   
+  AcceptanceTableHelper helper420a220beam1;   
+  AcceptanceTableHelper helper420a220beam2;   
+
 
 };
 #endif

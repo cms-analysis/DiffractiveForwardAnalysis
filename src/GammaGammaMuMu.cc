@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.14 2007/11/22 14:16:04 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.15 2007/12/04 13:13:25 jjhollar Exp $
 //
 //
 
@@ -43,6 +43,9 @@
 #include <DataFormats/TrackReco/interface/Track.h>
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+
+#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"  
+
 
 // C++
 #include <memory>
@@ -85,6 +88,23 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   caloetthresh       = pset.getParameter<double>("CaloTowerEtthreshold");
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
+
+  edm::FileInPath myDataFile("FastSimulation/ProtonTaggers/data/acceptance_420_220.root");  
+  std::string fullPath = myDataFile.fullPath();  
+  std::cout << "Opening " << fullPath << std::endl;  
+  TFile f(fullPath.c_str());  
+  if (f.Get("description") != NULL)  
+    std::cout << "Description found: " << f.Get("description")->GetTitle() << std::endl;  
+    
+  std::cout << "Reading acceptance tables " << std::endl;  
+ 
+  helper420beam1.Init(f, "a420");  
+  helper420beam2.Init(f, "a420_b2");  
+  helper220beam1.Init(f, "a220");  
+  helper220beam2.Init(f, "a220_b2");  
+  helper420a220beam1.Init(f, "a420a220");  
+  helper420a220beam2.Init(f, "a420a220_b2");  
+
 
   //  nEvt=0;
   MUONMAX=10;
@@ -431,6 +451,45 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	HitInZDC++;
       if((MCPar_pdgid != 22 && MCPar_pdgid != 2112) && (abs(MCPar_eta) > 5.2 && abs(MCPar_eta) < 6.6))
 	HitInCastor++;
+
+      if(MCPar_pdgid == 2212 && MCPar_pz > 3000.0) 
+        { 
+          double MCPar_pt = sqrt(MCPar_px*MCPar_px + MCPar_py*MCPar_py); 
+          double phi = p.phi(); 
+          double mp = 0.938272029; 
+          // ... compute kinimatical variable  
+  
+          float xi  = 1.0;    // fractional momentum loss  
+          if (MCPar_pz>0)  
+            xi -= MCPar_pz/7000.0;  
+          else  
+            xi += MCPar_pz/7000.0;  
+  
+          double t   = (-MCPar_pt*MCPar_pt - mp*mp*xi*xi) / (1-xi); // "t"  
+ 
+          float acc420b1, acc220b1, acc420and220b1, acc420or220b1; // beam 1 (clockwise)  
+          float acc420b2, acc220b2, acc420and220b2, acc420or220b2; // beam 2 (anti-clockwise)  
+  
+          acc420b1 = acc220b1 = acc420and220b1 = acc420or220b1 = 0;  
+          acc420b2 = acc220b2 = acc420and220b2 = acc420or220b2 = 0;  
+ 
+          if(MCPar_pz > 0) 
+            { 
+              acc420b1       = helper420beam1.GetAcceptance(t, xi, phi);  
+              acc220b1       = helper220beam1.GetAcceptance(t, xi, phi);  
+              acc420and220b1 = helper420a220beam1.GetAcceptance(t, xi, phi);  
+              acc420or220b1  = acc420b1 + acc220b1 - acc420and220b1;  
+            } 
+          else 
+            { 
+              acc420b2       = helper420beam2.GetAcceptance(t, xi, phi);  
+              acc220b2       = helper220beam2.GetAcceptance(t, xi, phi);  
+              acc420and220b2 = helper420a220beam2.GetAcceptance(t, xi, phi);  
+              acc420or220b2  = acc420b2 + acc220b2 - acc420and220b2;  
+            } 
+ 
+        } 
+
     }
 
   // Check for di-objects

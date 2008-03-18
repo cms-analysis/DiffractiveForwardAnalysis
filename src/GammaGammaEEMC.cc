@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEEMC.cc,v 1.4 2007/11/01 15:43:41 jjhollar Exp $
+// $Id: GammaGammaEEMC.cc,v 1.5 2007/12/04 13:13:25 jjhollar Exp $
 //
 //
 
@@ -148,6 +148,8 @@ GammaGammaEEMC::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       const Candidate & p = (*genParticles)[ i ];
 
        MCPar_status[nMCPar]=p.status();
+       if(p.status() == 3) 
+         continue; 
        MCPar_px[nMCPar]=p.px();
        MCPar_py[nMCPar]=p.py();
        MCPar_pz[nMCPar]=p.pz();
