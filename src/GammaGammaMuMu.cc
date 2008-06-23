@@ -13,25 +13,43 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.16 2008/03/18 14:25:46 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.17 2008/03/18 14:43:32 jjhollar Exp $
 //
 //
 
 
 // system include files
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
+ 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"  
+#include "DataFormats/Common/interface/Ref.h"  
+ 
+#include "DataFormats/Common/interface/TriggerResults.h"  
+#include "FWCore/Framework/interface/TriggerNames.h"  
+  
+ 
+#include "FWCore/Framework/interface/ESHandle.h" 
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h" 
+#include "DataFormats/JetReco/interface/CaloJet.h"  
+#include "DataFormats/EgammaCandidates/interface/Electron.h"  
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"   
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
+#include "DataFormats/TrackReco/interface/Track.h"  
+#include "DataFormats/TrackReco/interface/TrackFwd.h"  
+#include "DataFormats/MuonReco/interface/Muon.h"  
+#include "DataFormats/MuonReco/interface/MuonFwd.h"   
+#include "DataFormats/METReco/interface/CaloMET.h"  
+#include "DataFormats/METReco/interface/CaloMETFwd.h"   
+#include "DataFormats/METReco/interface/CaloMETCollection.h"  
+#include "DataFormats/EgammaCandidates/interface/Photon.h"  
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"  
+#include "DataFormats/CaloTowers/interface/CaloTower.h"  
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"   
+#include "DataFormats/Candidate/interface/Candidate.h"  
+#include "DataFormats/Candidate/interface/CandidateFwd.h"   
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaMuMu.h"
 
@@ -430,8 +448,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;
   int MCPar_pdgid;
 
-  Handle<CandidateCollection> genParticles;
-  event.getByLabel( "genParticleCandidates", genParticles );
+  Handle<GenParticleCollection> genParticles;
+  event.getByLabel( "genParticles", genParticles );
   for ( size_t i = 0; i < genParticles->size(); ++ i ) 
     {
       const Candidate & p = (*genParticles)[ i ];

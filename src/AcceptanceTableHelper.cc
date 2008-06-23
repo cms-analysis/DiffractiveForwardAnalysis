@@ -5,12 +5,13 @@
  *
  * Author: Dmitry Zaborov
  *
- * Version: $Id: AcceptanceTableHelper.cc,v 1.1 2007/09/28 08:40:13 dzaborov Exp $
+ * Version: $Id: AcceptanceTableHelper.cc,v 1.1 2008/03/20 15:57:30 jjhollar Exp $
  ***************************************************************************/
 
 #include "FastSimulation/ProtonTaggers/interface/AcceptanceTableHelper.h"
 
 #include <iostream>
+#include <TMath.h>
 
 /** Read from root file <f> acceptance tables named <basename> and <basename>_hight */
 
