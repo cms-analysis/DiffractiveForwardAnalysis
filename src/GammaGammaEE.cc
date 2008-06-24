@@ -13,12 +13,20 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.16 2008/03/18 14:43:32 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.17 2008/06/23 16:40:35 jjhollar Exp $
 //
 //
 
 
 // system include files
+#include "DataFormats/PatCandidates/interface/Muon.h" 
+#include "DataFormats/PatCandidates/interface/Jet.h" 
+#include "DataFormats/PatCandidates/interface/Electron.h" 
+#include "DataFormats/PatCandidates/interface/Tau.h" 
+#include "DataFormats/PatCandidates/interface/Photon.h" 
+#include "DataFormats/PatCandidates/interface/MET.h" 
+
+
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
@@ -225,10 +233,17 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   //  evweight = * weightHandle; 
 
   // Get the electron track collection from the event
-  edm::Handle<reco::PixelMatchGsfElectronCollection> pTracks;
-  event.getByLabel(thePixelGsfELabel,pTracks);
-  const reco::PixelMatchGsfElectronCollection* electrons = pTracks.product();
-  reco::PixelMatchGsfElectronCollection::const_iterator electron;
+
+  // PAT
+  edm::Handle<edm::View<pat::Electron> > electrons; 
+  event.getByLabel(thePixelGsfELabel,electrons); 
+  edm::View<pat::Electron>::const_iterator electron;
+
+  // AOD
+  //  edm::Handle<reco::PixelMatchGsfElectronCollection> pTracks;
+  //  event.getByLabel(thePixelGsfELabel,pTracks);
+  //  const reco::PixelMatchGsfElectronCollection* electrons = pTracks.product();
+  //  reco::PixelMatchGsfElectronCollection::const_iterator electron;
 
   if(electrons->size() == 2)
     {
@@ -264,16 +279,30 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }
 
   // Get the Jet collection from the event
-  edm::Handle<reco::CaloJetCollection> pJets;
-  event.getByLabel(theJetLabel,pJets);
-  const reco::CaloJetCollection* jets = pJets.product();
-  reco::CaloJetCollection::const_iterator jet;
+
+  // PAT 
+  edm::Handle<edm::View<pat::Jet> > jets;  
+  event.getByLabel(theJetLabel,jets);  
+  edm::View<pat::Jet>::const_iterator jet; 
+ 
+  // AOD 
+  //  edm::Handle<reco::CaloJetCollection> pJets; 
+  //  event.getByLabel(theJetLabel,pJets); 
+  //  const reco::CaloJetCollection* jets = pJets.product(); 
+  //  reco::CaloJetCollection::const_iterator jet; 
 
   // Get the MET collection from the event
-  edm::Handle<reco::CaloMETCollection> pMET;
-  event.getByLabel(theMetLabel,pMET);
-  const reco::CaloMETCollection* mets = pMET.product();
-  reco::CaloMETCollection::const_iterator met;
+
+  // PAT
+  edm::Handle<edm::View<pat::MET> > mets;  
+  event.getByLabel(theMetLabel,mets);  
+  edm::View<pat::MET>::const_iterator met; 
+ 
+  // AOD 
+  //  edm::Handle<reco::CaloMETCollection> pMET; 
+  //  event.getByLabel(theMetLabel,pMET); 
+  //  const reco::CaloMETCollection* mets = pMET.product(); 
+  //  reco::CaloMETCollection::const_iterator met; 
 
   // Get the CaloTower collection from the event 
   edm::Handle<CaloTowerCollection> caloTowers;  
