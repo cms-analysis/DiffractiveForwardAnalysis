@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.18 2008/06/23 16:40:35 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.19 2008/06/24 12:50:10 jjhollar Exp $
 //
 //
 
@@ -69,6 +69,18 @@
 #include <DataFormats/TrackReco/interface/Track.h>
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+
+// Vertexing 
+#include "DataFormats/VertexReco/interface/Vertex.h" 
+#include "DataFormats/VertexReco/interface/VertexFwd.h" 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h" 
+#include "TrackingTools/Records/interface/TransientTrackRecord.h" 
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h" 
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h" 
+#include "RecoVertex/VertexPrimitives/interface/ConvertError.h" 
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h" 
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h" 
+
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"  
 
@@ -198,6 +210,11 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
 
   thetree->Branch("MuMu_mass",&MuMu_mass,"MuMu_mass/D");
   thetree->Branch("MuMu_dphi",&MuMu_dphi,"MuMu_dphi/D");
+  thetree->Branch("MuMu_vtxx",&MuMu_vtxx,"MuMu_vtxx/D");
+  thetree->Branch("MuMu_vtxy",&MuMu_vtxy,"MuMu_vtxy/D"); 
+  thetree->Branch("MuMu_vtxz",&MuMu_vtxz,"MuMu_vtxz/D"); 
+  thetree->Branch("MuMu_vtxchi2dof",&MuMu_vtxchi2dof,"MuMu_vtxchi2dof/D");
+  thetree->Branch("MuMu_vtxisvalid",&MuMu_vtxisvalid,"MuMu_vtxisvalid/I");
 
   thetree->Branch("HitInZDC",&HitInZDC,"HitInZDC/I");
   thetree->Branch("HitInCastor",&HitInCastor,"HitInCastor/I");
@@ -279,6 +296,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_eta[nMuonCand]=muon->eta();
 	  MuonCand_phi[nMuonCand]=muon->phi();
 	  MuonCand_charge[nMuonCand]=muon->charge();
+
+	  MuonCandTrack_p[nMuonCand] = muon->track()->p(); 
+
 	  nMuonCand++;
 	}  
 
@@ -534,6 +554,61 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
         } 
 
     }
+
+  // Now do vertexing and track counting
+  edm::ESHandle<TransientTrackBuilder> theVtx;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theVtx);
+  //  vector < reco::TransientTrack > mutrks;
+  vector<TransientTrack> transmutrks; 
+  reco::TrackCollection * mutrks = new reco::TrackCollection;
+
+  // First get "muon" tracks
+  bool isMuon = false;
+  for( track = tracks->begin(); track != tracks->end(); ++ track ) 
+    { 
+      isMuon = false;
+      for(int j = 0;j < nMuonCand; j++)
+	{
+	  if(MuonCandTrack_p[j] == track->p())
+	    {
+	      isMuon = true;
+	      mutrks->push_back( *track );
+	      TransientTrack tmptrk = (*theVtx).build( *track );
+	      transmutrks.push_back( tmptrk );
+	    }
+	}
+    }
+
+  // If 2 muons, make a vertex
+  if(transmutrks.size() == 2) 
+    { 
+      KalmanVertexFitter fitter(true); 
+      TransientVertex mumuVertex = fitter.vertex(transmutrks); 
+      if(mumuVertex.isValid())
+	{
+	  MuMu_vtxx = mumuVertex.position().x(); 
+	  MuMu_vtxy = mumuVertex.position().y(); 
+	  MuMu_vtxz = mumuVertex.position().z(); 
+	  MuMu_vtxchi2dof = mumuVertex.normalisedChiSquared();
+	  MuMu_vtxisvalid = 1;
+	}
+      else
+	{
+	  MuMu_vtxx = 0;  
+	  MuMu_vtxy = 0;  
+	  MuMu_vtxz = 0;  
+	  MuMu_vtxchi2dof = 0;
+	  MuMu_vtxisvalid = 0;
+	}
+    } 
+  else 
+    { 
+      MuMu_vtxx = 0; 
+      MuMu_vtxy = 0; 
+      MuMu_vtxz = 0; 
+      MuMu_vtxchi2dof = 0; 
+      MuMu_vtxisvalid = 0; 
+    } 
 
   // Check for di-objects
   if(nMuonCand != 2)

@@ -16,4 +16,14 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=rootcore>
 <use name=root>
+
+  <use name=RecoVertex/VertexPrimitives>
+  <use name=RecoVertex/VertexTools>
+  <use name=SimDataFormats/TrackingAnalysis>
+  <use name=SimTracker/TrackAssociation>
+  <use name=TrackingTools/TransientTrack>
+  <use name=RecoVertex/KalmanVertexFit>
+  <use name=rootcore>
+  <lib name=RecoVertexKalmanVertexFit>
+
 <flags EDM_PLUGIN=1>

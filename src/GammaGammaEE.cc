@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.17 2008/06/23 16:40:35 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.18 2008/06/24 12:50:10 jjhollar Exp $
 //
 //
 
@@ -63,6 +63,17 @@
 #include <DataFormats/TrackReco/interface/Track.h>
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+
+// Vertexing 
+#include "DataFormats/VertexReco/interface/Vertex.h" 
+#include "DataFormats/VertexReco/interface/VertexFwd.h" 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h" 
+#include "TrackingTools/Records/interface/TransientTrackRecord.h" 
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h" 
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h" 
+#include "RecoVertex/VertexPrimitives/interface/ConvertError.h" 
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h" 
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h" 
 
 // C++
 #include <memory>

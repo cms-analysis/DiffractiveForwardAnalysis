@@ -11,4 +11,5 @@ module gamgameeanalysis = GammaGammaEE {
   double DielectronMindphi	     = 0.0
   double CaloTowerdR                 = 0.3 
 
+  untracked string   outfilename               = "ee.recolevel.root"  
 }
