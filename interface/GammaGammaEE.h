@@ -53,9 +53,18 @@ class GammaGammaEE : public edm::EDAnalyzer {
   double EleCand_et[4];
   double EleCand_phi[4];
   double EleCand_eta[4];
+  double EleCandTrack_p[100];
   double EleCand_charge[4];
   double ElEl_mass;
   double ElEl_dphi;
+  double ElEl_vtxx; 
+  double ElEl_vtxy; 
+  double ElEl_vtxz; 
+  double ElEl_vtxchi2dof; 
+  int ElEl_vtxisvalid; 
+  int ElEl_extratracks2cm; 
+  int ElEl_extratracks5cm; 
+  int ElEl_extratracks10cm; 
 
   int nJetCand;
   int JETMAX;// used to set maximum of arrays
@@ -103,6 +112,8 @@ class GammaGammaEE : public edm::EDAnalyzer {
   double TrackCand_pt[100];
   double TrackCand_phi[100];
   int TrackCand_charge[100];
+  double TrackCand_vtxdxyz[100];
+  double ClosestExtraTrack_vtxdxyz; 
 
   double evweight;
 

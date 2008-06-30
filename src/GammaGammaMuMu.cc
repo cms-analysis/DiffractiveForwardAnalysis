@@ -1,4 +1,4 @@
-// -*- C++ -*-
+ // -*- C++ -*-
 //
 // Package:    GammaGammaMuMu
 // Class:      GammaGammaMuMu
@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.19 2008/06/24 12:50:10 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.20 2008/06/26 16:21:14 jjhollar Exp $
 //
 //
 
@@ -170,6 +170,9 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_pt",MuonCand_pt,"MuonCand_pt[nMuonCand]/D");
   thetree->Branch("MuonCand_eta",MuonCand_eta,"MuonCand_eta[nMuonCand]/D");
   thetree->Branch("MuonCand_phi",MuonCand_phi,"MuonCand_phi[nMuonCand]/D");
+  thetree->Branch("MuonCand_charge",MuonCand_charge,"MuonCand_charge[nMuonCand]/I");
+  thetree->Branch("MuonCand_tmlsloosemuonid",MuonCand_tmlsloosemuonid,"MuonCand_tmlsloosemuonid[nMuonCand]/I");
+  thetree->Branch("MuonCand_tm2dloosemuid",MuonCand_tm2dloosemuid,"MuonCand_tm2dloosemuid[nMuonCand]/I");
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -207,7 +210,9 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("TrackCand_pt",TrackCand_pt,"TrackCand_pt[nTrackCand]/D");
   thetree->Branch("TrackCand_eta",TrackCand_eta,"TrackCand_eta[nTrackCand]/D");
   thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nTrackCand]/D");
-
+  thetree->Branch("TrackCand_vtxdxyz",TrackCand_vtxdxyz,"TrackCand_vtxdxyz[nTrackCand]/D");
+  thetree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D");
+  
   thetree->Branch("MuMu_mass",&MuMu_mass,"MuMu_mass/D");
   thetree->Branch("MuMu_dphi",&MuMu_dphi,"MuMu_dphi/D");
   thetree->Branch("MuMu_vtxx",&MuMu_vtxx,"MuMu_vtxx/D");
@@ -215,6 +220,9 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuMu_vtxz",&MuMu_vtxz,"MuMu_vtxz/D"); 
   thetree->Branch("MuMu_vtxchi2dof",&MuMu_vtxchi2dof,"MuMu_vtxchi2dof/D");
   thetree->Branch("MuMu_vtxisvalid",&MuMu_vtxisvalid,"MuMu_vtxisvalid/I");
+  thetree->Branch("MuMu_extratracks2cm",&MuMu_extratracks2cm,"MuMu_extratracks2cm/I");
+  thetree->Branch("MuMu_extratracks5cm",&MuMu_extratracks5cm,"MuMu_extratracks5cm/I"); 
+  thetree->Branch("MuMu_extratracks10cm",&MuMu_extratracks10cm,"MuMu_extratracks10cm/I"); 
 
   thetree->Branch("HitInZDC",&HitInZDC,"HitInZDC/I");
   thetree->Branch("HitInCastor",&HitInCastor,"HitInCastor/I");
@@ -262,6 +270,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   MuMu_mass = -1;
   MuMu_dphi = -1;
+  MuMu_extratracks2cm = 0;
+  MuMu_extratracks5cm = 0;
+  MuMu_extratracks10cm = 0;
 
   bool passed = true;
 
@@ -296,6 +307,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_eta[nMuonCand]=muon->eta();
 	  MuonCand_phi[nMuonCand]=muon->phi();
 	  MuonCand_charge[nMuonCand]=muon->charge();
+	  //	  muon->originalObject();
+	  MuonCand_tmlsloosemuonid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TMLastStationLoose);
+	  MuonCand_tm2dloosemuid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TM2DCompatibilityLoose);
 
 	  MuonCandTrack_p[nMuonCand] = muon->track()->p(); 
 
@@ -369,6 +383,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double highestettowereta = -999.0;
   double highestettowerphi = -999.0;
   double totalecalo = -1.0; 
+  double closesttrkdxyz = 999.0;
 
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
   if(nMuonCand == 2)
@@ -474,19 +489,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestEtCaloTower_eta = highestettowereta;
       HighestEtCaloTower_phi = highestettowerphi;
       HighestEtCaloTower_dr = highestettowerdr;
-
-      for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track)
-	{
-	  TrackCand_p[nTrackCand]=track->p();
-	  TrackCand_px[nTrackCand]=track->px();
-	  TrackCand_py[nTrackCand]=track->py();
-	  TrackCand_pz[nTrackCand]=track->pz();
-	  TrackCand_pt[nTrackCand]=track->pt();
-	  TrackCand_eta[nTrackCand]=track->eta();
-	  TrackCand_phi[nTrackCand]=track->phi();
-	  TrackCand_charge[nTrackCand]=track->charge();
-	  nTrackCand++; 
-	}
     }
 
 
@@ -600,6 +602,37 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuMu_vtxchi2dof = 0;
 	  MuMu_vtxisvalid = 0;
 	}
+
+      // OK, now go back and count "extra" tracks on the dimuon vertex
+      for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track) 
+        { 
+	  if(track->p() == MuonCandTrack_p[0] || track->p() == MuonCandTrack_p[1])
+	    continue;
+	  
+          TrackCand_p[nTrackCand]=track->p(); 
+          TrackCand_px[nTrackCand]=track->px(); 
+          TrackCand_py[nTrackCand]=track->py(); 
+          TrackCand_pz[nTrackCand]=track->pz(); 
+          TrackCand_pt[nTrackCand]=track->pt(); 
+          TrackCand_eta[nTrackCand]=track->eta(); 
+          TrackCand_phi[nTrackCand]=track->phi(); 
+          TrackCand_charge[nTrackCand]=track->charge(); 
+	  TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - MuMu_vtxx)*(track->vertex().x() - MuMu_vtxx)) + 
+					     ((track->vertex().y() - MuMu_vtxy)*(track->vertex().y() - MuMu_vtxy)) +
+					     ((track->vertex().z() - MuMu_vtxz)*(track->vertex().z() - MuMu_vtxz)));
+	  
+	  if(TrackCand_vtxdxyz[nTrackCand] < 2)
+	    MuMu_extratracks2cm++;
+          if(TrackCand_vtxdxyz[nTrackCand] < 5) 
+            MuMu_extratracks5cm++; 
+          if(TrackCand_vtxdxyz[nTrackCand] < 10) 
+            MuMu_extratracks10cm++; 
+	  if(TrackCand_vtxdxyz[nTrackCand] < closesttrkdxyz)
+	    closesttrkdxyz = TrackCand_vtxdxyz[nTrackCand];
+
+          nTrackCand++;  
+        } 
+      ClosestExtraTrack_vtxdxyz = closesttrkdxyz;
     } 
   else 
     { 

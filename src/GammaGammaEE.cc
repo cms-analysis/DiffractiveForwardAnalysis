@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.18 2008/06/24 12:50:10 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.19 2008/06/26 16:21:14 jjhollar Exp $
 //
 //
 
@@ -183,9 +183,19 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("TrackCand_pt",TrackCand_pt,"TrackCand_pt[nTrackCand]/D");
   thetree->Branch("TrackCand_eta",TrackCand_eta,"TrackCand_eta[nTrackCand]/D");
   thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nTrackCand]/D");
+  thetree->Branch("TrackCand_vtxdxyz",TrackCand_vtxdxyz,"TrackCand_vtxdxyz[nTrackCand]/D"); 
+  thetree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D"); 
 
   thetree->Branch("ElEl_mass",&ElEl_mass,"ElEl_mass/D");
   thetree->Branch("ElEl_dphi",&ElEl_dphi,"ElEl_dphi/D");
+  thetree->Branch("ElEl_vtxx",&ElEl_vtxx,"ElEl_vtxx/D");
+  thetree->Branch("ElEl_vtxy",&ElEl_vtxy,"ElEl_vtxy/D"); 
+  thetree->Branch("ElEl_vtxz",&ElEl_vtxz,"ElEl_vtxz/D"); 
+  thetree->Branch("ElEl_vtxchi2dof",&ElEl_vtxchi2dof,"ElEl_vtxchi2dof/D");
+  thetree->Branch("ElEl_vtxisvalid",&ElEl_vtxisvalid,"ElEl_vtxisvalid/I");
+  thetree->Branch("ElEl_extratracks2cm",&ElEl_extratracks2cm,"ElEl_extratracks2cm/I"); 
+  thetree->Branch("ElEl_extratracks5cm",&ElEl_extratracks5cm,"ElEl_extratracks5cm/I");  
+  thetree->Branch("ElEl_extratracks10cm",&ElEl_extratracks10cm,"ElEl_extratracks10cm/I");  
 
   thetree->Branch("HitInZDC",&HitInZDC,"HitInZDC/I");
   thetree->Branch("HitInCastor",&HitInCastor,"HitInCastor/I");
@@ -269,6 +279,9 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  EleCand_phi[nEleCand]=electron->phi();
 	  EleCand_eta[nEleCand]=electron->eta();
 	  EleCand_charge[nEleCand]=electron->charge();
+
+	  EleCandTrack_p[nEleCand] = electron->gsfTrack()->p(); 
+
 	  nEleCand++;
 	}
 
@@ -340,6 +353,7 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double highestettowereta = -999.0;
   double highestettowerphi = -999.0;
   double totalecalo = -1.0; 
+  double closesttrkdxyz = 999.0; 
 
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
   if(nEleCand == 2)
@@ -447,18 +461,6 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestEtCaloTower_phi = highestettowerphi;
       HighestEtCaloTower_dr = highestettowerdr;
       
-      for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track)
-	{
-	  TrackCand_p[nTrackCand]=track->p();
-	  TrackCand_px[nTrackCand]=track->px();
-	  TrackCand_py[nTrackCand]=track->py();
-	  TrackCand_pz[nTrackCand]=track->pz();
-	  TrackCand_pt[nTrackCand]=track->pt();
-	  TrackCand_eta[nTrackCand]=track->eta();
-	  TrackCand_phi[nTrackCand]=track->phi();
-	  TrackCand_charge[nTrackCand]=track->charge();
-	  nTrackCand++; 
-	}
     }
 
   // Check for particles in ZDC/Castor acceptance. 
@@ -486,6 +488,92 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       if((MCPar_pdgid != 22 && MCPar_pdgid != 2112) && (abs(MCPar_eta) > 5.2 && abs(MCPar_eta) < 6.6))
 	HitInCastor++;
     }
+
+  // Now do vertexing and track counting 
+  edm::ESHandle<TransientTrackBuilder> theVtx; 
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theVtx); 
+  //  vector < reco::TransientTrack > etrks; 
+  vector<TransientTrack> transetrks;  
+  reco::TrackCollection * etrks = new reco::TrackCollection; 
+
+  // First get "electron" tracks 
+  bool isElectron = false; 
+  for( track = tracks->begin(); track != tracks->end(); ++ track )  
+    {  
+      isElectron = false; 
+      for(int j = 0;j < nEleCand; j++) 
+        { 
+          if(EleCandTrack_p[j] == track->p()) 
+            { 
+              isElectron = true; 
+              etrks->push_back( *track ); 
+              TransientTrack tmptrk = (*theVtx).build( *track ); 
+              transetrks.push_back( tmptrk ); 
+            } 
+        } 
+    } 
+ 
+  // If 2 electrons, make a vertex 
+  if(transetrks.size() == 2)  
+    {  
+      KalmanVertexFitter fitter(true);  
+      TransientVertex elelVertex = fitter.vertex(transetrks);  
+      if(elelVertex.isValid()) 
+        { 
+          ElEl_vtxx = elelVertex.position().x();  
+          ElEl_vtxy = elelVertex.position().y();  
+          ElEl_vtxz = elelVertex.position().z();  
+          ElEl_vtxchi2dof = elelVertex.normalisedChiSquared(); 
+          ElEl_vtxisvalid = 1; 
+        } 
+      else 
+        { 
+          ElEl_vtxx = 0;   
+          ElEl_vtxy = 0;   
+          ElEl_vtxz = 0;   
+          ElEl_vtxchi2dof = 0; 
+          ElEl_vtxisvalid = 0; 
+        } 
+      // OK, now go back and count "extra" tracks on the dielectron vertex 
+      for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track)  
+        {  
+          if(track->p() == EleCandTrack_p[0] || track->p() == EleCandTrack_p[1]) 
+            continue; 
+           
+          TrackCand_p[nTrackCand]=track->p();  
+          TrackCand_px[nTrackCand]=track->px();  
+          TrackCand_py[nTrackCand]=track->py();  
+          TrackCand_pz[nTrackCand]=track->pz();  
+          TrackCand_pt[nTrackCand]=track->pt();  
+          TrackCand_eta[nTrackCand]=track->eta();  
+          TrackCand_phi[nTrackCand]=track->phi();  
+          TrackCand_charge[nTrackCand]=track->charge();  
+          TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - ElEl_vtxx)*(track->vertex().x() - ElEl_vtxx)) +  
+					       ((track->vertex().y() - ElEl_vtxy)*(track->vertex().y() - ElEl_vtxy)) + 
+					       ((track->vertex().z() - ElEl_vtxz)*(track->vertex().z() - ElEl_vtxz))); 
+           
+          if(TrackCand_vtxdxyz[nTrackCand] < 2) 
+            ElEl_extratracks2cm++; 
+          if(TrackCand_vtxdxyz[nTrackCand] < 5)  
+            ElEl_extratracks5cm++;  
+          if(TrackCand_vtxdxyz[nTrackCand] < 10)  
+            ElEl_extratracks10cm++;  
+          if(TrackCand_vtxdxyz[nTrackCand] < closesttrkdxyz) 
+            closesttrkdxyz = TrackCand_vtxdxyz[nTrackCand]; 
+ 
+          nTrackCand++;   
+        }  
+      ClosestExtraTrack_vtxdxyz = closesttrkdxyz; 
+    }  
+  else  
+    {  
+      ElEl_vtxx = 0;  
+      ElEl_vtxy = 0;  
+      ElEl_vtxz = 0;  
+      ElEl_vtxchi2dof = 0;  
+      ElEl_vtxisvalid = 0;  
+    }  
+
 
   // Check for di-objects
   if(nEleCand != 2)

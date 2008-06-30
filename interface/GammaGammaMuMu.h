@@ -57,6 +57,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuonCand_e[4];
   double MuonCandTrack_p[100];
   int MuonCand_charge[4];
+  int MuonCand_tmlsloosemuonid[4];
+  int MuonCand_tm2dloosemuid[4];
   double MuMu_mass;
   double MuMu_dphi;
   double MuMu_vtxx;
@@ -64,6 +66,9 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuMu_vtxz;
   double MuMu_vtxchi2dof;
   int MuMu_vtxisvalid;
+  int MuMu_extratracks2cm;
+  int MuMu_extratracks5cm;
+  int MuMu_extratracks10cm;
 
   int nJetCand;
   int JETMAX;// used to set maximum of arrays
@@ -110,7 +115,9 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double TrackCand_eta[100];
   double TrackCand_pt[100];
   double TrackCand_phi[100];
+  double TrackCand_vtxdxyz[100];
   int TrackCand_charge[100];
+  double ClosestExtraTrack_vtxdxyz;
 
   double evweight;
 
