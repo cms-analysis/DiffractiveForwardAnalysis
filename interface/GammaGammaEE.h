@@ -9,6 +9,9 @@
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h" 
+#include "FWCore/Framework/interface/TriggerNames.h" 
+
 #include <TFile.h>
 #include <TH1D.h>
 #include <TTree.h>
@@ -85,7 +88,7 @@ class GammaGammaEE : public edm::EDAnalyzer {
   double Etmiss;
 
   int nCaloCand;
-  int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5;
+  int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9;  
   int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2;
   double CaloTower_e[1000];
   double CaloTower_et[1000];
@@ -116,6 +119,11 @@ class GammaGammaEE : public edm::EDAnalyzer {
   double ClosestExtraTrack_vtxdxyz; 
 
   double evweight;
+
+  int HLT2Electron5_L1R_NI;
+  int HLT2ElectronExclusive;
+
+  edm::TriggerNames trigNames ;
 
 };
 #endif

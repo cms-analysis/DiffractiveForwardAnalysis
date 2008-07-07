@@ -9,6 +9,9 @@
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h" 
+#include "FWCore/Framework/interface/TriggerNames.h" 
+
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
 
 #include <TFile.h>
@@ -59,6 +62,16 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int MuonCand_charge[4];
   int MuonCand_tmlsloosemuonid[4];
   int MuonCand_tm2dloosemuid[4];
+  int MuonCand_isglobal[4];
+  int MuonCand_istracker[4];
+  int MuonCand_isstandalone[4];
+  double MuonCand_ecalisor3[4]; 
+  double MuonCand_hcalisor3[4]; 
+  double MuonCand_trkisor3[4]; 
+  double MuonCand_ecalisor5[4];  
+  double MuonCand_hcalisor5[4];  
+  double MuonCand_trkisor5[4]; 
+
   double MuMu_mass;
   double MuMu_dphi;
   double MuMu_vtxx;
@@ -89,7 +102,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double Etmiss;
 
   int nCaloCand;
-  int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5; 
+  int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9; 
   int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2; 
   double CaloTower_e[1000];
   double CaloTower_et[1000];
@@ -120,6 +133,9 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double ClosestExtraTrack_vtxdxyz;
 
   double evweight;
+  
+  int HLT2MuonNonIso;
+  int HLT1MuonPrescalePt3;
 
   AcceptanceTableHelper helper420beam1;   
   AcceptanceTableHelper helper420beam2;   
@@ -128,6 +144,6 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   AcceptanceTableHelper helper420a220beam1;   
   AcceptanceTableHelper helper420a220beam2;   
 
-
+  edm::TriggerNames trigNames ;
 };
 #endif

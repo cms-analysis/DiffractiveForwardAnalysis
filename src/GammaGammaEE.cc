@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.19 2008/06/26 16:21:14 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.20 2008/06/30 12:38:44 jjhollar Exp $
 //
 //
 
@@ -26,6 +26,8 @@
 #include "DataFormats/PatCandidates/interface/Photon.h" 
 #include "DataFormats/PatCandidates/interface/MET.h" 
 
+#include "DataFormats/Common/interface/TriggerResults.h"   
+#include "FWCore/Framework/interface/TriggerNames.h"   
 
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
@@ -168,6 +170,10 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersE3",&nExtraCaloTowersE3,"nExtraCaloTowersE3/I"); 
   thetree->Branch("nExtraCaloTowersE4",&nExtraCaloTowersE4,"nExtraCaloTowersE4/I"); 
   thetree->Branch("nExtraCaloTowersE5",&nExtraCaloTowersE5,"nExtraCaloTowersE5/I"); 
+  thetree->Branch("nExtraCaloTowersE6",&nExtraCaloTowersE6,"nExtraCaloTowersE6/I");    
+  thetree->Branch("nExtraCaloTowersE7",&nExtraCaloTowersE7,"nExtraCaloTowersE7/I");    
+  thetree->Branch("nExtraCaloTowersE8",&nExtraCaloTowersE8,"nExtraCaloTowersE8/I");    
+  thetree->Branch("nExtraCaloTowersE9",&nExtraCaloTowersE9,"nExtraCaloTowersE9/I");    
 
   thetree->Branch("nExtraCaloTowersEt0pt1",&nExtraCaloTowersEt0pt1,"nExtraCaloTowersEt0pt1/I");  
   thetree->Branch("nExtraCaloTowersEt0pt2",&nExtraCaloTowersEt0pt2,"nExtraCaloTowersEt0pt2/I");  
@@ -202,6 +208,9 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   
   thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
 
+  thetree->Branch("HLT2Electron5_L1R_NI",&HLT2Electron5_L1R_NI,"HLT2Electron5_L1R_NI/I"); 
+  thetree->Branch("HLT2ElectronExclusive",&HLT2ElectronExclusive,"HLT2ElectronExclusive/I");  
+
   //  thetree->Branch("evweight",&evweight,"evweight/D");
 }
 
@@ -232,7 +241,11 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersE2=0; 
   nExtraCaloTowersE3=0;  
   nExtraCaloTowersE4=0;  
-  nExtraCaloTowersE5=0;  
+  nExtraCaloTowersE5=0;
+  nExtraCaloTowersE6=0;  
+  nExtraCaloTowersE7=0;   
+  nExtraCaloTowersE8=0;   
+  nExtraCaloTowersE9=0;    
   nExtraCaloTowersEt0pt1=0;  
   nExtraCaloTowersEt0pt2=0; 
   nExtraCaloTowersEt0pt5=0;   
@@ -253,7 +266,29 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   //  event.getByLabel ("weight", weightHandle); 
   //  evweight = * weightHandle; 
 
-  // Get the electron track collection from the event
+  // Get the trigger information from the event 
+  edm::Handle<edm::TriggerResults> hltResults ;  
+  event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ;  
+  trigNames.init(*hltResults) ;  
+  for (unsigned int i=0; i<trigNames.size(); i++)   
+    {  
+      if ( trigNames.triggerNames().at(i) == "HLT2Electron5_L1R_NI" )        
+        {   
+          if ( hltResults->accept(i) )   
+            HLT2Electron5_L1R_NI = 1; 
+          else 
+            HLT2Electron5_L1R_NI = 0; 
+        }   
+      if ( trigNames.triggerNames().at(i) == "HLT2ElectronExclusive" )  
+        {    
+          if ( hltResults->accept(i) )   
+            HLT2ElectronExclusive = 1; 
+          else 
+            HLT2ElectronExclusive = 0; 
+        }    
+    } 
+
+  // Get the electron collection from the event
 
   // PAT
   edm::Handle<edm::View<pat::Electron> > electrons; 
@@ -433,6 +468,14 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 nExtraCaloTowersE4++; 
               if(CaloTower_e[nCaloCand] > 5.0) 
                 nExtraCaloTowersE5++; 
+              if(CaloTower_e[nCaloCand] > 6.0)    
+                nExtraCaloTowersE6++;    
+              if(CaloTower_e[nCaloCand] > 7.0)    
+                nExtraCaloTowersE7++;    
+              if(CaloTower_e[nCaloCand] > 8.0)    
+                nExtraCaloTowersE8++;    
+              if(CaloTower_e[nCaloCand] > 9.0)    
+                nExtraCaloTowersE9++;    
 
 	      if(CaloTower_et[nCaloCand] > 0.1)
 		nExtraCaloTowersEt0pt1++;

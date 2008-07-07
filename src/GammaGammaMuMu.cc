@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.20 2008/06/26 16:21:14 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.21 2008/06/30 12:38:44 jjhollar Exp $
 //
 //
 
@@ -26,7 +26,6 @@
 #include "DataFormats/PatCandidates/interface/Photon.h" 
 #include "DataFormats/PatCandidates/interface/MET.h" 
 
-
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
  
 #include "FWCore/ParameterSet/interface/ParameterSet.h"  
@@ -34,8 +33,7 @@
  
 #include "DataFormats/Common/interface/TriggerResults.h"  
 #include "FWCore/Framework/interface/TriggerNames.h"  
-  
- 
+   
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
@@ -173,6 +171,15 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_charge",MuonCand_charge,"MuonCand_charge[nMuonCand]/I");
   thetree->Branch("MuonCand_tmlsloosemuonid",MuonCand_tmlsloosemuonid,"MuonCand_tmlsloosemuonid[nMuonCand]/I");
   thetree->Branch("MuonCand_tm2dloosemuid",MuonCand_tm2dloosemuid,"MuonCand_tm2dloosemuid[nMuonCand]/I");
+  thetree->Branch("MuonCand_isglobal",MuonCand_isglobal,"MuonCand_isglobal[nMuonCand]/I");
+  thetree->Branch("MuonCand_istracker",MuonCand_istracker,"MuonCand_istracker[nMuonCand]/I"); 
+  thetree->Branch("MuonCand_isstandalone",MuonCand_isstandalone,"MuonCand_isstandalone[nMuonCand]/I"); 
+  thetree->Branch("MuonCand_hcalisor3",MuonCand_hcalisor3,"MuonCand_hcalisor3[nMuonCand]/D"); 
+  thetree->Branch("MuonCand_ecalisor3",MuonCand_ecalisor3,"MuonCand_ecalisor3[nMuonCand]/D");  
+  thetree->Branch("MuonCand_trkisor3",MuonCand_trkisor3,"MuonCand_trkisor3[nMuonCand]/D");  
+  thetree->Branch("MuonCand_hcalisor5",MuonCand_hcalisor5,"MuonCand_hcalisor5[nMuonCand]/D");  
+  thetree->Branch("MuonCand_ecalisor5",MuonCand_ecalisor5,"MuonCand_ecalisor5[nMuonCand]/D");  
+  thetree->Branch("MuonCand_trkisor5",MuonCand_trkisor5,"MuonCand_trkisor5[nMuonCand]/D"); 
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -195,6 +202,10 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersE3",&nExtraCaloTowersE3,"nExtraCaloTowersE3/I");  
   thetree->Branch("nExtraCaloTowersE4",&nExtraCaloTowersE4,"nExtraCaloTowersE4/I");  
   thetree->Branch("nExtraCaloTowersE5",&nExtraCaloTowersE5,"nExtraCaloTowersE5/I");  
+  thetree->Branch("nExtraCaloTowersE6",&nExtraCaloTowersE6,"nExtraCaloTowersE6/I");   
+  thetree->Branch("nExtraCaloTowersE7",&nExtraCaloTowersE7,"nExtraCaloTowersE7/I");   
+  thetree->Branch("nExtraCaloTowersE8",&nExtraCaloTowersE8,"nExtraCaloTowersE8/I");   
+  thetree->Branch("nExtraCaloTowersE9",&nExtraCaloTowersE9,"nExtraCaloTowersE9/I");   
  
   thetree->Branch("nExtraCaloTowersEt0pt1",&nExtraCaloTowersEt0pt1,"nExtraCaloTowersEt0pt1/I"); 
   thetree->Branch("nExtraCaloTowersEt0pt2",&nExtraCaloTowersEt0pt2,"nExtraCaloTowersEt0pt2/I"); 
@@ -229,6 +240,9 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   
   thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
 
+  thetree->Branch("HLT2MuonNonIso",&HLT2MuonNonIso,"HLT2MuonNonIso/I");
+  thetree->Branch("HLT1MuonPrescalePt3",&HLT1MuonPrescalePt3,"HLT1MuonPrescalePt3/I"); 
+
   //  thetree->Branch("evweight",&evweight,"evweight/D"); 
 }
 
@@ -259,7 +273,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersE2=0;
   nExtraCaloTowersE3=0; 
   nExtraCaloTowersE4=0; 
-  nExtraCaloTowersE5=0; 
+  nExtraCaloTowersE5=0;
+  nExtraCaloTowersE6=0; 
+  nExtraCaloTowersE7=0;  
+  nExtraCaloTowersE8=0;  
+  nExtraCaloTowersE9=0; 
   nExtraCaloTowersEt0pt1=0; 
   nExtraCaloTowersEt0pt2=0;
   nExtraCaloTowersEt0pt5=0;  
@@ -283,7 +301,30 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   //  event.getByLabel ("weight", weightHandle);
   //  evweight = * weightHandle;
 
-  // Get the muon track collection from the event
+
+  // Get the trigger information from the event
+  edm::Handle<edm::TriggerResults> hltResults ; 
+  event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ; 
+  trigNames.init(*hltResults) ; 
+  for (unsigned int i=0; i<trigNames.size(); i++)  
+    { 
+      if ( trigNames.triggerNames().at(i) == "HLT1MuonPrescalePt3" )       
+        {  
+          if ( hltResults->accept(i) )  
+            HLT1MuonPrescalePt3 = 1;
+	  else
+	    HLT1MuonPrescalePt3 = 0;
+        }  
+      if ( trigNames.triggerNames().at(i) == "HLT2MuonNonIso" ) 
+        {   
+          if ( hltResults->accept(i) )  
+	    HLT2MuonNonIso = 1;
+	  else
+	    HLT2MuonNonIso = 0;
+        }   
+    }
+
+  // Get the muon collection from the event
 
   // PAT
   edm::Handle<edm::View<pat::Muon> > muons; 
@@ -307,10 +348,23 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_eta[nMuonCand]=muon->eta();
 	  MuonCand_phi[nMuonCand]=muon->phi();
 	  MuonCand_charge[nMuonCand]=muon->charge();
-	  //	  muon->originalObject();
+
+	  // Muon ID
 	  MuonCand_tmlsloosemuonid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TMLastStationLoose);
 	  MuonCand_tm2dloosemuid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TM2DCompatibilityLoose);
+	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
+          MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
+          MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon(); 
 
+	  // Isolation 
+	  MuonCand_hcalisor3[nMuonCand]=muon->isolationR03().hadEt; 
+	  MuonCand_ecalisor3[nMuonCand]=muon->isolationR03().emEt;  
+	  MuonCand_trkisor3[nMuonCand]=muon->isolationR03().nTracks;  
+	  MuonCand_hcalisor5[nMuonCand]=muon->isolationR05().hadEt;  
+	  MuonCand_ecalisor5[nMuonCand]=muon->isolationR05().emEt;   
+	  MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;   
+
+	  
 	  MuonCandTrack_p[nMuonCand] = muon->track()->p(); 
 
 	  nMuonCand++;
@@ -464,7 +518,16 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 nExtraCaloTowersE4++;  
               if(CaloTower_e[nCaloCand] > 5.0)  
                 nExtraCaloTowersE5++;  
- 
+	      if(CaloTower_e[nCaloCand] > 6.0)   
+                nExtraCaloTowersE6++;   
+              if(CaloTower_e[nCaloCand] > 7.0)   
+                nExtraCaloTowersE7++;   
+              if(CaloTower_e[nCaloCand] > 8.0)   
+                nExtraCaloTowersE8++;   
+              if(CaloTower_e[nCaloCand] > 9.0)   
+                nExtraCaloTowersE9++;   
+
+	      
               if(CaloTower_et[nCaloCand] > 0.1) 
                 nExtraCaloTowersEt0pt1++; 
               if(CaloTower_et[nCaloCand] > 0.2)  
