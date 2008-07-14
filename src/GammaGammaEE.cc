@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.20 2008/06/30 12:38:44 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.21 2008/07/07 12:17:05 jjhollar Exp $
 //
 //
 
@@ -135,7 +135,13 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("EleCand_et",EleCand_et,"EleCand_et[nEleCand]/D");
   thetree->Branch("EleCand_eta",EleCand_eta,"EleCand_eta[nEleCand]/D");
   thetree->Branch("EleCand_phi",EleCand_phi,"EleCand_phi[nEleCand]/D");
+  //  thetree->Branch("EleCand_robustid",EleCand_robustid,"EleCand_robustid[nEleCand]/I");
+  //  thetree->Branch("EleCand_tightid",EleCand_tightid,"EleCand_tightid[nEleCand]/I");
+  //  thetree->Branch("EleCand_looseid",EleCand_looseid,"EleCand_looseid[nEleCand]/I");
+  //  thetree->Branch("EleCand_likelihoodid",EleCand_likelihoodid,"EleCand_likelihoodid[nEleCand]/D");
   thetree->Branch("EleCand_charge",EleCand_charge,"EleCand_charge[nEleCand]/D");
+  thetree->Branch("EleCand_likelihoodid",EleCand_likelihoodid,"EleCand_likelihoodid[nEleCand]/D"); 
+  thetree->Branch("EleCand_robustid",EleCand_robustid,"EleCand_robustid[nEleCand]/D");
 
   thetree->Branch("nJetCand",&nJetCand,"nJetCand/I");
   thetree->Branch("JetCand_px",JetCand_px,"JetCand_px[nJetCand]/D");
@@ -313,6 +319,10 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  EleCand_p[nEleCand]=electron->p();
 	  EleCand_phi[nEleCand]=electron->phi();
 	  EleCand_eta[nEleCand]=electron->eta();
+	  EleCand_robustid[nEleCand]=electron->electronIDRobust();
+	  //	  EleCand_tightid[nEleCand] = electron->isTightElectron(); 
+	  //	  EleCand_looseid[nEleCand] = electron->isLooseElectron(); 
+	  EleCand_likelihoodid[nEleCand]=electron->leptonID(); 
 	  EleCand_charge[nEleCand]=electron->charge();
 
 	  EleCandTrack_p[nEleCand] = electron->gsfTrack()->p(); 

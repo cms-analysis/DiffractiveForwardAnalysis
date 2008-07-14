@@ -64,6 +64,10 @@ class GammaGammaEE : public edm::EDAnalyzer {
   double ElEl_vtxy; 
   double ElEl_vtxz; 
   double ElEl_vtxchi2dof; 
+  int EleCand_robustid[4];
+  int EleCand_tightid[4];
+  int EleCand_looseid[4];
+  double EleCand_likelihoodid[4];
   int ElEl_vtxisvalid; 
   int ElEl_extratracks2cm; 
   int ElEl_extratracks5cm; 
