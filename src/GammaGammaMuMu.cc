@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.21 2008/06/30 12:38:44 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.22 2008/07/07 12:17:05 jjhollar Exp $
 //
 //
 
@@ -66,7 +66,7 @@
 // Muons:
 #include <DataFormats/TrackReco/interface/Track.h>
 // Electrons
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 // Vertexing 
 #include "DataFormats/VertexReco/interface/Vertex.h" 
@@ -171,6 +171,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_charge",MuonCand_charge,"MuonCand_charge[nMuonCand]/I");
   thetree->Branch("MuonCand_tmlsloosemuonid",MuonCand_tmlsloosemuonid,"MuonCand_tmlsloosemuonid[nMuonCand]/I");
   thetree->Branch("MuonCand_tm2dloosemuid",MuonCand_tm2dloosemuid,"MuonCand_tm2dloosemuid[nMuonCand]/I");
+  thetree->Branch("MuonCand_arbmuid",MuonCand_arbmuid,"MuonCand_arbmuid[nMuonCand]/I");
   thetree->Branch("MuonCand_isglobal",MuonCand_isglobal,"MuonCand_isglobal[nMuonCand]/I");
   thetree->Branch("MuonCand_istracker",MuonCand_istracker,"MuonCand_istracker[nMuonCand]/I"); 
   thetree->Branch("MuonCand_isstandalone",MuonCand_isstandalone,"MuonCand_isstandalone[nMuonCand]/I"); 
@@ -350,8 +351,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_charge[nMuonCand]=muon->charge();
 
 	  // Muon ID
-	  MuonCand_tmlsloosemuonid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TMLastStationLoose);
-	  MuonCand_tm2dloosemuid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TM2DCompatibilityLoose);
+	  MuonCand_tmlsloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationLoose);
+	  //muonid::isGoodMuon(*muon,muonid::TMLastStationLoose);
+	  MuonCand_tm2dloosemuid[nMuonCand]=muon->isGood(reco::Muon::TM2DCompatibilityLoose);
+	  //Muon(*muon,muonid::TM2DCompatibilityLoose);
+	  MuonCand_arbmuid[nMuonCand]=muon->isGood(reco::Muon::AllArbitrated);
 	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
           MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
           MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon(); 

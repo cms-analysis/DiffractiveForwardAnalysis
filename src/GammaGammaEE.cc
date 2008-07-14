@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.21 2008/07/07 12:17:05 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.22 2008/07/14 13:48:15 jjhollar Exp $
 //
 //
 
@@ -35,8 +35,8 @@
 #include "DataFormats/JetReco/interface/CaloJet.h" 
 #include "DataFormats/EgammaCandidates/interface/Electron.h" 
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h" 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"   
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h" 
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"   
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h" 
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h" 
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
@@ -64,7 +64,7 @@
 // Muons:
 #include <DataFormats/TrackReco/interface/Track.h>
 // Electrons
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 // Vertexing 
 #include "DataFormats/VertexReco/interface/Vertex.h" 
@@ -135,13 +135,10 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("EleCand_et",EleCand_et,"EleCand_et[nEleCand]/D");
   thetree->Branch("EleCand_eta",EleCand_eta,"EleCand_eta[nEleCand]/D");
   thetree->Branch("EleCand_phi",EleCand_phi,"EleCand_phi[nEleCand]/D");
-  //  thetree->Branch("EleCand_robustid",EleCand_robustid,"EleCand_robustid[nEleCand]/I");
-  //  thetree->Branch("EleCand_tightid",EleCand_tightid,"EleCand_tightid[nEleCand]/I");
-  //  thetree->Branch("EleCand_looseid",EleCand_looseid,"EleCand_looseid[nEleCand]/I");
-  //  thetree->Branch("EleCand_likelihoodid",EleCand_likelihoodid,"EleCand_likelihoodid[nEleCand]/D");
-  thetree->Branch("EleCand_charge",EleCand_charge,"EleCand_charge[nEleCand]/D");
-  thetree->Branch("EleCand_likelihoodid",EleCand_likelihoodid,"EleCand_likelihoodid[nEleCand]/D"); 
-  thetree->Branch("EleCand_robustid",EleCand_robustid,"EleCand_robustid[nEleCand]/D");
+  thetree->Branch("EleCand_charge",EleCand_charge,"EleCand_charge[nEleCand]/I");
+  thetree->Branch("EleCand_looseid",EleCand_looseid,"EleCand_looseid[nEleCand]/I");
+  thetree->Branch("EleCand_likelihoodid",EleCand_likelihoodid,"EleCand_likelihoodid[nEleCand]/D");  
+  thetree->Branch("EleCand_robustid",EleCand_robustid,"EleCand_robustid[nEleCand]/I"); 
 
   thetree->Branch("nJetCand",&nJetCand,"nJetCand/I");
   thetree->Branch("JetCand_px",JetCand_px,"JetCand_px[nJetCand]/D");
@@ -324,8 +321,12 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  //	  EleCand_looseid[nEleCand] = electron->isLooseElectron(); 
 	  EleCand_likelihoodid[nEleCand]=electron->leptonID(); 
 	  EleCand_charge[nEleCand]=electron->charge();
+	  //	  EleCand_looseid[nEleCand]=electron->isLooseElectron();
+	  //	  EleCand_robustid[nEleCand]=electron->isRobustElectron();
+	  //5B	  EleCand_likelihoodid[nEleCand]=electron->electronLikelihood();
+	  
 
-	  EleCandTrack_p[nEleCand] = electron->gsfTrack()->p(); 
+	  EleCandTrack_p[nEleCand] = electron->track()->p(); 
 
 	  nEleCand++;
 	}

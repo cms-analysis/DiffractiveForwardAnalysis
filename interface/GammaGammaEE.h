@@ -57,7 +57,11 @@ class GammaGammaEE : public edm::EDAnalyzer {
   double EleCand_phi[4];
   double EleCand_eta[4];
   double EleCandTrack_p[100];
-  double EleCand_charge[4];
+  int EleCand_charge[4];
+  int EleCand_looseid[4];
+  double EleCand_likelihoodid[4];
+  int EleCand_robustid[4];
+
   double ElEl_mass;
   double ElEl_dphi;
   double ElEl_vtxx; 
