@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.22 2008/07/14 13:48:15 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.23 2008/07/14 13:52:52 jjhollar Exp $
 //
 //
 
@@ -316,17 +316,25 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  EleCand_p[nEleCand]=electron->p();
 	  EleCand_phi[nEleCand]=electron->phi();
 	  EleCand_eta[nEleCand]=electron->eta();
-	  EleCand_robustid[nEleCand]=electron->electronIDRobust();
-	  //	  EleCand_tightid[nEleCand] = electron->isTightElectron(); 
-	  //	  EleCand_looseid[nEleCand] = electron->isLooseElectron(); 
-	  EleCand_likelihoodid[nEleCand]=electron->leptonID(); 
-	  EleCand_charge[nEleCand]=electron->charge();
-	  //	  EleCand_looseid[nEleCand]=electron->isLooseElectron();
-	  //	  EleCand_robustid[nEleCand]=electron->isRobustElectron();
-	  //5B	  EleCand_likelihoodid[nEleCand]=electron->electronLikelihood();
-	  
+	  EleCand_charge[nEleCand]=electron->charge(); 
 
-	  EleCandTrack_p[nEleCand] = electron->track()->p(); 
+	  if(electron->leptonID("robust"))
+	      EleCand_robustid[nEleCand]=1;
+	  else
+	    EleCand_robustid[nEleCand]=0;
+
+	  if(electron->leptonID("loose"))
+	    EleCand_looseid[nEleCand]=1;
+	  else
+	    EleCand_looseid[nEleCand]=0;
+
+	  if(electron->leptonID("likelihood"))
+	     EleCand_likelihoodid[nEleCand]=1;
+	  else
+	    EleCand_likelihoodid[nEleCand]=0;
+	       
+	  EleCandTrack_p[nEleCand] = electron->gsfTrack()->p();
+	  //	  EleCandTrack_p[nEleCand] = electron->track()->p(); 
 
 	  nEleCand++;
 	}

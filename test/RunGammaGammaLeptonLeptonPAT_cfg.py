@@ -15,13 +15,16 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # source
 process.source = cms.Source("PoolSource", 
-                            fileNames = cms.untracked.vstring('/store/relval/2008/7/13/RelVal-RelValZMM-1215820540-STARTUP_V4-2nd/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre8-RelVal-1215820540-STARTUP_V4-2nd-STARTUP_V4-unmerged/0000/08C5699B-F350-DD11-9B30-000423D98C20.root')
+                            fileNames = cms.untracked.vstring('/store/relval/2008/7/21/RelVal-RelValZMM-1216579576-STARTUP_V4-2nd/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre9-RelVal-1216579576-STARTUP_V4-2nd-unmerged/0000/0003E248-6E57-DD11-894C-000423D6CA02.root')
                             )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 
-# Magnetic field now needs to be in the high-level py
+# Load configuration stuff
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = cms.string('STARTUP_V4::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # Load analysis modules
