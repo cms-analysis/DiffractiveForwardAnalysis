@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.23 2008/07/14 13:52:52 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.24 2008/07/31 08:54:48 jjhollar Exp $
 //
 //
 
@@ -139,6 +139,7 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("EleCand_looseid",EleCand_looseid,"EleCand_looseid[nEleCand]/I");
   thetree->Branch("EleCand_likelihoodid",EleCand_likelihoodid,"EleCand_likelihoodid[nEleCand]/D");  
   thetree->Branch("EleCand_robustid",EleCand_robustid,"EleCand_robustid[nEleCand]/I"); 
+  thetree->Branch("EleCandTrack_p",EleCandTrack_p,"EleCandTrack_p[nEleCand]/D");
 
   thetree->Branch("nJetCand",&nJetCand,"nJetCand/I");
   thetree->Branch("JetCand_px",JetCand_px,"JetCand_px[nJetCand]/D");
@@ -183,6 +184,8 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersEt0pt5",&nExtraCaloTowersEt0pt5,"nExtraCaloTowersEt0pt5/I");  
   thetree->Branch("nExtraCaloTowersEt1",&nExtraCaloTowersEt1,"nExtraCaloTowersEt1/I");  
   thetree->Branch("nExtraCaloTowersEt2",&nExtraCaloTowersEt2,"nExtraCaloTowersEt2/I");  
+  thetree->Branch("nExtraCaloTowersEt3",&nExtraCaloTowersEt3,"nExtraCaloTowersEt3/I");  
+  thetree->Branch("nExtraCaloTowersEt4",&nExtraCaloTowersEt4,"nExtraCaloTowersEt4/I");  
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
   thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
@@ -202,6 +205,8 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("ElEl_vtxz",&ElEl_vtxz,"ElEl_vtxz/D"); 
   thetree->Branch("ElEl_vtxchi2dof",&ElEl_vtxchi2dof,"ElEl_vtxchi2dof/D");
   thetree->Branch("ElEl_vtxisvalid",&ElEl_vtxisvalid,"ElEl_vtxisvalid/I");
+  thetree->Branch("ElEl_extratracks50mm",&ElEl_extratracks50mm,"ElEl_extratracks50mm/I");
+  thetree->Branch("ElEl_extratracks1cm",&ElEl_extratracks1cm,"ElEl_extratracks1cm/I");
   thetree->Branch("ElEl_extratracks2cm",&ElEl_extratracks2cm,"ElEl_extratracks2cm/I"); 
   thetree->Branch("ElEl_extratracks5cm",&ElEl_extratracks5cm,"ElEl_extratracks5cm/I");  
   thetree->Branch("ElEl_extratracks10cm",&ElEl_extratracks10cm,"ElEl_extratracks10cm/I");  
@@ -254,11 +259,18 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersEt0pt5=0;   
   nExtraCaloTowersEt1=0;  
   nExtraCaloTowersEt2=0;   
+  nExtraCaloTowersEt3=0;  
+  nExtraCaloTowersEt4=0;   
   HitInZDC=0;
   HitInCastor=0;
 
   ElEl_mass = -1;
   ElEl_dphi = -1;
+  ElEl_extratracks50mm = 0; 
+  ElEl_extratracks1cm = 0; 
+  ElEl_extratracks2cm = 0;
+  ElEl_extratracks5cm = 0;
+  ElEl_extratracks10cm = 0;
 
   bool passed = true;
 
@@ -275,14 +287,14 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   trigNames.init(*hltResults) ;  
   for (unsigned int i=0; i<trigNames.size(); i++)   
     {  
-      if ( trigNames.triggerNames().at(i) == "HLT2Electron5_L1R_NI" )        
+      if ( trigNames.triggerNames().at(i) == "HLT_DoubleEle5_SW_L1R" )        
         {   
           if ( hltResults->accept(i) )   
             HLT2Electron5_L1R_NI = 1; 
           else 
             HLT2Electron5_L1R_NI = 0; 
         }   
-      if ( trigNames.triggerNames().at(i) == "HLT2ElectronExclusive" )  
+      if ( trigNames.triggerNames().at(i) == "HLT_DoubleEle6_Exclusive" )  
         {    
           if ( hltResults->accept(i) )   
             HLT2ElectronExclusive = 1; 
@@ -333,8 +345,7 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  else
 	    EleCand_likelihoodid[nEleCand]=0;
 	       
-	  EleCandTrack_p[nEleCand] = electron->gsfTrack()->p();
-	  //	  EleCandTrack_p[nEleCand] = electron->track()->p(); 
+	  EleCandTrack_p[nEleCand] = electron->gsfTrack()->p();  
 
 	  nEleCand++;
 	}
@@ -506,7 +517,10 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 nExtraCaloTowersEt1++; 
               if(CaloTower_et[nCaloCand] > 2.0) 
                 nExtraCaloTowersEt2++; 
-
+              if(CaloTower_et[nCaloCand] > 3.0)   
+                nExtraCaloTowersEt3++;   
+              if(CaloTower_et[nCaloCand] > 4.0)   
+                nExtraCaloTowersEt4++;   
 	    }
 	  
 	  nCaloCand++;
@@ -565,7 +579,8 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       isElectron = false; 
       for(int j = 0;j < nEleCand; j++) 
         { 
-          if(EleCandTrack_p[j] == track->p()) 
+	  //          if(EleCandTrack_p[j] == track->p()) 
+	  if(EleCandTrack_p[j] - track->p() < 1.0)
             { 
               isElectron = true; 
               etrks->push_back( *track ); 
@@ -614,6 +629,10 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 					       ((track->vertex().y() - ElEl_vtxy)*(track->vertex().y() - ElEl_vtxy)) + 
 					       ((track->vertex().z() - ElEl_vtxz)*(track->vertex().z() - ElEl_vtxz))); 
            
+	  if(TrackCand_vtxdxyz[nTrackCand] < 0.5) 
+            ElEl_extratracks50mm++; 
+	  if(TrackCand_vtxdxyz[nTrackCand] < 1) 
+            ElEl_extratracks1cm++; 
           if(TrackCand_vtxdxyz[nTrackCand] < 2) 
             ElEl_extratracks2cm++; 
           if(TrackCand_vtxdxyz[nTrackCand] < 5)  

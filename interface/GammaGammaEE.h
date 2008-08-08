@@ -69,6 +69,8 @@ class GammaGammaEE : public edm::EDAnalyzer {
   double ElEl_vtxz; 
   double ElEl_vtxchi2dof; 
   int ElEl_vtxisvalid; 
+  int ElEl_extratracks50mm; 
+  int ElEl_extratracks1cm; 
   int ElEl_extratracks2cm; 
   int ElEl_extratracks5cm; 
   int ElEl_extratracks10cm; 
@@ -93,7 +95,7 @@ class GammaGammaEE : public edm::EDAnalyzer {
 
   int nCaloCand;
   int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9;  
-  int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2;
+  int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4;  
   double CaloTower_e[1000];
   double CaloTower_et[1000];
   double CaloTower_eta[1000];

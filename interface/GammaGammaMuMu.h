@@ -80,6 +80,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuMu_vtxz;
   double MuMu_vtxchi2dof;
   int MuMu_vtxisvalid;
+  int MuMu_extratracks50mm;
+  int MuMu_extratracks1cm;
   int MuMu_extratracks2cm;
   int MuMu_extratracks5cm;
   int MuMu_extratracks10cm;
@@ -104,7 +106,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
 
   int nCaloCand;
   int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9; 
-  int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2; 
+  int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4; 
   double CaloTower_e[1000];
   double CaloTower_et[1000];
   double CaloTower_eta[1000];

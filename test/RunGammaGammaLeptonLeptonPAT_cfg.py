@@ -15,10 +15,12 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # source
 process.source = cms.Source("PoolSource", 
-                            fileNames = cms.untracked.vstring('/store/relval/2008/7/21/RelVal-RelValZMM-1216579576-STARTUP_V4-2nd/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre9-RelVal-1216579576-STARTUP_V4-2nd-unmerged/0000/0003E248-6E57-DD11-894C-000423D6CA02.root')
+                            fileNames = cms.untracked.vstring(
+'rfio:/castor/cern.ch/user/j/jjhollar/21XsignalMC/gamgammumu.10tev.initialPU.RECO.root'
+    )
                             )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 
 # Load configuration stuff

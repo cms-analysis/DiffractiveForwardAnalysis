@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.22 2008/07/07 12:17:05 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.23 2008/07/14 13:52:52 jjhollar Exp $
 //
 //
 
@@ -213,6 +213,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersEt0pt5",&nExtraCaloTowersEt0pt5,"nExtraCaloTowersEt0pt5/I"); 
   thetree->Branch("nExtraCaloTowersEt1",&nExtraCaloTowersEt1,"nExtraCaloTowersEt1/I"); 
   thetree->Branch("nExtraCaloTowersEt2",&nExtraCaloTowersEt2,"nExtraCaloTowersEt2/I"); 
+  thetree->Branch("nExtraCaloTowersEt3",&nExtraCaloTowersEt3,"nExtraCaloTowersEt3/I");  
+  thetree->Branch("nExtraCaloTowersEt4",&nExtraCaloTowersEt4,"nExtraCaloTowersEt4/I");  
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
   thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
@@ -232,6 +234,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuMu_vtxz",&MuMu_vtxz,"MuMu_vtxz/D"); 
   thetree->Branch("MuMu_vtxchi2dof",&MuMu_vtxchi2dof,"MuMu_vtxchi2dof/D");
   thetree->Branch("MuMu_vtxisvalid",&MuMu_vtxisvalid,"MuMu_vtxisvalid/I");
+  thetree->Branch("MuMu_extratracks50mm",&MuMu_extratracks50mm,"MuMu_extratracks50mm/I");
+  thetree->Branch("MuMu_extratracks1cm",&MuMu_extratracks1cm,"MuMu_extratracks1cm/I");
   thetree->Branch("MuMu_extratracks2cm",&MuMu_extratracks2cm,"MuMu_extratracks2cm/I");
   thetree->Branch("MuMu_extratracks5cm",&MuMu_extratracks5cm,"MuMu_extratracks5cm/I"); 
   thetree->Branch("MuMu_extratracks10cm",&MuMu_extratracks10cm,"MuMu_extratracks10cm/I"); 
@@ -284,11 +288,15 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersEt0pt5=0;  
   nExtraCaloTowersEt1=0; 
   nExtraCaloTowersEt2=0;  
+  nExtraCaloTowersEt3=0;  
+  nExtraCaloTowersEt4=0;   
   HitInZDC=0;
   HitInCastor=0;
 
   MuMu_mass = -1;
   MuMu_dphi = -1;
+  MuMu_extratracks50mm = 0; 
+  MuMu_extratracks1cm = 0; 
   MuMu_extratracks2cm = 0;
   MuMu_extratracks5cm = 0;
   MuMu_extratracks10cm = 0;
@@ -309,14 +317,14 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   trigNames.init(*hltResults) ; 
   for (unsigned int i=0; i<trigNames.size(); i++)  
     { 
-      if ( trigNames.triggerNames().at(i) == "HLT1MuonPrescalePt3" )       
+      if ( trigNames.triggerNames().at(i) == "HLT_Mu3" )       
         {  
           if ( hltResults->accept(i) )  
             HLT1MuonPrescalePt3 = 1;
 	  else
 	    HLT1MuonPrescalePt3 = 0;
         }  
-      if ( trigNames.triggerNames().at(i) == "HLT2MuonNonIso" ) 
+      if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu3" ) 
         {   
           if ( hltResults->accept(i) )  
 	    HLT2MuonNonIso = 1;
@@ -369,7 +377,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;   
 
 	  
-	  MuonCandTrack_p[nMuonCand] = muon->track()->p(); 
+	  MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p(); 
 
 	  nMuonCand++;
 	}  
@@ -542,6 +550,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 nExtraCaloTowersEt1++;  
               if(CaloTower_et[nCaloCand] > 2.0)  
                 nExtraCaloTowersEt2++;  
+              if(CaloTower_et[nCaloCand] > 3.0)   
+                nExtraCaloTowersEt3++;   
+              if(CaloTower_et[nCaloCand] > 4.0)   
+                nExtraCaloTowersEt4++;   
 	    }
 
 	  nCaloCand++;
@@ -688,6 +700,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 					     ((track->vertex().y() - MuMu_vtxy)*(track->vertex().y() - MuMu_vtxy)) +
 					     ((track->vertex().z() - MuMu_vtxz)*(track->vertex().z() - MuMu_vtxz)));
 	  
+	  if(TrackCand_vtxdxyz[nTrackCand] < 0.5) 
+            MuMu_extratracks50mm++; 
+	  if(TrackCand_vtxdxyz[nTrackCand] < 1) 
+            MuMu_extratracks1cm++; 
 	  if(TrackCand_vtxdxyz[nTrackCand] < 2)
 	    MuMu_extratracks2cm++;
           if(TrackCand_vtxdxyz[nTrackCand] < 5) 
