@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.24 2008/07/31 08:54:48 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.25 2008/08/08 16:05:36 jjhollar Exp $
 //
 //
 
@@ -188,6 +188,7 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersEt4",&nExtraCaloTowersEt4,"nExtraCaloTowersEt4/I");  
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
+  thetree->Branch("nExtraTrackCand",&nExtraTrackCand,"nExtraTrackCand/I");  
   thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
   thetree->Branch("TrackCand_py",TrackCand_py,"TrackCand_py[nTrackCand]/D");
   thetree->Branch("TrackCand_pz",TrackCand_pz,"TrackCand_pz[nTrackCand]/D");
@@ -205,8 +206,13 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("ElEl_vtxz",&ElEl_vtxz,"ElEl_vtxz/D"); 
   thetree->Branch("ElEl_vtxchi2dof",&ElEl_vtxchi2dof,"ElEl_vtxchi2dof/D");
   thetree->Branch("ElEl_vtxisvalid",&ElEl_vtxisvalid,"ElEl_vtxisvalid/I");
-  thetree->Branch("ElEl_extratracks50mm",&ElEl_extratracks50mm,"ElEl_extratracks50mm/I");
-  thetree->Branch("ElEl_extratracks1cm",&ElEl_extratracks1cm,"ElEl_extratracks1cm/I");
+
+  thetree->Branch("ElEl_extratracks1mm",&ElEl_extratracks1mm,"ElEl_extratracks1mm/I"); 
+  thetree->Branch("ElEl_extratracks2mm",&ElEl_extratracks2mm,"ElEl_extratracks2mm/I"); 
+  thetree->Branch("ElEl_extratracks3mm",&ElEl_extratracks3mm,"ElEl_extratracks3mm/I"); 
+  thetree->Branch("ElEl_extratracks4mm",&ElEl_extratracks4mm,"ElEl_extratracks4mm/I");  
+  thetree->Branch("ElEl_extratracks5mm",&ElEl_extratracks5mm,"ElEl_extratracks5mm/I");   
+  thetree->Branch("ElEl_extratracks1cm",&ElEl_extratracks1cm,"ElEl_extratracks1cm/I");  
   thetree->Branch("ElEl_extratracks2cm",&ElEl_extratracks2cm,"ElEl_extratracks2cm/I"); 
   thetree->Branch("ElEl_extratracks5cm",&ElEl_extratracks5cm,"ElEl_extratracks5cm/I");  
   thetree->Branch("ElEl_extratracks10cm",&ElEl_extratracks10cm,"ElEl_extratracks10cm/I");  
@@ -244,6 +250,7 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
+  nExtraTrackCand=0;
 
   nExtraCaloTowersE1=0; 
   nExtraCaloTowersE2=0; 
@@ -266,11 +273,16 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   ElEl_mass = -1;
   ElEl_dphi = -1;
-  ElEl_extratracks50mm = 0; 
-  ElEl_extratracks1cm = 0; 
-  ElEl_extratracks2cm = 0;
-  ElEl_extratracks5cm = 0;
-  ElEl_extratracks10cm = 0;
+
+  ElEl_extratracks1mm = 0; 
+  ElEl_extratracks2mm = 0; 
+  ElEl_extratracks3mm = 0; 
+  ElEl_extratracks4mm = 0; 
+  ElEl_extratracks5mm = 0; 
+  ElEl_extratracks1cm = 0;  
+  ElEl_extratracks2cm = 0; 
+  ElEl_extratracks5cm = 0; 
+  ElEl_extratracks10cm = 0; 
 
   bool passed = true;
 
@@ -287,14 +299,23 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   trigNames.init(*hltResults) ;  
   for (unsigned int i=0; i<trigNames.size(); i++)   
     {  
-      if ( trigNames.triggerNames().at(i) == "HLT_DoubleEle5_SW_L1R" )        
+      // This is for CMSSW_2_1_X!!!
+      //      if ( trigNames.triggerNames().at(i) == "HLT_DoubleEle5_SW_L1R" )        
+
+      // This is for CMSSW_2_0_X!!!
+      if ( trigNames.triggerNames().at(i) == "HLT2Electron5_L1R_NI" )
         {   
           if ( hltResults->accept(i) )   
             HLT2Electron5_L1R_NI = 1; 
           else 
             HLT2Electron5_L1R_NI = 0; 
         }   
-      if ( trigNames.triggerNames().at(i) == "HLT_DoubleEle6_Exclusive" )  
+
+      // This is for CMSSW_2_1_X!!! 
+      //      if ( trigNames.triggerNames().at(i) == "HLT_DoubleEle6_Exclusive" )  
+      
+      // This is for CMSSW_2_0_X!!!
+      if ( trigNames.triggerNames().at(i) == "HLT2ElectronExclusive" )
         {    
           if ( hltResults->accept(i) )   
             HLT2ElectronExclusive = 1; 
@@ -330,20 +351,25 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  EleCand_eta[nEleCand]=electron->eta();
 	  EleCand_charge[nEleCand]=electron->charge(); 
 
-	  if(electron->leptonID("robust"))
-	      EleCand_robustid[nEleCand]=1;
-	  else
-	    EleCand_robustid[nEleCand]=0;
+	  // This is for CMSSW_2_0_X!!!
+	  EleCand_robustid[nEleCand]=electron->electronIDRobust();
+	  EleCand_likelihoodid[nEleCand]=electron->leptonID();
 
-	  if(electron->leptonID("loose"))
-	    EleCand_looseid[nEleCand]=1;
-	  else
-	    EleCand_looseid[nEleCand]=0;
-
-	  if(electron->leptonID("likelihood"))
-	     EleCand_likelihoodid[nEleCand]=1;
-	  else
-	    EleCand_likelihoodid[nEleCand]=0;
+	  // This is for CMSSW_2_1_X!!!
+	  //	  if(electron->leptonID("robust"))
+	  //	      EleCand_robustid[nEleCand]=1;
+	  //	  else
+	  //	    EleCand_robustid[nEleCand]=0;
+	  //
+	  //	  if(electron->leptonID("loose"))
+	  //	    EleCand_looseid[nEleCand]=1;
+	  //	  else
+	  //	    EleCand_looseid[nEleCand]=0;
+	  //
+	  //	  if(electron->leptonID("likelihood"))
+	  //	     EleCand_likelihoodid[nEleCand]=1;
+	  //	  else
+	  //	    EleCand_likelihoodid[nEleCand]=0;
 	       
 	  EleCandTrack_p[nEleCand] = electron->gsfTrack()->p();  
 
@@ -588,6 +614,8 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
               transetrks.push_back( tmptrk ); 
             } 
         } 
+      if(isElectron == false)
+	nTrackCand++;
     } 
  
   // If 2 electrons, make a vertex 
@@ -612,37 +640,45 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           ElEl_vtxisvalid = 0; 
         } 
       // OK, now go back and count "extra" tracks on the dielectron vertex 
-      for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track)  
+      for(track = tracks->begin(); track != tracks->end() && nExtraTrackCand<TRACKMAX; ++ track)  
         {  
           if(track->p() == EleCandTrack_p[0] || track->p() == EleCandTrack_p[1]) 
             continue; 
            
-          TrackCand_p[nTrackCand]=track->p();  
-          TrackCand_px[nTrackCand]=track->px();  
-          TrackCand_py[nTrackCand]=track->py();  
-          TrackCand_pz[nTrackCand]=track->pz();  
-          TrackCand_pt[nTrackCand]=track->pt();  
-          TrackCand_eta[nTrackCand]=track->eta();  
-          TrackCand_phi[nTrackCand]=track->phi();  
-          TrackCand_charge[nTrackCand]=track->charge();  
-          TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - ElEl_vtxx)*(track->vertex().x() - ElEl_vtxx)) +  
+          TrackCand_p[nExtraTrackCand]=track->p();  
+          TrackCand_px[nExtraTrackCand]=track->px();  
+          TrackCand_py[nExtraTrackCand]=track->py();  
+          TrackCand_pz[nExtraTrackCand]=track->pz();  
+          TrackCand_pt[nExtraTrackCand]=track->pt();  
+          TrackCand_eta[nExtraTrackCand]=track->eta();  
+          TrackCand_phi[nExtraTrackCand]=track->phi();  
+          TrackCand_charge[nExtraTrackCand]=track->charge();  
+          TrackCand_vtxdxyz[nExtraTrackCand] = sqrt(((track->vertex().x() - ElEl_vtxx)*(track->vertex().x() - ElEl_vtxx)) +  
 					       ((track->vertex().y() - ElEl_vtxy)*(track->vertex().y() - ElEl_vtxy)) + 
 					       ((track->vertex().z() - ElEl_vtxz)*(track->vertex().z() - ElEl_vtxz))); 
            
-	  if(TrackCand_vtxdxyz[nTrackCand] < 0.5) 
-            ElEl_extratracks50mm++; 
-	  if(TrackCand_vtxdxyz[nTrackCand] < 1) 
-            ElEl_extratracks1cm++; 
-          if(TrackCand_vtxdxyz[nTrackCand] < 2) 
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.1)  
+            ElEl_extratracks1mm++;  
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.2)   
+            ElEl_extratracks2mm++;   
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.3)   
+            ElEl_extratracks3mm++;   
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.4)    
+            ElEl_extratracks4mm++;    
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.5)     
+            ElEl_extratracks5mm++; 
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 1)  
+            ElEl_extratracks1cm++;  
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 2) 
             ElEl_extratracks2cm++; 
-          if(TrackCand_vtxdxyz[nTrackCand] < 5)  
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 5)  
             ElEl_extratracks5cm++;  
-          if(TrackCand_vtxdxyz[nTrackCand] < 10)  
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 10)  
             ElEl_extratracks10cm++;  
-          if(TrackCand_vtxdxyz[nTrackCand] < closesttrkdxyz) 
-            closesttrkdxyz = TrackCand_vtxdxyz[nTrackCand]; 
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < closesttrkdxyz) 
+            closesttrkdxyz = TrackCand_vtxdxyz[nExtraTrackCand]; 
  
-          nTrackCand++;   
+          nExtraTrackCand++;   
         }  
       ClosestExtraTrack_vtxdxyz = closesttrkdxyz; 
     }  

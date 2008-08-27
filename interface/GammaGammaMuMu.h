@@ -80,7 +80,12 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuMu_vtxz;
   double MuMu_vtxchi2dof;
   int MuMu_vtxisvalid;
-  int MuMu_extratracks50mm;
+
+  int MuMu_extratracks1mm;
+  int MuMu_extratracks2mm;
+  int MuMu_extratracks3mm;
+  int MuMu_extratracks4mm;
+  int MuMu_extratracks5mm;
   int MuMu_extratracks1cm;
   int MuMu_extratracks2cm;
   int MuMu_extratracks5cm;
@@ -123,6 +128,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double SumCalo_e;
 
   int nTrackCand;
+  int nExtraTrackCand;
   int TRACKMAX;
   double TrackCand_px[100];
   double TrackCand_py[100];

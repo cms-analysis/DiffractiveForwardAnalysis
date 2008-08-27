@@ -69,7 +69,11 @@ class GammaGammaEE : public edm::EDAnalyzer {
   double ElEl_vtxz; 
   double ElEl_vtxchi2dof; 
   int ElEl_vtxisvalid; 
-  int ElEl_extratracks50mm; 
+  int ElEl_extratracks1mm; 
+  int ElEl_extratracks2mm; 
+  int ElEl_extratracks3mm; 
+  int ElEl_extratracks4mm; 
+  int ElEl_extratracks5mm; 
   int ElEl_extratracks1cm; 
   int ElEl_extratracks2cm; 
   int ElEl_extratracks5cm; 
@@ -113,6 +117,7 @@ class GammaGammaEE : public edm::EDAnalyzer {
 
   int nTrackCand;
   int TRACKMAX;
+  int nExtraTrackCand; 
   double TrackCand_px[100];
   double TrackCand_py[100];
   double TrackCand_pz[100];

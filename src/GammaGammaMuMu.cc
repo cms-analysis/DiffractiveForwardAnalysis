@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.23 2008/07/14 13:52:52 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.24 2008/08/08 16:05:36 jjhollar Exp $
 //
 //
 
@@ -217,14 +217,15 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersEt4",&nExtraCaloTowersEt4,"nExtraCaloTowersEt4/I");  
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
-  thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
-  thetree->Branch("TrackCand_py",TrackCand_py,"TrackCand_py[nTrackCand]/D");
-  thetree->Branch("TrackCand_pz",TrackCand_pz,"TrackCand_pz[nTrackCand]/D");
-  thetree->Branch("TrackCand_p",TrackCand_p,"TrackCand_p[nTrackCand]/D");
-  thetree->Branch("TrackCand_pt",TrackCand_pt,"TrackCand_pt[nTrackCand]/D");
-  thetree->Branch("TrackCand_eta",TrackCand_eta,"TrackCand_eta[nTrackCand]/D");
-  thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nTrackCand]/D");
-  thetree->Branch("TrackCand_vtxdxyz",TrackCand_vtxdxyz,"TrackCand_vtxdxyz[nTrackCand]/D");
+  thetree->Branch("nExtraTrackCand",&nExtraTrackCand,"nExtraTrackCand/I"); 
+  thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_py",TrackCand_py,"TrackCand_py[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_pz",TrackCand_pz,"TrackCand_pz[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_p",TrackCand_p,"TrackCand_p[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_pt",TrackCand_pt,"TrackCand_pt[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_eta",TrackCand_eta,"TrackCand_eta[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_vtxdxyz",TrackCand_vtxdxyz,"TrackCand_vtxdxyz[nExtraTrackCand]/D");
   thetree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D");
   
   thetree->Branch("MuMu_mass",&MuMu_mass,"MuMu_mass/D");
@@ -234,8 +235,13 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuMu_vtxz",&MuMu_vtxz,"MuMu_vtxz/D"); 
   thetree->Branch("MuMu_vtxchi2dof",&MuMu_vtxchi2dof,"MuMu_vtxchi2dof/D");
   thetree->Branch("MuMu_vtxisvalid",&MuMu_vtxisvalid,"MuMu_vtxisvalid/I");
-  thetree->Branch("MuMu_extratracks50mm",&MuMu_extratracks50mm,"MuMu_extratracks50mm/I");
-  thetree->Branch("MuMu_extratracks1cm",&MuMu_extratracks1cm,"MuMu_extratracks1cm/I");
+
+  thetree->Branch("MuMu_extratracks1mm",&MuMu_extratracks1mm,"MuMu_extratracks1mm/I");
+  thetree->Branch("MuMu_extratracks2mm",&MuMu_extratracks2mm,"MuMu_extratracks2mm/I");
+  thetree->Branch("MuMu_extratracks3mm",&MuMu_extratracks3mm,"MuMu_extratracks3mm/I");
+  thetree->Branch("MuMu_extratracks4mm",&MuMu_extratracks4mm,"MuMu_extratracks4mm/I"); 
+  thetree->Branch("MuMu_extratracks5mm",&MuMu_extratracks5mm,"MuMu_extratracks5mm/I");  
+  thetree->Branch("MuMu_extratracks1cm",&MuMu_extratracks1cm,"MuMu_extratracks1cm/I"); 
   thetree->Branch("MuMu_extratracks2cm",&MuMu_extratracks2cm,"MuMu_extratracks2cm/I");
   thetree->Branch("MuMu_extratracks5cm",&MuMu_extratracks5cm,"MuMu_extratracks5cm/I"); 
   thetree->Branch("MuMu_extratracks10cm",&MuMu_extratracks10cm,"MuMu_extratracks10cm/I"); 
@@ -273,6 +279,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
+  nExtraTrackCand=0;
 
   nExtraCaloTowersE1=0;
   nExtraCaloTowersE2=0;
@@ -295,7 +302,12 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   MuMu_mass = -1;
   MuMu_dphi = -1;
-  MuMu_extratracks50mm = 0; 
+
+  MuMu_extratracks1mm = 0;
+  MuMu_extratracks2mm = 0;
+  MuMu_extratracks3mm = 0;
+  MuMu_extratracks4mm = 0;
+  MuMu_extratracks5mm = 0;
   MuMu_extratracks1cm = 0; 
   MuMu_extratracks2cm = 0;
   MuMu_extratracks5cm = 0;
@@ -317,14 +329,23 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   trigNames.init(*hltResults) ; 
   for (unsigned int i=0; i<trigNames.size(); i++)  
     { 
-      if ( trigNames.triggerNames().at(i) == "HLT_Mu3" )       
+      // This is for CMSSW_2_1_X!!! 
+      //      if ( trigNames.triggerNames().at(i) == "HLT_Mu3" )       
+
+      // This is for CMSSW_2_0_X!!!
+      if ( trigNames.triggerNames().at(i) == "HLT1MuonPrescalePt3" )
         {  
           if ( hltResults->accept(i) )  
             HLT1MuonPrescalePt3 = 1;
 	  else
 	    HLT1MuonPrescalePt3 = 0;
         }  
-      if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu3" ) 
+	
+      // This is for CMSSW_2_1_X!!! 	
+      //      if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu3" ) 
+
+      // This is for CMSSW_2_0_X!!! 
+      if ( trigNames.triggerNames().at(i) == "HLT2MuonNonIso" )
         {   
           if ( hltResults->accept(i) )  
 	    HLT2MuonNonIso = 1;
@@ -358,17 +379,15 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_phi[nMuonCand]=muon->phi();
 	  MuonCand_charge[nMuonCand]=muon->charge();
 
-	  // Muon ID
-	  MuonCand_tmlsloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationLoose);
-	  //muonid::isGoodMuon(*muon,muonid::TMLastStationLoose);
-	  MuonCand_tm2dloosemuid[nMuonCand]=muon->isGood(reco::Muon::TM2DCompatibilityLoose);
-	  //Muon(*muon,muonid::TM2DCompatibilityLoose);
-	  MuonCand_arbmuid[nMuonCand]=muon->isGood(reco::Muon::AllArbitrated);
+	  // Muon ID for CMSSW_2_0_X
+	  MuonCand_tmlsloosemuonid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TMLastStationLoose);
+	  MuonCand_tm2dloosemuid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TM2DCompatibilityLoose);
+	  MuonCand_arbmuid[nMuonCand]=-1; // This doesn't exist in 2_0_X!!!
 	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
           MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
           MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon(); 
 
-	  // Isolation 
+	  // Isolation for CMSSW_2_0_X
 	  MuonCand_hcalisor3[nMuonCand]=muon->isolationR03().hadEt; 
 	  MuonCand_ecalisor3[nMuonCand]=muon->isolationR03().emEt;  
 	  MuonCand_trkisor3[nMuonCand]=muon->isolationR03().nTracks;  
@@ -376,8 +395,26 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_ecalisor5[nMuonCand]=muon->isolationR05().emEt;   
 	  MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;   
 
-	  
-	  MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p(); 
+	  // Muon ID for CMSSW_2_1_X
+	  //	  MuonCand_tmlsloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationLoose);
+	  //	  MuonCand_tm2dloosemuid[nMuonCand]=muon->isGood(reco::Muon::TM2DCompatibilityLoose);
+	  //	  MuonCand_arbmuid[nMuonCand]=muon->isGood(reco::Muon::AllArbitrated);
+	  //	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
+	  //      MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
+	  //      MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon(); 
+
+	  // Isolation for CMSSW_2_1_X
+	  //	  MuonCand_hcalisor3[nMuonCand]=muon->isolationR03().hadEt; 
+	  //	  MuonCand_ecalisor3[nMuonCand]=muon->isolationR03().emEt;  
+	  //	  MuonCand_trkisor3[nMuonCand]=muon->isolationR03().nTracks;  
+	  //	  MuonCand_hcalisor5[nMuonCand]=muon->isolationR05().hadEt;  
+	  //	  MuonCand_ecalisor5[nMuonCand]=muon->isolationR05().emEt;   
+	  //	  MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;   
+
+	  if(MuonCand_isglobal[nMuonCand] || MuonCand_istracker[nMuonCand])
+	    MuonCandTrack_p[nMuonCand] = muon->track()->p(); 
+	  else
+	    MuonCandTrack_p[nMuonCand] = muon->p();
 
 	  nMuonCand++;
 	}  
@@ -658,6 +695,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	      transmutrks.push_back( tmptrk );
 	    }
 	}
+      if(isMuon == false)
+	nTrackCand++;
     }
 
   // If 2 muons, make a vertex
@@ -683,37 +722,45 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	}
 
       // OK, now go back and count "extra" tracks on the dimuon vertex
-      for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track) 
+      for(track = tracks->begin(); track != tracks->end() && nExtraTrackCand<TRACKMAX; ++ track) 
         { 
 	  if(track->p() == MuonCandTrack_p[0] || track->p() == MuonCandTrack_p[1])
 	    continue;
 	  
-          TrackCand_p[nTrackCand]=track->p(); 
-          TrackCand_px[nTrackCand]=track->px(); 
-          TrackCand_py[nTrackCand]=track->py(); 
-          TrackCand_pz[nTrackCand]=track->pz(); 
-          TrackCand_pt[nTrackCand]=track->pt(); 
-          TrackCand_eta[nTrackCand]=track->eta(); 
-          TrackCand_phi[nTrackCand]=track->phi(); 
-          TrackCand_charge[nTrackCand]=track->charge(); 
-	  TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - MuMu_vtxx)*(track->vertex().x() - MuMu_vtxx)) + 
+          TrackCand_p[nExtraTrackCand]=track->p(); 
+          TrackCand_px[nExtraTrackCand]=track->px(); 
+          TrackCand_py[nExtraTrackCand]=track->py(); 
+          TrackCand_pz[nExtraTrackCand]=track->pz(); 
+          TrackCand_pt[nExtraTrackCand]=track->pt(); 
+          TrackCand_eta[nExtraTrackCand]=track->eta(); 
+          TrackCand_phi[nExtraTrackCand]=track->phi(); 
+          TrackCand_charge[nExtraTrackCand]=track->charge(); 
+	  TrackCand_vtxdxyz[nExtraTrackCand] = sqrt(((track->vertex().x() - MuMu_vtxx)*(track->vertex().x() - MuMu_vtxx)) + 
 					     ((track->vertex().y() - MuMu_vtxy)*(track->vertex().y() - MuMu_vtxy)) +
 					     ((track->vertex().z() - MuMu_vtxz)*(track->vertex().z() - MuMu_vtxz)));
 	  
-	  if(TrackCand_vtxdxyz[nTrackCand] < 0.5) 
-            MuMu_extratracks50mm++; 
-	  if(TrackCand_vtxdxyz[nTrackCand] < 1) 
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.1) 
+            MuMu_extratracks1mm++; 
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.2)  
+            MuMu_extratracks2mm++;  
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.3)  
+            MuMu_extratracks3mm++;  
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.4)   
+            MuMu_extratracks4mm++;   
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.5)    
+            MuMu_extratracks5mm++;
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 1) 
             MuMu_extratracks1cm++; 
-	  if(TrackCand_vtxdxyz[nTrackCand] < 2)
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 2)
 	    MuMu_extratracks2cm++;
-          if(TrackCand_vtxdxyz[nTrackCand] < 5) 
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 5) 
             MuMu_extratracks5cm++; 
-          if(TrackCand_vtxdxyz[nTrackCand] < 10) 
+          if(TrackCand_vtxdxyz[nExtraTrackCand] < 10) 
             MuMu_extratracks10cm++; 
-	  if(TrackCand_vtxdxyz[nTrackCand] < closesttrkdxyz)
-	    closesttrkdxyz = TrackCand_vtxdxyz[nTrackCand];
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < closesttrkdxyz)
+	    closesttrkdxyz = TrackCand_vtxdxyz[nExtraTrackCand];
 
-          nTrackCand++;  
+          nExtraTrackCand++;  
         } 
       ClosestExtraTrack_vtxdxyz = closesttrkdxyz;
     } 
