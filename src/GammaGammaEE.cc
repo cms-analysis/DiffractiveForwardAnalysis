@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.25 2008/08/08 16:05:36 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.26 2008/08/27 07:24:38 jjhollar Exp $
 //
 //
 
@@ -300,10 +300,10 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   for (unsigned int i=0; i<trigNames.size(); i++)   
     {  
       // This is for CMSSW_2_1_X!!!
-      //      if ( trigNames.triggerNames().at(i) == "HLT_DoubleEle5_SW_L1R" )        
+      if ( trigNames.triggerNames().at(i) == "HLT_DoubleEle5_SW_L1R" )        
 
       // This is for CMSSW_2_0_X!!!
-      if ( trigNames.triggerNames().at(i) == "HLT2Electron5_L1R_NI" )
+      //      if ( trigNames.triggerNames().at(i) == "HLT2Electron5_L1R_NI" )
         {   
           if ( hltResults->accept(i) )   
             HLT2Electron5_L1R_NI = 1; 
@@ -312,10 +312,10 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
         }   
 
       // This is for CMSSW_2_1_X!!! 
-      //      if ( trigNames.triggerNames().at(i) == "HLT_DoubleEle6_Exclusive" )  
+      if ( trigNames.triggerNames().at(i) == "HLT_DoubleEle6_Exclusive" )  
       
-      // This is for CMSSW_2_0_X!!!
-      if ( trigNames.triggerNames().at(i) == "HLT2ElectronExclusive" )
+	// This is for CMSSW_2_0_X!!!
+	//      if ( trigNames.triggerNames().at(i) == "HLT2ElectronExclusive" )
         {    
           if ( hltResults->accept(i) )   
             HLT2ElectronExclusive = 1; 
@@ -352,24 +352,24 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  EleCand_charge[nEleCand]=electron->charge(); 
 
 	  // This is for CMSSW_2_0_X!!!
-	  EleCand_robustid[nEleCand]=electron->electronIDRobust();
-	  EleCand_likelihoodid[nEleCand]=electron->leptonID();
+// 	  EleCand_robustid[nEleCand]=electron->electronIDRobust();
+// 	  EleCand_likelihoodid[nEleCand]=electron->leptonID();
 
 	  // This is for CMSSW_2_1_X!!!
-	  //	  if(electron->leptonID("robust"))
-	  //	      EleCand_robustid[nEleCand]=1;
-	  //	  else
-	  //	    EleCand_robustid[nEleCand]=0;
-	  //
-	  //	  if(electron->leptonID("loose"))
-	  //	    EleCand_looseid[nEleCand]=1;
-	  //	  else
-	  //	    EleCand_looseid[nEleCand]=0;
-	  //
-	  //	  if(electron->leptonID("likelihood"))
-	  //	     EleCand_likelihoodid[nEleCand]=1;
-	  //	  else
-	  //	    EleCand_likelihoodid[nEleCand]=0;
+	  if(electron->leptonID("robust"))
+	    EleCand_robustid[nEleCand]=1;
+	  else
+	    EleCand_robustid[nEleCand]=0;
+	  
+	  if(electron->leptonID("loose"))
+	    EleCand_looseid[nEleCand]=1;
+	  else
+	    EleCand_looseid[nEleCand]=0;
+	  
+	  if(electron->leptonID("likelihood"))
+	    EleCand_likelihoodid[nEleCand]=1;
+	  else
+	    EleCand_likelihoodid[nEleCand]=0;
 	       
 	  EleCandTrack_p[nEleCand] = electron->gsfTrack()->p();  
 
