@@ -1,9 +1,9 @@
  // -*- C++ -*-
 //
-// Package:    GammaGammaMuMu
-// Class:      GammaGammaMuMu
+// Package:    CosmicsMuMu
+// Class:      CosmicsMuMu
 // 
-/**\class GammaGammaMuMu GammaGammaMuMu.cc GammaGammaLeptonLepton/GammaGammaMuMu/src/GammaGammaMuMu.cc
+/**\class CosmicsMuMu CosmicsMuMu.cc GammaGammaLeptonLepton/CosmicsMuMu/src/CosmicsMuMu.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.26 2008/09/29 12:16:25 jjhollar Exp $
+// $Id: CosmicsMuMu.cc,v 1.26 2008/09/29 12:16:25 jjhollar Exp $
 //
 //
 
@@ -56,10 +56,8 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"   
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h" 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
-#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaMuMu.h"
+#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/CosmicsMuMu.h"
 
 // user include files
 #include <DataFormats/Common/interface/Handle.h>
@@ -108,7 +106,7 @@ using namespace reco;
 //
 // constructors and destructor
 //
-GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
+CosmicsMuMu::CosmicsMuMu(const edm::ParameterSet& pset)
 {
    //now do what ever initialization is needed
   recTrackLabel      = pset.getParameter<edm::InputTag>("RecoTrackLabel");
@@ -183,6 +181,22 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_hcalisor5",MuonCand_hcalisor5,"MuonCand_hcalisor5[nMuonCand]/D");  
   thetree->Branch("MuonCand_ecalisor5",MuonCand_ecalisor5,"MuonCand_ecalisor5[nMuonCand]/D");  
   thetree->Branch("MuonCand_trkisor5",MuonCand_trkisor5,"MuonCand_trkisor5[nMuonCand]/D"); 
+  thetree->Branch("MuonCand_vtxx",MuonCand_vtxx,"MuonCand_vtxx[nMuonCand]/D"); 
+  thetree->Branch("MuonCand_vtxy",MuonCand_vtxy,"MuonCand_vtxy[nMuonCand]/D");  
+  thetree->Branch("MuonCand_vtxz",MuonCand_vtxz,"MuonCand_vtxz[nMuonCand]/D");  
+
+  thetree->Branch("MuonCand_trkpt", MuonCand_trkpt, "MuonCand_trkpt[nMuonCand]/D");
+  thetree->Branch("MuonCand_trketa", MuonCand_trketa, "MuonCand_trketa[nMuonCand]/D"); 
+  thetree->Branch("MuonCand_trkphi", MuonCand_trkphi, "MuonCand_trkphi[nMuonCand]/D");   
+  thetree->Branch("MuonCand_samuonpt", MuonCand_samuonpt, "MuonCand_samuonpt[nMuonCand]/D");
+  thetree->Branch("MuonCand_samuoneta", MuonCand_samuoneta, "MuonCand_samuoneta[nMuonCand]/D");  
+  thetree->Branch("MuonCand_samuonphi", MuonCand_samuonphi, "MuonCand_samuonphi[nMuonCand]/D"); 
+  thetree->Branch("MuonCand_timein", MuonCand_timein, "MuonCand_timein[nMuonCand]/D");  
+  thetree->Branch("MuonCand_timeout", MuonCand_timeout, "MuonCand_timeout[nMuonCand]/D");  
+  thetree->Branch("MuonCand_timeinerr", MuonCand_timeinerr, "MuonCand_timeinerr[nMuonCand]/D");   
+  thetree->Branch("MuonCand_timeouterr", MuonCand_timeouterr, "MuonCand_timeouterr[nMuonCand]/D");   
+  thetree->Branch("MuonCand_direction", MuonCand_direction, "MuonCand_direction[nMuonCand]/I");    
+
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -258,9 +272,6 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuMu_extratracks5cm",&MuMu_extratracks5cm,"MuMu_extratracks5cm/I"); 
   thetree->Branch("MuMu_extratracks10cm",&MuMu_extratracks10cm,"MuMu_extratracks10cm/I"); 
 
-  thetree->Branch("nPFlowCand",&nPFlowCand,"nPFlowCand/I");
-  thetree->Branch("PFowCandIds",PFlowCandIds,"PFlowCandIds[nPFlowCand]/I");
-
   thetree->Branch("HitInZDC",&HitInZDC,"HitInZDC/I");
   thetree->Branch("HitInCastor",&HitInCastor,"HitInCastor/I");
   
@@ -273,7 +284,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
 }
 
 
-GammaGammaMuMu::~GammaGammaMuMu()
+CosmicsMuMu::~CosmicsMuMu()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -288,7 +299,7 @@ GammaGammaMuMu::~GammaGammaMuMu()
 
 // ------------ method called to for each event  ------------
 void
-GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
+CosmicsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 {
   nMuonCand=0;
   nJetCand=0;
@@ -322,8 +333,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersE3hb=0; 
   nExtraCaloTowersE4hb=0;  
 
-  nPFlowCand=0;
-
   HitInZDC=0;
   HitInCastor=0;
 
@@ -350,6 +359,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   //  evweight = * weightHandle;
 
 
+  /*
   // Get the trigger information from the event
   edm::Handle<edm::TriggerResults> hltResults ; 
   event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ; 
@@ -380,19 +390,23 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	    HLT2MuonNonIso = 0;
         }   
     }
+  */
 
   // Get the muon collection from the event
+
+  /*
   // PAT
   edm::Handle<edm::View<pat::Muon> > muons; 
   event.getByLabel(theGLBMuonLabel,muons); 
   edm::View<pat::Muon>::const_iterator muon;
-
+  */
   // AOD
-  //  Handle<reco::MuonCollection> muons;
-  //  event.getByLabel(theGLBMuonLabel, muons);
-  //  reco::MuonCollection::const_iterator muon;
+  Handle<reco::MuonCollection> muons;
+  event.getByLabel(theGLBMuonLabel, muons);
+  reco::MuonCollection::const_iterator muon;
 
-  if(muons->size() == 2)
+  //  if(muons->size() == 2)
+  if(muons->size() > 0)
     {
       for (muon = muons->begin(); muon != muons->end() && nMuonCand<MUONMAX; ++muon)
 	{
@@ -404,6 +418,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_eta[nMuonCand]=muon->eta();
 	  MuonCand_phi[nMuonCand]=muon->phi();
 	  MuonCand_charge[nMuonCand]=muon->charge();
+	  MuonCand_vtxx[nMuonCand]=muon->vertex().x();
+	  MuonCand_vtxy[nMuonCand]=muon->vertex().y(); 
+          MuonCand_vtxz[nMuonCand]=muon->vertex().z(); 
 
 // 	  // Muon ID for CMSSW_2_0_X
 // 	  MuonCand_tmlsloosemuonid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TMLastStationLoose);
@@ -442,6 +459,25 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  else
 	    MuonCandTrack_p[nMuonCand] = muon->p();
 
+	  if(muon->innerTrack().isNonnull())
+	    {
+	      MuonCand_trkpt[nMuonCand]=muon->innerTrack()->pt(); 
+	      MuonCand_trketa[nMuonCand]=muon->innerTrack()->eta();  
+	      MuonCand_trkphi[nMuonCand]=muon->innerTrack()->phi();  
+	    }
+	  if(muon->outerTrack().isNonnull())
+	    {
+	      MuonCand_samuonpt[nMuonCand]=muon->outerTrack()->pt();  
+	      MuonCand_samuoneta[nMuonCand]=muon->outerTrack()->eta();  
+	      MuonCand_samuonphi[nMuonCand]=muon->outerTrack()->phi();  
+	    }
+
+	  MuonCand_timeout[nMuonCand]=muon->time().timeAtIpInOut;
+	  MuonCand_timein[nMuonCand]=muon->time().timeAtIpOutIn;
+	  MuonCand_timeouterr[nMuonCand]=muon->time().timeAtIpInOutErr; 
+          MuonCand_timeinerr[nMuonCand]=muon->time().timeAtIpOutInErr; 
+	  MuonCand_direction[nMuonCand]=muon->time().direction();
+
 	  nMuonCand++;
 	}  
 
@@ -468,44 +504,33 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
 
   // Get the Jet collection from the event
+  /*
   // PAT
   edm::Handle<edm::View<pat::Jet> > jets; 
   event.getByLabel(theJetLabel,jets); 
   edm::View<pat::Jet>::const_iterator jet;
+  */
 
   // AOD
-  //  edm::Handle<reco::CaloJetCollection> pJets;
-  //  event.getByLabel(theJetLabel,pJets);
-  //  const reco::CaloJetCollection* jets = pJets.product();
-  //  reco::CaloJetCollection::const_iterator jet;
+  edm::Handle<reco::CaloJetCollection> pJets;
+  event.getByLabel(theJetLabel,pJets);
+  const reco::CaloJetCollection* jets = pJets.product();
+  reco::CaloJetCollection::const_iterator jet;
 
   // Get the MET collection from the event
 
+  /*
   // PAT
   edm::Handle<edm::View<pat::MET> > mets; 
   event.getByLabel(theMetLabel,mets); 
   edm::View<pat::MET>::const_iterator met;
+  */
 
   // AOD
-  //  edm::Handle<reco::CaloMETCollection> pMET;
-  //  event.getByLabel(theMetLabel,pMET);
-  //  const reco::CaloMETCollection* mets = pMET.product();
-  //  reco::CaloMETCollection::const_iterator met;
-
-  // Count PFlow  objects
-  edm::Handle<reco::PFCandidateCollection> pflows;
-  event.getByLabel("particleFlow",pflows);
-  reco::PFCandidateCollection::const_iterator pflow;
-
-  for(pflow = pflows->begin(); pflow != pflows->end(); ++pflow)
-    {
-      int parttype = PFCandidate::ParticleType (pflow->particleId());
-      if(parttype != 2)
-	{
-	  PFlowCandIds[nPFlowCand] = parttype;
-	  nPFlowCand++;
-	}
-    }
+  edm::Handle<reco::CaloMETCollection> pMET;
+  event.getByLabel(theMetLabel,pMET);
+  const reco::CaloMETCollection* mets = pMET.product();
+  reco::CaloMETCollection::const_iterator met;
 
   // Get the CaloTower collection from the event
   edm::Handle<CaloTowerCollection> caloTowers; 
@@ -674,76 +699,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestEtCaloTower_dr = highestettowerdr;
     }
 
-  // Check for particles in ZDC/Castor acceptance. 
-  // Use MC truth for now, replace with real RECO when available
-  double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;
-  int MCPar_pdgid;
-  
-  Handle<GenParticleCollection> genParticles;
-  event.getByLabel( "genParticles", genParticles );
-  for ( size_t i = 0; i < genParticles->size(); ++ i ) 
-    {
-      const Candidate & p = (*genParticles)[ i ];
-      MCPar_pdgid=p.pdgId();
-      MCPar_eta=p.eta();
-      MCPar_px=p.px();
-      MCPar_py=p.py();
-      MCPar_pz=p.pz();
-      MCPar_mass=p.mass();
-      MCPar_e = sqrt(MCPar_mass*MCPar_mass + (MCPar_px*MCPar_px + MCPar_py*MCPar_py + MCPar_pz*MCPar_pz));
-
-      if(MCPar_pdgid == 22 && abs(MCPar_eta) > 8.6 && MCPar_e > 20.0) 
-	HitInZDC++;
-      if(MCPar_pdgid == 2112 && abs(MCPar_eta) > 8.6 && MCPar_e > 50.0)
-	HitInZDC++;
-      if((MCPar_pdgid != 22 && MCPar_pdgid != 2112) && (abs(MCPar_eta) > 5.2 && abs(MCPar_eta) < 6.6))
-	HitInCastor++;
-
-      if(MCPar_pdgid == 2212 && MCPar_pz > 3000.0) 
-        { 
-          double MCPar_pt = sqrt(MCPar_px*MCPar_px + MCPar_py*MCPar_py); 
-          double phi = p.phi(); 
-          double mp = 0.938272029; 
-          // ... compute kinimatical variable  
-  
-          float xi  = 1.0;    // fractional momentum loss  
-          if (MCPar_pz>0)  
-            xi -= MCPar_pz/7000.0;  
-          else  
-            xi += MCPar_pz/7000.0;  
-  
-          double t   = (-MCPar_pt*MCPar_pt - mp*mp*xi*xi) / (1-xi); // "t"  
- 
-          float acc420b1, acc220b1, acc420and220b1, acc420or220b1; // beam 1 (clockwise)  
-          float acc420b2, acc220b2, acc420and220b2, acc420or220b2; // beam 2 (anti-clockwise)  
-  
-          acc420b1 = acc220b1 = acc420and220b1 = acc420or220b1 = 0;  
-          acc420b2 = acc220b2 = acc420and220b2 = acc420or220b2 = 0;  
- 
-          if(MCPar_pz > 0) 
-            { 
-              acc420b1       = helper420beam1.GetAcceptance(t, xi, phi);  
-              acc220b1       = helper220beam1.GetAcceptance(t, xi, phi);  
-              acc420and220b1 = helper420a220beam1.GetAcceptance(t, xi, phi);  
-              acc420or220b1  = acc420b1 + acc220b1 - acc420and220b1;  
-            } 
-          else 
-            { 
-              acc420b2       = helper420beam2.GetAcceptance(t, xi, phi);  
-              acc220b2       = helper220beam2.GetAcceptance(t, xi, phi);  
-              acc420and220b2 = helper420a220beam2.GetAcceptance(t, xi, phi);  
-              acc420or220b2  = acc420b2 + acc220b2 - acc420and220b2;  
-            } 
- 
-        } 
-
-    }
-
   // Now do vertexing and track counting
-  edm::ESHandle<TransientTrackBuilder> theVtx;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theVtx);
-  vector<TransientTrack> transmutrks; 
-  reco::TrackCollection * mutrks = new reco::TrackCollection;
+  //  edm::ESHandle<TransientTrackBuilder> theVtx;
+  //  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theVtx);
+  //  vector<TransientTrack> transmutrks; 
+  //  reco::TrackCollection * mutrks = new reco::TrackCollection;
 
   // First get "muon" tracks
   bool isMuon = false;
@@ -755,9 +715,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  if(MuonCandTrack_p[j] == track->p())
 	    {
 	      isMuon = true;
-	      mutrks->push_back( *track );
-	      TransientTrack tmptrk = (*theVtx).build( *track );
-	      transmutrks.push_back( tmptrk );
+	      //	      mutrks->push_back( *track );
+	      //	      TransientTrack tmptrk = (*theVtx).build( *track );
+	      //	      transmutrks.push_back( tmptrk );
 	    }
 	}
       if(isMuon == false)
@@ -765,6 +725,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }
 
   // If 2 muons, make a vertex
+  /*
   if(transmutrks.size() == 2) 
     { 
       KalmanVertexFitter fitter(true); 
@@ -838,8 +799,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       MuMu_vtxisvalid = 0; 
       nExtraTrackCand = 0;
     } 
-
+  */
   // Check for di-objects
+  /*
   if(nMuonCand != 2)
     passed = false;
   else
@@ -849,6 +811,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       if(fabs(MuonCand_pt[0]-MuonCand_pt[1]) > mudptmax)
 	passed = false;      
     }
+  */
 
   // "Exclusivity" cuts
 
@@ -859,13 +822,13 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GammaGammaMuMu::beginJob(const edm::EventSetup&)
+CosmicsMuMu::beginJob(const edm::EventSetup&)
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-GammaGammaMuMu::endJob() {
+CosmicsMuMu::endJob() {
   thefile->Write();
   thefile->Close();
 }

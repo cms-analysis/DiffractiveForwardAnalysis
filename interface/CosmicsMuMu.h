@@ -1,5 +1,5 @@
-#ifndef DiffractiveForwardAnalysis_GammaGammaMuMu
-#define DiffractiveForwardAnalysis_GammaGammaMuMu
+#ifndef DiffractiveForwardAnalysis_CosmicsMuMu
+#define DiffractiveForwardAnalysis_CosmicsMuMu
 
 // user include files
 #include <FWCore/Framework/interface/Frameworkfwd.h>
@@ -18,10 +18,10 @@
 #include <TH1D.h>
 #include <TTree.h>
 
-class GammaGammaMuMu : public edm::EDAnalyzer {
+class CosmicsMuMu : public edm::EDAnalyzer {
  public:
-  explicit GammaGammaMuMu(const edm::ParameterSet&);
-  ~GammaGammaMuMu();
+  explicit CosmicsMuMu(const edm::ParameterSet&);
+  ~CosmicsMuMu();
   
   
  private:
@@ -72,6 +72,21 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuonCand_ecalisor5[4];  
   double MuonCand_hcalisor5[4];  
   double MuonCand_trkisor5[4]; 
+  double MuonCand_vtxx[4];
+  double MuonCand_vtxy[4]; 
+  double MuonCand_vtxz[4]; 
+
+  double MuonCand_trkpt[4];
+  double MuonCand_trketa[4]; 
+  double MuonCand_trkphi[4]; 
+  double MuonCand_samuonpt[4]; 
+  double MuonCand_samuoneta[4]; 
+  double MuonCand_samuonphi[4]; 
+  double MuonCand_timein[4];
+  double MuonCand_timeout[4];
+  double MuonCand_timeouterr[4];
+  double MuonCand_timeinerr[4];
+  int MuonCand_direction[4];
 
   double MuMu_mass;
   double MuMu_dphi;
@@ -105,7 +120,6 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double SumJet_e;
 
   int nPFlowCand;
-  int PFlowCandIds[500];
 
   int HitInZDC; 
   int HitInCastor; 

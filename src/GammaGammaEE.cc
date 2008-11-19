@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.26 2008/08/27 07:24:38 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.27 2008/09/29 12:16:25 jjhollar Exp $
 //
 //
 
@@ -53,7 +53,8 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"  
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h" 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h" 
-
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h" 
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaEE.h"
 
@@ -179,6 +180,16 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersE8",&nExtraCaloTowersE8,"nExtraCaloTowersE8/I");    
   thetree->Branch("nExtraCaloTowersE9",&nExtraCaloTowersE9,"nExtraCaloTowersE9/I");    
 
+  thetree->Branch("nExtraCaloTowersE0hf", &nExtraCaloTowersE0hf, "nExtraCaloTowersE0hf/I");
+  thetree->Branch("nExtraCaloTowersE1hf", &nExtraCaloTowersE1hf, "nExtraCaloTowersE1hf/I"); 
+  thetree->Branch("nExtraCaloTowersE2hf", &nExtraCaloTowersE2hf, "nExtraCaloTowersE12hf/I"); 
+  thetree->Branch("nExtraCaloTowersE1he", &nExtraCaloTowersE1he, "nExtraCaloTowersE1he/I"); 
+  thetree->Branch("nExtraCaloTowersE2he", &nExtraCaloTowersE2he, "nExtraCaloTowersE2he/I");  
+  thetree->Branch("nExtraCaloTowersE3he", &nExtraCaloTowersE3he, "nExtraCaloTowersE3he/I");  
+  thetree->Branch("nExtraCaloTowersE2hb", &nExtraCaloTowersE2hb, "nExtraCaloTowersE2hb/I"); 
+  thetree->Branch("nExtraCaloTowersE3hb", &nExtraCaloTowersE3hb, "nExtraCaloTowersE3hb/I");  
+  thetree->Branch("nExtraCaloTowersE4hb", &nExtraCaloTowersE4hb, "nExtraCaloTowersE4hb/I");  
+
   thetree->Branch("nExtraCaloTowersEt0pt1",&nExtraCaloTowersEt0pt1,"nExtraCaloTowersEt0pt1/I");  
   thetree->Branch("nExtraCaloTowersEt0pt2",&nExtraCaloTowersEt0pt2,"nExtraCaloTowersEt0pt2/I");  
   thetree->Branch("nExtraCaloTowersEt0pt5",&nExtraCaloTowersEt0pt5,"nExtraCaloTowersEt0pt5/I");  
@@ -217,6 +228,9 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("ElEl_extratracks5cm",&ElEl_extratracks5cm,"ElEl_extratracks5cm/I");  
   thetree->Branch("ElEl_extratracks10cm",&ElEl_extratracks10cm,"ElEl_extratracks10cm/I");  
 
+  thetree->Branch("nPFlowCand",&nPFlowCand,"nPFlowCand/I");
+  thetree->Branch("PFowCandIds",PFlowCandIds,"PFlowCandIds[nPFlowCand]/I");
+
   thetree->Branch("HitInZDC",&HitInZDC,"HitInZDC/I");
   thetree->Branch("HitInCastor",&HitInCastor,"HitInCastor/I");
   
@@ -252,22 +266,34 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nTrackCand=0;
   nExtraTrackCand=0;
 
-  nExtraCaloTowersE1=0; 
-  nExtraCaloTowersE2=0; 
-  nExtraCaloTowersE3=0;  
-  nExtraCaloTowersE4=0;  
+  nExtraCaloTowersE1=0;
+  nExtraCaloTowersE2=0;
+  nExtraCaloTowersE3=0; 
+  nExtraCaloTowersE4=0; 
   nExtraCaloTowersE5=0;
-  nExtraCaloTowersE6=0;  
-  nExtraCaloTowersE7=0;   
-  nExtraCaloTowersE8=0;   
-  nExtraCaloTowersE9=0;    
-  nExtraCaloTowersEt0pt1=0;  
-  nExtraCaloTowersEt0pt2=0; 
-  nExtraCaloTowersEt0pt5=0;   
-  nExtraCaloTowersEt1=0;  
-  nExtraCaloTowersEt2=0;   
+  nExtraCaloTowersE6=0; 
+  nExtraCaloTowersE7=0;  
+  nExtraCaloTowersE8=0;  
+  nExtraCaloTowersE9=0; 
+  nExtraCaloTowersEt0pt1=0; 
+  nExtraCaloTowersEt0pt2=0;
+  nExtraCaloTowersEt0pt5=0;  
+  nExtraCaloTowersEt1=0; 
+  nExtraCaloTowersEt2=0;  
   nExtraCaloTowersEt3=0;  
   nExtraCaloTowersEt4=0;   
+  nExtraCaloTowersE0hf=0;
+  nExtraCaloTowersE1hf=0;
+  nExtraCaloTowersE2hf=0;  
+  nExtraCaloTowersE1he=0; 
+  nExtraCaloTowersE2he=0; 
+  nExtraCaloTowersE3he=0;  
+  nExtraCaloTowersE2hb=0; 
+  nExtraCaloTowersE3hb=0; 
+  nExtraCaloTowersE4hb=0;  
+
+  nPFlowCand=0;
+
   HitInZDC=0;
   HitInCastor=0;
 
@@ -419,6 +445,21 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   //  const reco::CaloMETCollection* mets = pMET.product(); 
   //  reco::CaloMETCollection::const_iterator met; 
 
+  // Count PFlow  objects
+  edm::Handle<reco::PFCandidateCollection> pflows;
+  event.getByLabel("particleFlow",pflows);
+  reco::PFCandidateCollection::const_iterator pflow;
+
+  for(pflow = pflows->begin(); pflow != pflows->end(); ++pflow)
+    {
+      int parttype = PFCandidate::ParticleType (pflow->particleId());
+      if(parttype != 1)
+	{
+	  PFlowCandIds[nPFlowCand] = parttype;
+	  nPFlowCand++;
+	}
+    }
+
   // Get the CaloTower collection from the event 
   edm::Handle<CaloTowerCollection> caloTowers;  
   event.getByLabel(theCaloTowLabel,caloTowers);  
@@ -547,6 +588,25 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 nExtraCaloTowersEt3++;   
               if(CaloTower_et[nCaloCand] > 4.0)   
                 nExtraCaloTowersEt4++;   
+
+              if(CaloTower_e[nCaloCand] > 0.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)  
+		nExtraCaloTowersE0hf++; 
+              if(CaloTower_e[nCaloCand] > 1.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)   
+		nExtraCaloTowersE1hf++; 
+              if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)   
+		nExtraCaloTowersE2hf++;
+              if(CaloTower_e[nCaloCand] > 1.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)      
+		nExtraCaloTowersE1he++;  
+              if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)   
+		nExtraCaloTowersE2he++;  
+	      if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)   
+		nExtraCaloTowersE3he++;   
+              if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
+		nExtraCaloTowersE2hb++;  
+              if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
+		nExtraCaloTowersE3hb++;  
+              if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
+		nExtraCaloTowersE4hb++;   
 	    }
 	  
 	  nCaloCand++;
