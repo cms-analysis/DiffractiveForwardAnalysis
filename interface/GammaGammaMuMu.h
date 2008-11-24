@@ -32,6 +32,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   
   edm::InputTag recTrackLabel;
+  edm::InputTag recVertexLabel;
   edm::InputTag theGLBMuonLabel;
   edm::InputTag thePixelGsfELabel;
   edm::InputTag theJetLabel;
@@ -48,6 +49,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   TFile *thefile;
   TTree *thetree;
 
+  int nEvt;
   int nMuonCand;
   int MUONMAX;// used to set maximum of arrays
   double MuonCand_px[4];
@@ -75,19 +77,18 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
 
   double MuMu_mass;
   double MuMu_dphi;
+  double MuMu_dpt;
   double MuMu_vtxx;
   double MuMu_vtxy;
   double MuMu_vtxz;
+  double MuMu_vtxT;
   double MuMu_vtxchi2dof;
   int MuMu_vtxisvalid;
-
   int MuMu_extratracks1mm;
-  int MuMu_extratracks2mm;
   int MuMu_extratracks3mm;
-  int MuMu_extratracks4mm;
   int MuMu_extratracks5mm;
   int MuMu_extratracks1cm;
-  int MuMu_extratracks2cm;
+  int MuMu_extratracks3cm;
   int MuMu_extratracks5cm;
   int MuMu_extratracks10cm;
 
@@ -104,9 +105,6 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double HighestJet_phi;
   double SumJet_e;
 
-  int nPFlowCand;
-  int PFlowCandIds[500];
-
   int HitInZDC; 
   int HitInCastor; 
 
@@ -115,9 +113,6 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int nCaloCand;
   int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9; 
   int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4; 
-  int nExtraCaloTowersE0hf, nExtraCaloTowersE1hf, nExtraCaloTowersE2hf;
-  int nExtraCaloTowersE1he, nExtraCaloTowersE2he, nExtraCaloTowersE3he;
-  int nExtraCaloTowersE2hb, nExtraCaloTowersE3hb, nExtraCaloTowersE4hb;
   double CaloTower_e[1000];
   double CaloTower_et[1000];
   double CaloTower_eta[1000];
@@ -134,23 +129,30 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double SumCalo_e;
 
   int nTrackCand;
-  int nExtraTrackCand;
   int TRACKMAX;
-  double TrackCand_px[100];
-  double TrackCand_py[100];
-  double TrackCand_pz[100];
-  double TrackCand_p[100];
-  double TrackCand_eta[100];
-  double TrackCand_pt[100];
-  double TrackCand_phi[100];
-  double TrackCand_vtxdxyz[100];
-  int TrackCand_charge[100];
+  double TrackCand_px[500];
+  double TrackCand_py[500];
+  double TrackCand_pz[500];
+  double TrackCand_p[500];
+  double TrackCand_eta[500];
+  double TrackCand_pt[500];
+  double TrackCand_phi[500];
+  double TrackCand_vtxdxyz[500];
+  int TrackCand_charge[500];
   double ClosestExtraTrack_vtxdxyz;
 
   double evweight;
   
   int HLT2MuonNonIso;
   int HLT1MuonPrescalePt3;
+
+  int HF_TowerCountPositiveEta;
+  int HF_TowerCountNegativeEta;
+  int HF_Ring0EtSumPositiveEta;
+  int HF_Ring0EtSumNegativeEta;
+  int HF_Ring1EtSumPositiveEta;
+  int HF_Ring1EtSumNegativeEta;
+
 
   AcceptanceTableHelper helper420beam1;   
   AcceptanceTableHelper helper420beam2;   

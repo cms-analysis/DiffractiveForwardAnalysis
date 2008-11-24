@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.26 2008/09/29 12:16:25 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.24 2008/08/08 16:05:36 jjhollar Exp $
 //
 //
 
@@ -42,7 +42,9 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"   
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
 #include "DataFormats/TrackReco/interface/Track.h"  
-#include "DataFormats/TrackReco/interface/TrackFwd.h"  
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"  
 #include "DataFormats/MuonReco/interface/Muon.h"  
 #include "DataFormats/MuonReco/interface/MuonFwd.h"   
 #include "DataFormats/METReco/interface/CaloMET.h"  
@@ -56,8 +58,17 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"   
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h" 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+//#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
+#include "DataFormats/L1GlobalCaloTrigger/src/L1GctJetCounts.cc"
+
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaMuMu.h"
 
@@ -112,6 +123,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
 {
    //now do what ever initialization is needed
   recTrackLabel      = pset.getParameter<edm::InputTag>("RecoTrackLabel");
+  recVertexLabel     = pset.getParameter<edm::InputTag>("RecoVertexLabel");
   theGLBMuonLabel    = pset.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
   thePixelGsfELabel  = pset.getParameter<edm::InputTag>("ElectronCollectionLabel");
   theJetLabel        = pset.getParameter<edm::InputTag>("JetCollectionLabel");
@@ -141,10 +153,10 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   helper420a220beam1.Init(f, "a420a220");  
   helper420a220beam2.Init(f, "a420a220_b2");  
 
-  //  nEvt=0;
+  nEvt=0;
   MUONMAX=10;
   JETMAX=30;
-  TRACKMAX=100;
+  TRACKMAX=500;
 
   thefile = new TFile(rootfilename.c_str(),"recreate");
   thefile->cd();
@@ -209,17 +221,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersE7",&nExtraCaloTowersE7,"nExtraCaloTowersE7/I");   
   thetree->Branch("nExtraCaloTowersE8",&nExtraCaloTowersE8,"nExtraCaloTowersE8/I");   
   thetree->Branch("nExtraCaloTowersE9",&nExtraCaloTowersE9,"nExtraCaloTowersE9/I");   
-
-  thetree->Branch("nExtraCaloTowersE0hf", &nExtraCaloTowersE0hf, "nExtraCaloTowersE0hf/I");
-  thetree->Branch("nExtraCaloTowersE1hf", &nExtraCaloTowersE1hf, "nExtraCaloTowersE1hf/I"); 
-  thetree->Branch("nExtraCaloTowersE2hf", &nExtraCaloTowersE2hf, "nExtraCaloTowersE12hf/I"); 
-  thetree->Branch("nExtraCaloTowersE1he", &nExtraCaloTowersE1he, "nExtraCaloTowersE1he/I"); 
-  thetree->Branch("nExtraCaloTowersE2he", &nExtraCaloTowersE2he, "nExtraCaloTowersE2he/I");  
-  thetree->Branch("nExtraCaloTowersE3he", &nExtraCaloTowersE3he, "nExtraCaloTowersE3he/I");  
-  thetree->Branch("nExtraCaloTowersE2hb", &nExtraCaloTowersE2hb, "nExtraCaloTowersE2hb/I"); 
-  thetree->Branch("nExtraCaloTowersE3hb", &nExtraCaloTowersE3hb, "nExtraCaloTowersE3hb/I");  
-  thetree->Branch("nExtraCaloTowersE4hb", &nExtraCaloTowersE4hb, "nExtraCaloTowersE4hb/I");  
-
+ 
   thetree->Branch("nExtraCaloTowersEt0pt1",&nExtraCaloTowersEt0pt1,"nExtraCaloTowersEt0pt1/I"); 
   thetree->Branch("nExtraCaloTowersEt0pt2",&nExtraCaloTowersEt0pt2,"nExtraCaloTowersEt0pt2/I"); 
   thetree->Branch("nExtraCaloTowersEt0pt5",&nExtraCaloTowersEt0pt5,"nExtraCaloTowersEt0pt5/I"); 
@@ -229,47 +231,50 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersEt4",&nExtraCaloTowersEt4,"nExtraCaloTowersEt4/I");  
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
-  thetree->Branch("nExtraTrackCand",&nExtraTrackCand,"nExtraTrackCand/I"); 
-  thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_py",TrackCand_py,"TrackCand_py[nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_pz",TrackCand_pz,"TrackCand_pz[nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_p",TrackCand_p,"TrackCand_p[nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_pt",TrackCand_pt,"TrackCand_pt[nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_eta",TrackCand_eta,"TrackCand_eta[nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_vtxdxyz",TrackCand_vtxdxyz,"TrackCand_vtxdxyz[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
+  thetree->Branch("TrackCand_py",TrackCand_py,"TrackCand_py[nTrackCand]/D");
+  thetree->Branch("TrackCand_pz",TrackCand_pz,"TrackCand_pz[nTrackCand]/D");
+  thetree->Branch("TrackCand_p",TrackCand_p,"TrackCand_p[nTrackCand]/D");
+  thetree->Branch("TrackCand_pt",TrackCand_pt,"TrackCand_pt[nTrackCand]/D");
+  thetree->Branch("TrackCand_eta",TrackCand_eta,"TrackCand_eta[nTrackCand]/D");
+  thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nTrackCand]/D");
+  thetree->Branch("TrackCand_vtxdxyz",TrackCand_vtxdxyz,"TrackCand_vtxdxyz[nTrackCand]/D");
   thetree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D");
   
   thetree->Branch("MuMu_mass",&MuMu_mass,"MuMu_mass/D");
   thetree->Branch("MuMu_dphi",&MuMu_dphi,"MuMu_dphi/D");
+  thetree->Branch("MuMu_dpt",&MuMu_dpt,"MuMu_dpt/D");
   thetree->Branch("MuMu_vtxx",&MuMu_vtxx,"MuMu_vtxx/D");
   thetree->Branch("MuMu_vtxy",&MuMu_vtxy,"MuMu_vtxy/D"); 
-  thetree->Branch("MuMu_vtxz",&MuMu_vtxz,"MuMu_vtxz/D"); 
+  thetree->Branch("MuMu_vtxz",&MuMu_vtxz,"MuMu_vtxz/D");
+  thetree->Branch("MuMu_vtxT",&MuMu_vtxT,"MuMu_vtxT/D"); 
   thetree->Branch("MuMu_vtxchi2dof",&MuMu_vtxchi2dof,"MuMu_vtxchi2dof/D");
   thetree->Branch("MuMu_vtxisvalid",&MuMu_vtxisvalid,"MuMu_vtxisvalid/I");
-
   thetree->Branch("MuMu_extratracks1mm",&MuMu_extratracks1mm,"MuMu_extratracks1mm/I");
-  thetree->Branch("MuMu_extratracks2mm",&MuMu_extratracks2mm,"MuMu_extratracks2mm/I");
   thetree->Branch("MuMu_extratracks3mm",&MuMu_extratracks3mm,"MuMu_extratracks3mm/I");
-  thetree->Branch("MuMu_extratracks4mm",&MuMu_extratracks4mm,"MuMu_extratracks4mm/I"); 
-  thetree->Branch("MuMu_extratracks5mm",&MuMu_extratracks5mm,"MuMu_extratracks5mm/I");  
-  thetree->Branch("MuMu_extratracks1cm",&MuMu_extratracks1cm,"MuMu_extratracks1cm/I"); 
-  thetree->Branch("MuMu_extratracks2cm",&MuMu_extratracks2cm,"MuMu_extratracks2cm/I");
+  thetree->Branch("MuMu_extratracks5mm",&MuMu_extratracks5mm,"MuMu_extratracks5mm/I");
+  thetree->Branch("MuMu_extratracks1cm",&MuMu_extratracks1cm,"MuMu_extratracks1cm/I");
+  thetree->Branch("MuMu_extratracks3cm",&MuMu_extratracks3cm,"MuMu_extratracks3cm/I");
   thetree->Branch("MuMu_extratracks5cm",&MuMu_extratracks5cm,"MuMu_extratracks5cm/I"); 
   thetree->Branch("MuMu_extratracks10cm",&MuMu_extratracks10cm,"MuMu_extratracks10cm/I"); 
-
-  thetree->Branch("nPFlowCand",&nPFlowCand,"nPFlowCand/I");
-  thetree->Branch("PFowCandIds",PFlowCandIds,"PFlowCandIds[nPFlowCand]/I");
 
   thetree->Branch("HitInZDC",&HitInZDC,"HitInZDC/I");
   thetree->Branch("HitInCastor",&HitInCastor,"HitInCastor/I");
   
-  thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
+//  thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
 
   thetree->Branch("HLT2MuonNonIso",&HLT2MuonNonIso,"HLT2MuonNonIso/I");
-  thetree->Branch("HLT1MuonPrescalePt3",&HLT1MuonPrescalePt3,"HLT1MuonPrescalePt3/I"); 
+  thetree->Branch("HLT1MuonPrescalePt3",&HLT1MuonPrescalePt3,"HLT1MuonPrescalePt3/I");
 
-  //  thetree->Branch("evweight",&evweight,"evweight/D"); 
+  thetree->Branch("HF_TowerCountPositiveEta",&HF_TowerCountPositiveEta,"HF_TowerCountPositiveEta/I"); 
+  thetree->Branch("HF_TowerCountNegativeEta",&HF_TowerCountNegativeEta,"HF_TowerCountNegativeEta/I");
+  thetree->Branch("HF_Ring0EtSumPositiveEta",&HF_Ring0EtSumPositiveEta,"HF_Ring0EtSumPositiveEta/I");
+  thetree->Branch("HF_Ring0EtSumNegativeEta",&HF_Ring0EtSumNegativeEta,"HF_Ring0EtSumNegativeEta/I");
+  thetree->Branch("HF_Ring1EtSumPositiveEta",&HF_Ring1EtSumPositiveEta,"HF_Ring1EtSumPositiveEta/I");
+  thetree->Branch("HF_Ring1EtSumNegativeEta",&HF_Ring1EtSumNegativeEta,"HF_Ring1EtSumNegativeEta/I");
+
+//  thetree->Branch("evweight",&evweight,"evweight/D");
+
 }
 
 
@@ -278,7 +283,6 @@ GammaGammaMuMu::~GammaGammaMuMu()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -294,8 +298,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
-  nExtraTrackCand=0;
-
   nExtraCaloTowersE1=0;
   nExtraCaloTowersE2=0;
   nExtraCaloTowersE3=0; 
@@ -312,88 +314,76 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersEt2=0;  
   nExtraCaloTowersEt3=0;  
   nExtraCaloTowersEt4=0;   
-  nExtraCaloTowersE0hf=0;
-  nExtraCaloTowersE1hf=0;
-  nExtraCaloTowersE2hf=0;  
-  nExtraCaloTowersE1he=0; 
-  nExtraCaloTowersE2he=0; 
-  nExtraCaloTowersE3he=0;  
-  nExtraCaloTowersE2hb=0; 
-  nExtraCaloTowersE3hb=0; 
-  nExtraCaloTowersE4hb=0;  
-
-  nPFlowCand=0;
-
   HitInZDC=0;
   HitInCastor=0;
 
   MuMu_mass = -1;
   MuMu_dphi = -1;
-
-  MuMu_extratracks1mm = 0;
-  MuMu_extratracks2mm = 0;
-  MuMu_extratracks3mm = 0;
-  MuMu_extratracks4mm = 0;
-  MuMu_extratracks5mm = 0;
+  MuMu_dpt = -1;
+  MuMu_extratracks1mm = 0; 
+  MuMu_extratracks3mm = 0; 
+  MuMu_extratracks5mm = 0; 
   MuMu_extratracks1cm = 0; 
-  MuMu_extratracks2cm = 0;
+  MuMu_extratracks3cm = 0;
   MuMu_extratracks5cm = 0;
   MuMu_extratracks10cm = 0;
 
   bool passed = true;
-
+  nEvt++;
  //using namespace edm;
   using reco::TrackCollection;
-
   //  Handle< double> weightHandle;
   //  event.getByLabel ("weight", weightHandle);
   //  evweight = * weightHandle;
 
-
   // Get the trigger information from the event
   edm::Handle<edm::TriggerResults> hltResults ; 
   event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ; 
-  trigNames.init(*hltResults) ; 
+  trigNames.init(*hltResults) ;
   for (unsigned int i=0; i<trigNames.size(); i++)  
     { 
-      // This is for CMSSW_2_1_X!!! 
       if ( trigNames.triggerNames().at(i) == "HLT_Mu3" )       
-
-      // This is for CMSSW_2_0_X!!!
-      //      if ( trigNames.triggerNames().at(i) == "HLT1MuonPrescalePt3" )
         {  
           if ( hltResults->accept(i) )  
-            HLT1MuonPrescalePt3 = 1;
+            {HLT1MuonPrescalePt3 = 1; /*cout << "--> debug : HLT1µ_pt3" << endl;*/}
 	  else
 	    HLT1MuonPrescalePt3 = 0;
         }  
-	
-      // This is for CMSSW_2_1_X!!! 	
       if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu3" ) 
-
-      // This is for CMSSW_2_0_X!!! 
-	//      if ( trigNames.triggerNames().at(i) == "HLT2MuonNonIso" )
         {   
           if ( hltResults->accept(i) )  
-	    HLT2MuonNonIso = 1;
+	    {HLT2MuonNonIso = 1; /*cout << "--> debug : HLT2µ_NonIso" << endl;*/}
 	  else
 	    HLT2MuonNonIso = 0;
         }   
     }
+  // Get the HF ring L1
+  edm::Handle< L1GctJetCountsCollection > jetCountColl ;
+  event.getByLabel( "hltGctDigis", jetCountColl );
+  if(!(jetCountColl.isValid())){cout << "L1 HForward not found!" << endl;}  
+
+  L1GctJetCountsCollection::const_iterator jc=jetCountColl->begin();
+  HF_TowerCountPositiveEta = jc->hfTowerCountPositiveEta();
+  HF_TowerCountNegativeEta = jc->hfTowerCountNegativeEta();
+  HF_Ring0EtSumPositiveEta = jc->hfRing0EtSumPositiveEta();
+  HF_Ring0EtSumNegativeEta = jc->hfRing0EtSumNegativeEta();
+  HF_Ring1EtSumPositiveEta = jc->hfRing1EtSumPositiveEta();
+  HF_Ring1EtSumNegativeEta = jc->hfRing1EtSumNegativeEta();  
 
   // Get the muon collection from the event
   // PAT
   edm::Handle<edm::View<pat::Muon> > muons; 
   event.getByLabel(theGLBMuonLabel,muons); 
   edm::View<pat::Muon>::const_iterator muon;
-
+/*
   // AOD
-  //  Handle<reco::MuonCollection> muons;
-  //  event.getByLabel(theGLBMuonLabel, muons);
-  //  reco::MuonCollection::const_iterator muon;
-
+    Handle<reco::MuonCollection> muons;
+    event.getByLabel(theGLBMuonLabel, muons);
+    reco::MuonCollection::const_iterator muon;
+*/
+//cout << "================" << endl;
   if(muons->size() == 2)
-    {
+    { 
       for (muon = muons->begin(); muon != muons->end() && nMuonCand<MUONMAX; ++muon)
 	{
 	  MuonCand_p[nMuonCand]=muon->p();
@@ -405,68 +395,68 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_phi[nMuonCand]=muon->phi();
 	  MuonCand_charge[nMuonCand]=muon->charge();
 
-// 	  // Muon ID for CMSSW_2_0_X
-// 	  MuonCand_tmlsloosemuonid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TMLastStationLoose);
-// 	  MuonCand_tm2dloosemuid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TM2DCompatibilityLoose);
-// 	  MuonCand_arbmuid[nMuonCand]=-1; // This doesn't exist in 2_0_X!!!
-// 	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
-//           MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
-//           MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon(); 
-
-// 	  // Isolation for CMSSW_2_0_X
-// 	  MuonCand_hcalisor3[nMuonCand]=muon->isolationR03().hadEt; 
-// 	  MuonCand_ecalisor3[nMuonCand]=muon->isolationR03().emEt;  
-// 	  MuonCand_trkisor3[nMuonCand]=muon->isolationR03().nTracks;  
-// 	  MuonCand_hcalisor5[nMuonCand]=muon->isolationR05().hadEt;  
-// 	  MuonCand_ecalisor5[nMuonCand]=muon->isolationR05().emEt;   
-// 	  MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;   
-
-	  // Muon ID for CMSSW_2_1_X
+	  // Muon ID
 	  MuonCand_tmlsloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationLoose);
+	  //muonid::isGoodMuon(*muon,muonid::TMLastStationLoose);
 	  MuonCand_tm2dloosemuid[nMuonCand]=muon->isGood(reco::Muon::TM2DCompatibilityLoose);
+	  //Muon(*muon,muonid::TM2DCompatibilityLoose);
 	  MuonCand_arbmuid[nMuonCand]=muon->isGood(reco::Muon::AllArbitrated);
 	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
-	  MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
-	  MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon(); 
+          MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
+          MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon(); 
 
-	  // Isolation for CMSSW_2_1_X
-	  MuonCand_hcalisor3[nMuonCand]=muon->isolationR03().hadEt; 
+	  // Isolation 
+	  MuonCand_hcalisor3[nMuonCand]=muon->isolationR03().hadEt;
 	  MuonCand_ecalisor3[nMuonCand]=muon->isolationR03().emEt;  
 	  MuonCand_trkisor3[nMuonCand]=muon->isolationR03().nTracks;  
 	  MuonCand_hcalisor5[nMuonCand]=muon->isolationR05().hadEt;  
 	  MuonCand_ecalisor5[nMuonCand]=muon->isolationR05().emEt;   
-	  MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;   
+	  MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;  
+ 
+	  if(muon->isTrackerMuon() || muon->isGlobalMuon()) MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p();
+/*
+          if(muon->isStandAloneMuon() && !(muon->isTrackerMuon()) && !(muon->isGlobalMuon()) )
+		{cout << "--> debug : stdalone  µ" << endl;}
+          if(muon->isStandAloneMuon() && !(muon->isTrackerMuon()) && (muon->isGlobalMuon()) )
+                {cout << "--> debug : stdalone & global µ" << endl;}
+          if(muon->isStandAloneMuon() && (muon->isTrackerMuon()) && !(muon->isGlobalMuon()) )
+                {cout << "--> debug : stdalone & tracker µ" << endl;}
+          if(!(muon->isStandAloneMuon()) && !(muon->isTrackerMuon()) && !(muon->isGlobalMuon()) )
+                {cout << "--> debug : no µ" << endl;}
+          if(!(muon->isStandAloneMuon()) && (muon->isTrackerMuon()) && (muon->isGlobalMuon()) )
+                {cout << "--> debug : tracker & global µ" << endl;}
+          if(!(muon->isStandAloneMuon()) && !(muon->isTrackerMuon()) && (muon->isGlobalMuon()) )
+                {cout << "--> debug : global µ" << endl;}
+          if(!(muon->isStandAloneMuon()) && (muon->isTrackerMuon()) && !(muon->isGlobalMuon()) )
+                {cout << "--> debug : tracker µ" << endl;}
+          if(muon->isStandAloneMuon() && (muon->isTrackerMuon()) && (muon->isGlobalMuon()) )
+                {cout << "--> debug : stdalone & tracker & global µ" << endl;}
+*/
 
-	  if(MuonCand_isglobal[nMuonCand] || MuonCand_istracker[nMuonCand])
-	    MuonCandTrack_p[nMuonCand] = muon->track()->p(); 
-	  else
-	    MuonCandTrack_p[nMuonCand] = muon->p();
-
+/*
+          if(muon->isTrackerMuon() || muon->isGlobalMuon())
+		{cout << "--> debug : tracker  µ = " <<  muon->innerTrack()->p()<< endl;} 
+*/
 	  nMuonCand++;
 	}  
-
-      // Calculate invariant mass and delta-phi
-      if(nMuonCand == 2)
+      // Calculate invariant mass, delta-phi and delta-pT
+      if(MuonCand_charge[0]*MuonCand_charge[1]<0)
 	{
-	  if(MuonCand_charge[0]*MuonCand_charge[1]<0)
-	    {
-	      double mass = pow(MuonCand_p[0]+MuonCand_p[1],2);
-	      mass-=pow(MuonCand_px[0]+MuonCand_px[1],2);
-	      mass-=pow(MuonCand_py[0]+MuonCand_py[1],2);
-	      mass-=pow(MuonCand_pz[0]+MuonCand_pz[1],2);
-	      MuMu_mass = sqrt(mass);
-	      
-	      double dphi = fabs(MuonCand_phi[0]-MuonCand_phi[1]);
-	      if(dphi < 3.14159)
-		MuMu_dphi = dphi;
-	      else
-		MuMu_dphi = (2.0*3.14159)-dphi;
-	      
-	    }
+	  double mass = pow(MuonCand_p[0]+MuonCand_p[1],2);
+	  mass-=pow(MuonCand_px[0]+MuonCand_px[1],2);
+	  mass-=pow(MuonCand_py[0]+MuonCand_py[1],2);
+	  mass-=pow(MuonCand_pz[0]+MuonCand_pz[1],2);
+	  MuMu_mass = sqrt(mass);
+
+          MuMu_dpt = fabs(MuonCand_pt[0]-MuonCand_pt[1]);
+
+	  double dphi = fabs(MuonCand_phi[0]-MuonCand_phi[1]);
+	  if(dphi < 3.14159)
+	    MuMu_dphi = dphi;
+	  else
+	    MuMu_dphi = (2.0*3.14159)-dphi;
 	}
     }
-
-
   // Get the Jet collection from the event
   // PAT
   edm::Handle<edm::View<pat::Jet> > jets; 
@@ -480,7 +470,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   //  reco::CaloJetCollection::const_iterator jet;
 
   // Get the MET collection from the event
-
   // PAT
   edm::Handle<edm::View<pat::MET> > mets; 
   event.getByLabel(theMetLabel,mets); 
@@ -491,21 +480,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   //  event.getByLabel(theMetLabel,pMET);
   //  const reco::CaloMETCollection* mets = pMET.product();
   //  reco::CaloMETCollection::const_iterator met;
-
-  // Count PFlow  objects
-  edm::Handle<reco::PFCandidateCollection> pflows;
-  event.getByLabel("particleFlow",pflows);
-  reco::PFCandidateCollection::const_iterator pflow;
-
-  for(pflow = pflows->begin(); pflow != pflows->end(); ++pflow)
-    {
-      int parttype = PFCandidate::ParticleType (pflow->particleId());
-      if(parttype != 2)
-	{
-	  PFlowCandIds[nPFlowCand] = parttype;
-	  nPFlowCand++;
-	}
-    }
 
   // Get the CaloTower collection from the event
   edm::Handle<CaloTowerCollection> caloTowers; 
@@ -518,6 +492,12 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   event.getByLabel(recTrackLabel, recoTracks);
   const TrackCollection* tracks = recoTracks.product();
   TrackCollection::const_iterator track;
+
+  // Get the vertex collection from the event
+  edm::Handle<reco::VertexCollection> recoVertexs;
+  event.getByLabel(recVertexLabel, recoVertexs);
+  const VertexCollection* vertexs = recoVertexs.product();
+  VertexCollection::const_iterator vertex_i;
 
   double highestejet = -1.0;
   double highestejeteta = -999.0;
@@ -533,7 +513,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double highestettowerphi = -999.0;
   double totalecalo = -1.0; 
   double closesttrkdxyz = 999.0;
-
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
   if(nMuonCand == 2)
     {
@@ -555,16 +534,13 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	    }
 	  nJetCand++;
 	}
-
       HighestJet_e = highestejet;
       HighestJet_eta = highestejeteta;
       HighestJet_phi = highestejetphi;
       SumJet_e = totalejet;
-
-      met = mets->begin();
-      float e_met = met->energy();
-      Etmiss = e_met;
-
+//      met = mets->begin();
+//      float e_met = met->energy();
+//      Etmiss = e_met;
       for (calo = towers->begin(); calo != towers->end(); ++calo )
 	{
 	  CaloTower_e[nCaloCand]=calo->energy();
@@ -637,27 +613,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 nExtraCaloTowersEt3++;   
               if(CaloTower_et[nCaloCand] > 4.0)   
                 nExtraCaloTowersEt4++;   
-
-              if(CaloTower_e[nCaloCand] > 0.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)  
-		nExtraCaloTowersE0hf++; 
-              if(CaloTower_e[nCaloCand] > 1.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)   
-		nExtraCaloTowersE1hf++; 
-              if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)   
-		nExtraCaloTowersE2hf++;
-              if(CaloTower_e[nCaloCand] > 1.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)      
-		nExtraCaloTowersE1he++;  
-              if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)   
-		nExtraCaloTowersE2he++;  
-	      if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)   
-		nExtraCaloTowersE3he++;   
-              if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
-		nExtraCaloTowersE2hb++;  
-              if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
-		nExtraCaloTowersE3hb++;  
-              if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
-		nExtraCaloTowersE4hb++;   
-
-
 	    }
 
 	  nCaloCand++;
@@ -673,12 +628,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestEtCaloTower_phi = highestettowerphi;
       HighestEtCaloTower_dr = highestettowerdr;
     }
-
   // Check for particles in ZDC/Castor acceptance. 
   // Use MC truth for now, replace with real RECO when available
   double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;
   int MCPar_pdgid;
-  
+
   Handle<GenParticleCollection> genParticles;
   event.getByLabel( "genParticles", genParticles );
   for ( size_t i = 0; i < genParticles->size(); ++ i ) 
@@ -742,6 +696,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   // Now do vertexing and track counting
   edm::ESHandle<TransientTrackBuilder> theVtx;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theVtx);
+  //  vector < reco::TransientTrack > mutrks;
   vector<TransientTrack> transmutrks; 
   reco::TrackCollection * mutrks = new reco::TrackCollection;
 
@@ -760,13 +715,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	      transmutrks.push_back( tmptrk );
 	    }
 	}
-      if(isMuon == false)
-	nTrackCand++;
     }
 
   // If 2 muons, make a vertex
   if(transmutrks.size() == 2) 
-    { 
+   {
       KalmanVertexFitter fitter(true); 
       TransientVertex mumuVertex = fitter.vertex(transmutrks); 
       if(mumuVertex.isValid())
@@ -775,72 +728,118 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuMu_vtxy = mumuVertex.position().y(); 
 	  MuMu_vtxz = mumuVertex.position().z(); 
 	  MuMu_vtxchi2dof = mumuVertex.normalisedChiSquared();
+	  MuMu_vtxT = sqrt(mumuVertex.position().x()*mumuVertex.position().x() + mumuVertex.position().y()*mumuVertex.position().y() ); 
 	  MuMu_vtxisvalid = 1;
+//	  cout << "µµ vertex X = " << MuMu_vtxx << ", Y = " << MuMu_vtxy << ", Z = " << MuMu_vtxz << endl;
 	}
       else
 	{
 	  MuMu_vtxx = 0;  
 	  MuMu_vtxy = 0;  
 	  MuMu_vtxz = 0;  
-	  MuMu_vtxchi2dof = 0;
+	  MuMu_vtxT = 0;
+	  MuMu_vtxchi2dof = 9999;
 	  MuMu_vtxisvalid = 0;
 	}
+//=================================================
+/*      for (vertex_i = vertexs->begin(); vertex_i != vertexs->end(); vertex_i++){
+	cout << "?? vertex X = " << vertex_i->x() 
+                     << ", Y = " << vertex_i->y() 
+                     << ", Z = " << vertex_i->z() << endl;}*/
+//===================================
 
-      // OK, now go back and count "extra" tracks on the dimuon vertex
-      for(track = tracks->begin(); track != tracks->end() && nExtraTrackCand<TRACKMAX; ++ track) 
+      vector<Int_t> vec_isPU;
+      vector<Int_t>::iterator ivec_isPU=vec_isPU.begin();
+      for ( ; ivec_isPU!=vec_isPU.end(); ivec_isPU++){
+	vec_isPU.push_back(0);
+      }
+       //  OK, now go back and count "extra" tracks on the dimuon vertex
+      // Loop1 = tag a track as off-time PU-track
+      for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track) 
         { 
-	  if(track->p() == MuonCandTrack_p[0] || track->p() == MuonCandTrack_p[1])
-	    continue;
-	  
-          TrackCand_p[nExtraTrackCand]=track->p(); 
-          TrackCand_px[nExtraTrackCand]=track->px(); 
-          TrackCand_py[nExtraTrackCand]=track->py(); 
-          TrackCand_pz[nExtraTrackCand]=track->pz(); 
-          TrackCand_pt[nExtraTrackCand]=track->pt(); 
-          TrackCand_eta[nExtraTrackCand]=track->eta(); 
-          TrackCand_phi[nExtraTrackCand]=track->phi(); 
-          TrackCand_charge[nExtraTrackCand]=track->charge(); 
-	  TrackCand_vtxdxyz[nExtraTrackCand] = sqrt(((track->vertex().x() - MuMu_vtxx)*(track->vertex().x() - MuMu_vtxx)) + 
+	  if(track->p() == MuonCandTrack_p[0] || track->p() == MuonCandTrack_p[1])  continue;
+
+      //Reject off-time PU events
+          bool is_PU = false;
+          bool is_assovtx = false;
+          Double_t extratrkZ = track->vertex().z();
+//   cout << "extra track @ z = " << extratrkZ << endl;
+          for (vertex_i = vertexs->begin(); vertex_i != vertexs->end(); vertex_i++){
+             Double_t extravtxZ = vertex_i->z();
+//           if the extra track is associated to a reco vertex
+             if(sqrt( (extravtxZ - extratrkZ)*(extravtxZ - extratrkZ) ) < 0.1){
+		is_assovtx = true;
+//   cout << "   > is associated " << endl;
+//              if this vertex is far from the µµ vertex and then could be considered as PU vtx
+                if(sqrt( (extravtxZ - MuMu_vtxz)*(extravtxZ - MuMu_vtxz)) > 1.5) is_PU = true;
+             }
+          }
+// in this sample, there are still PU tracks, but not associated to a RecoVertex
+/*
+	 if(!(is_assovtx)){
+		cout << "is not associated track @ z = " << track->vertex().z() << endl;
+	 }
+*/
+
+          if(!(is_PU)) vec_isPU.push_back(0);
+	  else         vec_isPU.push_back(1);
+      }
+      vector<Int_t>::iterator ivec_isPU_read=vec_isPU.begin();
+      // OK, now go back and count "extra" tracks on the dimuon vertex
+      // Loop2 = compute "track" quantities
+      for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track)
+        {
+          if(track->p() == MuonCandTrack_p[0] || track->p() == MuonCandTrack_p[1]) continue;
+
+          if(*ivec_isPU_read == 1) {ivec_isPU_read++; continue;}
+
+          ivec_isPU_read++;
+          TrackCand_p[nTrackCand]=track->p(); 
+          TrackCand_px[nTrackCand]=track->px(); 
+          TrackCand_py[nTrackCand]=track->py(); 
+          TrackCand_pz[nTrackCand]=track->pz(); 
+          TrackCand_pt[nTrackCand]=track->pt(); 
+          TrackCand_eta[nTrackCand]=track->eta(); 
+          TrackCand_phi[nTrackCand]=track->phi(); 
+//          TrackCand_charge[nTrackCand]=track->charge();
+	  TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - MuMu_vtxx)*(track->vertex().x() - MuMu_vtxx)) + 
 					     ((track->vertex().y() - MuMu_vtxy)*(track->vertex().y() - MuMu_vtxy)) +
 					     ((track->vertex().z() - MuMu_vtxz)*(track->vertex().z() - MuMu_vtxz)));
-	  
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.1) 
-            MuMu_extratracks1mm++; 
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.2)  
-            MuMu_extratracks2mm++;  
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.3)  
-            MuMu_extratracks3mm++;  
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.4)   
-            MuMu_extratracks4mm++;   
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.5)    
-            MuMu_extratracks5mm++;
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 1) 
-            MuMu_extratracks1cm++; 
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 2)
-	    MuMu_extratracks2cm++;
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 5) 
-            MuMu_extratracks5cm++; 
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 10) 
-            MuMu_extratracks10cm++; 
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < closesttrkdxyz)
-	    closesttrkdxyz = TrackCand_vtxdxyz[nExtraTrackCand];
 
-          nExtraTrackCand++;  
-        } 
+
+          if(TrackCand_vtxdxyz[nTrackCand] < 0.1)
+            MuMu_extratracks1mm++;
+          if(TrackCand_vtxdxyz[nTrackCand] < 0.3)
+            MuMu_extratracks3mm++;
+	  if(TrackCand_vtxdxyz[nTrackCand] < 0.5) 
+            MuMu_extratracks5mm++; 
+	  if(TrackCand_vtxdxyz[nTrackCand] < 1) 
+            MuMu_extratracks1cm++; 
+	  if(TrackCand_vtxdxyz[nTrackCand] < 3)
+	    MuMu_extratracks3cm++;
+          if(TrackCand_vtxdxyz[nTrackCand] < 5) 
+            MuMu_extratracks5cm++; 
+          if(TrackCand_vtxdxyz[nTrackCand] < 10) 
+            MuMu_extratracks10cm++; 
+	  if(TrackCand_vtxdxyz[nTrackCand] < closesttrkdxyz)
+	    closesttrkdxyz = TrackCand_vtxdxyz[nTrackCand];
+          nTrackCand++;  
+      } 
       ClosestExtraTrack_vtxdxyz = closesttrkdxyz;
+      if(ClosestExtraTrack_vtxdxyz < 0.1){cout << "   --> closest < 1 mm !!! : "<< ClosestExtraTrack_vtxdxyz << endl;}
     } 
   else 
     { 
       MuMu_vtxx = 0; 
       MuMu_vtxy = 0; 
       MuMu_vtxz = 0; 
-      MuMu_vtxchi2dof = 0; 
+      MuMu_vtxT = 0;
+      MuMu_vtxchi2dof = 9999; 
       MuMu_vtxisvalid = 0; 
-      nExtraTrackCand = 0;
     } 
 
-  // Check for di-objects
-  if(nMuonCand != 2)
+  // Check for di-objects with valid vertex
+  if(nMuonCand != 2 || MuMu_vtxisvalid != 1)
     passed = false;
   else
     {
@@ -852,8 +851,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   // "Exclusivity" cuts
 
-  if(passed == true)
+  if(passed == true){
     thetree->Fill();
+    cout << "   --> SAVED" << endl;
+  }
 }
 
 
