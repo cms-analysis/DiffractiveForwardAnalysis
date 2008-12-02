@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CosmicsMuMu.cc,v 1.26 2008/09/29 12:16:25 jjhollar Exp $
+// $Id: CosmicsMuMu.cc,v 1.1 2008/11/19 13:00:01 jjhollar Exp $
 //
 //
 
@@ -195,8 +195,8 @@ CosmicsMuMu::CosmicsMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_timeout", MuonCand_timeout, "MuonCand_timeout[nMuonCand]/D");  
   thetree->Branch("MuonCand_timeinerr", MuonCand_timeinerr, "MuonCand_timeinerr[nMuonCand]/D");   
   thetree->Branch("MuonCand_timeouterr", MuonCand_timeouterr, "MuonCand_timeouterr[nMuonCand]/D");   
-  thetree->Branch("MuonCand_direction", MuonCand_direction, "MuonCand_direction[nMuonCand]/I");    
-
+  thetree->Branch("MuonCand_freeInverseBeta",MuonCand_freeInverseBeta, "MuonCand_freeInverseBeta[nMuonCand]/D"); 
+  thetree->Branch("MuonCand_freeInverseBetaErr", MuonCand_freeInverseBetaErr, "MuonCand_freeInverseBetaErr[nMuonCand]/D"); 
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -476,7 +476,8 @@ CosmicsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_timein[nMuonCand]=muon->time().timeAtIpOutIn;
 	  MuonCand_timeouterr[nMuonCand]=muon->time().timeAtIpInOutErr; 
           MuonCand_timeinerr[nMuonCand]=muon->time().timeAtIpOutInErr; 
-	  MuonCand_direction[nMuonCand]=muon->time().direction();
+	  MuonCand_freeInverseBeta[nMuonCand]=muon->time().freeInverseBeta; 
+          MuonCand_freeInverseBetaErr[nMuonCand]=muon->time().freeInverseBetaErr;  
 
 	  nMuonCand++;
 	}  

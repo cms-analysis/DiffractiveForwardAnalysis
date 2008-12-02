@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.24 2008/08/08 16:05:36 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.28 2008/11/24 08:51:19 jjhollar Exp $
 //
 //
 
@@ -195,6 +195,13 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_hcalisor5",MuonCand_hcalisor5,"MuonCand_hcalisor5[nMuonCand]/D");  
   thetree->Branch("MuonCand_ecalisor5",MuonCand_ecalisor5,"MuonCand_ecalisor5[nMuonCand]/D");  
   thetree->Branch("MuonCand_trkisor5",MuonCand_trkisor5,"MuonCand_trkisor5[nMuonCand]/D"); 
+
+  thetree->Branch("MuonCand_timein", MuonCand_timein, "MuonCand_timein[nMuonCand]/D");  
+  thetree->Branch("MuonCand_timeout", MuonCand_timeout, "MuonCand_timeout[nMuonCand]/D");  
+  thetree->Branch("MuonCand_timeinerr", MuonCand_timeinerr, "MuonCand_timeinerr[nMuonCand]/D");   
+  thetree->Branch("MuonCand_timeouterr", MuonCand_timeouterr, "MuonCand_timeouterr[nMuonCand]/D");   
+  thetree->Branch("MuonCand_freeInverseBeta",MuonCand_freeInverseBeta, "MuonCand_freeInverseBeta[nMuonCand]/D"); 
+  thetree->Branch("MuonCand_freeInverseBetaErr", MuonCand_freeInverseBetaErr, "MuonCand_freeInverseBetaErr[nMuonCand]/D"); 
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -412,6 +419,13 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_hcalisor5[nMuonCand]=muon->isolationR05().hadEt;  
 	  MuonCand_ecalisor5[nMuonCand]=muon->isolationR05().emEt;   
 	  MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;  
+
+	  MuonCand_timeout[nMuonCand]=muon->time().timeAtIpInOut;
+	  MuonCand_timein[nMuonCand]=muon->time().timeAtIpOutIn;
+	  MuonCand_timeouterr[nMuonCand]=muon->time().timeAtIpInOutErr; 
+          MuonCand_timeinerr[nMuonCand]=muon->time().timeAtIpOutInErr; 
+          MuonCand_freeInverseBeta[nMuonCand]=muon->time().freeInverseBeta; 
+          MuonCand_freeInverseBetaErr[nMuonCand]=muon->time().freeInverseBetaErr;  
  
 	  if(muon->isTrackerMuon() || muon->isGlobalMuon()) MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p();
 /*
