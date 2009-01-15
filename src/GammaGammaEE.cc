@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.27 2008/09/29 12:16:25 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.28 2008/11/19 13:00:01 jjhollar Exp $
 //
 //
 
@@ -37,7 +37,6 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"   
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h" 
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h" 
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/MuonReco/interface/Muon.h" 

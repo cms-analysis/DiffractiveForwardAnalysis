@@ -46,7 +46,7 @@ process.p = cms.Path(
     + process.patLayer0  
     + process.patLayer1
     + process.gamgammumuanalysis
-#    + process.gamgameeanalysis
+    + process.gamgameeanalysis
     )
 
 

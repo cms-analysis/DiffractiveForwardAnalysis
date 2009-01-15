@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CosmicsMuMu.cc,v 1.1 2008/11/19 13:00:01 jjhollar Exp $
+// $Id: CosmicsMuMu.cc,v 1.2 2008/12/02 13:30:34 jjhollar Exp $
 //
 //
 
@@ -40,7 +40,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"  
 #include "DataFormats/EgammaCandidates/interface/Electron.h"  
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"   
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
 #include "DataFormats/TrackReco/interface/Track.h"  
 #include "DataFormats/TrackReco/interface/TrackFwd.h"  
 #include "DataFormats/MuonReco/interface/Muon.h"  

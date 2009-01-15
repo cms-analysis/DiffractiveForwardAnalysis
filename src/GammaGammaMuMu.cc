@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.28 2008/11/24 08:51:19 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.29 2008/12/02 13:30:34 jjhollar Exp $
 //
 //
 
@@ -40,7 +40,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"  
 #include "DataFormats/EgammaCandidates/interface/Electron.h"  
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"   
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
 #include "DataFormats/TrackReco/interface/Track.h"  
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/VertexReco/interface/Vertex.h"
