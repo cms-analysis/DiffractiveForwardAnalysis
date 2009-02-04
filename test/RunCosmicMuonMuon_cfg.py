@@ -6,10 +6,8 @@ process = cms.Process("gamgam2leplepanalysis")
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('PATLayer0Summary')
 process.MessageLogger.cerr.INFO = cms.untracked.PSet(
     default          = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
-    PATLayer0Summary = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 )
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
@@ -30,7 +28,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # Load analysis modules
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.Cosmics_cfi")
 
-process.gamgammumuanalysis.outfilename = "craft.superpointing.exclmumu.root"
+process.gamgammumuanalysis.outfilename = "craftrun67818.superpointing.exclmumu.root"
 
 # Put it all together
 process.p = cms.Path(
