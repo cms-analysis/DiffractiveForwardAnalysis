@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.24 2008/08/08 16:05:36 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.32 2009/02/04 09:36:22 schul Exp $
 //
 //
 
@@ -40,7 +40,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"  
 #include "DataFormats/EgammaCandidates/interface/Electron.h"  
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"   
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
 #include "DataFormats/TrackReco/interface/Track.h"  
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -199,6 +198,13 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_hoisor5",MuonCand_hoisor5,"MuonCand_hoisor5[nMuonCand]/D");
   thetree->Branch("MuonCand_trkisor5",MuonCand_trkisor5,"MuonCand_trkisor5[nMuonCand]/D"); 
 
+  thetree->Branch("MuonCand_timein", MuonCand_timein, "MuonCand_timein[nMuonCand]/D"); 	 
+  thetree->Branch("MuonCand_timeout", MuonCand_timeout, "MuonCand_timeout[nMuonCand]/D"); 
+  thetree->Branch("MuonCand_timeinerr", MuonCand_timeinerr, "MuonCand_timeinerr[nMuonCand]/D");  
+  thetree->Branch("MuonCand_timeouterr", MuonCand_timeouterr, "MuonCand_timeouterr[nMuonCand]/D"); 	 
+  thetree->Branch("MuonCand_freeInverseBeta",MuonCand_freeInverseBeta, "MuonCand_freeInverseBeta[nMuonCand]/D");
+  thetree->Branch("MuonCand_freeInverseBetaErr", MuonCand_freeInverseBetaErr, "MuonCand_freeInverseBetaErr[nMuonCand]/D");
+
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
   thetree->Branch("CaloTower_et",CaloTower_et,"CaloTower_et[nCaloCand]/D");
@@ -224,6 +230,16 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersE7",&nExtraCaloTowersE7,"nExtraCaloTowersE7/I");   
   thetree->Branch("nExtraCaloTowersE8",&nExtraCaloTowersE8,"nExtraCaloTowersE8/I");   
   thetree->Branch("nExtraCaloTowersE9",&nExtraCaloTowersE9,"nExtraCaloTowersE9/I");   
+
+  thetree->Branch("nExtraCaloTowersE0hf", &nExtraCaloTowersE0hf, "nExtraCaloTowersE0hf/I"); 	 
+  thetree->Branch("nExtraCaloTowersE1hf", &nExtraCaloTowersE1hf, "nExtraCaloTowersE1hf/I"); 	 
+  thetree->Branch("nExtraCaloTowersE2hf", &nExtraCaloTowersE2hf, "nExtraCaloTowersE12hf/I"); 	 
+  thetree->Branch("nExtraCaloTowersE1he", &nExtraCaloTowersE1he, "nExtraCaloTowersE1he/I"); 	 
+  thetree->Branch("nExtraCaloTowersE2he", &nExtraCaloTowersE2he, "nExtraCaloTowersE2he/I"); 	 
+  thetree->Branch("nExtraCaloTowersE3he", &nExtraCaloTowersE3he, "nExtraCaloTowersE3he/I"); 	 
+  thetree->Branch("nExtraCaloTowersE2hb", &nExtraCaloTowersE2hb, "nExtraCaloTowersE2hb/I"); 	 
+  thetree->Branch("nExtraCaloTowersE3hb", &nExtraCaloTowersE3hb, "nExtraCaloTowersE3hb/I"); 	 
+  thetree->Branch("nExtraCaloTowersE4hb", &nExtraCaloTowersE4hb, "nExtraCaloTowersE4hb/I");
  
   thetree->Branch("nExtraCaloTowersEt0pt1",&nExtraCaloTowersEt0pt1,"nExtraCaloTowersEt0pt1/I"); 
   thetree->Branch("nExtraCaloTowersEt0pt2",&nExtraCaloTowersEt0pt2,"nExtraCaloTowersEt0pt2/I"); 
@@ -242,10 +258,10 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("TrackCand_eta",TrackCand_eta,"TrackCand_eta[nTrackCand]/D");
   thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nTrackCand]/D");
   thetree->Branch("TrackCand_vtxdxyz",TrackCand_vtxdxyz,"TrackCand_vtxdxyz[nTrackCand]/D");
-//
+
   thetree->Branch("TrackCand_vtxZ",TrackCand_vtxZ,"TrackCand_vtxZ[nTrackCand]/D");
   thetree->Branch("TrackCand_vtxT",TrackCand_vtxT,"TrackCand_vtxT[nTrackCand]/D");
-//
+
   thetree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D");
   
   thetree->Branch("MuMu_mass",&MuMu_mass,"MuMu_mass/D");
@@ -303,7 +319,6 @@ GammaGammaMuMu::~GammaGammaMuMu()
 void
 GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 {
-//cout << "---------------------------------===" << endl;
   nMuonCand=0;
   nJetCand=0;
   nCaloCand=0;
@@ -324,6 +339,15 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersEt2=0;  
   nExtraCaloTowersEt3=0;  
   nExtraCaloTowersEt4=0;   
+  nExtraCaloTowersE0hf=0; 	 
+  nExtraCaloTowersE1hf=0; 	 
+  nExtraCaloTowersE2hf=0; 	 
+  nExtraCaloTowersE1he=0; 	 
+  nExtraCaloTowersE2he=0; 	 
+  nExtraCaloTowersE3he=0; 	 
+  nExtraCaloTowersE2hb=0; 	 
+  nExtraCaloTowersE3hb=0; 	 
+  nExtraCaloTowersE4hb=0;
   HitInZDC=0;
   HitInCastor=0;
 
@@ -372,7 +396,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }
 
 
-  if(HLT1MuonPrescalePt3 == 0 && HLT2MuonNonIso == 0) cout << "  -- HLT not passed" << endl;
+//  if(HLT1MuonPrescalePt3 == 0 && HLT2MuonNonIso == 0) cout << "  -- HLT not passed" << endl;
 
   // Get the HF ring L1
   edm::Handle< L1GctJetCountsCollection > jetCountColl ;
@@ -468,6 +492,13 @@ cout << " " << endl;
 	  MuonCand_ecalisor5[nMuonCand]=muon->isolationR05().emEt;   
           MuonCand_hoisor5[nMuonCand]=muon->isolationR05().hoEt;
 	  MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;  
+
+          MuonCand_timeout[nMuonCand]=muon->time().timeAtIpInOut; 	 
+          MuonCand_timein[nMuonCand]=muon->time().timeAtIpOutIn; 	 
+          MuonCand_timeouterr[nMuonCand]=muon->time().timeAtIpInOutErr; 	 
+          MuonCand_timeinerr[nMuonCand]=muon->time().timeAtIpOutInErr; 	 
+          MuonCand_freeInverseBeta[nMuonCand]=muon->time().freeInverseBeta; 	 
+          MuonCand_freeInverseBetaErr[nMuonCand]=muon->time().freeInverseBetaErr;
  
 	  if(muon->isTrackerMuon() || muon->isGlobalMuon()) MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p();
 /*	
@@ -664,6 +695,26 @@ cout << " " << endl;
                 nExtraCaloTowersEt3++;   
               if(CaloTower_et[nCaloCand] > 4.0)   
                 nExtraCaloTowersEt4++;   
+
+	 
+              if(CaloTower_e[nCaloCand] > 0.0 && abs(CaloTower_eta[nCaloCand]) > 3.0) 	 
+                nExtraCaloTowersE0hf++; 	 
+              if(CaloTower_e[nCaloCand] > 1.0 && abs(CaloTower_eta[nCaloCand]) > 3.0) 	 
+                nExtraCaloTowersE1hf++; 	 
+              if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) > 3.0) 	 
+                nExtraCaloTowersE2hf++; 	 
+              if(CaloTower_e[nCaloCand] > 1.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5) 	 
+                nExtraCaloTowersE1he++; 	 
+              if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5) 	 
+                nExtraCaloTowersE2he++; 	 
+              if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5) 	 
+                nExtraCaloTowersE3he++; 	 
+              if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 1.5) 	 
+                nExtraCaloTowersE2hb++; 	 
+              if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 1.5) 	 
+                nExtraCaloTowersE3hb++; 	 
+              if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) < 1.5) 	 
+                nExtraCaloTowersE4hb++;
 	    }
 
 	  nCaloCand++;
@@ -904,7 +955,7 @@ cout << " " << endl;
     } 
 
   // Check for di-objects with valid vertex
-  if(nMuonCand != 2 || MuMu_vtxisvalid != 1 /*|| HLT2MuonNonIso == 1 || HLT1MuonPrescalePt3 == 0 */)
+  if(nMuonCand != 2 || MuMu_vtxisvalid != 1)
     passed = false;
   else
     {
