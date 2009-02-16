@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.28 2008/11/19 13:00:01 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.29 2009/01/15 07:51:44 jjhollar Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"   
 #include "FWCore/Framework/interface/TriggerNames.h"   
+#include "DataFormats/CastorReco/interface/CastorTower.h"  
 
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
@@ -110,6 +111,7 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   theMetLabel        = pset.getParameter<edm::InputTag>("MetLabel");
   thePhotonLabel     = pset.getParameter<edm::InputTag>("PhotonCollectionLabel");
   theCaloTowLabel    = pset.getParameter<edm::InputTag>("CaloTowerLabel");
+  recCastorTowerLabel = pset.getParameter<edm::InputTag>("CastorTowerLabel");  
 
   eldetmax           = pset.getParameter<double>("DielectronMaxdEt");
   eldphimin          = pset.getParameter<double>("DielectronMindphi");
@@ -168,6 +170,17 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("HighestEtCaloTower_phi",&HighestEtCaloTower_phi,"HighestEtCaloTower_phi/D"); 
   thetree->Branch("HighestEtCaloTower_dr",&HighestEtCaloTower_dr,"HighestEtCaloTower_dr/D");
   thetree->Branch("SumCalo_e",&SumCalo_e,"SumCalo_e/D");
+
+  thetree->Branch("nCastorTowerCand",&nCastorTowerCand,"nCastorTowerCand/I");   
+  thetree->Branch("CastorTower_e",CastorTower_e,"CastorTower_e[nCastorTowerCand]/D");   
+  thetree->Branch("CastorTower_eta",CastorTower_eta,"CastorTower_eta[nCastorTowerCand]/D");    
+  thetree->Branch("CastorTower_phi",CastorTower_phi,"CastorTower_phi[nCastorTowerCand]/D");   
+  thetree->Branch("CastorTower_width",CastorTower_width,"CastorTower_width[nCastorTowerCand]/D");  
+  thetree->Branch("CastorTower_emratio",CastorTower_emratio,"CastorTower_emratio[nCastorTowerCand]/D");   
+  thetree->Branch("HighestCastorTowerFwd_e",&HighestCastorTowerFwd_e,"HighestCastorTowerFwd_e/D");  
+  thetree->Branch("HighestCastorTowerBwd_e",&HighestCastorTowerBwd_e,"HighestCastorTowerBwd_e/D");  
+  thetree->Branch("SumCastorFwd_e",&SumCastorFwd_e,"SumCastorFwd_e/D"); 
+  thetree->Branch("SumCastorBwd_e",&SumCastorBwd_e,"SumCastorBwd_e/D");  
 
   thetree->Branch("nExtraCaloTowersE1",&nExtraCaloTowersE1,"nExtraCaloTowersE1/I");
   thetree->Branch("nExtraCaloTowersE2",&nExtraCaloTowersE2,"nExtraCaloTowersE2/I");
@@ -263,6 +276,7 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
+  nCastorTowerCand=0;
   nExtraTrackCand=0;
 
   nExtraCaloTowersE1=0;
@@ -471,6 +485,12 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   const TrackCollection* tracks = recoTracks.product();
   TrackCollection::const_iterator track;
 
+  // Get the CASTOR towers collection from the event  
+  edm::Handle<reco::CastorTowerCollection> recoCastorTowers;   
+  event.getByLabel(recCastorTowerLabel, recoCastorTowers);   
+  const CastorTowerCollection* castortowers = recoCastorTowers.product();   
+  CastorTowerCollection::const_iterator castortower;   
+
   double highestejet = -1.0;
   double highestejeteta = -999.0;
   double highestejetphi = -999.0;
@@ -483,6 +503,10 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double highestettowerdr = -999.0;
   double highestettowereta = -999.0;
   double highestettowerphi = -999.0;
+  double highestcastortowerfwd = -999.0;  
+  double highestcastortowerbwd = -999.0;  
+  double totalecastorfwd = 0.0; 
+  double totalecastorbwd = 0.0; 
   double totalecalo = -1.0; 
   double closesttrkdxyz = 999.0; 
 
@@ -621,7 +645,36 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestEtCaloTower_eta = highestettowereta;
       HighestEtCaloTower_phi = highestettowerphi;
       HighestEtCaloTower_dr = highestettowerdr;
-      
+
+      // Now CASTOR towers  
+      for ( castortower = castortowers->begin(); castortower != castortowers->end(); ++castortower )   
+        {  
+          CastorTower_e[nCastorTowerCand] = castortower->energy();  
+          CastorTower_eta[nCastorTowerCand] = castortower->eta();   
+          CastorTower_phi[nCastorTowerCand] = castortower->phi();   
+          CastorTower_width[nCastorTowerCand] = castortower->width();  
+          CastorTower_emratio[nCastorTowerCand] = castortower->emtotRatio();  
+  
+          if(CastorTower_eta[nCastorTowerCand] > 0) 
+            { 
+              totalecastorfwd+=CastorTower_e[nCastorTowerCand]; 
+              if(CastorTower_e[nCastorTowerCand] > highestcastortowerfwd)  
+                highestcastortowerfwd = CastorTower_e[nCastorTowerCand]; 
+            }  
+          if(CastorTower_eta[nCastorTowerCand] < 0)  
+            { 
+              totalecastorbwd+=CastorTower_e[nCastorTowerCand]; 
+              if(CastorTower_e[nCastorTowerCand] > highestcastortowerbwd)   
+                highestcastortowerbwd = CastorTower_e[nCastorTowerCand];   
+            } 
+ 
+          nCastorTowerCand++;   
+        }  
+  
+      HighestCastorTowerFwd_e = highestcastortowerfwd;  
+      HighestCastorTowerBwd_e = highestcastortowerbwd;  
+      SumCastorFwd_e = totalecastorfwd; 
+      SumCastorBwd_e = totalecastorbwd;  
     }
 
   // Check for particles in ZDC/Castor acceptance. 

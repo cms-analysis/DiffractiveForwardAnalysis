@@ -29,6 +29,9 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+# Load CASTOR FastSim
+process.load("FastSimulation.ForwardDetectors.CastorTowerProducer_cfi")
+
 # Load analysis modules
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.PATGammaGammaMuMu_cfi")
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.PATGammaGammaEE_cfi")
@@ -42,7 +45,8 @@ process.load("PhysicsTools.PatAlgos.patLayer1_cff")
 
 # Put it all together
 process.p = cms.Path(
-    process.hltFilter
+    process.CastorTowerReco
+    + process.hltFilter
     + process.patLayer0  
     + process.patLayer1
     + process.gamgammumuanalysis

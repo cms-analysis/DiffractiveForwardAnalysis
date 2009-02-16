@@ -39,6 +39,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   edm::InputTag theMetLabel;
   edm::InputTag thePhotonLabel;
   edm::InputTag theCaloTowLabel;
+  edm::InputTag recCastorTowerLabel;   
 
   double mudptmax;
   double mudphimin;
@@ -141,6 +142,17 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double HighestEtCaloTower_phi;
   double HighestEtCaloTower_dr;
   double SumCalo_e;
+
+  int nCastorTowerCand;   
+  double CastorTower_e[1000];   
+  double CastorTower_eta[1000];    
+  double CastorTower_phi[1000];   
+  double CastorTower_width[1000];   
+  double CastorTower_emratio[1000];   
+  double HighestCastorTowerFwd_e;   
+  double HighestCastorTowerBwd_e;   
+  double SumCastorFwd_e; 
+  double SumCastorBwd_e; 
 
   int nTrackCand;
   int TRACKMAX;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.32 2009/02/04 09:36:22 schul Exp $
+// $Id: GammaGammaMuMu.cc,v 1.33 2009/02/04 11:46:42 schul Exp $
 //
 //
 
@@ -27,6 +27,7 @@
 #include "DataFormats/PatCandidates/interface/MET.h" 
 
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
+#include "DataFormats/CastorReco/interface/CastorTower.h" 
  
 #include "FWCore/ParameterSet/interface/ParameterSet.h"  
 #include "DataFormats/Common/interface/Ref.h"  
@@ -129,6 +130,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   theMetLabel        = pset.getParameter<edm::InputTag>("MetLabel");
   thePhotonLabel     = pset.getParameter<edm::InputTag>("PhotonCollectionLabel");
   theCaloTowLabel    = pset.getParameter<edm::InputTag>("CaloTowerLabel");
+  recCastorTowerLabel = pset.getParameter<edm::InputTag>("CastorTowerLabel"); 
 
   mudptmax           = pset.getParameter<double>("DimuonMaxdpt");
   mudphimin          = pset.getParameter<double>("DimuonMindphi");
@@ -220,6 +222,17 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("HighestEtCaloTower_phi",&HighestEtCaloTower_phi,"HighestEtCaloTower_phi/D"); 
   thetree->Branch("HighestEtCaloTower_dr",&HighestEtCaloTower_dr,"HighestEtCaloTower_dr/D");
   thetree->Branch("SumCalo_e",&SumCalo_e,"SumCalo_e/D");
+
+  thetree->Branch("nCastorTowerCand",&nCastorTowerCand,"nCastorTowerCand/I");  
+  thetree->Branch("CastorTower_e",CastorTower_e,"CastorTower_e[nCastorTowerCand]/D");  
+  thetree->Branch("CastorTower_eta",CastorTower_eta,"CastorTower_eta[nCastorTowerCand]/D");   
+  thetree->Branch("CastorTower_phi",CastorTower_phi,"CastorTower_phi[nCastorTowerCand]/D");  
+  thetree->Branch("CastorTower_width",CastorTower_width,"CastorTower_width[nCastorTowerCand]/D"); 
+  thetree->Branch("CastorTower_emratio",CastorTower_emratio,"CastorTower_emratio[nCastorTowerCand]/D");  
+  thetree->Branch("HighestCastorTowerFwd_e",&HighestCastorTowerFwd_e,"HighestCastorTowerFwd_e/D"); 
+  thetree->Branch("HighestCastorTowerBwd_e",&HighestCastorTowerBwd_e,"HighestCastorTowerBwd_e/D"); 
+  thetree->Branch("SumCastorFwd_e",&SumCastorFwd_e,"SumCastorFwd_e/D");
+  thetree->Branch("SumCastorBwd_e",&SumCastorBwd_e,"SumCastorBwd_e/D"); 
 
   thetree->Branch("nExtraCaloTowersE1",&nExtraCaloTowersE1,"nExtraCaloTowersE1/I"); 
   thetree->Branch("nExtraCaloTowersE2",&nExtraCaloTowersE2,"nExtraCaloTowersE2/I"); 
@@ -323,6 +336,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
+  nCastorTowerCand=0;
   nExtraCaloTowersE1=0;
   nExtraCaloTowersE2=0;
   nExtraCaloTowersE3=0; 
@@ -403,6 +417,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   event.getByLabel( "hltGctDigis", jetCountColl );
   if(!(jetCountColl.isValid())){cout << "L1 HForward not found!" << endl;}  
 
+  /*
   L1GctJetCountsCollection::const_iterator jc=jetCountColl->begin();
   HF_TowerCountPositiveEta = jc->hfTowerCountPositiveEta();
   HF_TowerCountNegativeEta = jc->hfTowerCountNegativeEta();
@@ -410,6 +425,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   HF_Ring0EtSumNegativeEta = jc->hfRing0EtSumNegativeEta();
   HF_Ring1EtSumPositiveEta = jc->hfRing1EtSumPositiveEta();
   HF_Ring1EtSumNegativeEta = jc->hfRing1EtSumNegativeEta();  
+  */
 
   // Get the muon collection from the event
   // PAT
@@ -580,6 +596,12 @@ cout << " " << endl;
   const VertexCollection* vertexs = recoVertexs.product();
   VertexCollection::const_iterator vertex_i;
 
+  // Get the CASTOR towers collection from the event 
+  edm::Handle<reco::CastorTowerCollection> recoCastorTowers;  
+  event.getByLabel(recCastorTowerLabel, recoCastorTowers);  
+  const CastorTowerCollection* castortowers = recoCastorTowers.product();  
+  CastorTowerCollection::const_iterator castortower;  
+
   double highestejet = -1.0;
   double highestejeteta = -999.0;
   double highestejetphi = -999.0;
@@ -592,6 +614,10 @@ cout << " " << endl;
   double highestettowerdr = -999.0;
   double highestettowereta = -999.0;
   double highestettowerphi = -999.0;
+  double highestcastortowerfwd = -999.0; 
+  double highestcastortowerbwd = -999.0; 
+  double totalecastorfwd = 0.0;
+  double totalecastorbwd = 0.0;
   double totalecalo = -1.0; 
   double closesttrkdxyz = 999.0;
 
@@ -729,7 +755,38 @@ cout << " " << endl;
       HighestEtCaloTower_eta = highestettowereta;
       HighestEtCaloTower_phi = highestettowerphi;
       HighestEtCaloTower_dr = highestettowerdr;
+
+      // Now CASTOR towers 
+      for ( castortower = castortowers->begin(); castortower != castortowers->end(); ++castortower )  
+        { 
+          CastorTower_e[nCastorTowerCand] = castortower->energy(); 
+          CastorTower_eta[nCastorTowerCand] = castortower->eta();  
+          CastorTower_phi[nCastorTowerCand] = castortower->phi();  
+          CastorTower_width[nCastorTowerCand] = castortower->width(); 
+          CastorTower_emratio[nCastorTowerCand] = castortower->emtotRatio(); 
+ 
+          if(CastorTower_eta[nCastorTowerCand] > 0)
+	    {
+	      totalecastorfwd+=CastorTower_e[nCastorTowerCand];
+	      if(CastorTower_e[nCastorTowerCand] > highestcastortowerfwd) 
+		highestcastortowerfwd = CastorTower_e[nCastorTowerCand];
+	    } 
+          if(CastorTower_eta[nCastorTowerCand] < 0) 
+	    {
+	      totalecastorbwd+=CastorTower_e[nCastorTowerCand];
+	      if(CastorTower_e[nCastorTowerCand] > highestcastortowerbwd)  
+		highestcastortowerbwd = CastorTower_e[nCastorTowerCand];  
+	    }
+
+          nCastorTowerCand++;  
+        } 
+ 
+      HighestCastorTowerFwd_e = highestcastortowerfwd; 
+      HighestCastorTowerBwd_e = highestcastortowerbwd; 
+      SumCastorFwd_e = totalecastorfwd;
+      SumCastorBwd_e = totalecastorbwd; 
     }
+
   // Check for particles in ZDC/Castor acceptance. 
   // Use MC truth for now, replace with real RECO when available
   double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;

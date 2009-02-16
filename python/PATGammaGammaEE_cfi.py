@@ -9,6 +9,7 @@ gamgameeanalysis = cms.EDFilter("GammaGammaEE",
     CaloTowerLabel = cms.InputTag("towerMaker"),
     GlobalMuonCollectionLabel = cms.InputTag("selectedLayer1Muons"),
     RecoTrackLabel = cms.InputTag("generalTracks"),
+    CastorTowerLabel = cms.InputTag("CastorTowerReco"),
     CaloTowerdR = cms.double(0.3),
     DielectronMaxdEt = cms.double(2000.0),
     MetLabel = cms.InputTag("selectedLayer1METs")
