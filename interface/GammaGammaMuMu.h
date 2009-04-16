@@ -78,13 +78,18 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuonCand_hcalisor5[4];  
   double MuonCand_trkisor5[4]; 
   double MuonCand_hoisor5[4];
-
   double MuonCand_timein[4]; 	 
   double MuonCand_timeout[4]; 	 
   double MuonCand_timeouterr[4]; 	 
   double MuonCand_timeinerr[4]; 	 
   double MuonCand_freeInverseBeta[4]; 	 
   double MuonCand_freeInverseBetaErr[4];
+
+  int nHLTMuonCand;
+  double HLTMuonCand_pt[10];
+  double HLTMuonCand_eta[10];
+  double HLTMuonCand_phi[10];
+  int HLTMuonCand_charge[10];
 
   double MuMu_mass;
   double MuMu_dphi;

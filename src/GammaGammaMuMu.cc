@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.33 2009/02/04 11:46:42 schul Exp $
+// $Id: GammaGammaMuMu.cc,v 1.34 2009/02/16 14:35:45 jjhollar Exp $
 //
 //
 
@@ -33,6 +33,7 @@
 #include "DataFormats/Common/interface/Ref.h"  
  
 #include "DataFormats/Common/interface/TriggerResults.h"  
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "FWCore/Framework/interface/TriggerNames.h"  
    
 #include "FWCore/Framework/interface/ESHandle.h" 
@@ -107,6 +108,7 @@
 using namespace std;
 using namespace edm;
 using namespace reco;
+using namespace trigger;
 
 //
 // constants, enums and typedefs
@@ -199,13 +201,18 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_ecalisor5",MuonCand_ecalisor5,"MuonCand_ecalisor5[nMuonCand]/D");  
   thetree->Branch("MuonCand_hoisor5",MuonCand_hoisor5,"MuonCand_hoisor5[nMuonCand]/D");
   thetree->Branch("MuonCand_trkisor5",MuonCand_trkisor5,"MuonCand_trkisor5[nMuonCand]/D"); 
-
   thetree->Branch("MuonCand_timein", MuonCand_timein, "MuonCand_timein[nMuonCand]/D"); 	 
   thetree->Branch("MuonCand_timeout", MuonCand_timeout, "MuonCand_timeout[nMuonCand]/D"); 
   thetree->Branch("MuonCand_timeinerr", MuonCand_timeinerr, "MuonCand_timeinerr[nMuonCand]/D");  
   thetree->Branch("MuonCand_timeouterr", MuonCand_timeouterr, "MuonCand_timeouterr[nMuonCand]/D"); 	 
   thetree->Branch("MuonCand_freeInverseBeta",MuonCand_freeInverseBeta, "MuonCand_freeInverseBeta[nMuonCand]/D");
   thetree->Branch("MuonCand_freeInverseBetaErr", MuonCand_freeInverseBetaErr, "MuonCand_freeInverseBetaErr[nMuonCand]/D");
+
+  thetree->Branch("nHLTMuonCand",&nHLTMuonCand,"nHLTMuonCand/I"); 
+  thetree->Branch("HLTMuonCand_pt",&HLTMuonCand_pt,"HLTMuonCand_pt[nHLTMuonCand]/D"); 
+  thetree->Branch("HLTMuonCand_eta",&HLTMuonCand_eta,"HLTMuonCand_eta[nHLTMuonCand]/D"); 
+  thetree->Branch("HLTMuonCand_phi",&HLTMuonCand_phi,"HLTMuonCand_phi[nHLTMuonCand]/D"); 
+  thetree->Branch("HLTMuonCand_charge",&HLTMuonCand_charge,"HLTMuonCand_charge[nHLTMuonCand]/I");  
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -333,6 +340,7 @@ void
 GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 {
   nMuonCand=0;
+  nHLTMuonCand=0;
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
@@ -381,11 +389,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   int LSopt = 0;
 
   nEvt++;
- //using namespace edm;
   using reco::TrackCollection;
-  //  Handle< double> weightHandle;
-  //  event.getByLabel ("weight", weightHandle);
-  //  evweight = * weightHandle;
 
   // Get the trigger information from the event
   edm::Handle<edm::TriggerResults> hltResults ; 
@@ -409,8 +413,33 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
         }  
     }
 
+  Handle<TriggerEvent> hltObjects;
+  event.getByLabel(InputTag("hltTriggerSummaryAOD::HLT"),hltObjects);
+  if (hltObjects.isValid()) 
+    {
+      const size_type nO(hltObjects->sizeObjects());
+      const TriggerObjectCollection& TOC(hltObjects->getObjects());
+      for (size_type iO=0; iO!=nO; ++iO) {
+	const TriggerObject& TO(TOC[iO]);
+	if(TO.id() == 13)
+	  {
+	    HLTMuonCand_pt[nHLTMuonCand] = TO.pt();
+	    HLTMuonCand_eta[nHLTMuonCand] = TO.eta(); 
+            HLTMuonCand_phi[nHLTMuonCand] = TO.phi(); 
+            HLTMuonCand_charge[nHLTMuonCand] = 1; 
+	    nHLTMuonCand++;
+	  }
+        if(TO.id() == -13) 
+          { 
+            HLTMuonCand_pt[nHLTMuonCand] = TO.pt(); 
+            HLTMuonCand_eta[nHLTMuonCand] = TO.eta();  
+            HLTMuonCand_phi[nHLTMuonCand] = TO.phi();  
+            HLTMuonCand_charge[nHLTMuonCand] = -1;  
+            nHLTMuonCand++; 
+          } 	
+      }
+    }
 
-//  if(HLT1MuonPrescalePt3 == 0 && HLT2MuonNonIso == 0) cout << "  -- HLT not passed" << endl;
 
   // Get the HF ring L1
   edm::Handle< L1GctJetCountsCollection > jetCountColl ;
@@ -438,6 +467,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     event.getByLabel(theGLBMuonLabel, muons);
     reco::MuonCollection::const_iterator muon;
 */
+
 //cout << "================" << endl;
   if(muons->size() == 2)
     {
@@ -468,32 +498,6 @@ if(!(muon->isGood(reco::Muon::TMLastStationLoose)) && (muon->isGood(reco::Muon::
 	LowPt_pt[nMuonCand]=muon->pt();
 }else{  LowPt_eta[nMuonCand]=10.;
 	LowPt_pt[nMuonCand]=-1.;}
-/*
-cout << " " << endl;
-cout << "Muon n°" << nMuonCand<<": pT = " << muon->pt() << " , eta = "  << muon->eta() << endl;
-
-cout << " is good TMLastStation Loose/Tight    = " << muon->isGood(reco::Muon::TMLastStationLoose)
-     << "/" << muon->isGood(reco::Muon::TMLastStationTight) << endl;
-cout << " is good TM2DCompatibility Loose/Tight= " << muon->isGood(reco::Muon::TM2DCompatibilityLoose)
-     << "/" << muon->isGood(reco::Muon::TM2DCompatibilityTight) << endl;
-cout << " is good TMLastStation OptimizedLowPt Loose/Tight = " << muon->isGood(reco::Muon::TMLastStationOptimizedLowPtLoose)
-     << "/" << muon->isGood(reco::Muon::TMLastStationOptimizedLowPtTight) << endl;
-cout << " " << endl;
-cout << " Time/Energy/Match/Calo/Iso validity   = " << muon->isTimeValid() << "/" 
-					<< muon->isEnergyValid() << "/"
-					<< muon->isMatchesValid() << "/"
-					<< muon->isCaloCompatibilityValid() << "/"
-					<< muon->isIsolationValid() << endl;
-cout << " " << endl;
-cout << " # chambers      = " << muon->numberOfChambers() << endl;
-cout << " # matches (no/segment/track)   = " << muon->numberOfMatches(reco::Muon::NoArbitration) 
-     << "/" << muon->numberOfMatches(reco::Muon::SegmentArbitration)
-     << "/" << muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration) << endl; 
-cout << " # S mask  (no)/segment/track)  = " << muon->stationMask(reco::Muon::NoArbitration)
-     << "/" << muon->stationMask(reco::Muon::SegmentArbitration)
-     << "/" << muon->stationMask(reco::Muon::SegmentAndTrackArbitration) << endl;
-cout << " " << endl;
-*/
 
 	if(muon->isGood(reco::Muon::TMLastStationLoose)) LS++;
 	if(muon->isGood(reco::Muon::TMLastStationOptimizedLowPtLoose)) LSopt++;
@@ -536,6 +540,7 @@ cout << " " << endl;
 */
 	  nMuonCand++;
 	}  
+
       // Calculate invariant mass, delta-phi and delta-pT
       if(MuonCand_charge[0]*MuonCand_charge[1]<0)
 	{

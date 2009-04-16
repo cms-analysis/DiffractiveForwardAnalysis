@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.29 2009/01/15 07:51:44 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.30 2009/02/16 14:35:45 jjhollar Exp $
 //
 //
 
@@ -27,7 +27,9 @@
 #include "DataFormats/PatCandidates/interface/MET.h" 
 
 #include "DataFormats/Common/interface/TriggerResults.h"   
+#include "DataFormats/HLTReco/interface/TriggerEvent.h" 
 #include "FWCore/Framework/interface/TriggerNames.h"   
+
 #include "DataFormats/CastorReco/interface/CastorTower.h"  
 
 #include "FWCore/Framework/interface/ESHandle.h" 
@@ -89,6 +91,7 @@
 using namespace std;
 using namespace edm;
 using namespace reco;
+using namespace trigger;
 
 //
 // constants, enums and typedefs
@@ -142,6 +145,12 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("EleCand_likelihoodid",EleCand_likelihoodid,"EleCand_likelihoodid[nEleCand]/D");  
   thetree->Branch("EleCand_robustid",EleCand_robustid,"EleCand_robustid[nEleCand]/I"); 
   thetree->Branch("EleCandTrack_p",EleCandTrack_p,"EleCandTrack_p[nEleCand]/D");
+
+  thetree->Branch("nHLTEleCand",&nHLTEleCand,"nHLTEleCand/I");  
+  thetree->Branch("HLTEleCand_pt",&HLTEleCand_pt,"HLTEleCand_pt[nHLTEleCand]/D");  
+  thetree->Branch("HLTEleCand_eta",&HLTEleCand_eta,"HLTEleCand_eta[nHLTEleCand]/D");  
+  thetree->Branch("HLTEleCand_phi",&HLTEleCand_phi,"HLTEleCand_phi[nHLTEleCand]/D");  
+  thetree->Branch("HLTEleCand_charge",&HLTEleCand_charge,"HLTEleCand_charge[nHLTEleCand]/I");   
 
   thetree->Branch("nJetCand",&nJetCand,"nJetCand/I");
   thetree->Branch("JetCand_px",JetCand_px,"JetCand_px[nJetCand]/D");
@@ -273,6 +282,7 @@ void
 GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 {
   nEleCand=0;
+  nHLTEleCand=0;
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
@@ -361,6 +371,33 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           else 
             HLT2ElectronExclusive = 0; 
         }    
+    } 
+
+  Handle<TriggerEvent> hltObjects; 
+  event.getByLabel(InputTag("hltTriggerSummaryAOD::HLT"),hltObjects); 
+  if (hltObjects.isValid())  
+    { 
+      const size_type nO(hltObjects->sizeObjects()); 
+      const TriggerObjectCollection& TOC(hltObjects->getObjects()); 
+      for (size_type iO=0; iO!=nO; ++iO) { 
+        const TriggerObject& TO(TOC[iO]); 
+        if(TO.id() == 11) 
+          { 
+            HLTEleCand_pt[nHLTEleCand] = TO.pt(); 
+            HLTEleCand_eta[nHLTEleCand] = TO.eta();  
+            HLTEleCand_phi[nHLTEleCand] = TO.phi();  
+            HLTEleCand_charge[nHLTEleCand] = 1;  
+            nHLTEleCand++; 
+          } 
+        if(TO.id() == -11)  
+          {  
+            HLTEleCand_pt[nHLTEleCand] = TO.pt();  
+            HLTEleCand_eta[nHLTEleCand] = TO.eta();   
+            HLTEleCand_phi[nHLTEleCand] = TO.phi();   
+            HLTEleCand_charge[nHLTEleCand] = -1;   
+            nHLTEleCand++;  
+          }      
+      } 
     } 
 
   // Get the electron collection from the event

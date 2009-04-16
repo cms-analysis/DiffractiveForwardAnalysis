@@ -16,7 +16,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-    'rfio:/castor/cern.ch/user/j/jjhollar/21XsignalMC/gamgammumu.10tev.initialPU.RECO.root'
+'rfio:/castor/cern.ch/user/j/jjhollar/22XsignalMC/gamgammumu_IDEALV12_pileup2_fastsim.root'
     )
                             )
 
@@ -26,7 +26,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 # Load configuration stuff
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')
+process.GlobalTag.globaltag = cms.string('IDEAL_V12::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # Load CASTOR FastSim
@@ -50,7 +50,7 @@ process.p = cms.Path(
     + process.patLayer0  
     + process.patLayer1
     + process.gamgammumuanalysis
-    + process.gamgameeanalysis
+#    + process.gamgameeanalysis
     )
 
 
