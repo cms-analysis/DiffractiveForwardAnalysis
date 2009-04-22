@@ -16,7 +16,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-'rfio:/castor/cern.ch/user/j/jjhollar/22XsignalMC/gamgammumu_IDEALV12_pileup2_fastsim.root'
+    '/store/relval/CMSSW_2_2_6/RelValZMM/GEN-SIM-RECO/STARTUP_V9_v1/0002/2072D73D-D60B-DE11-808E-000423D987E0.root'
     )
                             )
 

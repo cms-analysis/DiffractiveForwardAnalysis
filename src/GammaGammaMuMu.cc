@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.34 2009/02/16 14:35:45 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.35 2009/04/16 10:06:14 jjhollar Exp $
 //
 //
 
@@ -69,7 +69,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h" // for PU
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaMuMu.h"
 
@@ -319,6 +319,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("LowPt_pt",LowPt_pt,"LowPt_pt[nMuonCand]/D");
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
 
+  thetree->Branch("nPU",&nPU,"nPU/I");
+
 //  thetree->Branch("evweight",&evweight,"evweight/D");
 }
 
@@ -419,27 +421,23 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     {
       const size_type nO(hltObjects->sizeObjects());
       const TriggerObjectCollection& TOC(hltObjects->getObjects());
-      for (size_type iO=0; iO!=nO; ++iO) {
-	const TriggerObject& TO(TOC[iO]);
-	if(TO.id() == 13)
-	  {
-	    HLTMuonCand_pt[nHLTMuonCand] = TO.pt();
-	    HLTMuonCand_eta[nHLTMuonCand] = TO.eta(); 
-            HLTMuonCand_phi[nHLTMuonCand] = TO.phi(); 
-            HLTMuonCand_charge[nHLTMuonCand] = 1; 
-	    nHLTMuonCand++;
-	  }
-        if(TO.id() == -13) 
-          { 
-            HLTMuonCand_pt[nHLTMuonCand] = TO.pt(); 
-            HLTMuonCand_eta[nHLTMuonCand] = TO.eta();  
-            HLTMuonCand_phi[nHLTMuonCand] = TO.phi();  
-            HLTMuonCand_charge[nHLTMuonCand] = -1;  
-            nHLTMuonCand++; 
-          } 	
-      }
+      for (size_type iO=0; iO!=nO; ++iO) 
+	{
+	  const TriggerObject& TO(TOC[iO]);
+	  if(fabs(TO.id()) == 13)
+	    {
+	      HLTMuonCand_pt[nHLTMuonCand] = TO.pt();
+	      HLTMuonCand_eta[nHLTMuonCand] = TO.eta(); 
+	      HLTMuonCand_phi[nHLTMuonCand] = TO.phi(); 
+	      if(TO.id() > 0)	  
+		HLTMuonCand_charge[nHLTMuonCand] = 1; 
+	      else
+		HLTMuonCand_charge[nHLTMuonCand] = -1;  
+	      
+	      nHLTMuonCand++;
+	    }
+	}
     }
-
 
   // Get the HF ring L1
   edm::Handle< L1GctJetCountsCollection > jetCountColl ;
@@ -455,6 +453,23 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   HF_Ring1EtSumPositiveEta = jc->hfRing1EtSumPositiveEta();
   HF_Ring1EtSumNegativeEta = jc->hfRing1EtSumNegativeEta();  
   */
+
+  // Get the #PU information
+  nPU=0;
+  edm::Handle<CrossingFrame<edm::HepMCProduct> > crossingFrameHepMCH;
+  event.getByLabel("mix","source",crossingFrameHepMCH);
+  
+  if((crossingFrameHepMCH.isValid())) 
+    {  
+      //    unsigned int nbunches = 0;
+      //    for(int ibunch = crossingFrameHepMCH->getBunchRange().first; 
+      //            ibunch <= crossingFrameHepMCH->getBunchRange().second; ++ibunch,++nbunches){
+      //      int nrPileUpB = crossingFrameHepMCH->getNrPileups(ibunch);
+      //      std::cout << "  --> Number of added pile-up's for bunch " << ibunch   << ": " << nrPileUpB << std::endl;
+      //    }
+      int nrPileUp = crossingFrameHepMCH->getNrPileups(0);
+      nPU = nrPileUp;
+    }
 
   // Get the muon collection from the event
   // PAT

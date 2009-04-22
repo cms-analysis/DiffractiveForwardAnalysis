@@ -189,6 +189,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double LowPt_pt[4];
   double LowPt_eta[4];
 
+  int nPU;
+
   AcceptanceTableHelper helper420beam1;   
   AcceptanceTableHelper helper420beam2;   
   AcceptanceTableHelper helper220beam1;   

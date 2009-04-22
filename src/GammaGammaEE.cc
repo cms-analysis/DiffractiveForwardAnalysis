@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.30 2009/02/16 14:35:45 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.31 2009/04/16 10:06:14 jjhollar Exp $
 //
 //
 
@@ -57,6 +57,8 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h" 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h" 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h" // for PU
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaEE.h"
 
@@ -260,6 +262,7 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("HLT2Electron5_L1R_NI",&HLT2Electron5_L1R_NI,"HLT2Electron5_L1R_NI/I"); 
   thetree->Branch("HLT2ElectronExclusive",&HLT2ElectronExclusive,"HLT2ElectronExclusive/I");  
 
+  thetree->Branch("nPU",&nPU,"nPU/I");
   //  thetree->Branch("evweight",&evweight,"evweight/D");
 }
 
@@ -379,26 +382,41 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     { 
       const size_type nO(hltObjects->sizeObjects()); 
       const TriggerObjectCollection& TOC(hltObjects->getObjects()); 
-      for (size_type iO=0; iO!=nO; ++iO) { 
-        const TriggerObject& TO(TOC[iO]); 
-        if(TO.id() == 11) 
-          { 
-            HLTEleCand_pt[nHLTEleCand] = TO.pt(); 
-            HLTEleCand_eta[nHLTEleCand] = TO.eta();  
-            HLTEleCand_phi[nHLTEleCand] = TO.phi();  
-            HLTEleCand_charge[nHLTEleCand] = 1;  
-            nHLTEleCand++; 
-          } 
-        if(TO.id() == -11)  
-          {  
-            HLTEleCand_pt[nHLTEleCand] = TO.pt();  
-            HLTEleCand_eta[nHLTEleCand] = TO.eta();   
-            HLTEleCand_phi[nHLTEleCand] = TO.phi();   
-            HLTEleCand_charge[nHLTEleCand] = -1;   
-            nHLTEleCand++;  
-          }      
-      } 
+      for (size_type iO=0; iO!=nO; ++iO) 
+	{ 
+	  const TriggerObject& TO(TOC[iO]); 
+	  if(fabs(TO.id()) == 11) 
+	    { 
+	      HLTEleCand_pt[nHLTEleCand] = TO.pt(); 
+	      HLTEleCand_eta[nHLTEleCand] = TO.eta();  
+	      HLTEleCand_phi[nHLTEleCand] = TO.phi();  
+	      if(TO.id() > 0)
+		HLTEleCand_charge[nHLTEleCand] = 1;  
+	      else
+		HLTEleCand_charge[nHLTEleCand] = -1;   
+	      
+	      nHLTEleCand++; 
+	    } 
+	}
     } 
+
+  // Get the #PU information 
+  nPU=0; 
+  edm::Handle<CrossingFrame<edm::HepMCProduct> > crossingFrameHepMCH; 
+  event.getByLabel("mix","source",crossingFrameHepMCH); 
+   
+  if((crossingFrameHepMCH.isValid()))     
+    {   
+      //    unsigned int nbunches = 0; 
+      //    for(int ibunch = crossingFrameHepMCH->getBunchRange().first;  
+      //            ibunch <= crossingFrameHepMCH->getBunchRange().second; ++ibunch,++nbunches){ 
+      //      int nrPileUpB = crossingFrameHepMCH->getNrPileups(ibunch); 
+      //      std::cout << "  --> Number of added pile-up's for bunch " << ibunch   << ": " << nrPileUpB << std::endl; 
+      //    } 
+      int nrPileUp = crossingFrameHepMCH->getNrPileups(0); 
+      nPU = nrPileUp; 
+    } 
+
 
   // Get the electron collection from the event
 
