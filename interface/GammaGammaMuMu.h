@@ -85,11 +85,17 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuonCand_freeInverseBeta[4]; 	 
   double MuonCand_freeInverseBetaErr[4];
 
-  int nHLTMuonCand;
-  double HLTMuonCand_pt[10];
-  double HLTMuonCand_eta[10];
-  double HLTMuonCand_phi[10];
-  int HLTMuonCand_charge[10];
+  int nHLTMu3MuonCand;
+  double HLT_Mu3_MuonCand_pt[10];
+  double HLT_Mu3_MuonCand_eta[10];
+  double HLT_Mu3_MuonCand_phi[10];
+  int HLT_Mu3_MuonCand_charge[10];
+
+  int nHLTDiMu3MuonCand; 
+  double HLT_DoubleMu3_MuonCand_pt[10]; 
+  double HLT_DoubleMu3_MuonCand_eta[10]; 
+  double HLT_DoubleMu3_MuonCand_phi[10]; 
+  int HLT_DoubleMu3_MuonCand_charge[10]; 
 
   double MuMu_mass;
   double MuMu_dphi;
@@ -176,8 +182,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
 
   double evweight;
   
-  int HLT2MuonNonIso;
-  int HLT1MuonPrescalePt3;
+  int HLT_DoubleMu3;
+  int HLT_Mu3;
 
   int HF_TowerCountPositiveEta;
   int HF_TowerCountNegativeEta;

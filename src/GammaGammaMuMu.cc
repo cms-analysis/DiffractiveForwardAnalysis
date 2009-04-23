@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.35 2009/04/16 10:06:14 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.36 2009/04/22 06:01:02 jjhollar Exp $
 //
 //
 
@@ -208,11 +208,17 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_freeInverseBeta",MuonCand_freeInverseBeta, "MuonCand_freeInverseBeta[nMuonCand]/D");
   thetree->Branch("MuonCand_freeInverseBetaErr", MuonCand_freeInverseBetaErr, "MuonCand_freeInverseBetaErr[nMuonCand]/D");
 
-  thetree->Branch("nHLTMuonCand",&nHLTMuonCand,"nHLTMuonCand/I"); 
-  thetree->Branch("HLTMuonCand_pt",&HLTMuonCand_pt,"HLTMuonCand_pt[nHLTMuonCand]/D"); 
-  thetree->Branch("HLTMuonCand_eta",&HLTMuonCand_eta,"HLTMuonCand_eta[nHLTMuonCand]/D"); 
-  thetree->Branch("HLTMuonCand_phi",&HLTMuonCand_phi,"HLTMuonCand_phi[nHLTMuonCand]/D"); 
-  thetree->Branch("HLTMuonCand_charge",&HLTMuonCand_charge,"HLTMuonCand_charge[nHLTMuonCand]/I");  
+  thetree->Branch("nHLTMu3MuonCand",&nHLTMu3MuonCand,"nHLTMu3MuonCand/I"); 
+  thetree->Branch("HLT_Mu3_MuonCand_pt",&HLT_Mu3_MuonCand_pt,"HLT_Mu3_MuonCand_pt[nHLTMu3MuonCand]/D"); 
+  thetree->Branch("HLT_Mu3_MuonCand_eta",&HLT_Mu3_MuonCand_eta,"HLT_Mu3_MuonCand_eta[nHLTMu3MuonCand]/D"); 
+  thetree->Branch("HLT_Mu3_MuonCand_phi",&HLT_Mu3_MuonCand_phi,"HLT_Mu3_MuonCand_phi[nHLTMu3MuonCand]/D"); 
+  thetree->Branch("HLT_Mu3_MuonCand_charge",&HLT_Mu3_MuonCand_charge,"HLT_Mu3_MuonCand_charge[nHLTMu3MuonCand]/I");  
+
+  thetree->Branch("nHLTDiMu3MuonCand",&nHLTDiMu3MuonCand,"nHLTDiMu3MuonCand/I");  
+  thetree->Branch("HLT_DoubleMu3_MuonCand_pt",&HLT_DoubleMu3_MuonCand_pt,"HLT_DoubleMu3_MuonCand_pt[nHLTDiMu3MuonCand]/D");  
+  thetree->Branch("HLT_DoubleMu3_MuonCand_eta",&HLT_DoubleMu3_MuonCand_eta,"HLT_DoubleMu3_MuonCand_eta[nHLTDiMu3MuonCand]/D");  
+  thetree->Branch("HLT_DoubleMu3_MuonCand_phi",&HLT_DoubleMu3_MuonCand_phi,"HLT_DoubleMu3_MuonCand_phi[nHLTDiMu3MuonCand]/D");  
+  thetree->Branch("HLT_DoubleMu3_MuonCand_charge",&HLT_DoubleMu3_MuonCand_charge,"HLT_DoubleMu3_MuonCand_charge[nHLTDiMu3MuonCand]/I");   
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -306,8 +312,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   
 //  thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
 
-  thetree->Branch("HLT2MuonNonIso",&HLT2MuonNonIso,"HLT2MuonNonIso/I");
-  thetree->Branch("HLT1MuonPrescalePt3",&HLT1MuonPrescalePt3,"HLT1MuonPrescalePt3/I");
+  thetree->Branch("HLT_DoubleMu3",&HLT_DoubleMu3,"HLT_DoubleMu3/I");
+  thetree->Branch("HLT_Mu3",&HLT_Mu3,"HLT_Mu3/I");
 
   thetree->Branch("HF_TowerCountPositiveEta",&HF_TowerCountPositiveEta,"HF_TowerCountPositiveEta/I"); 
   thetree->Branch("HF_TowerCountNegativeEta",&HF_TowerCountNegativeEta,"HF_TowerCountNegativeEta/I");
@@ -342,7 +348,8 @@ void
 GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 {
   nMuonCand=0;
-  nHLTMuonCand=0;
+  nHLTMu3MuonCand=0;
+  nHLTDiMu3MuonCand=0;
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
@@ -402,16 +409,16 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       if ( trigNames.triggerNames().at(i) == "HLT_Mu3" )       
         {  
           if ( hltResults->accept(i) )  
-            {HLT1MuonPrescalePt3 = 1; /*cout << "--> debug : HLT1µ_pt3" << endl;*/}
+            {HLT_Mu3 = 1; /*cout << "--> debug : HLT1µ_pt3" << endl;*/}
 	  else
-	    HLT1MuonPrescalePt3 = 0;
+	    HLT_Mu3 = 0;
         }  
       if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu3" ) 
         {   
           if ( hltResults->accept(i) )  
-	    {HLT2MuonNonIso = 1; /*cout << "--> debug : HLT2µ_NonIso" << endl;*/}
+	    {HLT_DoubleMu3 = 1; /*cout << "--> debug : HLT2µ_NonIso" << endl;*/}
 	  else
-	    HLT2MuonNonIso = 0;
+	    HLT_DoubleMu3 = 0;
         }  
     }
 
@@ -420,22 +427,56 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   if (hltObjects.isValid()) 
     {
       const size_type nO(hltObjects->sizeObjects());
-      const TriggerObjectCollection& TOC(hltObjects->getObjects());
-      for (size_type iO=0; iO!=nO; ++iO) 
+      size_type muindex = hltObjects->filterIndex(InputTag("hltSingleMuPrescale3L3PreFiltered::HLT"));
+      size_type dimuindex = hltObjects->filterIndex(InputTag("hltDiMuonNoIsoL3PreFiltered::HLT"));
+      if( dimuindex < hltObjects->sizeFilters() )
 	{
-	  const TriggerObject& TO(TOC[iO]);
-	  if(fabs(TO.id()) == 13)
+	  const trigger::Keys& DIMUKEYS(hltObjects->filterKeys(dimuindex)); 
+	  const size_type nK(DIMUKEYS.size()); 
+	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+	  for(int ipart = 0; ipart != nK; ++ipart)   
 	    {
-	      HLTMuonCand_pt[nHLTMuonCand] = TO.pt();
-	      HLTMuonCand_eta[nHLTMuonCand] = TO.eta(); 
-	      HLTMuonCand_phi[nHLTMuonCand] = TO.phi(); 
-	      if(TO.id() > 0)	  
-		HLTMuonCand_charge[nHLTMuonCand] = 1; 
-	      else
-		HLTMuonCand_charge[nHLTMuonCand] = -1;  
+	      const TriggerObject& TO = TOC[DIMUKEYS[ipart]];  
 	      
-	      nHLTMuonCand++;
+	      if(fabs(TO.id()) == 13)
+		{
+		  HLT_DoubleMu3_MuonCand_pt[nHLTDiMu3MuonCand] = TO.pt();
+		  HLT_DoubleMu3_MuonCand_eta[nHLTDiMu3MuonCand] = TO.eta(); 
+		  HLT_DoubleMu3_MuonCand_phi[nHLTDiMu3MuonCand] = TO.phi(); 
+		  if(TO.id() > 0)	  
+		    HLT_DoubleMu3_MuonCand_charge[nHLTDiMu3MuonCand] = 1; 
+		  else
+		    HLT_DoubleMu3_MuonCand_charge[nHLTDiMu3MuonCand] = -1;  
+		  
+		  nHLTDiMu3MuonCand++;
+		}
 	    }
+	}
+      if( muindex < hltObjects->sizeFilters() ) 
+	{
+          const trigger::Keys& MUKEYS(hltObjects->filterKeys(muindex));  
+          const size_type nK(MUKEYS.size());  
+          const TriggerObjectCollection& TOC(hltObjects->getObjects()); 
+	  
+          for(int ipart = 0; ipart != nK; ++ipart)    
+            { 
+              const TriggerObject& TO = TOC[MUKEYS[ipart]];   
+               
+              if(fabs(TO.id()) == 13) 
+                { 
+                  HLT_Mu3_MuonCand_pt[nHLTMu3MuonCand] = TO.pt(); 
+                  HLT_Mu3_MuonCand_eta[nHLTMu3MuonCand] = TO.eta();  
+                  HLT_Mu3_MuonCand_phi[nHLTMu3MuonCand] = TO.phi();  
+                  if(TO.id() > 0)          
+                    HLT_Mu3_MuonCand_charge[nHLTMu3MuonCand] = 1;  
+                  else 
+                    HLT_Mu3_MuonCand_charge[nHLTMu3MuonCand] = -1;   
+                   
+                  nHLTMu3MuonCand++; 
+                } 
+            } 
+	  
 	}
     }
 
