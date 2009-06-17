@@ -86,8 +86,6 @@ class CosmicsMuMu : public edm::EDAnalyzer {
   double MuonCand_timeout[4];
   double MuonCand_timeouterr[4];
   double MuonCand_timeinerr[4];
-  double MuonCand_freeInverseBeta[4]; 
-  double MuonCand_freeInverseBetaErr[4]; 
 
   double MuMu_mass;
   double MuMu_dphi;

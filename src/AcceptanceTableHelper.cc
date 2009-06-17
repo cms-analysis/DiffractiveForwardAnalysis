@@ -5,10 +5,11 @@
  *
  * Author: Dmitry Zaborov
  *
- * Version: $Id: AcceptanceTableHelper.cc,v 1.1 2008/03/20 15:57:30 jjhollar Exp $
+ * Version: $Id: AcceptanceTableHelper.cc,v 1.2 2008/06/23 16:40:35 jjhollar Exp $
  ***************************************************************************/
 
-#include "FastSimulation/ProtonTaggers/interface/AcceptanceTableHelper.h"
+//#include "FastSimulation/ProtonTaggers/interface/AcceptanceTableHelper.h"
+#include "FastSimulation/ForwardDetectors/plugins/AcceptanceTableHelper.h"
 
 #include <iostream>
 #include <TMath.h>

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.31 2009/04/16 10:06:14 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.32 2009/04/22 06:01:01 jjhollar Exp $
 //
 //
 
@@ -33,7 +33,8 @@
 #include "DataFormats/CastorReco/interface/CastorTower.h"  
 
 #include "FWCore/Framework/interface/ESHandle.h" 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
+//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
 #include "DataFormats/JetReco/interface/CaloJet.h" 
 #include "DataFormats/EgammaCandidates/interface/Electron.h" 
@@ -186,7 +187,6 @@ GammaGammaEE::GammaGammaEE(const edm::ParameterSet& pset)
   thetree->Branch("CastorTower_e",CastorTower_e,"CastorTower_e[nCastorTowerCand]/D");   
   thetree->Branch("CastorTower_eta",CastorTower_eta,"CastorTower_eta[nCastorTowerCand]/D");    
   thetree->Branch("CastorTower_phi",CastorTower_phi,"CastorTower_phi[nCastorTowerCand]/D");   
-  thetree->Branch("CastorTower_width",CastorTower_width,"CastorTower_width[nCastorTowerCand]/D");  
   thetree->Branch("CastorTower_emratio",CastorTower_emratio,"CastorTower_emratio[nCastorTowerCand]/D");   
   thetree->Branch("HighestCastorTowerFwd_e",&HighestCastorTowerFwd_e,"HighestCastorTowerFwd_e/D");  
   thetree->Branch("HighestCastorTowerBwd_e",&HighestCastorTowerBwd_e,"HighestCastorTowerBwd_e/D");  
@@ -450,20 +450,20 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 // 	  EleCand_likelihoodid[nEleCand]=electron->leptonID();
 
 	  // This is for CMSSW_2_1_X!!!
-	  if(electron->leptonID("robust"))
-	    EleCand_robustid[nEleCand]=1;
-	  else
-	    EleCand_robustid[nEleCand]=0;
+	  //	  if(electron->leptonID("robust"))
+	  //	    EleCand_robustid[nEleCand]=1;
+	  //	  else
+	  //	    EleCand_robustid[nEleCand]=0;
 	  
-	  if(electron->leptonID("loose"))
-	    EleCand_looseid[nEleCand]=1;
-	  else
-	    EleCand_looseid[nEleCand]=0;
+	  //	  if(electron->leptonID("loose"))
+	  //	    EleCand_looseid[nEleCand]=1;
+	  //	  else
+	  //	    EleCand_looseid[nEleCand]=0;
 	  
-	  if(electron->leptonID("likelihood"))
-	    EleCand_likelihoodid[nEleCand]=1;
-	  else
-	    EleCand_likelihoodid[nEleCand]=0;
+	  //	  if(electron->leptonID("likelihood"))
+	  //	    EleCand_likelihoodid[nEleCand]=1;
+	  //	  else
+	  //	    EleCand_likelihoodid[nEleCand]=0;
 	       
 	  EleCandTrack_p[nEleCand] = electron->gsfTrack()->p();  
 
@@ -707,8 +707,7 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           CastorTower_e[nCastorTowerCand] = castortower->energy();  
           CastorTower_eta[nCastorTowerCand] = castortower->eta();   
           CastorTower_phi[nCastorTowerCand] = castortower->phi();   
-          CastorTower_width[nCastorTowerCand] = castortower->width();  
-          CastorTower_emratio[nCastorTowerCand] = castortower->emtotRatio();  
+	  CastorTower_emratio[nCastorTowerCand] = castortower->fem();  
   
           if(CastorTower_eta[nCastorTowerCand] > 0) 
             { 

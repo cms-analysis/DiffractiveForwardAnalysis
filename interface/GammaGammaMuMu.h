@@ -82,8 +82,6 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuonCand_timeout[4]; 	 
   double MuonCand_timeouterr[4]; 	 
   double MuonCand_timeinerr[4]; 	 
-  double MuonCand_freeInverseBeta[4]; 	 
-  double MuonCand_freeInverseBetaErr[4];
 
   int nHLTMu3MuonCand;
   double HLT_Mu3_MuonCand_pt[10];
@@ -96,6 +94,12 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double HLT_DoubleMu3_MuonCand_eta[10]; 
   double HLT_DoubleMu3_MuonCand_phi[10]; 
   int HLT_DoubleMu3_MuonCand_charge[10]; 
+
+  int nHLTDiMu0MuonCand;  
+  double HLT_DoubleMu0_MuonCand_pt[10];  
+  double HLT_DoubleMu0_MuonCand_eta[10];  
+  double HLT_DoubleMu0_MuonCand_phi[10];  
+  int HLT_DoubleMu0_MuonCand_charge[10];  
 
   double MuMu_mass;
   double MuMu_dphi;
@@ -158,7 +162,6 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double CastorTower_e[1000];   
   double CastorTower_eta[1000];    
   double CastorTower_phi[1000];   
-  double CastorTower_width[1000];   
   double CastorTower_emratio[1000];   
   double HighestCastorTowerFwd_e;   
   double HighestCastorTowerBwd_e;   
@@ -184,6 +187,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   
   int HLT_DoubleMu3;
   int HLT_Mu3;
+  int HLT_DoubleMu0;
 
   int HF_TowerCountPositiveEta;
   int HF_TowerCountNegativeEta;

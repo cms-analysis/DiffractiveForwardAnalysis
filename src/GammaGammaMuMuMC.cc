@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMuMC.cc,v 1.5 2007/12/04 13:13:25 jjhollar Exp $
+// $Id: GammaGammaMuMuMC.cc,v 1.6 2008/03/18 14:25:47 jjhollar Exp $
 //
 //
 
@@ -24,7 +24,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 

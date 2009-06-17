@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CosmicsMuMu.cc,v 1.2 2008/12/02 13:30:34 jjhollar Exp $
+// $Id: CosmicsMuMu.cc,v 1.3 2009/01/15 07:51:44 jjhollar Exp $
 //
 //
 
@@ -35,7 +35,6 @@
 #include "FWCore/Framework/interface/TriggerNames.h"  
    
 #include "FWCore/Framework/interface/ESHandle.h" 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
 #include "DataFormats/JetReco/interface/CaloJet.h"  
 #include "DataFormats/EgammaCandidates/interface/Electron.h"  
@@ -44,6 +43,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"  
 #include "DataFormats/MuonReco/interface/Muon.h"  
 #include "DataFormats/MuonReco/interface/MuonFwd.h"   
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"    
 #include "DataFormats/METReco/interface/CaloMET.h"  
 #include "DataFormats/METReco/interface/CaloMETFwd.h"   
 #include "DataFormats/METReco/interface/CaloMETCollection.h"  
@@ -194,8 +194,6 @@ CosmicsMuMu::CosmicsMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_timeout", MuonCand_timeout, "MuonCand_timeout[nMuonCand]/D");  
   thetree->Branch("MuonCand_timeinerr", MuonCand_timeinerr, "MuonCand_timeinerr[nMuonCand]/D");   
   thetree->Branch("MuonCand_timeouterr", MuonCand_timeouterr, "MuonCand_timeouterr[nMuonCand]/D");   
-  thetree->Branch("MuonCand_freeInverseBeta",MuonCand_freeInverseBeta, "MuonCand_freeInverseBeta[nMuonCand]/D"); 
-  thetree->Branch("MuonCand_freeInverseBetaErr", MuonCand_freeInverseBetaErr, "MuonCand_freeInverseBetaErr[nMuonCand]/D"); 
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -438,9 +436,17 @@ CosmicsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 // 	  MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;   
 
 	  // Muon ID for CMSSW_2_1_X
-	  MuonCand_tmlsloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationLoose);
-	  MuonCand_tm2dloosemuid[nMuonCand]=muon->isGood(reco::Muon::TM2DCompatibilityLoose);
-	  MuonCand_arbmuid[nMuonCand]=muon->isGood(reco::Muon::AllArbitrated);
+// 	  MuonCand_tmlsloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationLoose);
+// 	  MuonCand_tm2dloosemuid[nMuonCand]=muon->isGood(reco::Muon::TM2DCompatibilityLoose);
+// 	  MuonCand_arbmuid[nMuonCand]=muon->isGood(reco::Muon::AllArbitrated);
+// 	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
+// 	  MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
+// 	  MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon(); 
+
+	  // Muon ID for CMSSW_3_1_X
+// 	  MuonCand_tmlsloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMLastStationLoose);
+// 	  MuonCand_tm2dloosemuid[nMuonCand]=muon::isGoodMuon(*muon, muon::TM2DCompatibilityLoose);
+// 	  MuonCand_arbmuid[nMuonCand]=muon::isGoodMuon(*muon, muon::AllArbitrated);
 	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
 	  MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
 	  MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon(); 
@@ -475,8 +481,6 @@ CosmicsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_timein[nMuonCand]=muon->time().timeAtIpOutIn;
 	  MuonCand_timeouterr[nMuonCand]=muon->time().timeAtIpInOutErr; 
           MuonCand_timeinerr[nMuonCand]=muon->time().timeAtIpOutInErr; 
-	  MuonCand_freeInverseBeta[nMuonCand]=muon->time().freeInverseBeta; 
-          MuonCand_freeInverseBetaErr[nMuonCand]=muon->time().freeInverseBetaErr;  
 
 	  nMuonCand++;
 	}  

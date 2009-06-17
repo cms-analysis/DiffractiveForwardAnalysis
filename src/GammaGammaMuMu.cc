@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.36 2009/04/22 06:01:02 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.37 2009/04/23 07:12:47 jjhollar Exp $
 //
 //
 
@@ -37,7 +37,8 @@
 #include "FWCore/Framework/interface/TriggerNames.h"  
    
 #include "FWCore/Framework/interface/ESHandle.h" 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
 #include "DataFormats/JetReco/interface/CaloJet.h"  
 #include "DataFormats/EgammaCandidates/interface/Electron.h"  
@@ -47,7 +48,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"  
 #include "DataFormats/MuonReco/interface/Muon.h"  
-#include "DataFormats/MuonReco/interface/MuonFwd.h"   
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"   
 #include "DataFormats/METReco/interface/CaloMET.h"  
 #include "DataFormats/METReco/interface/CaloMETFwd.h"   
 #include "DataFormats/METReco/interface/CaloMETCollection.h"  
@@ -140,7 +142,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
 
-  edm::FileInPath myDataFile("FastSimulation/ProtonTaggers/data/acceptance_420_220.root");  
+  //  edm::FileInPath myDataFile("FastSimulation/ProtonTaggers/data/acceptance_420_220.root");  
+  edm::FileInPath myDataFile("FastSimulation/ForwardDetectors/data/acceptance_420_220.root");
   std::string fullPath = myDataFile.fullPath();  
   std::cout << "Opening " << fullPath << std::endl;  
   TFile f(fullPath.c_str());  
@@ -205,14 +208,18 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_timeout", MuonCand_timeout, "MuonCand_timeout[nMuonCand]/D"); 
   thetree->Branch("MuonCand_timeinerr", MuonCand_timeinerr, "MuonCand_timeinerr[nMuonCand]/D");  
   thetree->Branch("MuonCand_timeouterr", MuonCand_timeouterr, "MuonCand_timeouterr[nMuonCand]/D"); 	 
-  thetree->Branch("MuonCand_freeInverseBeta",MuonCand_freeInverseBeta, "MuonCand_freeInverseBeta[nMuonCand]/D");
-  thetree->Branch("MuonCand_freeInverseBetaErr", MuonCand_freeInverseBetaErr, "MuonCand_freeInverseBetaErr[nMuonCand]/D");
 
   thetree->Branch("nHLTMu3MuonCand",&nHLTMu3MuonCand,"nHLTMu3MuonCand/I"); 
   thetree->Branch("HLT_Mu3_MuonCand_pt",&HLT_Mu3_MuonCand_pt,"HLT_Mu3_MuonCand_pt[nHLTMu3MuonCand]/D"); 
   thetree->Branch("HLT_Mu3_MuonCand_eta",&HLT_Mu3_MuonCand_eta,"HLT_Mu3_MuonCand_eta[nHLTMu3MuonCand]/D"); 
   thetree->Branch("HLT_Mu3_MuonCand_phi",&HLT_Mu3_MuonCand_phi,"HLT_Mu3_MuonCand_phi[nHLTMu3MuonCand]/D"); 
   thetree->Branch("HLT_Mu3_MuonCand_charge",&HLT_Mu3_MuonCand_charge,"HLT_Mu3_MuonCand_charge[nHLTMu3MuonCand]/I");  
+
+  thetree->Branch("nHLTDiMu0MuonCand",&nHLTDiMu0MuonCand,"nHLTDiMu0MuonCand/I");  
+  thetree->Branch("HLT_DoubleMu0_MuonCand_pt",&HLT_DoubleMu0_MuonCand_pt,"HLT_DoubleMu0_MuonCand_pt[nHLTDiMu0MuonCand]/D");  
+  thetree->Branch("HLT_DoubleMu0_MuonCand_eta",&HLT_DoubleMu0_MuonCand_eta,"HLT_DoubleMu0_MuonCand_eta[nHLTDiMu0MuonCand]/D");  
+  thetree->Branch("HLT_DoubleMu0_MuonCand_phi",&HLT_DoubleMu0_MuonCand_phi,"HLT_DoubleMu0_MuonCand_phi[nHLTDiMu0MuonCand]/D");  
+  thetree->Branch("HLT_DoubleMu0_MuonCand_charge",&HLT_DoubleMu0_MuonCand_charge,"HLT_DoubleMu0_MuonCand_charge[nHLTDiMu0MuonCand]/I");   
 
   thetree->Branch("nHLTDiMu3MuonCand",&nHLTDiMu3MuonCand,"nHLTDiMu3MuonCand/I");  
   thetree->Branch("HLT_DoubleMu3_MuonCand_pt",&HLT_DoubleMu3_MuonCand_pt,"HLT_DoubleMu3_MuonCand_pt[nHLTDiMu3MuonCand]/D");  
@@ -240,7 +247,6 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("CastorTower_e",CastorTower_e,"CastorTower_e[nCastorTowerCand]/D");  
   thetree->Branch("CastorTower_eta",CastorTower_eta,"CastorTower_eta[nCastorTowerCand]/D");   
   thetree->Branch("CastorTower_phi",CastorTower_phi,"CastorTower_phi[nCastorTowerCand]/D");  
-  thetree->Branch("CastorTower_width",CastorTower_width,"CastorTower_width[nCastorTowerCand]/D"); 
   thetree->Branch("CastorTower_emratio",CastorTower_emratio,"CastorTower_emratio[nCastorTowerCand]/D");  
   thetree->Branch("HighestCastorTowerFwd_e",&HighestCastorTowerFwd_e,"HighestCastorTowerFwd_e/D"); 
   thetree->Branch("HighestCastorTowerBwd_e",&HighestCastorTowerBwd_e,"HighestCastorTowerBwd_e/D"); 
@@ -313,6 +319,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
 //  thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
 
   thetree->Branch("HLT_DoubleMu3",&HLT_DoubleMu3,"HLT_DoubleMu3/I");
+  thetree->Branch("HLT_DoubleMu0",&HLT_DoubleMu0,"HLT_DoubleMu0/I");
   thetree->Branch("HLT_Mu3",&HLT_Mu3,"HLT_Mu3/I");
 
   thetree->Branch("HF_TowerCountPositiveEta",&HF_TowerCountPositiveEta,"HF_TowerCountPositiveEta/I"); 
@@ -349,7 +356,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 {
   nMuonCand=0;
   nHLTMu3MuonCand=0;
-  nHLTDiMu3MuonCand=0;
+  nHLTDiMu3MuonCand=0;  
+  nHLTDiMu0MuonCand=0;
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
@@ -413,6 +421,13 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  else
 	    HLT_Mu3 = 0;
         }  
+      if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu0" ) 
+        {   
+          if ( hltResults->accept(i) )  
+	    {HLT_DoubleMu0 = 1; /*cout << "--> debug : HLT2µ_NonIso" << endl;*/}
+	  else
+	    HLT_DoubleMu0 = 0;
+        }  
       if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu3" ) 
         {   
           if ( hltResults->accept(i) )  
@@ -426,9 +441,33 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   event.getByLabel(InputTag("hltTriggerSummaryAOD::HLT"),hltObjects);
   if (hltObjects.isValid()) 
     {
-      const size_type nO(hltObjects->sizeObjects());
-      size_type muindex = hltObjects->filterIndex(InputTag("hltSingleMuPrescale3L3PreFiltered::HLT"));
-      size_type dimuindex = hltObjects->filterIndex(InputTag("hltDiMuonNoIsoL3PreFiltered::HLT"));
+      size_type muindex = hltObjects->filterIndex(InputTag("hltSingleMu3L3Filtered3::HLT"));
+      size_type dimu0index = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered0::HLT"));
+      size_type dimuindex = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered::HLT"));
+      if( dimu0index < hltObjects->sizeFilters() )
+	{
+	  const trigger::Keys& DIMU0KEYS(hltObjects->filterKeys(dimu0index)); 
+	  const size_type nK(DIMU0KEYS.size()); 
+	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+	  for(int ipart = 0; ipart != nK; ++ipart)   
+	    {
+	      const TriggerObject& TO = TOC[DIMU0KEYS[ipart]];  
+	      
+	      if(fabs(TO.id()) == 13)
+		{
+		  HLT_DoubleMu0_MuonCand_pt[nHLTDiMu0MuonCand] = TO.pt();
+		  HLT_DoubleMu0_MuonCand_eta[nHLTDiMu0MuonCand] = TO.eta(); 
+		  HLT_DoubleMu0_MuonCand_phi[nHLTDiMu0MuonCand] = TO.phi(); 
+		  if(TO.id() > 0)	  
+		    HLT_DoubleMu0_MuonCand_charge[nHLTDiMu0MuonCand] = 1; 
+		  else
+		    HLT_DoubleMu0_MuonCand_charge[nHLTDiMu0MuonCand] = -1;  
+		  
+		  nHLTDiMu0MuonCand++;
+		}
+	    }
+	}
       if( dimuindex < hltObjects->sizeFilters() )
 	{
 	  const trigger::Keys& DIMUKEYS(hltObjects->filterKeys(dimuindex)); 
@@ -480,20 +519,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	}
     }
 
-  // Get the HF ring L1
-  edm::Handle< L1GctJetCountsCollection > jetCountColl ;
-  event.getByLabel( "hltGctDigis", jetCountColl );
-  if(!(jetCountColl.isValid())){cout << "L1 HForward not found!" << endl;}  
-
-  /*
-  L1GctJetCountsCollection::const_iterator jc=jetCountColl->begin();
-  HF_TowerCountPositiveEta = jc->hfTowerCountPositiveEta();
-  HF_TowerCountNegativeEta = jc->hfTowerCountNegativeEta();
-  HF_Ring0EtSumPositiveEta = jc->hfRing0EtSumPositiveEta();
-  HF_Ring0EtSumNegativeEta = jc->hfRing0EtSumNegativeEta();
-  HF_Ring1EtSumPositiveEta = jc->hfRing1EtSumPositiveEta();
-  HF_Ring1EtSumNegativeEta = jc->hfRing1EtSumNegativeEta();  
-  */
 
   // Get the #PU information
   nPU=0;
@@ -517,12 +542,13 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   edm::Handle<edm::View<pat::Muon> > muons; 
   event.getByLabel(theGLBMuonLabel,muons); 
   edm::View<pat::Muon>::const_iterator muon;
-/*
+
   // AOD
+  /*
     Handle<reco::MuonCollection> muons;
     event.getByLabel(theGLBMuonLabel, muons);
     reco::MuonCollection::const_iterator muon;
-*/
+  */
 
 //cout << "================" << endl;
   if(muons->size() == 2)
@@ -538,25 +564,38 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_phi[nMuonCand]=muon->phi();
 	  MuonCand_charge[nMuonCand]=muon->charge();
 
-	  // Muon ID
-	  MuonCand_tmlsloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationLoose);
-          MuonCand_tmlsOptLowPtloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationOptimizedLowPtLoose);
-	  //muonid::isGoodMuon(*muon,muonid::TMLastStationLoose);
-	  MuonCand_tm2dloosemuid[nMuonCand]=muon->isGood(reco::Muon::TM2DCompatibilityLoose);
-	  //Muon(*muon,muonid::TM2DCompatibilityLoose);
-	  MuonCand_arbmuid[nMuonCand]=muon->isGood(reco::Muon::AllArbitrated);
+	  // Muon ID - 31X compatible
+	  MuonCand_tmlsloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMLastStationLoose);
+          MuonCand_tmlsOptLowPtloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose);
+	  MuonCand_tm2dloosemuid[nMuonCand]=muon::isGoodMuon(*muon, muon::TM2DCompatibilityLoose);
+	  MuonCand_arbmuid[nMuonCand]=muon::isGoodMuon(*muon, muon::AllArbitrated);
 	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
           MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
           MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon();
- 
-if(!(muon->isGood(reco::Muon::TMLastStationLoose)) && (muon->isGood(reco::Muon::TMLastStationOptimizedLowPtLoose))){
-	LowPt_eta[nMuonCand]=muon->eta();
-	LowPt_pt[nMuonCand]=muon->pt();
-}else{  LowPt_eta[nMuonCand]=10.;
-	LowPt_pt[nMuonCand]=-1.;}
 
-	if(muon->isGood(reco::Muon::TMLastStationLoose)) LS++;
-	if(muon->isGood(reco::Muon::TMLastStationOptimizedLowPtLoose)) LSopt++;
+	  // Muon ID - 22X compatible
+// 	  MuonCand_tmlsloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationLoose);
+//           MuonCand_tmlsOptLowPtloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationOptimizedLowPtLoose);
+// 	  //muonid::isGoodMuon(*muon, *muon,muonid::TMLastStationLoose);
+// 	  MuonCand_tm2dloosemuid[nMuonCand]=muon->isGood(reco::Muon::TM2DCompatibilityLoose);
+// 	  //Muon(*muon,muonid::TM2DCompatibilityLoose);
+// 	  MuonCand_arbmuid[nMuonCand]=muon->isGood(reco::Muon::AllArbitrated);
+// 	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
+//           MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
+//           MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon();
+ 
+	  //if(!(muon->isGood(reco::Muon::TMLastStationLoose)) && (muon->isGood(reco::Muon::TMLastStationOptimizedLowPtLoose))){
+	  if(!(muon::isGoodMuon(*muon, muon::TMLastStationLoose)) && (muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose))){	  
+	    LowPt_eta[nMuonCand]=muon->eta();
+	    LowPt_pt[nMuonCand]=muon->pt();
+	  }else{  LowPt_eta[nMuonCand]=10.;
+	    LowPt_pt[nMuonCand]=-1.;}
+	  
+	  //	if(muon->isGood(reco::Muon::TMLastStationLoose)) LS++;
+	  //	if(muon->isGood(reco::Muon::TMLastStationOptimizedLowPtLoose)) LSopt++;
+
+	  if(muon::isGoodMuon(*muon, muon::TMLastStationLoose)) LS++;
+	  if(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose)) LSopt++;
 
 	  // Isolation 
 	  MuonCand_hcalisor3[nMuonCand]=muon->isolationR03().hadEt;
@@ -573,8 +612,6 @@ if(!(muon->isGood(reco::Muon::TMLastStationLoose)) && (muon->isGood(reco::Muon::
           MuonCand_timein[nMuonCand]=muon->time().timeAtIpOutIn; 	 
           MuonCand_timeouterr[nMuonCand]=muon->time().timeAtIpInOutErr; 	 
           MuonCand_timeinerr[nMuonCand]=muon->time().timeAtIpOutInErr; 	 
-          MuonCand_freeInverseBeta[nMuonCand]=muon->time().freeInverseBeta; 	 
-          MuonCand_freeInverseBetaErr[nMuonCand]=muon->time().freeInverseBetaErr;
  
 	  if(muon->isTrackerMuon() || muon->isGlobalMuon()) MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p();
 /*	
@@ -622,10 +659,12 @@ if(!(muon->isGood(reco::Muon::TMLastStationLoose)) && (muon->isGood(reco::Muon::
   edm::View<pat::Jet>::const_iterator jet;
 
   // AOD
-  //  edm::Handle<reco::CaloJetCollection> pJets;
-  //  event.getByLabel(theJetLabel,pJets);
-  //  const reco::CaloJetCollection* jets = pJets.product();
-  //  reco::CaloJetCollection::const_iterator jet;
+  /*
+  edm::Handle<reco::CaloJetCollection> pJets;
+  event.getByLabel(theJetLabel,pJets);
+  const reco::CaloJetCollection* jets = pJets.product();
+  reco::CaloJetCollection::const_iterator jet;
+  */
 
   // Get the MET collection from the event
   // PAT
@@ -634,10 +673,12 @@ if(!(muon->isGood(reco::Muon::TMLastStationLoose)) && (muon->isGood(reco::Muon::
   edm::View<pat::MET>::const_iterator met;
 
   // AOD
-  //  edm::Handle<reco::CaloMETCollection> pMET;
-  //  event.getByLabel(theMetLabel,pMET);
-  //  const reco::CaloMETCollection* mets = pMET.product();
-  //  reco::CaloMETCollection::const_iterator met;
+  /*
+  edm::Handle<reco::CaloMETCollection> pMET;
+  event.getByLabel(theMetLabel,pMET);
+  const reco::CaloMETCollection* mets = pMET.product();
+  reco::CaloMETCollection::const_iterator met;
+  */
 
   // Get the CaloTower collection from the event
   edm::Handle<CaloTowerCollection> caloTowers; 
@@ -823,8 +864,7 @@ if(!(muon->isGood(reco::Muon::TMLastStationLoose)) && (muon->isGood(reco::Muon::
           CastorTower_e[nCastorTowerCand] = castortower->energy(); 
           CastorTower_eta[nCastorTowerCand] = castortower->eta();  
           CastorTower_phi[nCastorTowerCand] = castortower->phi();  
-          CastorTower_width[nCastorTowerCand] = castortower->width(); 
-          CastorTower_emratio[nCastorTowerCand] = castortower->emtotRatio(); 
+          CastorTower_emratio[nCastorTowerCand] = castortower->fem(); 
  
           if(CastorTower_eta[nCastorTowerCand] > 0)
 	    {
@@ -1060,7 +1100,7 @@ if(!(muon->isGood(reco::Muon::TMLastStationLoose)) && (muon->isGood(reco::Muon::
           nTrackCand++;  
       } 
       ClosestExtraTrack_vtxdxyz = closesttrkdxyz;
-      if(ClosestExtraTrack_vtxdxyz < 0.1){cout << "   --> closest < 1 mm !!! : "<< ClosestExtraTrack_vtxdxyz << endl;}
+      //      if(ClosestExtraTrack_vtxdxyz < 0.1){cout << "   --> closest < 1 mm !!! : "<< ClosestExtraTrack_vtxdxyz << endl;}
     } 
   else 
     { 
@@ -1087,7 +1127,7 @@ if(!(muon->isGood(reco::Muon::TMLastStationLoose)) && (muon->isGood(reco::Muon::
 
   if(passed == true){
     thetree->Fill();
-    cout << "   --> SAVED" << endl;
+    //    cout << "   --> SAVED" << endl;
   }
 }
 
