@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.37 2009/04/23 07:12:47 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.38 2009/06/17 08:47:24 jjhollar Exp $
 //
 //
 
@@ -233,6 +233,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("CaloTower_eta",CaloTower_eta,"CaloTower_eta[nCaloCand]/D"); 
   thetree->Branch("CaloTower_phi",CaloTower_phi,"CaloTower_phi[nCaloCand]/D"); 
   thetree->Branch("CaloTower_dr",CaloTower_dr,"CaloTower_dr[nCaloCand]/D");
+  thetree->Branch("CaloTower_eme",CaloTower_eme,"CaloTower_eme[nCaloCand]/D"); 
   thetree->Branch("HighestCaloTower_e",&HighestCaloTower_e,"HighestCaloTower_e/D");
   thetree->Branch("HighestCaloTower_eta",&HighestCaloTower_eta,"HighestCaloTower_eta/D");
   thetree->Branch("HighestCaloTower_phi",&HighestCaloTower_phi,"HighestCaloTower_phi/D"); 
@@ -757,6 +758,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  CaloTower_et[nCaloCand]=calo->et();
 	  CaloTower_phi[nCaloCand]=calo->phi(); 
 	  CaloTower_eta[nCaloCand]=calo->eta(); 
+	  CaloTower_eme[nCaloCand]=calo->emEnergy();
 	  
 	  float calodr1 = sqrt(((CaloTower_eta[nCaloCand]-MuonCand_eta[0])*(CaloTower_eta[nCaloCand]-MuonCand_eta[0])) + 
 			       ((CaloTower_phi[nCaloCand]-MuonCand_phi[0])*(CaloTower_phi[nCaloCand]-MuonCand_phi[0])));

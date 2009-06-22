@@ -148,6 +148,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double CaloTower_eta[1000];
   double CaloTower_phi[1000];
   double CaloTower_dr[1000];
+  double CaloTower_eme[1000];
   double HighestCaloTower_e;
   double HighestCaloTower_eta;
   double HighestCaloTower_phi;
