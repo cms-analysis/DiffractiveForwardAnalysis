@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMuMC.cc,v 1.6 2008/03/18 14:25:47 jjhollar Exp $
+// $Id: GammaGammaMuMuMC.cc,v 1.7 2009/06/17 08:47:24 jjhollar Exp $
 //
 //
 
@@ -28,6 +28,10 @@
 //#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h" 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h" 
+#include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h" 
 
 // C++
 #include <memory>
@@ -104,6 +108,20 @@ GammaGammaMuMuMC::GammaGammaMuMuMC(const edm::ParameterSet& pset)
 
   nEvt = 0;
 }
+
+
+void 
+GammaGammaMuMuMC::fillDescriptions(ConfigurationDescriptions & descriptions) { 
+   
+  descriptions.setComment("Exclusive dimuon GEN-level EDAnalyzer."); 
+   
+  edm::ParameterSetDescription iDesc;   
+
+  iDesc.add<bool>("FillAllMCParticles", false)->setComment("Set false to fill MC truth information for only muons and protons"); 
+  iDesc.addOptionalUntracked<std::string>("outfilename", ("mumu.genlevel.root"))->setComment("output flat ntuple file name");   
+
+  descriptions.add("ParameterDescriptionsForGammaGammaMuMuMC", iDesc); 
+} 
 
 
 GammaGammaMuMuMC::~GammaGammaMuMuMC()

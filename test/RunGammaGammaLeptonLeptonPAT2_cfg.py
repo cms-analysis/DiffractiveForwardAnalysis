@@ -78,6 +78,7 @@ process.p = cms.Path(
     + process.hltFilter
     + process.patDefaultSequence  
     + process.gamgammumuanalysis
+#   The output module here is only needed for making 'PATtuples'/skims
 #   + process.output
     )
 

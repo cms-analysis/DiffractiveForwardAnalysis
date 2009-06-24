@@ -6,6 +6,9 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/EDFilter.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>  
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h> 
+#include <FWCore/ParameterSet/interface/ParameterDescriptionNode.h>  
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
@@ -22,7 +25,8 @@ class CosmicsMuMu : public edm::EDAnalyzer {
  public:
   explicit CosmicsMuMu(const edm::ParameterSet&);
   ~CosmicsMuMu();
-  
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
   
  private:
   virtual void beginJob(const edm::EventSetup&) ;

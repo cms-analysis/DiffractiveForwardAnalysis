@@ -6,6 +6,9 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/EDFilter.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>  
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h> 
+#include <FWCore/ParameterSet/interface/ParameterDescriptionNode.h>  
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include <DataFormats/Common/interface/Handle.h>
@@ -20,6 +23,7 @@ class GammaGammaMuMuMC : public edm::EDAnalyzer {
   explicit GammaGammaMuMuMC(const edm::ParameterSet&);
   ~GammaGammaMuMuMC();
   
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
   
  private:
   virtual void beginJob(const edm::EventSetup&) ;

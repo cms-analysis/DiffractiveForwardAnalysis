@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.38 2009/06/17 08:47:24 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.39 2009/06/22 08:42:33 jjhollar Exp $
 //
 //
 
@@ -25,15 +25,16 @@
 #include "DataFormats/PatCandidates/interface/Tau.h" 
 #include "DataFormats/PatCandidates/interface/Photon.h" 
 #include "DataFormats/PatCandidates/interface/MET.h" 
-
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
 #include "DataFormats/CastorReco/interface/CastorTower.h" 
+#include "DataFormats/Common/interface/Ref.h"   
+#include "DataFormats/Common/interface/TriggerResults.h"   
+#include "DataFormats/HLTReco/interface/TriggerEvent.h" 
  
 #include "FWCore/ParameterSet/interface/ParameterSet.h"  
-#include "DataFormats/Common/interface/Ref.h"  
- 
-#include "DataFormats/Common/interface/TriggerResults.h"  
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/Framework/interface/TriggerNames.h"  
    
 #include "FWCore/Framework/interface/ESHandle.h" 
@@ -1133,6 +1134,29 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   }
 }
 
+void
+GammaGammaMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
+  
+  descriptions.setComment("Exclusive dimuon EDAnalyzer.");
+  
+  edm::ParameterSetDescription iDesc;  
+
+  iDesc.add<edm::InputTag>("GlobalMuonCollectionLabel", edm::InputTag("selectedLayer1Muons"))->setComment("input muon collection");
+  iDesc.add<edm::InputTag>("CaloTowerLabel", edm::InputTag("towerMaker"))->setComment("input calo tower collection"); 
+  iDesc.add<edm::InputTag>("RecoTrackLabel", edm::InputTag("generalTracks"))->setComment("input track collection"); 
+  iDesc.add<edm::InputTag>("RecoVertexLabel", edm::InputTag("offlinePrimaryVertices"))->setComment("input vertex collection"); 
+  iDesc.add<edm::InputTag>("CastorTowerLabel", edm::InputTag("CastorFastTowerReco"))->setComment("input CASTOR tower collection"); 
+  iDesc.add<edm::InputTag>("JetCollectionLabel", edm::InputTag("selectedLayer1Jets"))->setComment("input jet collection"); 
+  iDesc.add<edm::InputTag>("ElectronCollectionLabel", edm::InputTag("selectedLayer1Electrons"))->setComment("input electron collection"); 
+  iDesc.add<edm::InputTag>("PhotonCollectionLabel", edm::InputTag("selectedLayer1Photons"))->setComment("input photon collection"); 
+  iDesc.add<edm::InputTag>("MetLabel", edm::InputTag("selectedLayer1METs"))->setComment("input MET collection");   
+  iDesc.add<double>("CaloTowerdR", 0.3)->setComment("Minimum delta-R to use for finding extra towers");  
+  iDesc.add<double>("DimuonMindphi", 0.0)->setComment("Minimum delta-phi of dimuon pair");  
+  iDesc.add<double>("DimuonMaxdpt", 2000.0)->setComment("Maximum delta-pT of dimuon pair");  
+  iDesc.addOptionalUntracked<std::string>("outfilename", ("mumu.pat.root"))->setComment("output flat ntuple file name");  
+
+  descriptions.add("ParameterDescriptionsForGammaGammaMuMu", iDesc);
+}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 

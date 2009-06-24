@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CosmicsMuMu.cc,v 1.3 2009/01/15 07:51:44 jjhollar Exp $
+// $Id: CosmicsMuMu.cc,v 1.4 2009/06/17 08:47:24 jjhollar Exp $
 //
 //
 
@@ -28,7 +28,10 @@
 
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
  
-#include "FWCore/ParameterSet/interface/ParameterSet.h"  
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h" 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h" 
+#include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h" 
 #include "DataFormats/Common/interface/Ref.h"  
  
 #include "DataFormats/Common/interface/TriggerResults.h"  
@@ -822,6 +825,28 @@ CosmicsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   if(passed == true)
     thetree->Fill();
 }
+
+void 
+CosmicsMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) { 
+   
+  descriptions.setComment("Exclusive dimuon cosmic ray EDAnalyzer."); 
+   
+  edm::ParameterSetDescription iDesc;   
+ 
+  iDesc.add<edm::InputTag>("GlobalMuonCollectionLabel", edm::InputTag("muons"))->setComment("input muon collection"); 
+  iDesc.add<edm::InputTag>("CaloTowerLabel", edm::InputTag("towerMaker"))->setComment("input calo tower collection");  
+  iDesc.add<edm::InputTag>("RecoTrackLabel", edm::InputTag("cosmictrackfinderP5"))->setComment("input track collection");  
+  iDesc.add<edm::InputTag>("JetCollectionLabel", edm::InputTag("sisCone5CaloJets"))->setComment("input jet collection");  
+  iDesc.add<edm::InputTag>("ElectronCollectionLabel", edm::InputTag("pixelMatchGsfElectrons"))->setComment("input electron collection");  
+  iDesc.add<edm::InputTag>("PhotonCollectionLabel", edm::InputTag("correctedPhotons"))->setComment("input photon collection");  
+  iDesc.add<edm::InputTag>("MetLabel", edm::InputTag("met"))->setComment("input MET collection");    
+  iDesc.add<double>("CaloTowerdR", 0.3)->setComment("Minimum delta-R to use for finding extra towers");   
+  iDesc.add<double>("DimuonMindphi", 0.0)->setComment("Minimum delta-phi of dimuon pair");   
+  iDesc.add<double>("DimuonMaxdpt", 2000.0)->setComment("Maximum delta-pT of dimuon pair");   
+  iDesc.addOptionalUntracked<std::string>("outfilename", ("mumu.recolevel.root"))->setComment("output flat ntuple file name");   
+ 
+  descriptions.add("ParameterDescriptionsForCosmicsMuMu", iDesc); 
+} 
 
 
 // ------------ method called once each job just before starting event loop  ------------

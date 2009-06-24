@@ -6,6 +6,9 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/EDFilter.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h> 
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+#include <FWCore/ParameterSet/interface/ParameterDescriptionNode.h> 
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
@@ -18,17 +21,19 @@
 #include <TH1D.h>
 #include <TTree.h>
 
+
 class GammaGammaMuMu : public edm::EDAnalyzer {
  public:
   explicit GammaGammaMuMu(const edm::ParameterSet&);
   ~GammaGammaMuMu();
   
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
  private:
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  
+
   // ----------member data ---------------------------
   
   edm::InputTag recTrackLabel;
