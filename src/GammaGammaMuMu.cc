@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.39 2009/06/22 08:42:33 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.40 2009/06/24 15:54:11 jjhollar Exp $
 //
 //
 
@@ -140,6 +140,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   mudptmax           = pset.getParameter<double>("DimuonMaxdpt");
   mudphimin          = pset.getParameter<double>("DimuonMindphi");
   drisocalo          = pset.getParameter<double>("CaloTowerdR");
+  keepsamesign       = pset.getParameter<bool>("KeepSameSignDimuons");
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
 
@@ -637,7 +638,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	}  
 
       // Calculate invariant mass, delta-phi and delta-pT
-      if(MuonCand_charge[0]*MuonCand_charge[1]<0)
+      if((MuonCand_charge[0]*MuonCand_charge[1]<0) || (keepsamesign == true))
 	{
 	  double mass = pow(MuonCand_p[0]+MuonCand_p[1],2);
 	  mass-=pow(MuonCand_px[0]+MuonCand_px[1],2);
@@ -1124,6 +1125,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	passed = false;
       if(fabs(MuonCand_pt[0]-MuonCand_pt[1]) > mudptmax)
 	passed = false;      
+      if((keepsamesign == false) && (MuonCand_charge[0]*MuonCand_charge[1] > 0))
+	passed = false;
     }
 
   // "Exclusivity" cuts
@@ -1153,6 +1156,7 @@ GammaGammaMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
   iDesc.add<double>("CaloTowerdR", 0.3)->setComment("Minimum delta-R to use for finding extra towers");  
   iDesc.add<double>("DimuonMindphi", 0.0)->setComment("Minimum delta-phi of dimuon pair");  
   iDesc.add<double>("DimuonMaxdpt", 2000.0)->setComment("Maximum delta-pT of dimuon pair");  
+  iDesc.add<bool>("KeepSameSignDimuons", false)->setComment("Set to true to keep same-sign dimuon combinations");
   iDesc.addOptionalUntracked<std::string>("outfilename", ("mumu.pat.root"))->setComment("output flat ntuple file name");  
 
   descriptions.add("ParameterDescriptionsForGammaGammaMuMu", iDesc);

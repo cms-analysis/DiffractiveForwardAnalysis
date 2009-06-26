@@ -49,6 +49,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double mudptmax;
   double mudphimin;
   double drisocalo; 
+  bool keepsamesign;
 
   std::string rootfilename;
 

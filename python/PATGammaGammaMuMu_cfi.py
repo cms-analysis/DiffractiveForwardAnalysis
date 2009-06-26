@@ -13,7 +13,8 @@ gamgammumuanalysis = cms.EDFilter("GammaGammaMuMu",
     CaloTowerdR = cms.double(0.3),
     DimuonMindphi = cms.double(0.0),
     MetLabel = cms.InputTag("selectedLayer1METs"),
-    DimuonMaxdpt = cms.double(2000.0)
+    DimuonMaxdpt = cms.double(2000.0),
+    KeepSameSignDimuons = cms.bool(False)                                 
 )
 
 
