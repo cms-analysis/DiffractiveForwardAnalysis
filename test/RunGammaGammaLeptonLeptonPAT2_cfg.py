@@ -5,17 +5,20 @@ process = cms.Process("gamgam2leplepanalysis")
 
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('PATLayer0Summary')
-process.MessageLogger.cerr.INFO = cms.untracked.PSet(
-    default          = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
-)
+#process.MessageLogger.cerr.threshold = 'INFO'
+#process.MessageLogger.categories.append('PATLayer0Summary')
+#process.MessageLogger.cerr.INFO = cms.untracked.PSet(
+#    default          = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
+#)
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_1_0_pre10/RelValZMM/GEN-SIM-RECO/STARTUP_31X_v1/0008/6ABB6AD6-E357-DE11-8EBC-001D09F2437B.root'
+        '/store/relval/CMSSW_3_1_1/RelValZMM/GEN-SIM-RECO/STARTUP31X_V1-v2/0002/C8CEE598-CB6B-DE11-871F-001D09F2905B.root',
+        '/store/relval/CMSSW_3_1_1/RelValZMM/GEN-SIM-RECO/STARTUP31X_V1-v2/0002/642F8176-C96B-DE11-9D10-000423D98BE8.root',
+        '/store/relval/CMSSW_3_1_1/RelValZMM/GEN-SIM-RECO/STARTUP31X_V1-v2/0002/46AA6A11-D46B-DE11-A614-001D09F25438.root',
+        '/store/relval/CMSSW_3_1_1/RelValZMM/GEN-SIM-RECO/STARTUP31X_V1-v2/0002/443BC1DD-CC6B-DE11-804C-000423D98EC4.root'        
     )
                             )
 
@@ -25,7 +28,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 # Load configuration stuff
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP_31X::All')
+process.GlobalTag.globaltag = cms.string('STARTUP31X_V2::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
