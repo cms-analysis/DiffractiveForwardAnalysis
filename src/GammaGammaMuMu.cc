@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.40 2009/06/24 15:54:11 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.41 2009/06/26 17:02:06 jjhollar Exp $
 //
 //
 
@@ -136,6 +136,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thePhotonLabel     = pset.getParameter<edm::InputTag>("PhotonCollectionLabel");
   theCaloTowLabel    = pset.getParameter<edm::InputTag>("CaloTowerLabel");
   recCastorTowerLabel = pset.getParameter<edm::InputTag>("CastorTowerLabel"); 
+  hltMenuLabel       = pset.getParameter<std::string>("HLTMenuLabel");
 
   mudptmax           = pset.getParameter<double>("DimuonMaxdpt");
   mudphimin          = pset.getParameter<double>("DimuonMindphi");
@@ -413,7 +414,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   // Get the trigger information from the event
   edm::Handle<edm::TriggerResults> hltResults ; 
-  event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ; 
+  event.getByLabel(InputTag("TriggerResults","",hltMenuLabel),hltResults) ; 
   trigNames.init(*hltResults) ;
   for (unsigned int i=0; i<trigNames.size(); i++)  
     { 
@@ -441,7 +442,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }
 
   Handle<TriggerEvent> hltObjects;
-  event.getByLabel(InputTag("hltTriggerSummaryAOD::HLT"),hltObjects);
+  event.getByLabel(InputTag("hltTriggerSummaryAOD","",hltMenuLabel),hltObjects);
   if (hltObjects.isValid()) 
     {
       size_type muindex = hltObjects->filterIndex(InputTag("hltSingleMu3L3Filtered3::HLT"));
@@ -1158,6 +1159,7 @@ GammaGammaMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
   iDesc.add<double>("DimuonMaxdpt", 2000.0)->setComment("Maximum delta-pT of dimuon pair");  
   iDesc.add<bool>("KeepSameSignDimuons", false)->setComment("Set to true to keep same-sign dimuon combinations");
   iDesc.addOptionalUntracked<std::string>("outfilename", ("mumu.pat.root"))->setComment("output flat ntuple file name");  
+  iDesc.add<std::string>("HLTMenuLabel", ("HLT8E29"))->setComment("HLT AOD trigger summary label");
 
   descriptions.add("ParameterDescriptionsForGammaGammaMuMu", iDesc);
 }

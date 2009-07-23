@@ -28,7 +28,7 @@ void makeEventsFile()
   output << "0.10508723460E+01  0.96530000000E-02  0.26731120000E-03   0" << endl;
   output << "</init>" << endl;
 
-  for(Int_t i = 0;i < 1000;i++)
+  for(Int_t i = 0;i < 10000;i++)
     {
       t1->GetEntry(i);
       output << "<event>" << endl;

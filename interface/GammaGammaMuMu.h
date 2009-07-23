@@ -45,6 +45,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   edm::InputTag thePhotonLabel;
   edm::InputTag theCaloTowLabel;
   edm::InputTag recCastorTowerLabel;   
+  std::string hltMenuLabel;
 
   double mudptmax;
   double mudphimin;

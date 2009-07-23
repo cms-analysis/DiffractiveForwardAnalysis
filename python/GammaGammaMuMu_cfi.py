@@ -13,7 +13,8 @@ gamgammumuanalysis = cms.EDFilter("GammaGammaMuMu",
     CaloTowerdR = cms.double(0.3),
     DimuonMindphi = cms.double(0.0),
     MetLabel = cms.InputTag("met"),
-    DimuonMaxdpt = cms.double(2000.0)
+    DimuonMaxdpt = cms.double(2000.0),
+    HLTMenuLabel = cms.string("HLT8E29")                                  
 )
 
 
