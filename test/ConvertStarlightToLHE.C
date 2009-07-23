@@ -76,6 +76,11 @@ void makeEventsFile(int num=0)
 	charge = -1.;
       if(pdg_id == -13)
 	charge = 1.;
+      // JH - note here we add in two fake photons as the beam particles. The energies don't matter - this is only for  
+      // the LHE event record.  
+      output << "22   -1    0    0    0    0  0.00000000000E+00  0.00000000000E+00 0.00000000000E+02  0.10000000000E+02  0.00000000000E+00 0.  1." << endl; 
+      output << "22   -1    0    0    0    0  0.00000000000E+00  0.00000000000E+00 0.00000000000E+00  0.10000000000E+02  0.00000000000E+00 0. -1." << endl;  
+
       if(evt_n >=K && evt_n < K+M) 
 	output << pdg_id << " 1 1 2 0 0" << px << " " << py << " " << pz << " " << sqrt(MU*MU + px*px + py*py + pz*pz) << " " << MU << " 0. " << charge << endl;
     }

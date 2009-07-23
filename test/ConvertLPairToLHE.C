@@ -32,7 +32,11 @@ void makeEventsFile()
     {
       t1->GetEntry(i);
       output << "<event>" << endl;
-      output << "4   0  0.2983460E-04  0.9118800E+02  0.7546772E-02  0.1300000E+00" << endl;
+      output << "6   0  0.2983460E-04  0.9118800E+02  0.7546772E-02  0.1300000E+00" << endl;
+      // JH - note here we add in two fake photons as the beam particles. The energies don't matter - this is only for 
+      // the LHE event record. 
+      output << "22   -1    0    0    0    0  0.00000000000E+00  0.00000000000E+00 0.00000000000E+02  0.10000000000E+02  0.00000000000E+00 0.  1." << endl;
+      output << "22   -1    0    0    0    0  0.00000000000E+00  0.00000000000E+00 0.00000000000E+00  0.10000000000E+02  0.00000000000E+00 0. -1." << endl; 
       output << partid[0] << " 1 1 2 0 0 " << px[0] << " " << py[0] << " " << pz[0] << " " << en[0] << " " << m[0] << " 0. " << iz[0] << endl; 
       output << partid[1] << " 1 1 2 0 0 " << px[1] << " " << py[1] << " " << pz[1] << " " << en[1] << " " << m[1] << " 0. " << iz[1] << endl;  
       output << partid[2] << " 1 1 2 0 0 " << px[2] << " " << py[2] << " " << pz[2] << " " << en[2] << " " << m[2] << " 0. " << iz[2] << endl;  
