@@ -14,7 +14,8 @@ gamgammumuanalysis = cms.EDFilter("GammaGammaMuMu",
     DimuonMindphi = cms.double(0.0),
     MetLabel = cms.InputTag("selectedLayer1METs"),
     DimuonMaxdpt = cms.double(2000.0),
-    KeepSameSignDimuons = cms.bool(False)                                 
+    KeepSameSignDimuons = cms.bool(False),
+    HLTMenuLabel = cms.string("HLT8E29")                                  
 )
 
 

@@ -191,6 +191,11 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int TrackCand_charge[500];
   double ClosestExtraTrack_vtxdxyz;
 
+  int nPFPhotonCand;  
+  double PFPhotonCand_pt[500];
+  double PFPhotonCand_eta[500];
+  double PFPhotonCand_phi[500];
+
   double evweight;
   
   int HLT_DoubleMu3;

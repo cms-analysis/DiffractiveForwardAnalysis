@@ -1,4 +1,4 @@
- // -*- C++ -*-
+// -*- C++ -*-
 //
 // Package:    GammaGammaMuMu
 // Class:      GammaGammaMuMu
@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.41 2009/06/26 17:02:06 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.42 2009/07/23 12:47:12 jjhollar Exp $
 //
 //
 
@@ -62,6 +62,8 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"   
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h" 
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 //#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
@@ -297,8 +299,12 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
 
   thetree->Branch("TrackCand_vtxZ",TrackCand_vtxZ,"TrackCand_vtxZ[nTrackCand]/D");
   thetree->Branch("TrackCand_vtxT",TrackCand_vtxT,"TrackCand_vtxT[nTrackCand]/D");
-
   thetree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D");
+  
+  thetree->Branch("nPFPhotonCand",&nPFPhotonCand,"nPFPhotonCand/I");
+  thetree->Branch("PFPhotonCand_pt",PFPhotonCand_pt,"PFPhotonCand_pt[nPFPhotonCand]/D");
+  thetree->Branch("PFPhotonCand_eta",PFPhotonCand_eta,"PFPhotonCand_eta[nPFPhotonCand]/D");
+  thetree->Branch("PFPhotonCand_phi",PFPhotonCand_phi,"PFPhotonCand_phi[nPFPhotonCand]/D");
   
   thetree->Branch("MuMu_mass",&MuMu_mass,"MuMu_mass/D");
   thetree->Branch("MuMu_dphi",&MuMu_dphi,"MuMu_dphi/D");
@@ -393,6 +399,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersE4hb=0;
   HitInZDC=0;
   HitInCastor=0;
+
+  nPFPhotonCand=0;
 
   MuMu_mass = -1;
   MuMu_dphi = -1;
@@ -708,6 +716,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   const CastorTowerCollection* castortowers = recoCastorTowers.product();  
   CastorTowerCollection::const_iterator castortower;  
 
+  // Get the PFlow collection from the event
+  edm::Handle<reco::PFCandidateCollection> pflows;
+  event.getByLabel("particleFlow",pflows);
+  reco::PFCandidateCollection::const_iterator pflow;
+
   double highestejet = -1.0;
   double highestejeteta = -999.0;
   double highestejetphi = -999.0;
@@ -893,6 +906,20 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       SumCastorBwd_e = totalecastorbwd; 
     }
 
+  // Now ParticleFlow photons
+  for(pflow = pflows->begin(); pflow != pflows->end(); ++pflow)
+    {
+      int parttype = PFCandidate::ParticleType (pflow->particleId());
+      if(parttype == 4)
+	{
+	  PFPhotonCand_pt[nPFPhotonCand] = pflow->pt();
+	  PFPhotonCand_eta[nPFPhotonCand] = pflow->eta(); 
+          PFPhotonCand_phi[nPFPhotonCand] = pflow->phi(); 
+	  nPFPhotonCand++;
+	}
+    }
+
+
   // Check for particles in ZDC/Castor acceptance. 
   // Use MC truth for now, replace with real RECO when available
   double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;
@@ -939,6 +966,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           acc420b1 = acc220b1 = acc420and220b1 = acc420or220b1 = 0;  
           acc420b2 = acc220b2 = acc420and220b2 = acc420or220b2 = 0;  
  
+	  
           if(MCPar_pz > 0) 
             { 
               acc420b1       = helper420beam1.GetAcceptance(t, xi, phi);  
@@ -953,7 +981,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
               acc420and220b2 = helper420a220beam2.GetAcceptance(t, xi, phi);  
               acc420or220b2  = acc420b2 + acc220b2 - acc420and220b2;  
             } 
- 
+	  
         } 
 
     }
