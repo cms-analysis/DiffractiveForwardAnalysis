@@ -16,17 +16,17 @@ using namespace std;
 
 void makeEventsFile(int num=0)
 {
-  string filename = "starlight_u3s_pp_10TeV_mumu.out"; //input
+  string filename = "/tmp/jjhollar/starlight_u3s_pp_10TeV_mumu.out"; //input
   ifstream infile(filename.c_str());
   char outfilename[100];
-  sprintf(outfilename,"starlight10tev_u3s_mumu_hepmc-0%d.dat",num);
+  sprintf(outfilename,"/tmp/jjhollar/starlight10tev_u3s_mumu.lhe",num);
   ofstream output(outfilename);
   if (! infile.is_open()) { cout << "\t ERROR: I can not open \"" << filename << "\"" << endl; return; }
 
   string temp_string, temp;
   istringstream curstring;
   const unsigned int N = 2; // N_particles
-  const unsigned int M = 5000; // N_events
+  const unsigned int M = 10000; // N_events
   const unsigned int K = num*M+1;  // first event 
   const double MU = 0.105658369; // muon mass [GeV]
   double charge = 0.0;
@@ -54,8 +54,15 @@ void makeEventsFile(int num=0)
       curstring >> temp >> evt_n;
       // EVENT:          1       2       1
       if(evt_n >=K && evt_n < K+M) {
+	if(nn > 0)
+	  output << "</event>" << endl;
 	output << "<event>" << endl;
 	output << "4   0  0.2983460E-04  0.9118800E+02  0.7546772E-02  0.1300000E+00" << endl;
+	// JH - note here we add in two fake photons as the beam particles. The energies don't matter - this is only for   
+	// the LHE event record.   
+	output << "22   -1    0    0    0    0  0.00000000000E+00  0.00000000000E+00 0.00000000000E+02  0.10000000000E+02  0.00000000000E+00 0.  1." << endl;  
+	output << "22   -1    0    0    0    0  0.00000000000E+00  0.00000000000E+00 0.00000000000E+00  0.10000000000E+02  0.00000000000E+00 0. -1." << endl;   
+
 	nn++;
       }
 
@@ -76,10 +83,6 @@ void makeEventsFile(int num=0)
 	charge = -1.;
       if(pdg_id == -13)
 	charge = 1.;
-      // JH - note here we add in two fake photons as the beam particles. The energies don't matter - this is only for  
-      // the LHE event record.  
-      output << "22   -1    0    0    0    0  0.00000000000E+00  0.00000000000E+00 0.00000000000E+02  0.10000000000E+02  0.00000000000E+00 0.  1." << endl; 
-      output << "22   -1    0    0    0    0  0.00000000000E+00  0.00000000000E+00 0.00000000000E+00  0.10000000000E+02  0.00000000000E+00 0. -1." << endl;  
 
       if(evt_n >=K && evt_n < K+M) 
 	output << pdg_id << " 1 1 2 0 0" << px << " " << py << " " << pz << " " << sqrt(MU*MU + px*px + py*py + pz*pz) << " " << MU << " 0. " << charge << endl;
