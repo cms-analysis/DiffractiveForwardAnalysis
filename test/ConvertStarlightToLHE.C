@@ -85,7 +85,7 @@ void makeEventsFile(int num=0)
 	charge = 1.;
 
       if(evt_n >=K && evt_n < K+M) 
-	output << pdg_id << " 1 1 2 0 0" << px << " " << py << " " << pz << " " << sqrt(MU*MU + px*px + py*py + pz*pz) << " " << MU << " 0. " << charge << endl;
+	output << pdg_id << " 1 1 2 0 0 " << px << " " << py << " " << pz << " " << sqrt(MU*MU + px*px + py*py + pz*pz) << " " << MU << " 0. " << charge << endl;
     }
 
   } // reading loop of the input file
