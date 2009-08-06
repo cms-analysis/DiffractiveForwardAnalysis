@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.42 2009/07/23 12:47:12 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.43 2009/08/03 08:03:27 jjhollar Exp $
 //
 //
 
@@ -453,9 +453,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   event.getByLabel(InputTag("hltTriggerSummaryAOD","",hltMenuLabel),hltObjects);
   if (hltObjects.isValid()) 
     {
-      size_type muindex = hltObjects->filterIndex(InputTag("hltSingleMu3L3Filtered3::HLT"));
-      size_type dimu0index = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered0::HLT"));
-      size_type dimuindex = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered::HLT"));
+      size_type muindex = hltObjects->filterIndex(InputTag("hltSingleMu3L3Filtered3::"+hltMenuLabel)); 
+      size_type dimu0index = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered0::"+hltMenuLabel)); 
+      size_type dimuindex = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered::"+hltMenuLabel)); 
+
       if( dimu0index < hltObjects->sizeFilters() )
 	{
 	  const trigger::Keys& DIMU0KEYS(hltObjects->filterKeys(dimu0index)); 
