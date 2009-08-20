@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CosmicsMuMu.cc,v 1.4 2009/06/17 08:47:24 jjhollar Exp $
+// $Id: CosmicsMuMu.cc,v 1.5 2009/06/24 15:54:11 jjhollar Exp $
 //
 //
 
@@ -125,22 +125,6 @@ CosmicsMuMu::CosmicsMuMu(const edm::ParameterSet& pset)
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
 
-  edm::FileInPath myDataFile("FastSimulation/ProtonTaggers/data/acceptance_420_220.root");  
-  std::string fullPath = myDataFile.fullPath();  
-  std::cout << "Opening " << fullPath << std::endl;  
-  TFile f(fullPath.c_str());  
-  if (f.Get("description") != NULL)  
-    std::cout << "Description found: " << f.Get("description")->GetTitle() << std::endl;  
-    
-  std::cout << "Reading acceptance tables " << std::endl;  
- 
-  helper420beam1.Init(f, "a420");  
-  helper420beam2.Init(f, "a420_b2");  
-  helper220beam1.Init(f, "a220");  
-  helper220beam2.Init(f, "a220_b2");  
-  helper420a220beam1.Init(f, "a420a220");  
-  helper420a220beam2.Init(f, "a420a220_b2");  
-
   //  nEvt=0;
   MUONMAX=10;
   JETMAX=30;
@@ -204,6 +188,12 @@ CosmicsMuMu::CosmicsMuMu(const edm::ParameterSet& pset)
   thetree->Branch("CaloTower_eta",CaloTower_eta,"CaloTower_eta[nCaloCand]/D"); 
   thetree->Branch("CaloTower_phi",CaloTower_phi,"CaloTower_phi[nCaloCand]/D"); 
   thetree->Branch("CaloTower_dr",CaloTower_dr,"CaloTower_dr[nCaloCand]/D");
+
+  thetree->Branch("CaloTower_badhcalcells",CaloTower_badhcalcells,"CaloTower_badhcalcells[nCaloCand]/I"); 
+  thetree->Branch("CaloTower_problemhcalcells",CaloTower_problemhcalcells,"CaloTower_problemhcalcells[nCaloCand]/I"); 
+  thetree->Branch("CaloTower_badecalcells",CaloTower_badecalcells,"CaloTower_badecalcells[nCaloCand]/I");  
+  thetree->Branch("CaloTower_problemecalcells",CaloTower_problemecalcells,"CaloTower_problemecalcells[nCaloCand]/I");  
+
   thetree->Branch("HighestCaloTower_e",&HighestCaloTower_e,"HighestCaloTower_e/D");
   thetree->Branch("HighestCaloTower_eta",&HighestCaloTower_eta,"HighestCaloTower_eta/D");
   thetree->Branch("HighestCaloTower_phi",&HighestCaloTower_phi,"HighestCaloTower_phi/D"); 
@@ -227,12 +217,20 @@ CosmicsMuMu::CosmicsMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersE0hf", &nExtraCaloTowersE0hf, "nExtraCaloTowersE0hf/I");
   thetree->Branch("nExtraCaloTowersE1hf", &nExtraCaloTowersE1hf, "nExtraCaloTowersE1hf/I"); 
   thetree->Branch("nExtraCaloTowersE2hf", &nExtraCaloTowersE2hf, "nExtraCaloTowersE12hf/I"); 
+  thetree->Branch("nExtraCaloTowersE3hf", &nExtraCaloTowersE3hf, "nExtraCaloTowersE13hf/I");  
+  thetree->Branch("nExtraCaloTowersE4hf", &nExtraCaloTowersE4hf, "nExtraCaloTowersE14hf/I");  
+  thetree->Branch("nExtraCaloTowersE5hf", &nExtraCaloTowersE5hf, "nExtraCaloTowersE15hf/I");  
+
   thetree->Branch("nExtraCaloTowersE1he", &nExtraCaloTowersE1he, "nExtraCaloTowersE1he/I"); 
   thetree->Branch("nExtraCaloTowersE2he", &nExtraCaloTowersE2he, "nExtraCaloTowersE2he/I");  
   thetree->Branch("nExtraCaloTowersE3he", &nExtraCaloTowersE3he, "nExtraCaloTowersE3he/I");  
+  thetree->Branch("nExtraCaloTowersE4he", &nExtraCaloTowersE4he, "nExtraCaloTowersE4he/I");   
+  thetree->Branch("nExtraCaloTowersE5he", &nExtraCaloTowersE5he, "nExtraCaloTowersE5he/I");   
+
   thetree->Branch("nExtraCaloTowersE2hb", &nExtraCaloTowersE2hb, "nExtraCaloTowersE2hb/I"); 
   thetree->Branch("nExtraCaloTowersE3hb", &nExtraCaloTowersE3hb, "nExtraCaloTowersE3hb/I");  
   thetree->Branch("nExtraCaloTowersE4hb", &nExtraCaloTowersE4hb, "nExtraCaloTowersE4hb/I");  
+  thetree->Branch("nExtraCaloTowersE5hb", &nExtraCaloTowersE5hb, "nExtraCaloTowersE5hb/I");   
 
   thetree->Branch("nExtraCaloTowersEt0pt1",&nExtraCaloTowersEt0pt1,"nExtraCaloTowersEt0pt1/I"); 
   thetree->Branch("nExtraCaloTowersEt0pt2",&nExtraCaloTowersEt0pt2,"nExtraCaloTowersEt0pt2/I"); 
@@ -326,12 +324,18 @@ CosmicsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersE0hf=0;
   nExtraCaloTowersE1hf=0;
   nExtraCaloTowersE2hf=0;  
+  nExtraCaloTowersE3hf=0; 
+  nExtraCaloTowersE4hf=0; 
+  nExtraCaloTowersE5hf=0;   
   nExtraCaloTowersE1he=0; 
   nExtraCaloTowersE2he=0; 
   nExtraCaloTowersE3he=0;  
+  nExtraCaloTowersE4he=0;  
+  nExtraCaloTowersE5he=0;   
   nExtraCaloTowersE2hb=0; 
   nExtraCaloTowersE3hb=0; 
   nExtraCaloTowersE4hb=0;  
+  nExtraCaloTowersE5hb=0;   
 
   HitInZDC=0;
   HitInCastor=0;
@@ -491,21 +495,21 @@ CosmicsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       // Calculate invariant mass and delta-phi
       if(nMuonCand == 2)
 	{
-	  if(MuonCand_charge[0]*MuonCand_charge[1]<0)
-	    {
-	      double mass = pow(MuonCand_p[0]+MuonCand_p[1],2);
-	      mass-=pow(MuonCand_px[0]+MuonCand_px[1],2);
-	      mass-=pow(MuonCand_py[0]+MuonCand_py[1],2);
-	      mass-=pow(MuonCand_pz[0]+MuonCand_pz[1],2);
-	      MuMu_mass = sqrt(mass);
-	      
-	      double dphi = fabs(MuonCand_phi[0]-MuonCand_phi[1]);
-	      if(dphi < 3.14159)
-		MuMu_dphi = dphi;
-	      else
-		MuMu_dphi = (2.0*3.14159)-dphi;
-	      
-	    }
+	  //	  if(MuonCand_charge[0]*MuonCand_charge[1]<0)
+	  //	    {
+	  double mass = pow(MuonCand_p[0]+MuonCand_p[1],2);
+	  mass-=pow(MuonCand_px[0]+MuonCand_px[1],2);
+	  mass-=pow(MuonCand_py[0]+MuonCand_py[1],2);
+	  mass-=pow(MuonCand_pz[0]+MuonCand_pz[1],2);
+	  MuMu_mass = sqrt(mass);
+	  
+	  double dphi = fabs(MuonCand_phi[0]-MuonCand_phi[1]);
+	  if(dphi < 3.14159)
+	    MuMu_dphi = dphi;
+	  else
+	    MuMu_dphi = (2.0*3.14159)-dphi;
+	  
+	  //	    }
 	}
     }
 
@@ -604,6 +608,11 @@ CosmicsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  CaloTower_phi[nCaloCand]=calo->phi(); 
 	  CaloTower_eta[nCaloCand]=calo->eta(); 
 	  
+	  CaloTower_badhcalcells[nCaloCand]=calo->numBadHcalCells();
+	  CaloTower_problemhcalcells[nCaloCand]=calo->numProblematicHcalCells(); 
+          CaloTower_badecalcells[nCaloCand]=calo->numBadEcalCells(); 
+          CaloTower_problemecalcells[nCaloCand]=calo->numProblematicEcalCells();  
+
 	  float calodr1 = sqrt(((CaloTower_eta[nCaloCand]-MuonCand_eta[0])*(CaloTower_eta[nCaloCand]-MuonCand_eta[0])) + 
 			       ((CaloTower_phi[nCaloCand]-MuonCand_phi[0])*(CaloTower_phi[nCaloCand]-MuonCand_phi[0])));
 	  float calodr2 = sqrt(((CaloTower_eta[nCaloCand]-MuonCand_eta[1])*(CaloTower_eta[nCaloCand]-MuonCand_eta[1])) + 
@@ -676,20 +685,32 @@ CosmicsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		nExtraCaloTowersE1hf++; 
               if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)   
 		nExtraCaloTowersE2hf++;
+	      if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)   
+                nExtraCaloTowersE3hf++;  
+              if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)    
+                nExtraCaloTowersE4hf++;  
+              if(CaloTower_e[nCaloCand] > 5.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)    
+                nExtraCaloTowersE5hf++; 
+
               if(CaloTower_e[nCaloCand] > 1.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)      
 		nExtraCaloTowersE1he++;  
               if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)   
 		nExtraCaloTowersE2he++;  
 	      if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)   
 		nExtraCaloTowersE3he++;   
+	      if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)    
+                nExtraCaloTowersE4he++;   
+              if(CaloTower_e[nCaloCand] > 5.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)    
+                nExtraCaloTowersE5he++;    
+
               if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
 		nExtraCaloTowersE2hb++;  
               if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
 		nExtraCaloTowersE3hb++;  
               if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
 		nExtraCaloTowersE4hb++;   
-
-
+              if(CaloTower_e[nCaloCand] > 5.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)    
+                nExtraCaloTowersE5hb++;    
 	    }
 
 	  nCaloCand++;

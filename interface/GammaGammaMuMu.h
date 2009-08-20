@@ -124,6 +124,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int MuMu_extratracks3cm;
   int MuMu_extratracks5cm;
   int MuMu_extratracks10cm;
+  double MuMuGamma_mass;
 
   int nJetCand;
   int JETMAX;// used to set maximum of arrays
@@ -141,14 +142,19 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int HitInZDC; 
   int HitInCastor; 
 
+  int nGenPhotCand;
+  double GenPhotCand_pt[5];
+  double GenPhotCand_eta[5];
+  double GenPhotCand_phi[5];
+
   double Etmiss;
 
   int nCaloCand;
   int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9; 
   int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4; 
-  int nExtraCaloTowersE0hf, nExtraCaloTowersE1hf, nExtraCaloTowersE2hf; 	 
-  int nExtraCaloTowersE1he, nExtraCaloTowersE2he, nExtraCaloTowersE3he; 	 
-  int nExtraCaloTowersE2hb, nExtraCaloTowersE3hb, nExtraCaloTowersE4hb; 	 
+  int nExtraCaloTowersE0hf, nExtraCaloTowersE1hf, nExtraCaloTowersE2hf, nExtraCaloTowersE3hf, nExtraCaloTowersE4hf, nExtraCaloTowersE5hf; 	 
+  int nExtraCaloTowersE1he, nExtraCaloTowersE2he, nExtraCaloTowersE3he, nExtraCaloTowersE4he, nExtraCaloTowersE5he; 	 
+  int nExtraCaloTowersE2hb, nExtraCaloTowersE3hb, nExtraCaloTowersE4hb, nExtraCaloTowersE5hb; 	 
 
   double CaloTower_e[1000];
   double CaloTower_et[1000];
@@ -195,6 +201,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double PFPhotonCand_pt[500];
   double PFPhotonCand_eta[500];
   double PFPhotonCand_phi[500];
+  double PFPhotonCand_drtrue[500];
 
   double evweight;
   

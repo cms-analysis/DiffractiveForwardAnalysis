@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMuMC.cc,v 1.7 2009/06/17 08:47:24 jjhollar Exp $
+// $Id: GammaGammaMuMuMC.cc,v 1.8 2009/06/24 15:54:11 jjhollar Exp $
 //
 //
 
@@ -28,6 +28,8 @@
 //#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h" 
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h" 
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h" 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h" 
@@ -157,8 +159,8 @@ GammaGammaMuMuMC::analyze(const edm::Event& event, const edm::EventSetup& iSetup
     std::cout << "reading event " << nEvt << std::endl;
   
   // step 1: fill some basic MC information into the root tree
-  Handle<CandidateCollection> genParticles;
-  event.getByLabel( "genParticleCandidates", genParticles );
+  Handle<GenParticleCollection> genParticles; 
+  event.getByLabel( "genParticles", genParticles ); 
 
   for ( size_t i = 0; i < genParticles->size() && i < 500; ++ i ) 
     {

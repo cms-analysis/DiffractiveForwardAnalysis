@@ -132,14 +132,18 @@ class CosmicsMuMu : public edm::EDAnalyzer {
   int nCaloCand;
   int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9; 
   int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4; 
-  int nExtraCaloTowersE0hf, nExtraCaloTowersE1hf, nExtraCaloTowersE2hf;
-  int nExtraCaloTowersE1he, nExtraCaloTowersE2he, nExtraCaloTowersE3he;
-  int nExtraCaloTowersE2hb, nExtraCaloTowersE3hb, nExtraCaloTowersE4hb;
+  int nExtraCaloTowersE0hf, nExtraCaloTowersE1hf, nExtraCaloTowersE2hf, nExtraCaloTowersE3hf, nExtraCaloTowersE4hf, nExtraCaloTowersE5hf;
+  int nExtraCaloTowersE1he, nExtraCaloTowersE2he, nExtraCaloTowersE3he, nExtraCaloTowersE4he, nExtraCaloTowersE5he;
+  int nExtraCaloTowersE2hb, nExtraCaloTowersE3hb, nExtraCaloTowersE4hb, nExtraCaloTowersE5hb;
   double CaloTower_e[1000];
   double CaloTower_et[1000];
   double CaloTower_eta[1000];
   double CaloTower_phi[1000];
   double CaloTower_dr[1000];
+  int CaloTower_badhcalcells[1000];
+  int CaloTower_problemhcalcells[1000];
+  int CaloTower_badecalcells[1000];
+  int CaloTower_problemecalcells[1000];
   double HighestCaloTower_e;
   double HighestCaloTower_eta;
   double HighestCaloTower_phi;
@@ -168,13 +172,6 @@ class CosmicsMuMu : public edm::EDAnalyzer {
   
   int HLT2MuonNonIso;
   int HLT1MuonPrescalePt3;
-
-  AcceptanceTableHelper helper420beam1;   
-  AcceptanceTableHelper helper420beam2;   
-  AcceptanceTableHelper helper220beam1;   
-  AcceptanceTableHelper helper220beam2;   
-  AcceptanceTableHelper helper420a220beam1;   
-  AcceptanceTableHelper helper420a220beam2;   
 
   edm::TriggerNames trigNames ;
 };

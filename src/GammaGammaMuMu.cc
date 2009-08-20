@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.43 2009/08/03 08:03:27 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.44 2009/08/06 10:23:11 jjhollar Exp $
 //
 //
 
@@ -272,13 +272,21 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersE0hf", &nExtraCaloTowersE0hf, "nExtraCaloTowersE0hf/I"); 	 
   thetree->Branch("nExtraCaloTowersE1hf", &nExtraCaloTowersE1hf, "nExtraCaloTowersE1hf/I"); 	 
   thetree->Branch("nExtraCaloTowersE2hf", &nExtraCaloTowersE2hf, "nExtraCaloTowersE12hf/I"); 	 
+  thetree->Branch("nExtraCaloTowersE3hf", &nExtraCaloTowersE3hf, "nExtraCaloTowersE13hf/I");  
+  thetree->Branch("nExtraCaloTowersE4hf", &nExtraCaloTowersE4hf, "nExtraCaloTowersE14hf/I");  
+  thetree->Branch("nExtraCaloTowersE5hf", &nExtraCaloTowersE5hf, "nExtraCaloTowersE15hf/I");  
+
   thetree->Branch("nExtraCaloTowersE1he", &nExtraCaloTowersE1he, "nExtraCaloTowersE1he/I"); 	 
   thetree->Branch("nExtraCaloTowersE2he", &nExtraCaloTowersE2he, "nExtraCaloTowersE2he/I"); 	 
   thetree->Branch("nExtraCaloTowersE3he", &nExtraCaloTowersE3he, "nExtraCaloTowersE3he/I"); 	 
+  thetree->Branch("nExtraCaloTowersE4he", &nExtraCaloTowersE4he, "nExtraCaloTowersE4he/I");   
+  thetree->Branch("nExtraCaloTowersE5he", &nExtraCaloTowersE5he, "nExtraCaloTowersE5he/I");   
+
   thetree->Branch("nExtraCaloTowersE2hb", &nExtraCaloTowersE2hb, "nExtraCaloTowersE2hb/I"); 	 
   thetree->Branch("nExtraCaloTowersE3hb", &nExtraCaloTowersE3hb, "nExtraCaloTowersE3hb/I"); 	 
   thetree->Branch("nExtraCaloTowersE4hb", &nExtraCaloTowersE4hb, "nExtraCaloTowersE4hb/I");
- 
+  thetree->Branch("nExtraCaloTowersE5hb", &nExtraCaloTowersE5hb, "nExtraCaloTowersE5hb/I");   
+
   thetree->Branch("nExtraCaloTowersEt0pt1",&nExtraCaloTowersEt0pt1,"nExtraCaloTowersEt0pt1/I"); 
   thetree->Branch("nExtraCaloTowersEt0pt2",&nExtraCaloTowersEt0pt2,"nExtraCaloTowersEt0pt2/I"); 
   thetree->Branch("nExtraCaloTowersEt0pt5",&nExtraCaloTowersEt0pt5,"nExtraCaloTowersEt0pt5/I"); 
@@ -305,7 +313,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("PFPhotonCand_pt",PFPhotonCand_pt,"PFPhotonCand_pt[nPFPhotonCand]/D");
   thetree->Branch("PFPhotonCand_eta",PFPhotonCand_eta,"PFPhotonCand_eta[nPFPhotonCand]/D");
   thetree->Branch("PFPhotonCand_phi",PFPhotonCand_phi,"PFPhotonCand_phi[nPFPhotonCand]/D");
-  
+  thetree->Branch("PFPhotonCand_drtrue",PFPhotonCand_drtrue,"PFPhotonCand_drtrue[nPFPhotonCand]/D"); 
+
   thetree->Branch("MuMu_mass",&MuMu_mass,"MuMu_mass/D");
   thetree->Branch("MuMu_dphi",&MuMu_dphi,"MuMu_dphi/D");
   thetree->Branch("MuMu_dpt",&MuMu_dpt,"MuMu_dpt/D");
@@ -322,22 +331,21 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuMu_extratracks3cm",&MuMu_extratracks3cm,"MuMu_extratracks3cm/I");
   thetree->Branch("MuMu_extratracks5cm",&MuMu_extratracks5cm,"MuMu_extratracks5cm/I"); 
   thetree->Branch("MuMu_extratracks10cm",&MuMu_extratracks10cm,"MuMu_extratracks10cm/I"); 
+  thetree->Branch("MuMuGamma_mass",&MuMuGamma_mass,"MuMuGamma_mass/D"); 
 
   thetree->Branch("HitInZDC",&HitInZDC,"HitInZDC/I");
   thetree->Branch("HitInCastor",&HitInCastor,"HitInCastor/I");
+
+  thetree->Branch("nGenPhotCand",&nGenPhotCand,"nGenPhotCand/I"); 
+  thetree->Branch("GenPhotCand_pt",GenPhotCand_pt,"GenPhotCand_pt[nGenPhotCand]/D"); 
+  thetree->Branch("GenPhotCand_eta",GenPhotCand_eta,"GenPhotCand_eta[nGenPhotCand]/D");  
+  thetree->Branch("GenPhotCand_phi",GenPhotCand_phi,"GenPhotCand_phi[nGenPhotCand]/D");  
   
-//  thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
+  thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
 
   thetree->Branch("HLT_DoubleMu3",&HLT_DoubleMu3,"HLT_DoubleMu3/I");
   thetree->Branch("HLT_DoubleMu0",&HLT_DoubleMu0,"HLT_DoubleMu0/I");
   thetree->Branch("HLT_Mu3",&HLT_Mu3,"HLT_Mu3/I");
-
-  thetree->Branch("HF_TowerCountPositiveEta",&HF_TowerCountPositiveEta,"HF_TowerCountPositiveEta/I"); 
-  thetree->Branch("HF_TowerCountNegativeEta",&HF_TowerCountNegativeEta,"HF_TowerCountNegativeEta/I");
-  thetree->Branch("HF_Ring0EtSumPositiveEta",&HF_Ring0EtSumPositiveEta,"HF_Ring0EtSumPositiveEta/I");
-  thetree->Branch("HF_Ring0EtSumNegativeEta",&HF_Ring0EtSumNegativeEta,"HF_Ring0EtSumNegativeEta/I");
-  thetree->Branch("HF_Ring1EtSumPositiveEta",&HF_Ring1EtSumPositiveEta,"HF_Ring1EtSumPositiveEta/I");
-  thetree->Branch("HF_Ring1EtSumNegativeEta",&HF_Ring1EtSumNegativeEta,"HF_Ring1EtSumNegativeEta/I");
 
   thetree->Branch("LowPt_pt",LowPt_pt,"LowPt_pt[nMuonCand]/D");
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
@@ -391,14 +399,24 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersE0hf=0; 	 
   nExtraCaloTowersE1hf=0; 	 
   nExtraCaloTowersE2hf=0; 	 
+  nExtraCaloTowersE3hf=0; 
+  nExtraCaloTowersE4hf=0; 
+  nExtraCaloTowersE5hf=0;   
+ 
   nExtraCaloTowersE1he=0; 	 
   nExtraCaloTowersE2he=0; 	 
   nExtraCaloTowersE3he=0; 	 
+  nExtraCaloTowersE4he=0;  
+  nExtraCaloTowersE5he=0;   
+
   nExtraCaloTowersE2hb=0; 	 
   nExtraCaloTowersE3hb=0; 	 
   nExtraCaloTowersE4hb=0;
+  nExtraCaloTowersE5hb=0;   
+
   HitInZDC=0;
   HitInCastor=0;
+  nGenPhotCand=0;
 
   nPFPhotonCand=0;
 
@@ -412,6 +430,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   MuMu_extratracks3cm = 0;
   MuMu_extratracks5cm = 0;
   MuMu_extratracks10cm = 0;
+  MuMuGamma_mass = -1;
 
   bool passed = true;
   int LS = 0;
@@ -681,17 +700,17 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   // Get the MET collection from the event
   // PAT
+  /*
   edm::Handle<edm::View<pat::MET> > mets; 
   event.getByLabel(theMetLabel,mets); 
   edm::View<pat::MET>::const_iterator met;
+  */
 
   // AOD
-  /*
   edm::Handle<reco::CaloMETCollection> pMET;
   event.getByLabel(theMetLabel,pMET);
   const reco::CaloMETCollection* mets = pMET.product();
   reco::CaloMETCollection::const_iterator met;
-  */
 
   // Get the CaloTower collection from the event
   edm::Handle<CaloTowerCollection> caloTowers; 
@@ -766,9 +785,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestJet_eta = highestejeteta;
       HighestJet_phi = highestejetphi;
       SumJet_e = totalejet;
-//      met = mets->begin();
-//      float e_met = met->energy();
-//      Etmiss = e_met;
+      met = mets->begin();
+      float e_met = met->energy();
+      Etmiss = e_met;
       for (calo = towers->begin(); calo != towers->end(); ++calo )
 	{
 	  CaloTower_e[nCaloCand]=calo->energy();
@@ -850,18 +869,32 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 nExtraCaloTowersE1hf++; 	 
               if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) > 3.0) 	 
                 nExtraCaloTowersE2hf++; 	 
+	      if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)   
+                nExtraCaloTowersE3hf++;  
+              if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)    
+                nExtraCaloTowersE4hf++;  
+              if(CaloTower_e[nCaloCand] > 5.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)    
+                nExtraCaloTowersE5hf++; 
+
               if(CaloTower_e[nCaloCand] > 1.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5) 	 
                 nExtraCaloTowersE1he++; 	 
               if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5) 	 
                 nExtraCaloTowersE2he++; 	 
               if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5) 	 
                 nExtraCaloTowersE3he++; 	 
+	      if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)    
+                nExtraCaloTowersE4he++;   
+              if(CaloTower_e[nCaloCand] > 5.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)    
+                nExtraCaloTowersE5he++;    
+
               if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 1.5) 	 
                 nExtraCaloTowersE2hb++; 	 
               if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 1.5) 	 
                 nExtraCaloTowersE3hb++; 	 
               if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) < 1.5) 	 
                 nExtraCaloTowersE4hb++;
+              if(CaloTower_e[nCaloCand] > 5.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)    
+                nExtraCaloTowersE5hb++;    
 	    }
 
 	  nCaloCand++;
@@ -907,20 +940,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       SumCastorBwd_e = totalecastorbwd; 
     }
 
-  // Now ParticleFlow photons
-  for(pflow = pflows->begin(); pflow != pflows->end(); ++pflow)
-    {
-      int parttype = PFCandidate::ParticleType (pflow->particleId());
-      if(parttype == 4)
-	{
-	  PFPhotonCand_pt[nPFPhotonCand] = pflow->pt();
-	  PFPhotonCand_eta[nPFPhotonCand] = pflow->eta(); 
-          PFPhotonCand_phi[nPFPhotonCand] = pflow->phi(); 
-	  nPFPhotonCand++;
-	}
-    }
-
-
   // Check for particles in ZDC/Castor acceptance. 
   // Use MC truth for now, replace with real RECO when available
   double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;
@@ -938,6 +957,17 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       MCPar_pz=p.pz();
       MCPar_mass=p.mass();
       MCPar_e = sqrt(MCPar_mass*MCPar_mass + (MCPar_px*MCPar_px + MCPar_py*MCPar_py + MCPar_pz*MCPar_pz));
+
+      if(MCPar_pdgid == 22)
+	{
+	  if(p.status() == 1)
+	    {
+	      GenPhotCand_pt[nGenPhotCand]=p.pt();
+	      GenPhotCand_eta[nGenPhotCand]=p.eta(); 
+	      GenPhotCand_phi[nGenPhotCand]=p.phi(); 
+	      nGenPhotCand++;
+	    }
+	}
 
       if(MCPar_pdgid == 22 && abs(MCPar_eta) > 8.6 && MCPar_e > 20.0) 
 	HitInZDC++;
@@ -986,6 +1016,47 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
         } 
 
     }
+
+  // Now ParticleFlow photons 
+  double leadingphotpx, leadingphotpy, leadingphotpz, leadingphotp; 
+  for(pflow = pflows->begin(); pflow != pflows->end(); ++pflow) 
+    { 
+      int parttype = PFCandidate::ParticleType (pflow->particleId()); 
+      if(parttype == 4) 
+        { 
+          PFPhotonCand_pt[nPFPhotonCand] = pflow->pt(); 
+          PFPhotonCand_eta[nPFPhotonCand] = pflow->eta();  
+          PFPhotonCand_phi[nPFPhotonCand] = pflow->phi();  
+	  PFPhotonCand_drtrue[nPFPhotonCand] = -999.;
+
+	  for(int ntruephot = 0; ntruephot < nGenPhotCand;ntruephot++)
+	    {
+	      double photdeta = (PFPhotonCand_eta[nPFPhotonCand]-GenPhotCand_eta[ntruephot]);
+	      double photdphi = (PFPhotonCand_phi[nPFPhotonCand]-GenPhotCand_phi[ntruephot]); 
+	      PFPhotonCand_drtrue[nPFPhotonCand] = sqrt((photdeta*photdeta) + (photdphi*photdphi));
+	    }
+
+          if(nPFPhotonCand == 0) 
+            { 
+              leadingphotpx = pflow->px(); 
+              leadingphotpy = pflow->py();  
+              leadingphotpz = pflow->pz();  
+              leadingphotp = pflow->p();  
+            } 
+          nPFPhotonCand++; 
+        } 
+    } 
+   
+  if(nPFPhotonCand > 0 && nMuonCand == 2) 
+    { 
+      double mmgmass = pow(MuonCand_p[0]+MuonCand_p[1]+leadingphotp,2);  
+      mmgmass-=pow(MuonCand_px[0]+MuonCand_px[1]+leadingphotpx,2);  
+      mmgmass-=pow(MuonCand_py[0]+MuonCand_py[1]+leadingphotpy,2);  
+      mmgmass-=pow(MuonCand_pz[0]+MuonCand_pz[1]+leadingphotpz,2);  
+      MuMuGamma_mass = sqrt(mmgmass);  
+    } 
+
+
 
   // Now do vertexing and track counting
   edm::ESHandle<TransientTrackBuilder> theVtx;
