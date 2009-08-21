@@ -143,6 +143,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int HitInCastor; 
 
   int nGenPhotCand;
+  int GENPHOTONMAX;
   double GenPhotCand_pt[5];
   double GenPhotCand_eta[5];
   double GenPhotCand_phi[5];
@@ -198,6 +199,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double ClosestExtraTrack_vtxdxyz;
 
   int nPFPhotonCand;  
+  int PHOTONMAX;
   double PFPhotonCand_pt[500];
   double PFPhotonCand_eta[500];
   double PFPhotonCand_phi[500];
@@ -208,13 +210,6 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int HLT_DoubleMu3;
   int HLT_Mu3;
   int HLT_DoubleMu0;
-
-  int HF_TowerCountPositiveEta;
-  int HF_TowerCountNegativeEta;
-  int HF_Ring0EtSumPositiveEta;
-  int HF_Ring0EtSumNegativeEta;
-  int HF_Ring1EtSumPositiveEta;
-  int HF_Ring1EtSumNegativeEta;
 
   double LowPt_pt[4];
   double LowPt_eta[4];

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.44 2009/08/06 10:23:11 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.45 2009/08/20 14:17:33 jjhollar Exp $
 //
 //
 
@@ -168,6 +168,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   MUONMAX=10;
   JETMAX=30;
   TRACKMAX=500;
+  PHOTONMAX=500;
+  GENPHOTONMAX=5;
 
   thefile = new TFile(rootfilename.c_str(),"recreate");
   thefile->cd();
@@ -271,10 +273,10 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
 
   thetree->Branch("nExtraCaloTowersE0hf", &nExtraCaloTowersE0hf, "nExtraCaloTowersE0hf/I"); 	 
   thetree->Branch("nExtraCaloTowersE1hf", &nExtraCaloTowersE1hf, "nExtraCaloTowersE1hf/I"); 	 
-  thetree->Branch("nExtraCaloTowersE2hf", &nExtraCaloTowersE2hf, "nExtraCaloTowersE12hf/I"); 	 
-  thetree->Branch("nExtraCaloTowersE3hf", &nExtraCaloTowersE3hf, "nExtraCaloTowersE13hf/I");  
-  thetree->Branch("nExtraCaloTowersE4hf", &nExtraCaloTowersE4hf, "nExtraCaloTowersE14hf/I");  
-  thetree->Branch("nExtraCaloTowersE5hf", &nExtraCaloTowersE5hf, "nExtraCaloTowersE15hf/I");  
+  thetree->Branch("nExtraCaloTowersE2hf", &nExtraCaloTowersE2hf, "nExtraCaloTowersE2hf/I"); 	 
+  thetree->Branch("nExtraCaloTowersE3hf", &nExtraCaloTowersE3hf, "nExtraCaloTowersE3hf/I");  
+  thetree->Branch("nExtraCaloTowersE4hf", &nExtraCaloTowersE4hf, "nExtraCaloTowersE4hf/I");  
+  thetree->Branch("nExtraCaloTowersE5hf", &nExtraCaloTowersE5hf, "nExtraCaloTowersE5hf/I");  
 
   thetree->Branch("nExtraCaloTowersE1he", &nExtraCaloTowersE1he, "nExtraCaloTowersE1he/I"); 	 
   thetree->Branch("nExtraCaloTowersE2he", &nExtraCaloTowersE2he, "nExtraCaloTowersE2he/I"); 	 
@@ -759,7 +761,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double totalecastorbwd = 0.0;
   double totalecalo = -1.0; 
   double closesttrkdxyz = 999.0;
-
+  cout << "JH: nCaloCand1 = " << nCaloCand << endl;
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
   if(nMuonCand == 2)
     {
@@ -899,6 +901,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
 	  nCaloCand++;
 	}
+
+      cout << "JH: nCaloCand2 = " << nCaloCand << endl;
       
       SumCalo_e = totalecalo;
       HighestCaloTower_e = highestetower;
@@ -939,7 +943,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       SumCastorFwd_e = totalecastorfwd;
       SumCastorBwd_e = totalecastorbwd; 
     }
-
+  cout << "JH: nCaloCand3 = " << nCaloCand << endl;
   // Check for particles in ZDC/Castor acceptance. 
   // Use MC truth for now, replace with real RECO when available
   double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;
@@ -960,7 +964,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
       if(MCPar_pdgid == 22)
 	{
-	  if(p.status() == 1)
+	  if(p.status() == 1 && nGenPhotCand < GENPHOTONMAX)
 	    {
 	      GenPhotCand_pt[nGenPhotCand]=p.pt();
 	      GenPhotCand_eta[nGenPhotCand]=p.eta(); 
@@ -1016,13 +1020,14 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
         } 
 
     }
+  cout << "JH: nCaloCand4 = " << nCaloCand << endl; 
 
   // Now ParticleFlow photons 
   double leadingphotpx, leadingphotpy, leadingphotpz, leadingphotp; 
   for(pflow = pflows->begin(); pflow != pflows->end(); ++pflow) 
     { 
       int parttype = PFCandidate::ParticleType (pflow->particleId()); 
-      if(parttype == 4) 
+      if(parttype == 4 && nPFPhotonCand < PHOTONMAX) 
         { 
           PFPhotonCand_pt[nPFPhotonCand] = pflow->pt(); 
           PFPhotonCand_eta[nPFPhotonCand] = pflow->eta();  
@@ -1056,6 +1061,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       MuMuGamma_mass = sqrt(mmgmass);  
     } 
 
+  cout << "JH: nCaloCand5 = " << nCaloCand << endl; 
 
 
   // Now do vertexing and track counting
@@ -1231,6 +1237,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }
 
   // "Exclusivity" cuts
+  cout << "JH: nCaloCand6 = " << nCaloCand << endl; 
 
   if(passed == true){
     thetree->Fill();

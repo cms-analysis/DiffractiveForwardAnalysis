@@ -33,6 +33,8 @@ void makeEventsFile(int num=0)
   int evt_n=0; // event_number, read from the input-file
   int nn=0; // event_counter, in the output file
 
+  TH1F *h1 = new TH1F("h1","h1",100,-5.0,5.0);
+
   // GENER: STL  1.0            1           1           1           1  200.00     999.999     CMS
   getline(infile,temp_string); // The very first line is useless
   output << "<LesHouchesEvents version=\"1.0\">"  << endl;
@@ -85,13 +87,19 @@ void makeEventsFile(int num=0)
 	charge = 1.;
 
       if(evt_n >=K && evt_n < K+M) 
-	output << pdg_id << " 1 1 2 0 0 " << px << " " << py << " " << pz << " " << sqrt(MU*MU + px*px + py*py + pz*pz) << " " << MU << " 0. " << charge << endl;
+	{
+	  output << pdg_id << " 1 1 2 0 0 " << px << " " << py << " " << pz << " " << sqrt(MU*MU + px*px + py*py + pz*pz) << " " << MU << " 0. " << charge << endl;
+	  double phi = atan2(py,px);
+	  cout << "phi = " << phi << endl;
+	  h1->Fill(phi);
+	}
     }
 
   } // reading loop of the input file
   output << "</LesHouchesEvents>" << endl;
   infile.close();
   output.close();
+  h1->Draw("e");
   cout << nn << " events written in " << outfilename << endl;
   return;
 }
