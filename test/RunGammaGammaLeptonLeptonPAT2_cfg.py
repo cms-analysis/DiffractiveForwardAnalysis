@@ -20,7 +20,6 @@ process.source = cms.Source("PoolSource",
    'rfio:/castor/cern.ch/user/j/jjhollar/312signalMC/GamGamMuMu_LPAIRelastic_10tev_RECO_8E29.root'
 #    'rfio:/castor/cern.ch/user/j/jjhollar/312signalMC/GamP_Upsilon2Smumu_STARLIGHT_10tev_RECO_8E29.root',
 #    'rfio:/castor/cern.ch/user/j/jjhollar/312signalMC/GamP_Upsilon1Smumu_STARLIGHT_10tev_RECO_8E29.root'
-
     )
                             )
 
@@ -44,6 +43,10 @@ process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.PATGammaGammaMuM
 
 # Trigger
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.HLTFilter_cfi")
+
+process.out = cms.OutputModule("PoolOutputModule",
+                               outputCommands = cms.untracked.vstring("drop *")
+                               )
 
 # PAT Layer 0+1
 from Configuration.EventContent.EventContent_cff import *
@@ -74,7 +77,7 @@ removeCleaning(process)
 #    dataTier = cms.untracked.string('PAT'),
 #    filterName = cms.untracked.string('')
 #    ),
-#                                  )
+#)
 
 #process.output.outputCommands.extend(AODEventContent.outputCommands)
 
@@ -90,3 +93,4 @@ process.p = cms.Path(
 #   + process.output
     )
 
+print process.dumpPython()
