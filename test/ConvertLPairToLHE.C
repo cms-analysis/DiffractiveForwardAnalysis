@@ -5,8 +5,8 @@ using namespace std;
 
 void ConvertLPairToLHE()
 {
-  TFile *f1 = new TFile("/tmp/jjhollar/lpair-ee-10tev.root");
-  //  TFile *f1 = new TFile("/tmp/jjhollar/lpair-mumu-inel-10tev.root");
+  //  TFile *f1 = new TFile("/tmp/jjhollar/lpair-ee-10tev.root");
+  TFile *f1 = new TFile("/tmp/jjhollar/lpair-mumu-inel-10tev.root");
   TTree *t1 = (TTree*) f1->Get("h4444");
   const int N = 60; // max number of particles in per event
   Float_t px[N],py[N],pz[N],en[N],m[N];
@@ -22,8 +22,8 @@ void ConvertLPairToLHE()
   t1->SetBranchAddress("iz",iz);
   t1->SetBranchAddress("ip",&ip);
 
-  ofstream output("/tmp/jjhollar/gamgamee.lpairelastic.10tev.lhe");
-  //  ofstream output("/tmp/jjhollar/gamgammumu.lpairinelastic.10tev.lhe");
+  //  ofstream output("/tmp/jjhollar/gamgamee.lpairelastic.10tev.lhe");
+  ofstream output("/tmp/jjhollar/gamgammumu.lpairinelastic.10tev.lhe");
 
   Int_t nevts = t1->GetEntries();
   if(nevts<1) { std::cout << "no event in the file\n"; return;}
@@ -44,7 +44,7 @@ void ConvertLPairToLHE()
     {
       t1->GetEntry(i);
       output << "<event>" << endl;
-      output << "6   0  0.2983460E-04  0.9118800E+02  0.7546772E-02  0.1300000E+00" << endl;
+      output << ip+2 << "   0  0.2983460E-04  0.9118800E+02  0.7546772E-02  0.1300000E+00" << endl;
       //	cout << "there are " << ip << " particles in this event\n";
 
       // JH - note here we add in two fake photons as the beam particles. The energies don't matter - this is only for 
@@ -60,4 +60,6 @@ void ConvertLPairToLHE()
     }
   output << "</LesHouchesEvents>" << endl;
   output.close();
+
+  cout << "Converted " << i << " events" << endl;
 }
