@@ -20,7 +20,7 @@
 #include <TFile.h>
 #include <TH1D.h>
 #include <TTree.h>
-
+#include <TLorentzVector.h>
 
 class GammaGammaMuMu : public edm::EDAnalyzer {
  public:
@@ -147,6 +147,15 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double GenPhotCand_pt[5];
   double GenPhotCand_eta[5];
   double GenPhotCand_phi[5];
+
+  int nGenMuonCand;
+  int GENMUONMAX;
+  double GenMuonCand_px[10]; 
+  double GenMuonCand_py[10]; 
+  double GenMuonCand_pz[10]; 
+  double GenMuMu_eta; 
+  double GenMuMu_pt; 
+
 
   double Etmiss;
 

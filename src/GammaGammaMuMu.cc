@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.45 2009/08/20 14:17:33 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.46 2009/08/21 10:09:58 jjhollar Exp $
 //
 //
 
@@ -170,6 +170,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   TRACKMAX=500;
   PHOTONMAX=500;
   GENPHOTONMAX=5;
+  GENMUONMAX=10;
 
   thefile = new TFile(rootfilename.c_str(),"recreate");
   thefile->cd();
@@ -342,6 +343,14 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("GenPhotCand_pt",GenPhotCand_pt,"GenPhotCand_pt[nGenPhotCand]/D"); 
   thetree->Branch("GenPhotCand_eta",GenPhotCand_eta,"GenPhotCand_eta[nGenPhotCand]/D");  
   thetree->Branch("GenPhotCand_phi",GenPhotCand_phi,"GenPhotCand_phi[nGenPhotCand]/D");  
+
+  thetree->Branch("nGenMuonCand",&nGenMuonCand,"nGenMuonCand/I");  
+  thetree->Branch("GenMuonCand_px",GenMuonCand_px,"GenMuonCand_px[nGenMuonCand]/D");  
+  thetree->Branch("GenMuonCand_py",GenMuonCand_py,"GenMuonCand_py[nGenMuonCand]/D");   
+  thetree->Branch("GenMuonCand_pz",GenMuonCand_pz,"GenMuonCand_pz[nGenMuonCand]/D");   
+
+  thetree->Branch("GenMuMu_eta",&GenMuMu_eta,"GenMuMu_eta/D");    
+  thetree->Branch("GenMuMu_pt",&GenMuMu_pt,"GenMuMu_pt/D");     
   
   thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
 
@@ -419,6 +428,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   HitInZDC=0;
   HitInCastor=0;
   nGenPhotCand=0;
+  nGenMuonCand=0;
 
   nPFPhotonCand=0;
 
@@ -761,7 +771,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double totalecastorbwd = 0.0;
   double totalecalo = -1.0; 
   double closesttrkdxyz = 999.0;
-  cout << "JH: nCaloCand1 = " << nCaloCand << endl;
+
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
   if(nMuonCand == 2)
     {
@@ -902,8 +912,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  nCaloCand++;
 	}
 
-      cout << "JH: nCaloCand2 = " << nCaloCand << endl;
-      
       SumCalo_e = totalecalo;
       HighestCaloTower_e = highestetower;
       HighestCaloTower_eta = highestetowereta;
@@ -943,7 +951,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       SumCastorFwd_e = totalecastorfwd;
       SumCastorBwd_e = totalecastorbwd; 
     }
-  cout << "JH: nCaloCand3 = " << nCaloCand << endl;
   // Check for particles in ZDC/Castor acceptance. 
   // Use MC truth for now, replace with real RECO when available
   double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;
@@ -971,6 +978,17 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	      GenPhotCand_phi[nGenPhotCand]=p.phi(); 
 	      nGenPhotCand++;
 	    }
+	}
+
+      if(MCPar_pdgid == 13 || MCPar_pdgid == -13)
+	{
+	  if(p.status() == 1 && nGenMuonCand < GENMUONMAX) 
+            { 
+              GenMuonCand_px[nGenMuonCand]=p.px(); 
+              GenMuonCand_py[nGenMuonCand]=p.py();  
+              GenMuonCand_pz[nGenMuonCand]=p.pz();  
+              nGenMuonCand++; 
+            } 
 	}
 
       if(MCPar_pdgid == 22 && abs(MCPar_eta) > 8.6 && MCPar_e > 20.0) 
@@ -1020,7 +1038,21 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
         } 
 
     }
-  cout << "JH: nCaloCand4 = " << nCaloCand << endl; 
+
+  GenMuMu_eta = 0.0;
+  GenMuMu_pt = 0.0;
+  if(nGenMuonCand == 2)
+    {
+      TLorentzVector muvec1;
+      TLorentzVector muvec2;
+      TLorentzVector mumuvec;
+
+      muvec1.SetXYZM(GenMuonCand_px[0],GenMuonCand_py[0],GenMuonCand_pz[0],0.1057);
+      muvec2.SetXYZM(GenMuonCand_px[1],GenMuonCand_py[1],GenMuonCand_pz[1],0.1057); 
+      mumuvec = muvec1 + muvec2;
+      GenMuMu_eta = mumuvec.Eta();
+      GenMuMu_pt = mumuvec.Pt();
+    }
 
   // Now ParticleFlow photons 
   double leadingphotpx, leadingphotpy, leadingphotpz, leadingphotp; 
@@ -1060,9 +1092,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       mmgmass-=pow(MuonCand_pz[0]+MuonCand_pz[1]+leadingphotpz,2);  
       MuMuGamma_mass = sqrt(mmgmass);  
     } 
-
-  cout << "JH: nCaloCand5 = " << nCaloCand << endl; 
-
 
   // Now do vertexing and track counting
   edm::ESHandle<TransientTrackBuilder> theVtx;
@@ -1237,8 +1266,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }
 
   // "Exclusivity" cuts
-  cout << "JH: nCaloCand6 = " << nCaloCand << endl; 
-
   if(passed == true){
     thetree->Fill();
     //    cout << "   --> SAVED" << endl;
