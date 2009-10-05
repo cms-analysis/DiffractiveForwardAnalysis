@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.46 2009/08/21 10:09:58 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.47 2009/10/02 09:35:54 jjhollar Exp $
 //
 //
 
@@ -98,6 +98,9 @@
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h" 
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h" 
 
+#include "MuonAnalysis/TagAndProbe/interface/MuonPerformanceReadback.h" 
+#include "MuonAnalysis/TagAndProbe/interface/MuonPerformance.h"  
+
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"  
 
@@ -144,6 +147,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   mudphimin          = pset.getParameter<double>("DimuonMindphi");
   drisocalo          = pset.getParameter<double>("CaloTowerdR");
   keepsamesign       = pset.getParameter<bool>("KeepSameSignDimuons");
+
+  algonames          =  pset.getParameter< std::vector<std::string> >("AlgoNames"); 
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
 
@@ -658,6 +663,19 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           MuonCand_timeinerr[nMuonCand]=muon->time().timeAtIpOutInErr; 	 
  
 	  if(muon->isTrackerMuon() || muon->isGlobalMuon()) MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p();
+
+	  std::string algoname;
+
+	  // October exercise - testing efficiencies!
+          for(unsigned int i = 0; i < algonames.size(); ++i)  
+            { 
+              algoname = algonames[i]; 
+
+	      const MuonPerformance &muonefficiency = effreader->getPerformanceRecord(algoname, iSetup);   
+	      effreader->getEff(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand], MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
+	      effreader->getEffError(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand], MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency);  
+	    }
+
 /*	
           if(muon->isStandAloneMuon() )
 		{cout << "--> debug : stdalone  µ" << endl;

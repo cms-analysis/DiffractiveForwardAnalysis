@@ -15,6 +15,9 @@
 #include "DataFormats/Common/interface/TriggerResults.h" 
 #include "FWCore/Framework/interface/TriggerNames.h" 
 
+#include "MuonAnalysis/TagAndProbe/interface/MuonPerformanceReadback.h" 
+#include "MuonAnalysis/TagAndProbe/interface/MuonPerformance.h"  
+
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
 
 #include <TFile.h>
@@ -35,6 +38,9 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   virtual void endJob() ;
 
   // ----------member data ---------------------------
+
+  MuonPerformanceReadback *effreader; 
+  std::vector<std::string> algonames; 
   
   edm::InputTag recTrackLabel;
   edm::InputTag recVertexLabel;

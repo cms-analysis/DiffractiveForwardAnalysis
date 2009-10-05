@@ -12,6 +12,64 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #)
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
+# DB efficiency stuff
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.CondDBCommon.connect = 'sqlite_file:MuonPhysicsPerformance.db'
+process.load ("MuonAnalysis.TagAndProbe.MuonPerformanceESProducer_cfi")
+process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+                                      process.CondDBCommon,
+                                      toGet = cms.VPSet(
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('GLBMUJPSI_WP'),
+    label = cms.untracked.string('GLBMUJPSI_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('GLBMUJPSI_TABLE'),
+    label = cms.untracked.string('GLBMUJPSI_TABLE')
+            )))
+
+process.PoolDBESSource2 = cms.ESSource("PoolDBESSource",
+                                       process.CondDBCommon,
+                                       toGet = cms.VPSet(
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('TRKEFFMUJPSI_WP'),
+    label = cms.untracked.string('TRKEFFMUJPSI_WP')
+             ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('TRKEFFMUJPSI_TABLE'),
+    label = cms.untracked.string('TRKEFFMUJPSI_TABLE')
+             )))
+
+process.PoolDBESSource3 = cms.ESSource("PoolDBESSource",
+                                       process.CondDBCommon,
+                                       toGet = cms.VPSet(
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('TRGMUJPSI_WP'),
+              label = cms.untracked.string('TRGMUJPSI_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('TRGMUJPSI_TABLE'),
+    label = cms.untracked.string('TRGMUJPSI_TABLE')
+              )))
+
+process.MuonPerformanceESProducer_GlobalMuon.PayloadName = "GLBMUJPSI_TABLE"
+process.MuonPerformanceESProducer_GlobalMuon.WorkingPointName = "GLBMUJPSI_WP"
+process.MuonPerformanceESProducer_GlobalMuon.ComponentName = "GlobalMuonFromTrackerTrackJpsi"
+process.MuonPerformanceESProducer_TrackerTrackMuon.PayloadName = "TRKEFFMUJPSI_TABLE"
+process.MuonPerformanceESProducer_TrackerTrackMuon.WorkingPointName = "TRKEFFMUJPSI_WP"
+process.MuonPerformanceESProducer_TrackerTrackMuon.ComponentName = "TrackerTrackFromStandaloneMuonJpsi"
+process.MuonPerformanceESProducer_TriggerMuon.PayloadName = "TRGMUJPSI_TABLE"
+process.MuonPerformanceESProducer_TriggerMuon.WorkingPointName = "TRGMUJPSI_WP"
+process.MuonPerformanceESProducer_TriggerMuon.ComponentName = "TriggerMuonFromGlobalMuonJpsi"
+# End of DB stuff
+
+
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
