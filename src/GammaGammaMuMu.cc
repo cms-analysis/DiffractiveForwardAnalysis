@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.47 2009/10/02 09:35:54 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.48 2009/10/05 09:50:47 jjhollar Exp $
 //
 //
 
@@ -221,6 +221,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_timeout", MuonCand_timeout, "MuonCand_timeout[nMuonCand]/D"); 
   thetree->Branch("MuonCand_timeinerr", MuonCand_timeinerr, "MuonCand_timeinerr[nMuonCand]/D");  
   thetree->Branch("MuonCand_timeouterr", MuonCand_timeouterr, "MuonCand_timeouterr[nMuonCand]/D"); 	 
+  thetree->Branch("MuonCand_efficiency", MuonCand_efficiency, "MuonCand_efficiency[nMuonCand]/D");        
 
   thetree->Branch("nHLTMu3MuonCand",&nHLTMu3MuonCand,"nHLTMu3MuonCand/I"); 
   thetree->Branch("HLT_Mu3_MuonCand_pt",&HLT_Mu3_MuonCand_pt,"HLT_Mu3_MuonCand_pt[nHLTMu3MuonCand]/D"); 
@@ -665,6 +666,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  if(muon->isTrackerMuon() || muon->isGlobalMuon()) MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p();
 
 	  std::string algoname;
+	  double totalmuoneff = 1.0;
 
 	  // October exercise - testing efficiencies!
           for(unsigned int i = 0; i < algonames.size(); ++i)  
@@ -672,10 +674,13 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
               algoname = algonames[i]; 
 
 	      const MuonPerformance &muonefficiency = effreader->getPerformanceRecord(algoname, iSetup);   
-	      effreader->getEff(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand], MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
+	      double muoneff = effreader->getEff(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand], MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
 	      effreader->getEffError(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand], MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency);  
+	      
+	      if(muoneff > -1)
+		totalmuoneff *= muoneff;
 	    }
-
+	  MuonCand_efficiency[nMuonCand] = totalmuoneff;
 /*	
           if(muon->isStandAloneMuon() )
 		{cout << "--> debug : stdalone  µ" << endl;
@@ -1312,6 +1317,7 @@ GammaGammaMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
   iDesc.add<bool>("KeepSameSignDimuons", false)->setComment("Set to true to keep same-sign dimuon combinations");
   iDesc.addOptionalUntracked<std::string>("outfilename", ("mumu.pat.root"))->setComment("output flat ntuple file name");  
   iDesc.add<std::string>("HLTMenuLabel", ("HLT8E29"))->setComment("HLT AOD trigger summary label");
+  iDesc.add< vector<std::string> >("AlgoNames")->setComment("Tag-and-probe algorithm names");
 
   descriptions.add("ParameterDescriptionsForGammaGammaMuMu", iDesc);
 }

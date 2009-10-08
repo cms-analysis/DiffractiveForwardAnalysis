@@ -14,59 +14,105 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # DB efficiency stuff
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:MuonPhysicsPerformance.db'
+#process.CondDBCommon.connect = 'sqlite_file:MuonPhysicsPerformance.db'
+process.CondDBCommon.connect = 'sqlite_file:../../../MuonAnalysis/TagAndProbe/test/performanceDB/MuonPhysicsPerformance.db'
 process.load ("MuonAnalysis.TagAndProbe.MuonPerformanceESProducer_cfi")
+
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                       process.CondDBCommon,
                                       toGet = cms.VPSet(
     cms.PSet(
     record = cms.string('PerformanceWPRecord'),
-    tag = cms.string('GLBMUJPSI_WP'),
-    label = cms.untracked.string('GLBMUJPSI_WP')
+    tag = cms.string('GLBMUJPSI_OCTXTEST_WP'),
+    label = cms.untracked.string('GLBMUJPSI_OCTXTEST_WP')
     ),
     cms.PSet(
     record = cms.string('PerformancePayloadRecord'),
-    tag = cms.string('GLBMUJPSI_TABLE'),
-    label = cms.untracked.string('GLBMUJPSI_TABLE')
-            )))
+    tag = cms.string('GLBMUJPSI_OCTXTEST_TABLE'),
+    label = cms.untracked.string('GLBMUJPSI_OCTXTEST_TABLE')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('GLBMUZ_OCTXTEST_WP'),
+    label = cms.untracked.string('GLBMUZ_OCTXTEST_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('GLBMUZ_OCTXTEST_TABLE'),
+    label = cms.untracked.string('GLBMUZ_OCTXTEST_TABLE')
+    )))
 
 process.PoolDBESSource2 = cms.ESSource("PoolDBESSource",
                                        process.CondDBCommon,
                                        toGet = cms.VPSet(
     cms.PSet(
     record = cms.string('PerformanceWPRecord'),
-    tag = cms.string('TRKEFFMUJPSI_WP'),
-    label = cms.untracked.string('TRKEFFMUJPSI_WP')
-             ),
+    tag = cms.string('TRKEFFMUJPSI_OCTXTEST_WP'),
+    label = cms.untracked.string('TRKEFFMUJPSI_OCTXTEST_WP')
+    ),
     cms.PSet(
     record = cms.string('PerformancePayloadRecord'),
-    tag = cms.string('TRKEFFMUJPSI_TABLE'),
-    label = cms.untracked.string('TRKEFFMUJPSI_TABLE')
-             )))
+    tag = cms.string('TRKEFFMUJPSI_OCTXTEST_TABLE'),
+    label = cms.untracked.string('TRKEFFMUJPSI_OCTXTEST_TABLE')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('TRKEFFMUZ_OCTXTEST_WP'),
+    label = cms.untracked.string('TRKEFFMUZ_OCTXTEST_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+            tag = cms.string('TRKEFFMUZ_OCTXTEST_TABLE'),
+    label = cms.untracked.string('TRKEFFMUZ_OCTXTEST_TABLE')
+    )))
 
 process.PoolDBESSource3 = cms.ESSource("PoolDBESSource",
                                        process.CondDBCommon,
                                        toGet = cms.VPSet(
     cms.PSet(
     record = cms.string('PerformanceWPRecord'),
-    tag = cms.string('TRGMUJPSI_WP'),
-              label = cms.untracked.string('TRGMUJPSI_WP')
+    tag = cms.string('TRGMUJPSI_OCTXTEST_WP'),
+    label = cms.untracked.string('TRGMUJPSI_OCTXTEST_WP')
     ),
     cms.PSet(
     record = cms.string('PerformancePayloadRecord'),
-    tag = cms.string('TRGMUJPSI_TABLE'),
-    label = cms.untracked.string('TRGMUJPSI_TABLE')
-              )))
+    tag = cms.string('TRGMUJPSI_OCTXTEST_TABLE'),
+    label = cms.untracked.string('TRGMUJPSI_OCTXTEST_TABLE')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('TRGMUZ_OCTXTEST_WP'),
+    label = cms.untracked.string('TRGMUZ_OCTXTEST_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('TRGMUZ_OCTXTEST_TABLE'),
+    label = cms.untracked.string('TRGMUZ_OCTXTEST_TABLE')
+    )))
 
-process.MuonPerformanceESProducer_GlobalMuon.PayloadName = "GLBMUJPSI_TABLE"
-process.MuonPerformanceESProducer_GlobalMuon.WorkingPointName = "GLBMUJPSI_WP"
-process.MuonPerformanceESProducer_GlobalMuon.ComponentName = "GlobalMuonFromTrackerTrackJpsi"
-process.MuonPerformanceESProducer_TrackerTrackMuon.PayloadName = "TRKEFFMUJPSI_TABLE"
-process.MuonPerformanceESProducer_TrackerTrackMuon.WorkingPointName = "TRKEFFMUJPSI_WP"
-process.MuonPerformanceESProducer_TrackerTrackMuon.ComponentName = "TrackerTrackFromStandaloneMuonJpsi"
-process.MuonPerformanceESProducer_TriggerMuon.PayloadName = "TRGMUJPSI_TABLE"
-process.MuonPerformanceESProducer_TriggerMuon.WorkingPointName = "TRGMUJPSI_WP"
-process.MuonPerformanceESProducer_TriggerMuon.ComponentName = "TriggerMuonFromGlobalMuonJpsi"
+#
+# change inside the source
+#
+process.MuonPerformanceESProducer_GlobalMuon1.PayloadName = "GLBMUZ_OCTXTEST_TABLE"
+process.MuonPerformanceESProducer_GlobalMuon1.WorkingPointName = "GLBMUZ_OCTXTEST_WP"
+process.MuonPerformanceESProducer_GlobalMuon1.ComponentName = "GlobalMuonFromTrackerTrackZ"
+process.MuonPerformanceESProducer_TrackerTrackMuon1.PayloadName = "TRKEFFMUZ_OCTXTEST_TABLE"
+process.MuonPerformanceESProducer_TrackerTrackMuon1.WorkingPointName = "TRKEFFMUZ_OCTXTEST_WP"
+process.MuonPerformanceESProducer_TrackerTrackMuon1.ComponentName = "TrackerTrackFromStandaloneMuonZ"
+process.MuonPerformanceESProducer_TriggerMuon1.PayloadName = "TRGMUZ_OCTXTEST_TABLE"
+process.MuonPerformanceESProducer_TriggerMuon1.WorkingPointName = "TRGMUZ_OCTXTEST_WP"
+process.MuonPerformanceESProducer_TriggerMuon1.ComponentName = "TriggerMuonFromGlobalMuonZ"
+
+process.MuonPerformanceESProducer_GlobalMuon2.PayloadName = "GLBMUJPSI_OCTXTEST_TABLE"
+process.MuonPerformanceESProducer_GlobalMuon2.WorkingPointName = "GLBMUJPSI_OCTXTEST_WP"
+process.MuonPerformanceESProducer_GlobalMuon2.ComponentName = "GlobalMuonFromTrackerTrackJpsi"
+process.MuonPerformanceESProducer_TrackerTrackMuon2.PayloadName = "TRKEFFMUJPSI_OCTXTEST_TABLE"
+process.MuonPerformanceESProducer_TrackerTrackMuon2.WorkingPointName = "TRKEFFMUJPSI_OCTXTEST_WP"
+process.MuonPerformanceESProducer_TrackerTrackMuon2.ComponentName = "TrackerTrackFromStandaloneMuonJpsi"
+process.MuonPerformanceESProducer_TriggerMuon2.PayloadName = "TRGMUJPSI_OCTXTEST_TABLE"
+process.MuonPerformanceESProducer_TriggerMuon2.WorkingPointName = "TRGMUJPSI_OCTXTEST_WP"
+process.MuonPerformanceESProducer_TriggerMuon2.ComponentName = "TriggerMuonFromGlobalMuonJpsi"
+ 
 # End of DB stuff
 
 
@@ -81,7 +127,7 @@ process.source = cms.Source("PoolSource",
     )
                             )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 
 # Load configuration stuff
@@ -151,4 +197,4 @@ process.p = cms.Path(
 #   + process.output
     )
 
-print process.dumpPython()
+#print process.dumpPython()

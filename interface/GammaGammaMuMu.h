@@ -75,6 +75,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuonCand_phi[4];
   double MuonCand_e[4];
   double MuonCandTrack_p[100];
+  double MuonCand_efficiency[4];
   int MuonCand_charge[4];
   int MuonCand_tmlsloosemuonid[4];
   int MuonCand_tmlsOptLowPtloosemuonid[4];
