@@ -15,8 +15,8 @@
 #include "DataFormats/Common/interface/TriggerResults.h" 
 #include "FWCore/Framework/interface/TriggerNames.h" 
 
-#include "MuonAnalysis/TagAndProbe/interface/MuonPerformanceReadback.h" 
-#include "MuonAnalysis/TagAndProbe/interface/MuonPerformance.h"  
+//#include "MuonAnalysis/TagAndProbe/interface/MuonPerformanceReadback.h" 
+//#include "MuonAnalysis/TagAndProbe/interface/MuonPerformance.h"  
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
 
@@ -39,7 +39,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
 
   // ----------member data ---------------------------
 
-  MuonPerformanceReadback *effreader; 
+  //  MuonPerformanceReadback *effreader; 
   std::vector<std::string> algonames; 
   
   edm::InputTag recTrackLabel;
@@ -131,7 +131,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int MuMu_extratracks3cm;
   int MuMu_extratracks5cm;
   int MuMu_extratracks10cm;
-  double MuMuGamma_mass;
+  double MuMuGamma_mass[50];
 
   int nJetCand;
   int JETMAX;// used to set maximum of arrays
@@ -216,10 +216,10 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
 
   int nPFPhotonCand;  
   int PHOTONMAX;
-  double PFPhotonCand_pt[500];
-  double PFPhotonCand_eta[500];
-  double PFPhotonCand_phi[500];
-  double PFPhotonCand_drtrue[500];
+  double PFPhotonCand_pt[50];
+  double PFPhotonCand_eta[50];
+  double PFPhotonCand_phi[50];
+  double PFPhotonCand_drtrue[50];
 
   double evweight;
   

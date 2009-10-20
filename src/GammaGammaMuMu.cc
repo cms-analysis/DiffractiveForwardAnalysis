@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.48 2009/10/05 09:50:47 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.49 2009/10/08 12:22:01 jjhollar Exp $
 //
 //
 
@@ -98,8 +98,8 @@
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h" 
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h" 
 
-#include "MuonAnalysis/TagAndProbe/interface/MuonPerformanceReadback.h" 
-#include "MuonAnalysis/TagAndProbe/interface/MuonPerformance.h"  
+//#include "MuonAnalysis/TagAndProbe/interface/MuonPerformanceReadback.h" 
+//#include "MuonAnalysis/TagAndProbe/interface/MuonPerformance.h"  
 
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"  
@@ -340,7 +340,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuMu_extratracks3cm",&MuMu_extratracks3cm,"MuMu_extratracks3cm/I");
   thetree->Branch("MuMu_extratracks5cm",&MuMu_extratracks5cm,"MuMu_extratracks5cm/I"); 
   thetree->Branch("MuMu_extratracks10cm",&MuMu_extratracks10cm,"MuMu_extratracks10cm/I"); 
-  thetree->Branch("MuMuGamma_mass",&MuMuGamma_mass,"MuMuGamma_mass/D"); 
+  thetree->Branch("MuMuGamma_mass",MuMuGamma_mass,"MuMuGamma_mass[nPFPhotonCand]/D"); 
 
   thetree->Branch("HitInZDC",&HitInZDC,"HitInZDC/I");
   thetree->Branch("HitInCastor",&HitInCastor,"HitInCastor/I");
@@ -448,7 +448,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   MuMu_extratracks3cm = 0;
   MuMu_extratracks5cm = 0;
   MuMu_extratracks10cm = 0;
-  MuMuGamma_mass = -1;
 
   bool passed = true;
   int LS = 0;
@@ -669,6 +668,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  double totalmuoneff = 1.0;
 
 	  // October exercise - testing efficiencies!
+	  /*
           for(unsigned int i = 0; i < algonames.size(); ++i)  
             { 
               algoname = algonames[i]; 
@@ -681,6 +681,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		totalmuoneff *= muoneff;
 	    }
 	  MuonCand_efficiency[nMuonCand] = totalmuoneff;
+	  */
+
 /*	
           if(muon->isStandAloneMuon() )
 		{cout << "--> debug : stdalone  µ" << endl;
@@ -1103,19 +1105,20 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
               leadingphotpz = pflow->pz();  
               leadingphotp = pflow->p();  
             } 
+
+	  if(nMuonCand == 2)  
+	    {  
+	      double mmgmass = pow(MuonCand_p[0]+MuonCand_p[1]+pflow->p(),2);   
+	      mmgmass-=pow(MuonCand_px[0]+MuonCand_px[1]+pflow->px(),2);   
+	      mmgmass-=pow(MuonCand_py[0]+MuonCand_py[1]+pflow->py(),2);   
+	      mmgmass-=pow(MuonCand_pz[0]+MuonCand_pz[1]+pflow->pz(),2);   
+	      MuMuGamma_mass[nPFPhotonCand] = sqrt(mmgmass);   
+	    }  
+
           nPFPhotonCand++; 
         } 
     } 
    
-  if(nPFPhotonCand > 0 && nMuonCand == 2) 
-    { 
-      double mmgmass = pow(MuonCand_p[0]+MuonCand_p[1]+leadingphotp,2);  
-      mmgmass-=pow(MuonCand_px[0]+MuonCand_px[1]+leadingphotpx,2);  
-      mmgmass-=pow(MuonCand_py[0]+MuonCand_py[1]+leadingphotpy,2);  
-      mmgmass-=pow(MuonCand_pz[0]+MuonCand_pz[1]+leadingphotpz,2);  
-      MuMuGamma_mass = sqrt(mmgmass);  
-    } 
-
   // Now do vertexing and track counting
   edm::ESHandle<TransientTrackBuilder> theVtx;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theVtx);

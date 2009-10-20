@@ -5,8 +5,7 @@ using namespace std;
 
 void ConvertLPairToLHE()
 {
-  //  TFile *f1 = new TFile("/tmp/jjhollar/lpair-ee-10tev.root");
-  TFile *f1 = new TFile("/tmp/jjhollar/lpair-mumu-inel-10tev.root");
+  TFile *f1 = new TFile("/tmp/jjhollar/lpair-mumu-7tev.root");
   TTree *t1 = (TTree*) f1->Get("h4444");
   const int N = 60; // max number of particles in per event
   Float_t px[N],py[N],pz[N],en[N],m[N];
@@ -22,8 +21,7 @@ void ConvertLPairToLHE()
   t1->SetBranchAddress("iz",iz);
   t1->SetBranchAddress("ip",&ip);
 
-  //  ofstream output("/tmp/jjhollar/gamgamee.lpairelastic.10tev.lhe");
-  ofstream output("/tmp/jjhollar/gamgammumu.lpairinelastic.10tev.lhe");
+  ofstream output("/tmp/jjhollar/gamgammumu.lpairelastic.7tev.lhe");
 
   Int_t nevts = t1->GetEntries();
   if(nevts<1) { std::cout << "no event in the file\n"; return;}
@@ -36,7 +34,7 @@ void ConvertLPairToLHE()
   output << "</header>" << endl; 
 
   output << "<init>" << endl;
-  output << "2212  2212  0.50000000000E+04  0.50000000000E+04 0 0 10042 10042 2  1" << endl;
+  output << "2212  2212  0.35000000000E+04  0.35000000000E+04 0 0 10042 10042 2  1" << endl;
   output << "0.10508723460E+01  0.96530000000E-02  0.26731120000E-03   0" << endl;
   output << "</init>" << endl;
 
