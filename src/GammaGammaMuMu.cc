@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.49 2009/10/08 12:22:01 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.50 2009/10/20 09:44:22 jjhollar Exp $
 //
 //
 
@@ -173,7 +173,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   MUONMAX=10;
   JETMAX=30;
   TRACKMAX=500;
-  PHOTONMAX=500;
+  PHOTONMAX=50;
   GENPHOTONMAX=5;
   GENMUONMAX=10;
 
@@ -680,8 +680,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	      if(muoneff > -1)
 		totalmuoneff *= muoneff;
 	    }
-	  MuonCand_efficiency[nMuonCand] = totalmuoneff;
 	  */
+	  MuonCand_efficiency[nMuonCand] = totalmuoneff;
 
 /*	
           if(muon->isStandAloneMuon() )

@@ -119,22 +119,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-#    'file:/tmp/schul/ups1S_mumu_SIM-RECO_7TeV_8E29_startup-mc.root'
-    'file:/tmp/schul/chib_SIM-RECO_7TeV_8E29_startup-mc.root'
-#        '/store/mc/Summer09/ppMuMuX/GEN-SIM-RECO/MC_31X_V3_SD_DoubleMu-v1/0003/2056F3A0-79AA-DE11-988C-003048D462C8.root'        
-#    'file:/tmp/schul/ups1S_mumu_SIM-RECO_7TeV_8E29_startup-mc.root'
-#        '/store/mc/Summer09/ppMuMuX/GEN-SIM-RECO/MC_31X_V3-v1/0007/DA87304D-2A8E-DE11-99F3-001AA009FB99.root'        
-#    'rfio:/castor/cern.ch/user/j/jjhollar/312signalMC/DiffChiB_10tev_RECO_8E29.root'
-#    'rfio:/castor/cern.ch/user/j/jjhollar/312signalMC/GamP_Upsilon1Smumu_STARLIGHT_10tev_RECO_8E29.root'
-#    'file:/tmp/jjhollar/inelastictest_GEN.root'
-#    'file:/tmp/schul/inelgamma_mumu_SIM-RECO_0PU_8E29_startup-mc.root'
-#    'rfio:/castor/cern.ch/user/j/jjhollar/312signalMC/DiffChiB_10tev_RECO_8E29.root'
-#    'file:/tmp/jjhollar/DiffChiB_10tev_RECO_8E29.root'
-#   'rfio:/castor/cern.ch/user/j/jjhollar/312signalMC/GamGamMuMu_LPAIRelastic_10tev_RECO_8E29.root'
-#    'rfio:/castor/cern.ch/user/j/jjhollar/312signalMC/GamP_Upsilon2Smumu_STARLIGHT_10tev_RECO_8E29.root',
-#    'rfio:/castor/cern.ch/user/j/jjhollar/312signalMC/GamP_Upsilon1Smumu_STARLIGHT_10tev_RECO_8E29.root'
-#'rfio:/castor/cern.ch/user/r/roland/FAMC10TeV/SmallSample/PYTHIA6_DYmumu_M5_20_10TeV/PYTHIA6_DYmumu_M5_20_10TeV_cff_py_GEN_FASTSIM.root'
-    
+    '/store/mc/Summer09/DYMuMu_M5to20/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0000/F0162DEC-95AF-DE11-A348-00001A1A3CF1.root'
     )
                             )
 
@@ -198,7 +183,7 @@ removeCleaning(process)
 
 #process.output.outputCommands.extend(AODEventContent.outputCommands)
 
-process.gamgammumuanalysis.outfilename = "Chib_7TeV_8E29_withmumug.root"
+process.gamgammumuanalysis.outfilename = "DYMuMu_M5to20_Summer09-MC_31X_V3_7TeV_ANAL_8E29.root"
 
 # Put it all together
 process.p = cms.Path(
