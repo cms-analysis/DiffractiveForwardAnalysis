@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.50 2009/10/20 09:44:22 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.51 2009/10/20 11:58:16 jjhollar Exp $
 //
 //
 
@@ -448,6 +448,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   MuMu_extratracks3cm = 0;
   MuMu_extratracks5cm = 0;
   MuMu_extratracks10cm = 0;
+  ClosestExtraTrack_vtxdxyz = 999.;
 
   bool passed = true;
   int LS = 0;
