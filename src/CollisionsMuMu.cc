@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CollisionsMuMu.cc,v 1.1 2009/11/23 08:42:59 jjhollar Exp $
+// $Id: CollisionsMuMu.cc,v 1.1 2009/11/30 13:28:48 jjhollar Exp $
 //
 //
 
@@ -59,6 +59,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"   
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/CollisionsMuMu.h"
 
@@ -94,6 +95,7 @@
 #include <TH1D.h>
 #include <TTree.h>
 
+using namespace HepMC;
 using namespace std;
 using namespace edm;
 using namespace reco;
@@ -135,6 +137,10 @@ CollisionsMuMu::CollisionsMuMu(const edm::ParameterSet& pset)
   thefile = new TFile(rootfilename.c_str(),"recreate");
   thefile->cd();
   thetree= new TTree("ntp1","ntp1");
+
+  thetree->Branch("Run",&Run,"Run/I");
+  thetree->Branch("LumiSection",&LumiSection,"LumiSection/I");
+  thetree->Branch("GenProcessId",&GenProcessId,"GenProcessId/I");
 
   thetree->Branch("nJetCand",&nJetCand,"nJetCand/I");
   thetree->Branch("JetCand_px",JetCand_px,"JetCand_px[nJetCand]/D");
@@ -379,8 +385,17 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   //  event.getByLabel ("weight", weightHandle);
   //  evweight = * weightHandle;
 
-
+  Run = event.id().run();
+  LumiSection = event.luminosityBlock();
   
+  GenProcessId = -1;
+  Handle<HepMCProduct> mcevt;
+  event.getByLabel(InputTag("generator"), mcevt);
+  if(mcevt.isValid())
+    {
+      const HepMC::GenEvent* genEvent = mcevt->GetEvent() ;
+      GenProcessId = genEvent->signal_process_id(); 
+    }
   // Get the trigger information from the event
 /*
   edm::Handle<edm::TriggerResults> hltResults ; 
@@ -640,15 +655,15 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
 	  GlobalPoint emPosition=calo->emPosition();
           GlobalPoint hadPosition=calo->hadPosition();
-	cout<<"em. = "<<calo->emEnergy()<<"\t had. = "<<calo->hadEnergy()<<"\t eta = "<<calo->eta()<<endl;
+	  cout<<"em. = "<<calo->emEnergy()<<"\t had. = "<<calo->hadEnergy()<<"\t eta = "<<calo->eta()<<endl;
 	  if(CaloTower_emE[nCaloCand]>0){ //if ECAL
 		CaloTower_x[nCaloCand]=emPosition.x();
                 CaloTower_y[nCaloCand]=emPosition.y();
                 CaloTower_z[nCaloCand]=emPosition.z();
                 CaloTower_t[nCaloCand]=calo->ecalTime();
 		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=1; cout<<" -> EB"<<endl;}//EB
-                if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95){CaloTower_ID[nCaloCand]=2; cout<<" -> EE"<<endl;}//EE
-                if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2){CaloTower_ID[nCaloCand]=3; cout<<" -> EF"<<endl;}//EF ??
+		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95){CaloTower_ID[nCaloCand]=2; cout<<" -> EE"<<endl;}//EE
+		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2){CaloTower_ID[nCaloCand]=3; cout<<" -> EF"<<endl;}//EF ??
 	  }
 
 	  else if(CaloTower_hadE[nCaloCand]>0){
@@ -656,9 +671,9 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 CaloTower_y[nCaloCand]=hadPosition.y();
                 CaloTower_z[nCaloCand]=hadPosition.z();
                 CaloTower_t[nCaloCand]=calo->hcalTime();
-                if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=4; cout<<" -> HB"<<endl;}//HB
-                if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95) {CaloTower_ID[nCaloCand]=5; cout<<" -> HE"<<endl;}//HE
-                if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2) {CaloTower_ID[nCaloCand]=6; cout<<" -> HF"<<endl;}//HF ??
+		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=4; cout<<" -> HB"<<endl;}//HB
+		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95) {CaloTower_ID[nCaloCand]=5; cout<<" -> HE"<<endl;}//HE
+		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2) {CaloTower_ID[nCaloCand]=6; cout<<" -> HF"<<endl;}//HF ??
 	  }
 	  else cout <<"PBLM ?????"<<endl;
 
@@ -831,7 +846,7 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           nExtraTrackCand++;  
         } 
 
-    cout << "-----------" << endl;
+      //    cout << "-----------" << endl;
     thetree->Fill();
 }
 

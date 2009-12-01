@@ -52,6 +52,10 @@ class CollisionsMuMu : public edm::EDAnalyzer {
   TFile *thefile;
   TTree *thetree;
 
+  int Run;
+  int LumiSection;
+  int GenProcessId;
+
   int nMuonCand;
   int MUONMAX;// used to set maximum of arrays
   double MuonCand_px[4];
