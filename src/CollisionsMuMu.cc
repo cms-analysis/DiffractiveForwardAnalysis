@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CollisionsMuMu.cc,v 1.2 2009/12/01 00:36:19 jjhollar Exp $
+// $Id: CollisionsMuMu.cc,v 1.3 2009/12/05 09:12:29 jjhollar Exp $
 //
 //
 
@@ -36,6 +36,11 @@
  
 #include "DataFormats/Common/interface/TriggerResults.h"  
 #include "FWCore/Framework/interface/TriggerNames.h"  
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
    
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
@@ -303,6 +308,7 @@ CollisionsMuMu::CollisionsMuMu(const edm::ParameterSet& pset)
 
   thetree->Branch("HLT2MuonNonIso",&HLT2MuonNonIso,"HLT2MuonNonIso/I");
   thetree->Branch("HLT1MuonPrescalePt3",&HLT1MuonPrescalePt3,"HLT1MuonPrescalePt3/I"); 
+  thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I");
 
   //  thetree->Branch("evweight",&evweight,"evweight/D"); 
 }
@@ -400,7 +406,23 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       const HepMC::GenEvent* genEvent = mcevt->GetEvent() ;
       GenProcessId = genEvent->signal_process_id(); 
     }
-  // Get the trigger information from the event
+
+  // L1 technical triggers
+  edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
+  edm::Handle<L1GlobalTriggerObjectMapRecord> L1GTOMRec;
+  event.getByLabel(InputTag("hltGtDigis::HLT"), L1GTRR);
+  event.getByLabel(InputTag("hltL1GtObjectMap::HLT"), L1GTOMRec);
+  if (L1GTRR.isValid() and L1GTOMRec.isValid()) {
+    DecisionWord gtDecisionWord = L1GTRR->decisionWord();
+    const unsigned int numberTriggerBits(gtDecisionWord.size());
+    const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = L1GTRR->technicalTriggerWord();
+    const unsigned int numberTechnicalTriggerBits(technicalTriggerWordBeforeMask.size());
+    for (unsigned int iBit = 0; iBit < numberTechnicalTriggerBits; ++iBit) {
+      int techTrigger = (int) technicalTriggerWordBeforeMask.at(iBit);
+      L1TechnicalTriggers[iBit] = techTrigger;
+    }
+  }
+
 /*
   edm::Handle<edm::TriggerResults> hltResults ; 
   event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ; 

@@ -197,6 +197,7 @@ class CollisionsMuMu : public edm::EDAnalyzer {
   
   int HLT2MuonNonIso;
   int HLT1MuonPrescalePt3;
+  int L1TechnicalTriggers[128];
 
   edm::TriggerNames trigNames ;
 };
