@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CollisionsMuMu.cc,v 1.1 2009/11/30 13:28:48 jjhollar Exp $
+// $Id: CollisionsMuMu.cc,v 1.2 2009/12/01 00:36:19 jjhollar Exp $
 //
 //
 
@@ -273,6 +273,10 @@ CollisionsMuMu::CollisionsMuMu(const edm::ParameterSet& pset)
   thetree->Branch("VertexCand_x",&VertexCand_x,"VertexCand_x[nVertexCand]/D");
   thetree->Branch("VertexCand_y",&VertexCand_y,"VertexCand_y[nVertexCand]/D");
   thetree->Branch("VertexCand_z",&VertexCand_z,"VertexCand_z[nVertexCand]/D");
+  thetree->Branch("VertexCand_tracks",&VertexCand_tracks,"VertexCand_tracks[nVertexCand]/I");
+  thetree->Branch("VertexCand_chi2",&VertexCand_chi2,"VertexCand_chi2[nVertexCand]/D");
+  thetree->Branch("VertexCand_ndof",&VertexCand_ndof,"VertexCand_ndof[nVertexCand]/D");
+
   
   thetree->Branch("MuMu_mass",&MuMu_mass,"MuMu_mass/D");
   thetree->Branch("MuMu_dphi",&MuMu_dphi,"MuMu_dphi/D");
@@ -576,7 +580,7 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   // Get the vertex collection from the event
   edm::Handle<reco::VertexCollection> recoVertexs;
 //  event.getByLabel(recVertexLabel, recoVertexs);
-  event.getByLabel(InputTag("offlinePrimaryVertices::REVERTEX"), recoVertexs);
+  event.getByLabel(InputTag("offlinePrimaryVertices"), recoVertexs);
   const VertexCollection* vertexs = recoVertexs.product();
   VertexCollection::const_iterator vertex_i;
   cout << "Found " << vertexs->size() << " vertices" << endl;
@@ -585,6 +589,9 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  VertexCand_x[nVertexCand] = vertex_i->x();
           VertexCand_y[nVertexCand] = vertex_i->y();
           VertexCand_z[nVertexCand] = vertex_i->z();
+	  VertexCand_tracks[nVertexCand] = vertex_i->tracksSize();
+	  VertexCand_chi2[nVertexCand] = vertex_i->chi2();
+	  VertexCand_ndof[nVertexCand] = vertex_i->ndof();
 	  nVertexCand++;	
   }
 
@@ -592,7 +599,7 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   // Get the track collection from the event
     edm::Handle<reco::TrackCollection> recoTracks;
 //    event.getByLabel(recTrackLabel, recoTracks);
-    event.getByLabel(InputTag("generalTracks::RETRACK"), recoTracks);
+    event.getByLabel(InputTag("generalTracks"), recoTracks);
     const TrackCollection* tracks = recoTracks.product();
     TrackCollection::const_iterator track;
     cout << "Found " << tracks->size() << " tracks" << endl;

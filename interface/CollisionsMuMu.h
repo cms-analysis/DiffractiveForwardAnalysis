@@ -188,6 +188,10 @@ class CollisionsMuMu : public edm::EDAnalyzer {
   double VertexCand_x[10];
   double VertexCand_y[10];
   double VertexCand_z[10];
+  int VertexCand_tracks[10];
+  double VertexCand_chi2[10];
+  double VertexCand_ndof[10];
+
 
   double evweight;
   
