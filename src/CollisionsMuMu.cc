@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CollisionsMuMu.cc,v 1.4 2009/12/05 09:44:01 jjhollar Exp $
+// $Id: CollisionsMuMu.cc,v 1.5 2009/12/06 10:26:26 jjhollar Exp $
 //
 //
 
@@ -424,9 +424,9 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   // L1 technical triggers
   edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
   edm::Handle<L1GlobalTriggerObjectMapRecord> L1GTOMRec;
-  event.getByLabel(InputTag("hltGtDigis::HLT"), L1GTRR);
+  event.getByLabel(InputTag("gtDigis::RECO"), L1GTRR);
   event.getByLabel(InputTag("hltL1GtObjectMap::HLT"), L1GTOMRec);
-  if (L1GTRR.isValid() and L1GTOMRec.isValid()) {
+  if (L1GTRR.isValid()) {
     DecisionWord gtDecisionWord = L1GTRR->decisionWord();
     const unsigned int numberTriggerBits(gtDecisionWord.size());
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = L1GTRR->technicalTriggerWord();
