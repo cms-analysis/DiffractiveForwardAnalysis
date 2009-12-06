@@ -8,6 +8,11 @@
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/ParticleFlowCandidates>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/HcalRecHit>
+<use name=Geometry/HcalTowerAlgo>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/Records>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/L1Trigger>
 <use name=FWCore/Framework>

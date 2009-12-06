@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CollisionsMuMu.cc,v 1.3 2009/12/05 09:12:29 jjhollar Exp $
+// $Id: CollisionsMuMu.cc,v 1.4 2009/12/05 09:44:01 jjhollar Exp $
 //
 //
 
@@ -88,6 +88,15 @@
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h" 
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h" 
 
+// for HF application
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"  
 
@@ -261,6 +270,11 @@ CollisionsMuMu::CollisionsMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersEt2",&nExtraCaloTowersEt2,"nExtraCaloTowersEt2/I"); 
   thetree->Branch("nExtraCaloTowersEt3",&nExtraCaloTowersEt3,"nExtraCaloTowersEt3/I");  
   thetree->Branch("nExtraCaloTowersEt4",&nExtraCaloTowersEt4,"nExtraCaloTowersEt4/I");  
+
+  thetree->Branch("HF_plus_energy",&HF_plus_energy,"HF_plus_energy/D");
+  thetree->Branch("HF_minus_energy",&HF_minus_energy,"HF_minus_energy/D");
+  thetree->Branch("HF_plus_time",&HF_plus_time,"HF_plus_time/D");
+  thetree->Branch("HF_minus_time",&HF_minus_time,"HF_minus_time/D");
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
   thetree->Branch("nExtraTrackCand",&nExtraTrackCand,"nExtraTrackCand/I"); 
@@ -599,6 +613,16 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   CaloTowerCollection::const_iterator calo; 
   cout << "Found " << towers->size() << " towers" << endl;
 
+  // Get the reconstructed hits from the frame.
+  edm::Handle<HFRecHitCollection> hf;
+  if( !event.getByLabel("hfreco",hf) ){
+    std::cout << "Could not get rec hits! Tried with label: hfreco" << std::endl;
+  }
+
+  ESHandle<CaloGeometry> geometry ;
+  iSetup.get<CaloGeometryRecord>().get(geometry);
+
+
   // Get the vertex collection from the event
   edm::Handle<reco::VertexCollection> recoVertexs;
 //  event.getByLabel(recVertexLabel, recoVertexs);
@@ -827,6 +851,29 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestEtCaloTower_eta = highestettowereta;
       HighestEtCaloTower_phi = highestettowerphi;
       HighestEtCaloTower_dr = highestettowerdr;
+
+      //HF treatment
+      double sumE_plus(0), sumE_minus(0), time_plus(0), time_minus(0);
+      for( unsigned int i=0; i<hf->size(); i++ )
+	{
+	  double energy = (*hf)[i].energy();
+	  if(energy < 1.)continue;
+	  double time = (*hf)[i].time();
+	  HcalDetId cell( (*hf)[i].id());
+
+         const CaloCellGeometry* cellGeometry =
+	   geometry->getSubdetectorGeometry (cell)->getGeometry (cell);
+         if( cellGeometry == 0 ) std::cout << "No cell geometry " << cell.rawId() << std::endl;
+         double fEta = cellGeometry->getPosition().eta();
+         //double fPhi = cellGeometry->getPosition().phi();
+
+	 if(fEta > 0){sumE_plus+=energy; time_plus+=energy*time;}
+	 if(fEta < 0){sumE_minus+=energy; time_minus+=energy*time;}
+	}
+      HF_plus_energy =sumE_plus;
+      HF_minus_energy=sumE_minus;
+      HF_plus_time = (sumE_plus > 0) ? time_plus/sumE_plus : -99;
+      HF_minus_time= (sumE_minus > 0) ? time_minus/sumE_minus : -99;
     }
 
   //  edm::ESHandle<TransientTrackBuilder> theVtx;

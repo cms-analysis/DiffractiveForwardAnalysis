@@ -170,6 +170,11 @@ class CollisionsMuMu : public edm::EDAnalyzer {
   double HighestEtCaloTower_dr;
   double SumCalo_e;
 
+  double HF_plus_energy;
+  double HF_minus_energy;
+  double HF_plus_time;
+  double HF_minus_time;
+
   int nTrackCand;
   int nExtraTrackCand;
   int TRACKMAX;
