@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CollisionsMuMu.cc,v 1.5 2009/12/06 10:26:26 jjhollar Exp $
+// $Id: CollisionsMuMu.cc,v 1.6 2009/12/06 10:58:42 jjhollar Exp $
 //
 //
 
@@ -108,6 +108,7 @@
 #include <TFile.h>
 #include <TH1D.h>
 #include <TTree.h>
+#include <TMath.h>
 
 using namespace HepMC;
 using namespace std;
@@ -287,6 +288,7 @@ CollisionsMuMu::CollisionsMuMu(const edm::ParameterSet& pset)
   thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nExtraTrackCand]/D");
   thetree->Branch("TrackCand_vtxdxyz",TrackCand_vtxdxyz,"TrackCand_vtxdxyz[nExtraTrackCand]/D");
   thetree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D");
+  thetree->Branch("nTrackCandPassQCDCuts",&nTrackCandPassQCDCuts,"nTrackCandPassQCDCuts/I");
 
   thetree->Branch("nVertexCand",&nVertexCand,"nVertexCand/I");
   thetree->Branch("VertexCand_x",&VertexCand_x,"VertexCand_x[nVertexCand]/D");
@@ -294,8 +296,7 @@ CollisionsMuMu::CollisionsMuMu(const edm::ParameterSet& pset)
   thetree->Branch("VertexCand_z",&VertexCand_z,"VertexCand_z[nVertexCand]/D");
   thetree->Branch("VertexCand_tracks",&VertexCand_tracks,"VertexCand_tracks[nVertexCand]/I");
   thetree->Branch("VertexCand_chi2",&VertexCand_chi2,"VertexCand_chi2[nVertexCand]/D");
-  thetree->Branch("VertexCand_ndof",&VertexCand_ndof,"VertexCand_ndof[nVertexCand]/D");
-
+  thetree->Branch("VertexCand_ndof",&VertexCand_ndof,"VertexCand_ndof[nVertexCand]/I");
   
   thetree->Branch("MuMu_mass",&MuMu_mass,"MuMu_mass/D");
   thetree->Branch("MuMu_dphi",&MuMu_dphi,"MuMu_dphi/D");
@@ -320,9 +321,14 @@ CollisionsMuMu::CollisionsMuMu(const edm::ParameterSet& pset)
   
   thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
 
+  thetree->Branch("HLTMinBiasBSC",&HLTMinBiasBSC,"HLTMinBiasBSC/I");
+  thetree->Branch("HLTMinBiasBSCOR",&HLTMinBiasBSCOR,"HLTMinBiasBSCOR/I");
+  thetree->Branch("HLTMinBiasPixelSingleTrack",&HLTMinBiasPixelSingleTrack,"HLTMinBiasPixelSingleTrack/I");
+
   thetree->Branch("HLT2MuonNonIso",&HLT2MuonNonIso,"HLT2MuonNonIso/I");
   thetree->Branch("HLT1MuonPrescalePt3",&HLT1MuonPrescalePt3,"HLT1MuonPrescalePt3/I"); 
   thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I");
+  thetree->Branch("BX",&BX,"BX/I");
 
   //  thetree->Branch("evweight",&evweight,"evweight/D"); 
 }
@@ -349,6 +355,7 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
+  nTrackCandPassQCDCuts = 0;
   nExtraTrackCand=0;
   nVertexCand=0;
 
@@ -409,6 +416,7 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   //  event.getByLabel ("weight", weightHandle);
   //  evweight = * weightHandle;
 
+  BX = event.bunchCrossing();
   Run = event.id().run();
   LumiSection = event.luminosityBlock();
   
@@ -427,6 +435,7 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   event.getByLabel(InputTag("gtDigis::RECO"), L1GTRR);
   event.getByLabel(InputTag("hltL1GtObjectMap::HLT"), L1GTOMRec);
   if (L1GTRR.isValid()) {
+    cout << "L1GTRR is valid" << endl;
     DecisionWord gtDecisionWord = L1GTRR->decisionWord();
     const unsigned int numberTriggerBits(gtDecisionWord.size());
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = L1GTRR->technicalTriggerWord();
@@ -437,47 +446,41 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }
   }
 
-/*
   edm::Handle<edm::TriggerResults> hltResults ; 
   event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ; 
   trigNames.init(*hltResults) ; 
   for (unsigned int i=0; i<trigNames.size(); i++)  
-	{if(hltResults->accept(i)==1) cout<<"bit "<<i<<" = \t"<<trigNames.triggerNames().at(i)<<" accepted "<<endl;}
-*/
-/*
+    //    {if(hltResults->accept(i)==1)} cout<<"bit "<<i<<" = \t"<<trigNames.triggerNames().at(i)<<" accepted "<<endl;}
     { 
-      // This is for CMSSW_2_1_X!!! 
-      if ( trigNames.triggerNames().at(i) == "HLT_Mu3" )       
-
-      // This is for CMSSW_2_0_X!!!
-      //      if ( trigNames.triggerNames().at(i) == "HLT1MuonPrescalePt3" )
-        {  
-          if ( hltResults->accept(i) )  
-            HLT1MuonPrescalePt3 = 1;
-	  else
-	    HLT1MuonPrescalePt3 = 0;
-        }  
-	
-      // This is for CMSSW_2_1_X!!! 	
-      if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu3" ) 
-
-      // This is for CMSSW_2_0_X!!! 
-	//      if ( trigNames.triggerNames().at(i) == "HLT2MuonNonIso" )
-        {   
-          if ( hltResults->accept(i) )  
-	    HLT2MuonNonIso = 1;
-	  else
-	    HLT2MuonNonIso = 0;
-        }   
+      if ( trigNames.triggerNames().at(i) == "HLT_MinBiasBSC" )
+        {
+          if ( hltResults->accept(i) )
+            HLTMinBiasBSC = 1;
+          else
+            HLTMinBiasBSC = 0;
+        }
+      if ( trigNames.triggerNames().at(i) == "HLT_MinBiasBSC_OR" )
+        {
+          if ( hltResults->accept(i) )
+            HLTMinBiasBSCOR = 1;
+          else
+            HLTMinBiasBSCOR = 0;
+        }
+      if ( trigNames.triggerNames().at(i) == "HLT_MinBiasPixel_SingleTrack" )
+        {
+          if ( hltResults->accept(i) )
+            HLTMinBiasPixelSingleTrack = 1;
+          else
+            HLTMinBiasPixelSingleTrack = 0;
+        }
     }
-  */
 
   // Get the electron collection from the event
   edm::Handle<reco::GsfElectronCollection> electrons;
   event.getByLabel(thePixelGsfELabel,electrons);
 //  const reco::PixelMatchGsfElectronCollection* electrons = pTracks.product();
   reco::GsfElectronCollection::const_iterator electron;
-  cout << "Found " << electrons->size() << " electrons" << endl; 
+  //  cout << "Found " << electrons->size() << " electrons" << endl; 
 
   /*
   // PAT
@@ -489,7 +492,7 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   Handle<reco::MuonCollection> muons;
   event.getByLabel(theGLBMuonLabel, muons);
   reco::MuonCollection::const_iterator muon;
-  cout << "Found " << muons->size() << " muons" << endl; 
+  //  cout << "Found " << muons->size() << " muons" << endl; 
 
 
   // Get the electron collection from the event
@@ -588,7 +591,7 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   event.getByLabel(theJetLabel,pJets);
   const reco::CaloJetCollection* jets = pJets.product();
   reco::CaloJetCollection::const_iterator jet;
-  cout << "Found " << jets->size() << " jets" << endl;
+  //  cout << "Found " << jets->size() << " jets" << endl;
 
   // Get the MET collection from the event
 
@@ -611,7 +614,7 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   event.getByLabel(theCaloTowLabel,caloTowers); 
   const CaloTowerCollection* towers = caloTowers.product(); 
   CaloTowerCollection::const_iterator calo; 
-  cout << "Found " << towers->size() << " towers" << endl;
+  //  cout << "Found " << towers->size() << " towers" << endl;
 
   // Get the reconstructed hits from the frame.
   edm::Handle<HFRecHitCollection> hf;
@@ -629,7 +632,7 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   event.getByLabel(InputTag("offlinePrimaryVertices"), recoVertexs);
   const VertexCollection* vertexs = recoVertexs.product();
   VertexCollection::const_iterator vertex_i;
-  cout << "Found " << vertexs->size() << " vertices" << endl;
+  //  cout << "Found " << vertexs->size() << " vertices" << endl;
 
   for (vertex_i = vertexs->begin(); vertex_i != vertexs->end(); vertex_i++){
 	  VertexCand_x[nVertexCand] = vertex_i->x();
@@ -648,7 +651,7 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     event.getByLabel(InputTag("generalTracks"), recoTracks);
     const TrackCollection* tracks = recoTracks.product();
     TrackCollection::const_iterator track;
-    cout << "Found " << tracks->size() << " tracks" << endl;
+    //    cout << "Found " << tracks->size() << " tracks" << endl;
 
   double highestejet = -1.0;
   double highestejeteta = -999.0;
@@ -708,15 +711,15 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
 	  GlobalPoint emPosition=calo->emPosition();
           GlobalPoint hadPosition=calo->hadPosition();
-	  cout<<"em. = "<<calo->emEnergy()<<"\t had. = "<<calo->hadEnergy()<<"\t eta = "<<calo->eta()<<endl;
+	  //	  cout<<"em. = "<<calo->emEnergy()<<"\t had. = "<<calo->hadEnergy()<<"\t eta = "<<calo->eta()<<endl;
 	  if(CaloTower_emE[nCaloCand]>0){ //if ECAL
 		CaloTower_x[nCaloCand]=emPosition.x();
                 CaloTower_y[nCaloCand]=emPosition.y();
                 CaloTower_z[nCaloCand]=emPosition.z();
                 CaloTower_t[nCaloCand]=calo->ecalTime();
-		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=1; cout<<" -> EB"<<endl;}//EB
-		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95){CaloTower_ID[nCaloCand]=2; cout<<" -> EE"<<endl;}//EE
-		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2){CaloTower_ID[nCaloCand]=3; cout<<" -> EF"<<endl;}//EF ??
+		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=1;} //cout<<" -> EB"<<endl;}//EB
+		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95){CaloTower_ID[nCaloCand]=2;} //cout<<" -> EE"<<endl;}//EE
+		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2){CaloTower_ID[nCaloCand]=3;} //cout<<" -> EF"<<endl;}//EF ??
 	  }
 
 	  else if(CaloTower_hadE[nCaloCand]>0){
@@ -724,11 +727,11 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 CaloTower_y[nCaloCand]=hadPosition.y();
                 CaloTower_z[nCaloCand]=hadPosition.z();
                 CaloTower_t[nCaloCand]=calo->hcalTime();
-		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=4; cout<<" -> HB"<<endl;}//HB
-		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95) {CaloTower_ID[nCaloCand]=5; cout<<" -> HE"<<endl;}//HE
-		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2) {CaloTower_ID[nCaloCand]=6; cout<<" -> HF"<<endl;}//HF ??
+		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=4;} // cout<<" -> HB"<<endl;}//HB
+		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95) {CaloTower_ID[nCaloCand]=5;} // cout<<" -> HE"<<endl;}//HE
+		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2) {CaloTower_ID[nCaloCand]=6;} // cout<<" -> HF"<<endl;}//HF ??
 	  }
-	  else cout <<"PBLM ?????"<<endl;
+	  //	  else cout <<"PBLM ?????"<<endl;
 
 	  CaloTower_badhcalcells[nCaloCand]=calo->numBadHcalCells();
 	  CaloTower_problemhcalcells[nCaloCand]=calo->numProblematicHcalCells(); 
@@ -919,11 +922,15 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  if(TrackCand_vtxdxyz[nExtraTrackCand] < closesttrkdxyz)
 	    closesttrkdxyz = TrackCand_vtxdxyz[nExtraTrackCand];
 */
+	  if((TrackCand_pt[nExtraTrackCand] > 0.5) && (fabs(TrackCand_eta[nExtraTrackCand]) < 2.0) && (fabs(track->vertex().z() - VertexCand_z[0]) < 1))
+	    nTrackCandPassQCDCuts++;
+
           nExtraTrackCand++;  
         } 
 
       //    cout << "-----------" << endl;
     thetree->Fill();
+
 }
 
 void 

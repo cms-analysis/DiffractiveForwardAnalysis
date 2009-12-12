@@ -52,6 +52,7 @@ class CollisionsMuMu : public edm::EDAnalyzer {
   TFile *thefile;
   TTree *thetree;
 
+  int BX;
   int Run;
   int LumiSection;
   int GenProcessId;
@@ -188,6 +189,7 @@ class CollisionsMuMu : public edm::EDAnalyzer {
   double TrackCand_vtxdxyz[100];
   int TrackCand_charge[100];
   double ClosestExtraTrack_vtxdxyz;
+  int nTrackCandPassQCDCuts;
 
   int nVertexCand;
   double VertexCand_x[10];
@@ -195,11 +197,14 @@ class CollisionsMuMu : public edm::EDAnalyzer {
   double VertexCand_z[10];
   int VertexCand_tracks[10];
   double VertexCand_chi2[10];
-  double VertexCand_ndof[10];
+  int VertexCand_ndof[10];
 
 
   double evweight;
   
+  int HLTMinBiasBSCOR;
+  int HLTMinBiasBSC;
+  int HLTMinBiasPixelSingleTrack;
   int HLT2MuonNonIso;
   int HLT1MuonPrescalePt3;
   int L1TechnicalTriggers[128];
