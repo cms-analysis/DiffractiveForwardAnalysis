@@ -97,6 +97,7 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   int VertexCand_ndof[10];
 
   int L1TechnicalTriggers[128];
+  int HLTMinBiasPixelSingleTrack;
 
 };
 #endif

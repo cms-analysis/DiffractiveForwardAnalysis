@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.33 2009/06/17 08:47:24 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.1 2010/01/20 12:52:03 jjhollar Exp $
 //
 //
 
@@ -134,6 +134,7 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("GenHasRho",&GenHasRho,"GenHasRho/I");
 
   thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I");
+  thetree->Branch("HLTMinBiasPixelSingleTrack",&HLTMinBiasPixelSingleTrack,"HLTMinBiasPixelSingleTrack/I");
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
   thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
@@ -298,6 +299,21 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
       L1TechnicalTriggers[iBit] = techTrigger;
     }
   }
+
+  edm::Handle<edm::TriggerResults> hltResults ;
+  event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ;
+  trigNames.init(*hltResults) ;
+  for (unsigned int i=0; i<trigNames.size(); i++)
+    //    {if(hltResults->accept(i)==1)} cout<<"bit "<<i<<" = \t"<<trigNames.triggerNames().at(i)<<" accepted "<<endl;}
+    {
+      if ( trigNames.triggerNames().at(i) == "HLT_MinBiasPixel_SingleTrack" )
+        {
+          if ( hltResults->accept(i) )
+            HLTMinBiasPixelSingleTrack = 1;
+          else
+            HLTMinBiasPixelSingleTrack = 0;
+        }
+    }
 
   edm::Handle<reco::VertexCollection> recoVertexs;
   event.getByLabel(InputTag("offlinePrimaryVertices"), recoVertexs);
