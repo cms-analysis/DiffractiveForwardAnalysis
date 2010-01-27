@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.1 2010/01/20 12:52:03 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.2 2010/01/20 13:06:36 jjhollar Exp $
 //
 //
 
@@ -133,8 +133,14 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("GenProcessId",&GenProcessId,"GenProcessId/I");
   thetree->Branch("GenHasRho",&GenHasRho,"GenHasRho/I");
 
+  thetree->Branch("Run",&Run,"Run/I");
+  thetree->Branch("LumiSection",&LumiSection,"LumiSection/I");
+  thetree->Branch("BX",&BX,"BX/I");
+
   thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I");
   thetree->Branch("HLTMinBiasPixelSingleTrack",&HLTMinBiasPixelSingleTrack,"HLTMinBiasPixelSingleTrack/I");
+  thetree->Branch("HLTPhysicsDeclared",&HLTPhysicsDeclared,"HLTPhysicsDeclared/I");
+
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
   thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
@@ -274,14 +280,21 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
 
   GenHasRho = 0;
   Handle<GenParticleCollection> genParticles;
-  event.getByLabel( "genParticles", genParticles );
-  for ( size_t i = 0; i < genParticles->size(); ++ i )
-    {
-      const Candidate & p = (*genParticles)[ i ];
-      int MCPar_pdgid=p.pdgId();
-      if(MCPar_pdgid == 113)
-	GenHasRho = 1;
+  event.getByLabel( InputTag("genParticles"), genParticles );
+  if(genParticles.isValid())
+    { 
+      for ( size_t i = 0; i < genParticles->size(); ++ i )
+	{
+	  const Candidate & p = (*genParticles)[ i ];
+	  int MCPar_pdgid=p.pdgId();
+	  if(MCPar_pdgid == 113)
+	    GenHasRho = 1;
+	}
     }
+
+  BX = event.bunchCrossing();
+  Run = event.id().run();
+  LumiSection = event.luminosityBlock();
 
   // L1 technical triggers
   edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
@@ -291,7 +304,6 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
   if (L1GTRR.isValid()) {
     cout << "L1GTRR is valid" << endl;
     DecisionWord gtDecisionWord = L1GTRR->decisionWord();
-    const unsigned int numberTriggerBits(gtDecisionWord.size());
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = L1GTRR->technicalTriggerWord();
     const unsigned int numberTechnicalTriggerBits(technicalTriggerWordBeforeMask.size());
     for (unsigned int iBit = 0; iBit < numberTechnicalTriggerBits; ++iBit) {
@@ -313,13 +325,19 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
           else
             HLTMinBiasPixelSingleTrack = 0;
         }
+      if ( trigNames.triggerNames().at(i) == "HLT_PhysicsDeclared" )
+        {
+          if ( hltResults->accept(i) )
+            HLTPhysicsDeclared = 1;
+          else
+            HLTPhysicsDeclared = 0;
+        }
     }
 
   edm::Handle<reco::VertexCollection> recoVertexs;
   event.getByLabel(InputTag("offlinePrimaryVertices"), recoVertexs);
   const VertexCollection* vertexs = recoVertexs.product();
   VertexCollection::const_iterator vertex_i;
-  cout << "Found " << vertexs->size() << " vertices" << endl;
 
   for (vertex_i = vertexs->begin(); vertex_i != vertexs->end(); vertex_i++){
     VertexCand_x[nVertexCand] = vertex_i->x();
