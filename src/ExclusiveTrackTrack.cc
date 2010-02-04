@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.2 2010/01/20 13:06:36 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.3 2010/01/27 09:58:05 jjhollar Exp $
 //
 //
 
@@ -119,6 +119,7 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
    //now do what ever initialization is needed
   recTrackLabel      = pset.getParameter<edm::InputTag>("RecoTrackLabel");
   theCaloTowLabel    = pset.getParameter<edm::InputTag>("CaloTowerLabel");
+  recCastorTowerLabel = pset.getParameter<edm::InputTag>("CastorTowerLabel");
   drisocalo          = pset.getParameter<double>("CaloTowerdR");
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
@@ -153,7 +154,7 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nTrackCand]/D");
   thetree->Branch("TrackCand_charge",TrackCand_charge,"TrackCand_charge[nTrackCand]/I");
   thetree->Branch("TrackCand_chi2",TrackCand_chi2,"TrackCand_chi2[nTrackCand]/D");
-  thetree->Branch("TrackCand_ndof",TrackCand_ndof,"TrackCand_ndof[nTrackCand]/I");
+  thetree->Branch("TrackCand_ndof",TrackCand_ndof,"TrackCand_ndof[nTrackCand]/D");
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -170,6 +171,20 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("HighestEtCaloTower_phi",&HighestEtCaloTower_phi,"HighestEtCaloTower_phi/D"); 
   thetree->Branch("HighestEtCaloTower_dr",&HighestEtCaloTower_dr,"HighestEtCaloTower_dr/D");
   thetree->Branch("SumCalo_e",&SumCalo_e,"SumCalo_e/D");
+  thetree->Branch("SumHFPlus_e",&SumHFPlus_e,"SumHFPlus_e/D");
+  thetree->Branch("SumHFMinus_e",&SumHFMinus_e,"SumHFMinus_e/D");
+
+
+  thetree->Branch("nCastorTowerCand",&nCastorTowerCand,"nCastorTowerCand/I");
+  thetree->Branch("CastorTower_e",CastorTower_e,"CastorTower_e[nCastorTowerCand]/D");
+  thetree->Branch("CastorTower_eta",CastorTower_eta,"CastorTower_eta[nCastorTowerCand]/D");
+  thetree->Branch("CastorTower_phi",CastorTower_phi,"CastorTower_phi[nCastorTowerCand]/D");
+  thetree->Branch("CastorTower_emratio",CastorTower_emratio,"CastorTower_emratio[nCastorTowerCand]/D");
+  thetree->Branch("HighestCastorTowerFwd_e",&HighestCastorTowerFwd_e,"HighestCastorTowerFwd_e/D");
+  thetree->Branch("HighestCastorTowerBwd_e",&HighestCastorTowerBwd_e,"HighestCastorTowerBwd_e/D");
+  thetree->Branch("SumCastorFwd_e",&SumCastorFwd_e,"SumCastorFwd_e/D");
+  thetree->Branch("SumCastorBwd_e",&SumCastorBwd_e,"SumCastorBwd_e/D");
+
 
   thetree->Branch("nExtraCaloTowersE1",&nExtraCaloTowersE1,"nExtraCaloTowersE1/I");
   thetree->Branch("nExtraCaloTowersE2",&nExtraCaloTowersE2,"nExtraCaloTowersE2/I");
@@ -187,6 +202,20 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersE3hf", &nExtraCaloTowersE3hf, "nExtraCaloTowersE3hf/I");
   thetree->Branch("nExtraCaloTowersE4hf", &nExtraCaloTowersE4hf, "nExtraCaloTowersE4hf/I");
   thetree->Branch("nExtraCaloTowersE5hf", &nExtraCaloTowersE5hf, "nExtraCaloTowersE5hf/I");
+
+  thetree->Branch("nExtraCaloTowersE0hfp", &nExtraCaloTowersE0hfp, "nExtraCaloTowersE0hfp/I");
+  thetree->Branch("nExtraCaloTowersE1hfp", &nExtraCaloTowersE1hfp, "nExtraCaloTowersE1hfp/I");
+  thetree->Branch("nExtraCaloTowersE2hfp", &nExtraCaloTowersE2hfp, "nExtraCaloTowersE12hfp/I");
+  thetree->Branch("nExtraCaloTowersE3hfp", &nExtraCaloTowersE3hfp, "nExtraCaloTowersE3hfp/I");
+  thetree->Branch("nExtraCaloTowersE4hfp", &nExtraCaloTowersE4hfp, "nExtraCaloTowersE4hfp/I");
+  thetree->Branch("nExtraCaloTowersE5hfp", &nExtraCaloTowersE5hfp, "nExtraCaloTowersE5hfp/I");
+  thetree->Branch("nExtraCaloTowersE0hfm", &nExtraCaloTowersE0hfm, "nExtraCaloTowersE0hfm/I");
+  thetree->Branch("nExtraCaloTowersE1hfm", &nExtraCaloTowersE1hfm, "nExtraCaloTowersE1hfm/I");
+  thetree->Branch("nExtraCaloTowersE2hfm", &nExtraCaloTowersE2hfm, "nExtraCaloTowersE12hfm/I");
+  thetree->Branch("nExtraCaloTowersE3hfm", &nExtraCaloTowersE3hfm, "nExtraCaloTowersE3hfm/I");
+  thetree->Branch("nExtraCaloTowersE4hfm", &nExtraCaloTowersE4hfm, "nExtraCaloTowersE4hfm/I");
+  thetree->Branch("nExtraCaloTowersE5hfm", &nExtraCaloTowersE5hfm, "nExtraCaloTowersE5hfm/I");
+
 
   thetree->Branch("nExtraCaloTowersE1he", &nExtraCaloTowersE1he, "nExtraCaloTowersE1he/I"); 
   thetree->Branch("nExtraCaloTowersE2he", &nExtraCaloTowersE2he, "nExtraCaloTowersE2he/I");  
@@ -214,7 +243,7 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("VertexCand_z",&VertexCand_z,"VertexCand_z[nVertexCand]/D");
   thetree->Branch("VertexCand_tracks",&VertexCand_tracks,"VertexCand_tracks[nVertexCand]/I");
   thetree->Branch("VertexCand_chi2",&VertexCand_chi2,"VertexCand_chi2[nVertexCand]/D");
-  thetree->Branch("VertexCand_ndof",&VertexCand_ndof,"VertexCand_ndof[nVertexCand]/I");
+  thetree->Branch("VertexCand_ndof",&VertexCand_ndof,"VertexCand_ndof[nVertexCand]/D");
 
 }
 
@@ -262,12 +291,36 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
   nExtraCaloTowersE3hf=0;
   nExtraCaloTowersE4hf=0;
   nExtraCaloTowersE5hf=0;
+  nExtraCaloTowersE0hfp=0;
+  nExtraCaloTowersE1hfp=0;
+  nExtraCaloTowersE2hfp=0;
+  nExtraCaloTowersE3hfp=0;
+  nExtraCaloTowersE4hfp=0;
+  nExtraCaloTowersE5hfp=0;
+  nExtraCaloTowersE0hfm=0;
+  nExtraCaloTowersE1hfm=0;
+  nExtraCaloTowersE2hfm=0;
+  nExtraCaloTowersE3hfm=0;
+  nExtraCaloTowersE4hfm=0;
+  nExtraCaloTowersE5hfm=0;
+  nCastorTowerCand=0;
+
   nExtraCaloTowersE1he=0; 
   nExtraCaloTowersE2he=0; 
   nExtraCaloTowersE3he=0;  
   nExtraCaloTowersE2hb=0; 
   nExtraCaloTowersE3hb=0; 
   nExtraCaloTowersE4hb=0;  
+
+  nCastorTowerCand=0;
+
+  double highestcastortowerfwd = -999.0;
+  double highestcastortowerbwd = -999.0;
+  double totalecastorfwd = 0.0;
+  double totalecastorbwd = 0.0;
+
+  SumHFPlus_e=0.0;
+  SumHFMinus_e=0.0;
 
   GenProcessId = -1;
   Handle<HepMCProduct> mcevt;
@@ -522,6 +575,36 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
 		nExtraCaloTowersE3hb++;  
               if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
 		nExtraCaloTowersE4hb++;   
+
+              if(CaloTower_e[nCaloCand] > 0.0 && CaloTower_eta[nCaloCand] > 3.0)
+                nExtraCaloTowersE0hfp++;
+              if(CaloTower_e[nCaloCand] > 1.0 && CaloTower_eta[nCaloCand] > 3.0)
+                nExtraCaloTowersE1hfp++;
+              if(CaloTower_e[nCaloCand] > 2.0 && CaloTower_eta[nCaloCand] > 3.0)
+                nExtraCaloTowersE2hfp++;
+              if(CaloTower_e[nCaloCand] > 3.0 && CaloTower_eta[nCaloCand] > 3.0)
+                nExtraCaloTowersE3hfp++;
+              if(CaloTower_e[nCaloCand] > 4.0 && CaloTower_eta[nCaloCand] > 3.0)
+                nExtraCaloTowersE4hfp++;
+              if(CaloTower_e[nCaloCand] > 5.0 && CaloTower_eta[nCaloCand] > 3.0)
+                nExtraCaloTowersE5hfp++;
+              if(CaloTower_e[nCaloCand] > 0.0 && CaloTower_eta[nCaloCand] < -3.0)
+                nExtraCaloTowersE0hfm++;
+              if(CaloTower_e[nCaloCand] > 1.0 && CaloTower_eta[nCaloCand] < -3.0)
+                nExtraCaloTowersE1hfm++;
+              if(CaloTower_e[nCaloCand] > 2.0 && CaloTower_eta[nCaloCand] < -3.0)
+                nExtraCaloTowersE2hfm++;
+              if(CaloTower_e[nCaloCand] > 3.0 && CaloTower_eta[nCaloCand] < -3.0)
+                nExtraCaloTowersE3hfm++;
+              if(CaloTower_e[nCaloCand] > 4.0 && CaloTower_eta[nCaloCand] < -3.0)
+                nExtraCaloTowersE4hfm++;
+              if(CaloTower_e[nCaloCand] > 5.0 && CaloTower_eta[nCaloCand] < -3.0)
+                nExtraCaloTowersE5hfm++;
+
+	      if(CaloTower_eta[nCaloCand] > 3.0)
+		SumHFPlus_e += CaloTower_e[nCaloCand];
+	      if(CaloTower_eta[nCaloCand] < -3.0)
+		SumHFMinus_e += CaloTower_e[nCaloCand];
 	    }
 	  
 	  nCaloCand++;
@@ -537,6 +620,45 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
       HighestEtCaloTower_eta = highestettowereta;
       HighestEtCaloTower_phi = highestettowerphi;
       HighestEtCaloTower_dr = highestettowerdr;
+    }
+
+  // Now CASTOR towers
+  // Get the CASTOR towers collection from the event
+  edm::Handle<reco::CastorTowerCollection> recoCastorTowers;
+  event.getByLabel(recCastorTowerLabel, recoCastorTowers);
+  
+  if(recoCastorTowers.isValid())
+    {
+      const CastorTowerCollection* castortowers = recoCastorTowers.product();
+      CastorTowerCollection::const_iterator castortower;
+      
+      for ( castortower = castortowers->begin(); castortower != castortowers->end(); ++castortower )
+	{
+	  CastorTower_e[nCastorTowerCand] = castortower->energy();
+	  CastorTower_eta[nCastorTowerCand] = castortower->eta();
+	  CastorTower_phi[nCastorTowerCand] = castortower->phi();
+	  CastorTower_emratio[nCastorTowerCand] = castortower->fem();
+	  
+	  if(CastorTower_eta[nCastorTowerCand] > 0)
+	    {
+	      totalecastorfwd+=CastorTower_e[nCastorTowerCand];
+	      if(CastorTower_e[nCastorTowerCand] > highestcastortowerfwd)
+		highestcastortowerfwd = CastorTower_e[nCastorTowerCand];
+	    }
+	  if(CastorTower_eta[nCastorTowerCand] < 0)
+	    {
+	      totalecastorbwd+=CastorTower_e[nCastorTowerCand];
+	      if(CastorTower_e[nCastorTowerCand] > highestcastortowerbwd)
+		highestcastortowerbwd = CastorTower_e[nCastorTowerCand];
+	    }
+	  
+	  nCastorTowerCand++;
+	}
+      
+      HighestCastorTowerFwd_e = highestcastortowerfwd;
+      HighestCastorTowerBwd_e = highestcastortowerbwd;
+      SumCastorFwd_e = totalecastorfwd;
+      SumCastorBwd_e = totalecastorbwd;
     }
 
   // Check for di-objects

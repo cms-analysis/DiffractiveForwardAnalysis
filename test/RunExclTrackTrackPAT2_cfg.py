@@ -18,8 +18,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-    '/store/data/BeamCommissioning09/MinimumBias/RECO/Jan23ReReco-v1/0013/FE14C6BD-6009-DF11-8678-0026189438D3.root',
-    '/store/data/BeamCommissioning09/MinimumBias/RECO/Jan23ReReco-v1/0013/F8403EA7-6009-DF11-9920-00261894387B.root'
+    '/store/data/BeamCommissioning09/MinimumBias/RECO/Jan29ReReco-v2/0020/E8593279-0A0E-DF11-A36D-001A9281171E.root'
     )
                             )
 
@@ -67,11 +66,12 @@ removeCleaning(process)
 
 #process.output.outputCommands.extend(AODEventContent.outputCommands)
 
-process.excltrktrkanalysis.outfilename = "ExclTrackTrack_900GeVJan23rereco.root"
+process.excltrktrkanalysis.outfilename = "ExclTrackTrack_900GeVJan29rerecoMC.root"
 
 # Put it all together
 process.p = cms.Path(
     process.hltFilter
+    + process.CastorFastReco
     #    process.patDefaultSequence  
     + process.excltrktrkanalysis
     )

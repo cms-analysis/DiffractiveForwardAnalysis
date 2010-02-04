@@ -32,6 +32,7 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   
   edm::InputTag recTrackLabel;
   edm::InputTag theCaloTowLabel;
+  edm::InputTag recCastorTowerLabel;
 
   double drisocalo;
 
@@ -54,7 +55,7 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   double TrackCand_phi[100];
   double TrackCand_eta[100];
   double TrackCand_chi2[100];
-  int TrackCand_ndof[100];
+  double TrackCand_ndof[100];
   int TrackCand_charge[100];
 
   double TrTr_mass;
@@ -71,6 +72,8 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9;  
   int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4;  
   int nExtraCaloTowersE0hf, nExtraCaloTowersE1hf, nExtraCaloTowersE2hf, nExtraCaloTowersE3hf, nExtraCaloTowersE4hf, nExtraCaloTowersE5hf;
+  int nExtraCaloTowersE0hfp, nExtraCaloTowersE1hfp, nExtraCaloTowersE2hfp, nExtraCaloTowersE3hfp, nExtraCaloTowersE4hfp, nExtraCaloTowersE5hfp;
+  int nExtraCaloTowersE0hfm, nExtraCaloTowersE1hfm, nExtraCaloTowersE2hfm, nExtraCaloTowersE3hfm, nExtraCaloTowersE4hfm, nExtraCaloTowersE5hfm;
   int nExtraCaloTowersE1he, nExtraCaloTowersE2he, nExtraCaloTowersE3he;
   int nExtraCaloTowersE2hb, nExtraCaloTowersE3hb, nExtraCaloTowersE4hb;
   double CaloTower_e[1000];
@@ -87,6 +90,18 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   double HighestEtCaloTower_phi;
   double HighestEtCaloTower_dr;
   double SumCalo_e;
+  double SumHFPlus_e;
+  double SumHFMinus_e;
+
+  int nCastorTowerCand;
+  double CastorTower_e[1000];
+  double CastorTower_eta[1000];
+  double CastorTower_phi[1000];
+  double CastorTower_emratio[1000];
+  double HighestCastorTowerFwd_e;
+  double HighestCastorTowerBwd_e;
+  double SumCastorFwd_e;
+  double SumCastorBwd_e;
 
   int nVertexCand;
   double VertexCand_x[10];
@@ -94,7 +109,7 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   double VertexCand_z[10];
   int VertexCand_tracks[10];
   double VertexCand_chi2[10];
-  int VertexCand_ndof[10];
+  double VertexCand_ndof[10];
 
   int BX;
   int Run;
