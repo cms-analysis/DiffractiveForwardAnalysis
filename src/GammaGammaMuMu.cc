@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.51 2009/10/20 11:58:16 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.52 2009/11/04 15:06:18 jjhollar Exp $
 //
 //
 
@@ -363,6 +363,9 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("HLT_DoubleMu3",&HLT_DoubleMu3,"HLT_DoubleMu3/I");
   thetree->Branch("HLT_DoubleMu0",&HLT_DoubleMu0,"HLT_DoubleMu0/I");
   thetree->Branch("HLT_Mu3",&HLT_Mu3,"HLT_Mu3/I");
+  thetree->Branch("Run",&Run,"Run/I");
+  thetree->Branch("LumiSection",&LumiSection,"LumiSection/I");
+  thetree->Branch("BX",&BX,"BX/I");
 
   thetree->Branch("LowPt_pt",LowPt_pt,"LowPt_pt[nMuonCand]/D");
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
@@ -456,6 +459,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   nEvt++;
   using reco::TrackCollection;
+
+  // Run and BX information
+  BX = event.bunchCrossing();
+  Run = event.id().run();
+  LumiSection = event.luminosityBlock();
 
   // Get the trigger information from the event
   edm::Handle<edm::TriggerResults> hltResults ; 

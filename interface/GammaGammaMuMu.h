@@ -63,6 +63,10 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   TFile *thefile;
   TTree *thetree;
 
+  int BX;
+  int Run;
+  int LumiSection;
+
   int nEvt;
   int nMuonCand;
   int MUONMAX;// used to set maximum of arrays
