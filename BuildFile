@@ -31,8 +31,8 @@
   <use name=SimDataFormats/TrackingAnalysis>
   <use name=SimTracker/TrackAssociation>
   <use name=TrackingTools/TransientTrack>
+  <use name=TrackingTools/Records>
   <use name=RecoVertex/KalmanVertexFit>
   <use name=rootcore>
-  <lib name=RecoVertexKalmanVertexFit>
 
 <flags EDM_PLUGIN=1>

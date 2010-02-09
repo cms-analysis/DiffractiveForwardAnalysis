@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CosmicsMuMu.cc,v 1.5 2009/06/24 15:54:11 jjhollar Exp $
+// $Id: CosmicsMuMu.cc,v 1.6 2009/08/20 14:17:33 jjhollar Exp $
 //
 //
 
@@ -728,10 +728,6 @@ CosmicsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }
 
   // Now do vertexing and track counting
-  //  edm::ESHandle<TransientTrackBuilder> theVtx;
-  //  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theVtx);
-  //  vector<TransientTrack> transmutrks; 
-  //  reco::TrackCollection * mutrks = new reco::TrackCollection;
 
   // First get "muon" tracks
   bool isMuon = false;

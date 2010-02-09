@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CollisionsMuMu.cc,v 1.6 2009/12/06 10:58:42 jjhollar Exp $
+// $Id: CollisionsMuMu.cc,v 1.7 2009/12/12 18:39:47 jjhollar Exp $
 //
 //
 
@@ -407,8 +407,6 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   MuMu_extratracks5cm = 0;
   MuMu_extratracks10cm = 0;
 
-  bool passed = true;
-
  //using namespace edm;
   using reco::TrackCollection;
 
@@ -437,7 +435,6 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   if (L1GTRR.isValid()) {
     cout << "L1GTRR is valid" << endl;
     DecisionWord gtDecisionWord = L1GTRR->decisionWord();
-    const unsigned int numberTriggerBits(gtDecisionWord.size());
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = L1GTRR->technicalTriggerWord();
     const unsigned int numberTechnicalTriggerBits(technicalTriggerWordBeforeMask.size());
     for (unsigned int iBit = 0; iBit < numberTechnicalTriggerBits; ++iBit) {
@@ -666,7 +663,6 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double highestettowereta = -999.0;
   double highestettowerphi = -999.0;
   double totalecalo = -1.0; 
-  double closesttrkdxyz = 999.0;
 
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
   if(nMuonCand > -1)
@@ -879,11 +875,6 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HF_minus_time= (sumE_minus > 0) ? time_minus/sumE_minus : -99;
     }
 
-  //  edm::ESHandle<TransientTrackBuilder> theVtx;
-  //  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theVtx);
-  //  vector<TransientTrack> transmutrks; 
-  //  reco::TrackCollection * mutrks = new reco::TrackCollection;
-
       for(track = tracks->begin(); track != tracks->end() && nExtraTrackCand<TRACKMAX; ++ track) 
         { 
 //	  if(track->p() == MuonCandTrack_p[0] || track->p() == MuonCandTrack_p[1])
@@ -896,32 +887,8 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           TrackCand_pt[nExtraTrackCand]=track->pt(); 
           TrackCand_eta[nExtraTrackCand]=track->eta(); 
           TrackCand_phi[nExtraTrackCand]=track->phi(); 
-          TrackCand_charge[nExtraTrackCand]=track->charge(); /*
-	  TrackCand_vtxdxyz[nExtraTrackCand] = sqrt(((track->vertex().x() - MuMu_vtxx)*(track->vertex().x() - MuMu_vtxx)) + 
-					     ((track->vertex().y() - MuMu_vtxy)*(track->vertex().y() - MuMu_vtxy)) +
-					     ((track->vertex().z() - MuMu_vtxz)*(track->vertex().z() - MuMu_vtxz)));
-	  
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.1) 
-            MuMu_extratracks1mm++; 
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.2)  
-            MuMu_extratracks2mm++;  
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.3)  
-            MuMu_extratracks3mm++;  
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.4)   
-            MuMu_extratracks4mm++;   
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.5)    
-            MuMu_extratracks5mm++;
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 1) 
-            MuMu_extratracks1cm++; 
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 2)
-	    MuMu_extratracks2cm++;
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 5) 
-            MuMu_extratracks5cm++; 
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 10) 
-            MuMu_extratracks10cm++; 
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < closesttrkdxyz)
-	    closesttrkdxyz = TrackCand_vtxdxyz[nExtraTrackCand];
-*/
+          TrackCand_charge[nExtraTrackCand]=track->charge(); 
+
 	  if((TrackCand_pt[nExtraTrackCand] > 0.5) && (fabs(TrackCand_eta[nExtraTrackCand]) < 2.0) && (fabs(track->vertex().z() - VertexCand_z[0]) < 1))
 	    nTrackCandPassQCDCuts++;
 

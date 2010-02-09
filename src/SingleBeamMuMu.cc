@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: SingleBeamMuMu.cc,v 1.6 2009/08/20 14:17:33 jjhollar Exp $
+// $Id: SingleBeamMuMu.cc,v 1.1 2009/11/23 08:42:59 jjhollar Exp $
 //
 //
 
@@ -428,30 +428,6 @@ SingleBeamMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_vtxy[nMuonCand]=muon->vertex().y(); 
           MuonCand_vtxz[nMuonCand]=muon->vertex().z(); 
 
-// 	  // Muon ID for CMSSW_2_0_X
-// 	  MuonCand_tmlsloosemuonid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TMLastStationLoose);
-// 	  MuonCand_tm2dloosemuid[nMuonCand]=muonid::isGoodMuon(*muon,muonid::TM2DCompatibilityLoose);
-// 	  MuonCand_arbmuid[nMuonCand]=-1; // This doesn't exist in 2_0_X!!!
-// 	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
-//           MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
-//           MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon(); 
-
-// 	  // Isolation for CMSSW_2_0_X
-// 	  MuonCand_hcalisor3[nMuonCand]=muon->isolationR03().hadEt; 
-// 	  MuonCand_ecalisor3[nMuonCand]=muon->isolationR03().emEt;  
-// 	  MuonCand_trkisor3[nMuonCand]=muon->isolationR03().nTracks;  
-// 	  MuonCand_hcalisor5[nMuonCand]=muon->isolationR05().hadEt;  
-// 	  MuonCand_ecalisor5[nMuonCand]=muon->isolationR05().emEt;   
-// 	  MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;   
-
-	  // Muon ID for CMSSW_2_1_X
-// 	  MuonCand_tmlsloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationLoose);
-// 	  MuonCand_tm2dloosemuid[nMuonCand]=muon->isGood(reco::Muon::TM2DCompatibilityLoose);
-// 	  MuonCand_arbmuid[nMuonCand]=muon->isGood(reco::Muon::AllArbitrated);
-// 	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
-// 	  MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
-// 	  MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon(); 
-
 	  // Muon ID for CMSSW_3_1_X
 // 	  MuonCand_tmlsloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMLastStationLoose);
 // 	  MuonCand_tm2dloosemuid[nMuonCand]=muon::isGoodMuon(*muon, muon::TM2DCompatibilityLoose);
@@ -573,7 +549,6 @@ SingleBeamMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double highestettowereta = -999.0;
   double highestettowerphi = -999.0;
   double totalecalo = -1.0; 
-  double closesttrkdxyz = 999.0;
 
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
   if(nMuonCand > -1)
@@ -735,124 +710,6 @@ SingleBeamMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestEtCaloTower_phi = highestettowerphi;
       HighestEtCaloTower_dr = highestettowerdr;
     }
-
-  // Now do vertexing and track counting
-  //  edm::ESHandle<TransientTrackBuilder> theVtx;
-  //  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theVtx);
-  //  vector<TransientTrack> transmutrks; 
-  //  reco::TrackCollection * mutrks = new reco::TrackCollection;
-
-  // First get "muon" tracks
-  /*
-  bool isMuon = false;
-  for( track = tracks->begin(); track != tracks->end(); ++ track ) 
-    { 
-      isMuon = false;
-      for(int j = 0;j < nMuonCand; j++)
-	{
-	  if(MuonCandTrack_p[j] == track->p())
-	    {
-	      isMuon = true;
-	      //	      mutrks->push_back( *track );
-	      //	      TransientTrack tmptrk = (*theVtx).build( *track );
-	      //	      transmutrks.push_back( tmptrk );
-	    }
-	}
-      if(isMuon == false)
-	nTrackCand++;
-    }
-  */
-  // If 2 muons, make a vertex
-  /*
-  if(transmutrks.size() == 2) 
-    { 
-      KalmanVertexFitter fitter(true); 
-      TransientVertex mumuVertex = fitter.vertex(transmutrks); 
-      if(mumuVertex.isValid())
-	{
-	  MuMu_vtxx = mumuVertex.position().x(); 
-	  MuMu_vtxy = mumuVertex.position().y(); 
-	  MuMu_vtxz = mumuVertex.position().z(); 
-	  MuMu_vtxchi2dof = mumuVertex.normalisedChiSquared();
-	  MuMu_vtxisvalid = 1;
-	}
-      else
-	{
-	  MuMu_vtxx = 0;  
-	  MuMu_vtxy = 0;  
-	  MuMu_vtxz = 0;  
-	  MuMu_vtxchi2dof = 0;
-	  MuMu_vtxisvalid = 0;
-	}
-
-
-      // OK, now go back and count "extra" tracks on the dimuon vertex
-      for(track = tracks->begin(); track != tracks->end() && nExtraTrackCand<TRACKMAX; ++ track) 
-        { 
-	  if(track->p() == MuonCandTrack_p[0] || track->p() == MuonCandTrack_p[1])
-	    continue;
-	  
-          TrackCand_p[nExtraTrackCand]=track->p(); 
-          TrackCand_px[nExtraTrackCand]=track->px(); 
-          TrackCand_py[nExtraTrackCand]=track->py(); 
-          TrackCand_pz[nExtraTrackCand]=track->pz(); 
-          TrackCand_pt[nExtraTrackCand]=track->pt(); 
-          TrackCand_eta[nExtraTrackCand]=track->eta(); 
-          TrackCand_phi[nExtraTrackCand]=track->phi(); 
-          TrackCand_charge[nExtraTrackCand]=track->charge(); 
-	  TrackCand_vtxdxyz[nExtraTrackCand] = sqrt(((track->vertex().x() - MuMu_vtxx)*(track->vertex().x() - MuMu_vtxx)) + 
-					     ((track->vertex().y() - MuMu_vtxy)*(track->vertex().y() - MuMu_vtxy)) +
-					     ((track->vertex().z() - MuMu_vtxz)*(track->vertex().z() - MuMu_vtxz)));
-	  
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.1) 
-            MuMu_extratracks1mm++; 
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.2)  
-            MuMu_extratracks2mm++;  
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.3)  
-            MuMu_extratracks3mm++;  
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.4)   
-            MuMu_extratracks4mm++;   
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.5)    
-            MuMu_extratracks5mm++;
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 1) 
-            MuMu_extratracks1cm++; 
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 2)
-	    MuMu_extratracks2cm++;
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 5) 
-            MuMu_extratracks5cm++; 
-          if(TrackCand_vtxdxyz[nExtraTrackCand] < 10) 
-            MuMu_extratracks10cm++; 
-	  if(TrackCand_vtxdxyz[nExtraTrackCand] < closesttrkdxyz)
-	    closesttrkdxyz = TrackCand_vtxdxyz[nExtraTrackCand];
-
-          nExtraTrackCand++;  
-        } 
-      ClosestExtraTrack_vtxdxyz = closesttrkdxyz;
-    } 
-  else 
-    { 
-      MuMu_vtxx = 0; 
-      MuMu_vtxy = 0; 
-      MuMu_vtxz = 0; 
-      MuMu_vtxchi2dof = 0; 
-      MuMu_vtxisvalid = 0; 
-      nExtraTrackCand = 0;
-    } 
-  */
-  // Check for di-objects
-  /*
-  if(nMuonCand < -1)
-    passed = false;
-  else
-    {
-      if(MuMu_dphi < mudphimin) 
-	passed = false;
-      if(fabs(MuonCand_pt[0]-MuonCand_pt[1]) > mudptmax)
-	passed = false;      
-    }
-  */
-
-  // "Exclusivity" cuts
 
   if(passed == true)
     thetree->Fill();
