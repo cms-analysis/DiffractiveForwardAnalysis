@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMuMC.cc,v 1.8 2009/06/24 15:54:11 jjhollar Exp $
+// $Id: GammaGammaMuMuMC.cc,v 1.9 2009/08/20 14:17:33 jjhollar Exp $
 //
 //
 
@@ -236,7 +236,7 @@ GammaGammaMuMuMC::analyze(const edm::Event& event, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GammaGammaMuMuMC::beginJob(const edm::EventSetup&)
+GammaGammaMuMuMC::beginJob()
 {
 }
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CollisionsMuMu.cc,v 1.7 2009/12/12 18:39:47 jjhollar Exp $
+// $Id: CollisionsMuMu.cc,v 1.8 2010/02/09 15:45:24 jjhollar Exp $
 //
 //
 
@@ -925,7 +925,7 @@ CollisionsMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-CollisionsMuMu::beginJob(const edm::EventSetup&)
+CollisionsMuMu::beginJob()
 {
 }
 

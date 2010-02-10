@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.52 2009/11/04 15:06:18 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.53 2010/02/08 08:53:48 jjhollar Exp $
 //
 //
 
@@ -1336,7 +1336,7 @@ GammaGammaMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GammaGammaMuMu::beginJob(const edm::EventSetup&)
+GammaGammaMuMu::beginJob()
 {
 }
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.3 2010/01/27 09:58:05 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.4 2010/02/04 08:02:32 jjhollar Exp $
 //
 //
 
@@ -676,7 +676,7 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-ExclusiveTrackTrack::beginJob(const edm::EventSetup&)
+ExclusiveTrackTrack::beginJob()
 {
 }
 

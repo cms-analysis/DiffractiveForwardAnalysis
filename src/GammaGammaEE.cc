@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.32 2009/04/22 06:01:01 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.33 2009/06/17 08:47:24 jjhollar Exp $
 //
 //
 
@@ -878,7 +878,7 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GammaGammaEE::beginJob(const edm::EventSetup&)
+GammaGammaEE::beginJob()
 {
 }
 

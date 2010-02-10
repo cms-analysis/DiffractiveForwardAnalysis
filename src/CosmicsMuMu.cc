@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CosmicsMuMu.cc,v 1.6 2009/08/20 14:17:33 jjhollar Exp $
+// $Id: CosmicsMuMu.cc,v 1.7 2010/02/09 15:45:24 jjhollar Exp $
 //
 //
 
@@ -868,7 +868,7 @@ CosmicsMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-CosmicsMuMu::beginJob(const edm::EventSetup&)
+CosmicsMuMu::beginJob()
 {
 }
 

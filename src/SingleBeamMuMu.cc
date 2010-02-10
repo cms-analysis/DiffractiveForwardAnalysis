@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: SingleBeamMuMu.cc,v 1.1 2009/11/23 08:42:59 jjhollar Exp $
+// $Id: SingleBeamMuMu.cc,v 1.2 2010/02/09 15:45:24 jjhollar Exp $
 //
 //
 
@@ -740,7 +740,7 @@ SingleBeamMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SingleBeamMuMu::beginJob(const edm::EventSetup&)
+SingleBeamMuMu::beginJob()
 {
 }
 

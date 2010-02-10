@@ -119,7 +119,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-    '/store/mc/Summer09/DYMuMu_M5to20/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0000/F0162DEC-95AF-DE11-A348-00001A1A3CF1.root'
+#    '/store/mc/Summer09/DYMuMu_M5to20/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0000/F0162DEC-95AF-DE11-A348-00001A1A3CF1.root'
+    '/store/relval/CMSSW_3_5_0/RelValZMM/GEN-SIM-RECO/START3X_V21-v1/0013/FE93B7C0-4C13-DF11-980F-00248C55CC40.root'
     )
                             )
 
@@ -129,7 +130,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 # Load configuration stuff
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP31X_V2::All')
+process.GlobalTag.globaltag = cms.string('START3X_V21::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
