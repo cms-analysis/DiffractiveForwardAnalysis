@@ -51,6 +51,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   edm::InputTag thePhotonLabel;
   edm::InputTag theCaloTowLabel;
   edm::InputTag recCastorTowerLabel;   
+  edm::InputTag recZDCRecHitsLabel;
   std::string hltMenuLabel;
 
   double mudptmax;
@@ -202,6 +203,16 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double HighestCastorTowerBwd_e;   
   double SumCastorFwd_e; 
   double SumCastorBwd_e; 
+
+  int nZDChitCand;
+  int ZDChit_section[500];
+  double ZDChit_energy[500];
+  double ZDChit_time[500];
+  int ZDChit_side[500];
+  double ZDCsumEMplus;
+  double ZDCsumHADplus;
+  double ZDCsumEMminus;
+  double ZDCsumHADminus;
 
   int nTrackCand;
   int TRACKMAX;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.53 2010/02/08 08:53:48 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.54 2010/02/10 13:49:06 jjhollar Exp $
 //
 //
 
@@ -37,6 +37,12 @@
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/Framework/interface/TriggerNames.h"  
    
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
+#include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
+
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 //#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
@@ -141,6 +147,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thePhotonLabel     = pset.getParameter<edm::InputTag>("PhotonCollectionLabel");
   theCaloTowLabel    = pset.getParameter<edm::InputTag>("CaloTowerLabel");
   recCastorTowerLabel = pset.getParameter<edm::InputTag>("CastorTowerLabel"); 
+  recZDCRecHitsLabel = pset.getParameter<edm::InputTag>("ZDCRecHitsLabel");
   hltMenuLabel       = pset.getParameter<std::string>("HLTMenuLabel");
 
   mudptmax           = pset.getParameter<double>("DimuonMaxdpt");
@@ -267,6 +274,16 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("HighestCastorTowerBwd_e",&HighestCastorTowerBwd_e,"HighestCastorTowerBwd_e/D"); 
   thetree->Branch("SumCastorFwd_e",&SumCastorFwd_e,"SumCastorFwd_e/D");
   thetree->Branch("SumCastorBwd_e",&SumCastorBwd_e,"SumCastorBwd_e/D"); 
+
+  thetree->Branch("nZDChitCand", &nZDChitCand, "nZDChitCand/I");
+  thetree->Branch("ZDChit_section", ZDChit_section, "ZDChit_section[nZDChitCand]/I");
+  thetree->Branch("ZDChit_energy", ZDChit_energy, "ZDChit_energy[nZDChitCand]/D");
+  thetree->Branch("ZDChit_time", ZDChit_time, "ZDChit_time[nZDChitCand]/D");
+  thetree->Branch("ZDChit_side", ZDChit_side, "ZDChit_side[nZDChitCand]/I");
+  thetree->Branch("ZDCsumEMplus", &ZDCsumEMplus, "ZDCsumEMplus/D");
+  thetree->Branch("ZDCsumHADplus", &ZDCsumHADplus, "ZDCsumHADplus/D");
+  thetree->Branch("ZDCsumEMminus", &ZDCsumEMminus, "ZDCsumEMminus/D");
+  thetree->Branch("ZDCsumHADminus", &ZDCsumHADminus, "ZDCsumHADminus/D");
 
   thetree->Branch("nExtraCaloTowersE1",&nExtraCaloTowersE1,"nExtraCaloTowersE1/I"); 
   thetree->Branch("nExtraCaloTowersE2",&nExtraCaloTowersE2,"nExtraCaloTowersE2/I"); 
@@ -782,6 +799,12 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   const CastorTowerCollection* castortowers = recoCastorTowers.product();  
   CastorTowerCollection::const_iterator castortower;  
 
+  // Get the ZDC rechits collection from the event
+  edm::Handle<ZDCRecHitCollection> recoZDChits;
+  event.getByLabel(recZDCRecHitsLabel, recoZDChits);
+  const ZDCRecHitCollection* zdchits = recoZDChits.product();
+  ZDCRecHitCollection::const_iterator zdchit;
+
   // Get the PFlow collection from the event
   edm::Handle<reco::PFCandidateCollection> pflows;
   event.getByLabel("particleFlow",pflows);
@@ -985,6 +1008,37 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       SumCastorFwd_e = totalecastorfwd;
       SumCastorBwd_e = totalecastorbwd; 
     }
+
+  // Now ZDC rechits
+  for ( zdchit = zdchits->begin(); zdchit != zdchits->end(); ++zdchit )
+    {
+      HcalZDCDetId id(zdchit->id());
+      int Side      = (zdchit->id()).zside();
+      int Section   = (zdchit->id()).section();
+
+      ZDChit_section[nZDChitCand] = Section;
+      ZDChit_energy[nZDChitCand] = zdchit->energy();
+      ZDChit_time[nZDChitCand] = zdchit->time();
+      ZDChit_side[nZDChitCand] = Side;
+      if((Section == 1) && (Side == 1))
+        {
+          ZDCsumEMplus = ZDCsumEMplus + ZDChit_energy[nZDChitCand];
+        }
+      if((Section == 1) && (Side == -1))
+        {
+          ZDCsumEMminus = ZDCsumEMminus + ZDChit_energy[nZDChitCand];
+        }
+      if((Section == 2) && (Side == 1))
+        {
+          ZDCsumHADplus = ZDCsumHADplus + ZDChit_energy[nZDChitCand];
+        }
+      if((Section == 2) && (Side == -1))
+        {
+          ZDCsumHADminus = ZDCsumHADminus + ZDChit_energy[nZDChitCand];
+        }
+      nZDChitCand++;
+    }
+
   // Check for particles in ZDC/Castor acceptance. 
   // Use MC truth for now, replace with real RECO when available
   double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;
@@ -1319,6 +1373,7 @@ GammaGammaMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
   iDesc.add<edm::InputTag>("RecoTrackLabel", edm::InputTag("generalTracks"))->setComment("input track collection"); 
   iDesc.add<edm::InputTag>("RecoVertexLabel", edm::InputTag("offlinePrimaryVertices"))->setComment("input vertex collection"); 
   iDesc.add<edm::InputTag>("CastorTowerLabel", edm::InputTag("CastorFastTowerReco"))->setComment("input CASTOR tower collection"); 
+  iDesc.add<edm::InputTag>("ZDCRecHitsLabel", edm::InputTag("zdchits"))->setComment("input ZDC rechit collection");
   iDesc.add<edm::InputTag>("JetCollectionLabel", edm::InputTag("selectedLayer1Jets"))->setComment("input jet collection"); 
   iDesc.add<edm::InputTag>("ElectronCollectionLabel", edm::InputTag("selectedLayer1Electrons"))->setComment("input electron collection"); 
   iDesc.add<edm::InputTag>("PhotonCollectionLabel", edm::InputTag("selectedLayer1Photons"))->setComment("input photon collection"); 

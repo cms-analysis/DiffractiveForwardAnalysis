@@ -10,6 +10,7 @@ gamgammumuanalysis = cms.EDFilter("GammaGammaMuMu",
     RecoTrackLabel = cms.InputTag("generalTracks"),
     RecoVertexLabel = cms.InputTag("offlinePrimaryVertices"),
     CastorTowerLabel = cms.InputTag("CastorFastTowerReco"),
+    ZDCRecHitsLabel = cms.InputTag("zdcreco"),                             
     CaloTowerdR = cms.double(0.3),
     DimuonMindphi = cms.double(0.0),
     MetLabel = cms.InputTag("met"),
@@ -17,7 +18,7 @@ gamgammumuanalysis = cms.EDFilter("GammaGammaMuMu",
     KeepSameSignDimuons = cms.bool(False),
     AlgoNames = cms.vstring('TriggerMuonFromGlobalMuonZ', 'GlobalMuonFromTrackerTrackZ','TrackerTrackFromStandaloneMuonZ',
                             'TriggerMuonFromGlobalMuonJpsi', 'GlobalMuonFromTrackerTrackJpsi', 'TrackerTrackFromStandaloneMuonJpsi'),
-    HLTMenuLabel = cms.string("HLT8E29")                                  
+    HLTMenuLabel = cms.string("HLT")                                  
 )
 
 

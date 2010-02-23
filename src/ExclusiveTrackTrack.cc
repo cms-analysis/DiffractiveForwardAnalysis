@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.4 2010/02/04 08:02:32 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.5 2010/02/10 13:49:06 jjhollar Exp $
 //
 //
 
@@ -29,6 +29,12 @@
 #include "DataFormats/Common/interface/TriggerResults.h"   
 #include "DataFormats/HLTReco/interface/TriggerEvent.h" 
 #include "FWCore/Framework/interface/TriggerNames.h"   
+
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
+#include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
 
 #include "DataFormats/CastorReco/interface/CastorTower.h"  
 
@@ -120,6 +126,7 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   recTrackLabel      = pset.getParameter<edm::InputTag>("RecoTrackLabel");
   theCaloTowLabel    = pset.getParameter<edm::InputTag>("CaloTowerLabel");
   recCastorTowerLabel = pset.getParameter<edm::InputTag>("CastorTowerLabel");
+  recZDCRecHitsLabel = pset.getParameter<edm::InputTag>("ZDCRecHitsLabel");
   drisocalo          = pset.getParameter<double>("CaloTowerdR");
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
@@ -185,6 +192,15 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("SumCastorFwd_e",&SumCastorFwd_e,"SumCastorFwd_e/D");
   thetree->Branch("SumCastorBwd_e",&SumCastorBwd_e,"SumCastorBwd_e/D");
 
+  thetree->Branch("nZDChitCand", &nZDChitCand, "nZDChitCand/I");
+  thetree->Branch("ZDChit_section", ZDChit_section, "ZDChit_section[nZDChitCand]/I");
+  thetree->Branch("ZDChit_energy", ZDChit_energy, "ZDChit_energy[nZDChitCand]/D");
+  thetree->Branch("ZDChit_time", ZDChit_time, "ZDChit_time[nZDChitCand]/D");
+  thetree->Branch("ZDChit_side", ZDChit_side, "ZDChit_side[nZDChitCand]/I");
+  thetree->Branch("ZDCsumEMplus", &ZDCsumEMplus, "ZDCsumEMplus/D");
+  thetree->Branch("ZDCsumHADplus", &ZDCsumHADplus, "ZDCsumHADplus/D");
+  thetree->Branch("ZDCsumEMminus", &ZDCsumEMminus, "ZDCsumEMminus/D");
+  thetree->Branch("ZDCsumHADminus", &ZDCsumHADminus, "ZDCsumHADminus/D");
 
   thetree->Branch("nExtraCaloTowersE1",&nExtraCaloTowersE1,"nExtraCaloTowersE1/I");
   thetree->Branch("nExtraCaloTowersE2",&nExtraCaloTowersE2,"nExtraCaloTowersE2/I");
@@ -304,6 +320,11 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
   nExtraCaloTowersE4hfm=0;
   nExtraCaloTowersE5hfm=0;
   nCastorTowerCand=0;
+  nZDChitCand=0;
+  ZDCsumHADminus=0;
+  ZDCsumEMminus=0;
+  ZDCsumHADplus=0;
+  ZDCsumEMplus=0;
 
   nExtraCaloTowersE1he=0; 
   nExtraCaloTowersE2he=0; 
@@ -355,7 +376,6 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
   event.getByLabel(InputTag("gtDigis::RECO"), L1GTRR);
   event.getByLabel(InputTag("hltL1GtObjectMap::HLT"), L1GTOMRec);
   if (L1GTRR.isValid()) {
-    cout << "L1GTRR is valid" << endl;
     DecisionWord gtDecisionWord = L1GTRR->decisionWord();
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = L1GTRR->technicalTriggerWord();
     const unsigned int numberTechnicalTriggerBits(technicalTriggerWordBeforeMask.size());
@@ -621,6 +641,44 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
       HighestEtCaloTower_phi = highestettowerphi;
       HighestEtCaloTower_dr = highestettowerdr;
     }
+
+  // Get the ZDC rechits collection from the event
+  edm::Handle<ZDCRecHitCollection> recoZDChits;
+  event.getByLabel(recZDCRecHitsLabel, recoZDChits);
+  const ZDCRecHitCollection* zdchits = recoZDChits.product();
+  ZDCRecHitCollection::const_iterator zdchit;
+  cout << "\tZDC hits size " << zdchits->size() << endl;
+
+  for ( zdchit = zdchits->begin(); zdchit != zdchits->end(); ++zdchit )
+    {
+      HcalZDCDetId id(zdchit->id());
+      int Side      = (zdchit->id()).zside();
+      int Section   = (zdchit->id()).section();
+
+      ZDChit_section[nZDChitCand] = Section;
+      ZDChit_energy[nZDChitCand] = zdchit->energy();
+      ZDChit_time[nZDChitCand] = zdchit->time();
+      ZDChit_side[nZDChitCand] = Side;
+
+      if((Section == 1) && (Side == 1))
+	{
+	  ZDCsumEMplus = ZDCsumEMplus + ZDChit_energy[nZDChitCand];
+	}
+      if((Section == 1) && (Side == -1))
+	{
+	  ZDCsumEMminus = ZDCsumEMminus + ZDChit_energy[nZDChitCand];
+	}
+      if((Section == 2) && (Side == 1))
+	{
+	  ZDCsumHADplus = ZDCsumHADplus + ZDChit_energy[nZDChitCand];
+	}
+      if((Section == 2) && (Side == -1))
+	{
+	  ZDCsumHADminus = ZDCsumHADminus + ZDChit_energy[nZDChitCand];
+	}
+      nZDChitCand++;
+    }
+
 
   // Now CASTOR towers
   // Get the CASTOR towers collection from the event
