@@ -205,10 +205,10 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double SumCastorBwd_e; 
 
   int nZDChitCand;
-  int ZDChit_section[500];
-  double ZDChit_energy[500];
-  double ZDChit_time[500];
-  int ZDChit_side[500];
+  int ZDChit_section[5000];
+  double ZDChit_energy[5000];
+  double ZDChit_time[5000];
+  int ZDChit_side[5000];
   double ZDCsumEMplus;
   double ZDCsumHADplus;
   double ZDCsumEMminus;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.54 2010/02/10 13:49:06 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.55 2010/02/23 07:26:05 jjhollar Exp $
 //
 //
 
@@ -417,6 +417,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nCaloCand=0;
   nTrackCand=0;
   nCastorTowerCand=0;
+  nZDChitCand=0;
+  ZDCsumHADminus=0;
+  ZDCsumEMminus=0;
+  ZDCsumHADplus=0;
+  ZDCsumEMplus=0;
   nExtraCaloTowersE1=0;
   nExtraCaloTowersE2=0;
   nExtraCaloTowersE3=0; 
