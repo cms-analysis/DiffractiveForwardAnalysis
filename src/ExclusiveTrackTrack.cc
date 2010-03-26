@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.5 2010/02/10 13:49:06 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.6 2010/02/23 07:26:05 jjhollar Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
 
 #include "DataFormats/CastorReco/interface/CastorTower.h"  
+#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
 
 #include "FWCore/Framework/interface/ESHandle.h" 
 //#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
@@ -126,6 +127,7 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   recTrackLabel      = pset.getParameter<edm::InputTag>("RecoTrackLabel");
   theCaloTowLabel    = pset.getParameter<edm::InputTag>("CaloTowerLabel");
   recCastorTowerLabel = pset.getParameter<edm::InputTag>("CastorTowerLabel");
+  recCastorRecHitsLabel = pset.getParameter<edm::InputTag>("CastorRecHitsLabel");
   recZDCRecHitsLabel = pset.getParameter<edm::InputTag>("ZDCRecHitsLabel");
   drisocalo          = pset.getParameter<double>("CaloTowerdR");
 
@@ -201,6 +203,7 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("ZDCsumHADplus", &ZDCsumHADplus, "ZDCsumHADplus/D");
   thetree->Branch("ZDCsumEMminus", &ZDCsumEMminus, "ZDCsumEMminus/D");
   thetree->Branch("ZDCsumHADminus", &ZDCsumHADminus, "ZDCsumHADminus/D");
+  thetree->Branch("CASTORsumRecHitsE", &CASTORsumRecHitsE, "CASTORsumRecHitsE/D");
 
   thetree->Branch("nExtraCaloTowersE1",&nExtraCaloTowersE1,"nExtraCaloTowersE1/I");
   thetree->Branch("nExtraCaloTowersE2",&nExtraCaloTowersE2,"nExtraCaloTowersE2/I");
@@ -325,6 +328,7 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
   ZDCsumEMminus=0;
   ZDCsumHADplus=0;
   ZDCsumEMplus=0;
+  CASTORsumRecHitsE=0;
 
   nExtraCaloTowersE1he=0; 
   nExtraCaloTowersE2he=0; 
@@ -679,6 +683,15 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
       nZDChitCand++;
     }
 
+  // Now CASTOR rechits
+  edm::Handle<CastorRecHitCollection> recoCASTORhits;
+  event.getByLabel(recCastorRecHitsLabel, recoCASTORhits);
+  const CastorRecHitCollection* castorhits = recoCASTORhits.product();
+  CastorRecHitCollection::const_iterator castorhit;
+  for ( castorhit = castorhits->begin(); castorhit != castorhits->end(); ++castorhit )
+    {
+      CASTORsumRecHitsE += castorhit->energy();
+    }
 
   // Now CASTOR towers
   // Get the CASTOR towers collection from the event

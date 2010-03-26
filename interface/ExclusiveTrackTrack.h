@@ -34,6 +34,7 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   edm::InputTag theCaloTowLabel;
   edm::InputTag recCastorTowerLabel;
   edm::InputTag recZDCRecHitsLabel;
+  edm::InputTag recCastorRecHitsLabel;
 
   double drisocalo;
 
@@ -113,6 +114,7 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   double ZDCsumHADplus;
   double ZDCsumEMminus;
   double ZDCsumHADminus;
+  double CASTORsumRecHitsE;
 
   int nVertexCand;
   double VertexCand_x[10];
