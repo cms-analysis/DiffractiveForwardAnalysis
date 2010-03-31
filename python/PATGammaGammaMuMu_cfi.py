@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 gamgammumuanalysis = cms.EDFilter("GammaGammaMuMu",
-    ElectronCollectionLabel = cms.InputTag("selectedLayer1Electrons"),
+    ElectronCollectionLabel = cms.InputTag("selectedPatElectrons"),
     outfilename = cms.untracked.string('mumu.pat.root'),
-    JetCollectionLabel = cms.InputTag("selectedLayer1Jets"),
-    PhotonCollectionLabel = cms.InputTag("selectedLayer1Photons"),
+    JetCollectionLabel = cms.InputTag("selectedPatJets"),
+    PhotonCollectionLabel = cms.InputTag("selectedPatPhotons"),
     CaloTowerLabel = cms.InputTag("towerMaker"),
-    GlobalMuonCollectionLabel = cms.InputTag("selectedLayer1Muons"),
+    GlobalMuonCollectionLabel = cms.InputTag("selectedPatMuons"),
     RecoTrackLabel = cms.InputTag("generalTracks"),
     RecoVertexLabel = cms.InputTag("offlinePrimaryVertices"),
     CastorTowerLabel = cms.InputTag("CastorFastTowerReco"),

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.55 2010/02/23 07:26:05 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.56 2010/03/11 15:14:39 jjhollar Exp $
 //
 //
 
@@ -799,10 +799,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   VertexCollection::const_iterator vertex_i;
 
   // Get the CASTOR towers collection from the event 
-  edm::Handle<reco::CastorTowerCollection> recoCastorTowers;  
-  event.getByLabel(recCastorTowerLabel, recoCastorTowers);  
-  const CastorTowerCollection* castortowers = recoCastorTowers.product();  
-  CastorTowerCollection::const_iterator castortower;  
+  //  edm::Handle<reco::CastorTowerCollection> recoCastorTowers;  
+  //  event.getByLabel(recCastorTowerLabel, recoCastorTowers);  
+  //  const CastorTowerCollection* castortowers = recoCastorTowers.product();  
+  //  CastorTowerCollection::const_iterator castortower;  
 
   // Get the ZDC rechits collection from the event
   edm::Handle<ZDCRecHitCollection> recoZDChits;
@@ -985,7 +985,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestEtCaloTower_dr = highestettowerdr;
 
       // Now CASTOR towers 
-      for ( castortower = castortowers->begin(); castortower != castortowers->end(); ++castortower )  
+      /*
+	for ( castortower = castortowers->begin(); castortower != castortowers->end(); ++castortower )  
         { 
           CastorTower_e[nCastorTowerCand] = castortower->energy(); 
           CastorTower_eta[nCastorTowerCand] = castortower->eta();  
@@ -1007,7 +1008,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
           nCastorTowerCand++;  
         } 
- 
+      */ 
       HighestCastorTowerFwd_e = highestcastortowerfwd; 
       HighestCastorTowerBwd_e = highestcastortowerbwd; 
       SumCastorFwd_e = totalecastorfwd;
@@ -1049,6 +1050,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;
   int MCPar_pdgid;
 
+  /*
   Handle<GenParticleCollection> genParticles;
   event.getByLabel( "genParticles", genParticles );
   for ( size_t i = 0; i < genParticles->size(); ++ i ) 
@@ -1131,7 +1133,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
         } 
 
     }
-
+  */
   GenMuMu_eta = 0.0;
   GenMuMu_pt = 0.0;
   if(nGenMuonCand == 2)
