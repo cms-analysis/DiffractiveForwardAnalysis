@@ -220,7 +220,7 @@ removeMCMatching(process, ['All'])
 
 #process.output.outputCommands.extend(AODEventContent.outputCommands)
 
-process.gamgammumuanalysis.outfilename = "Zmumu_RelVal.root"
+process.gamgammumuanalysis.outfilename = "run132440_MinimumBiasPromptReco.root"
 
 # Put it all together
 process.p = cms.Path(

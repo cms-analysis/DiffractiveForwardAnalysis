@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.56 2010/03/11 15:14:39 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.57 2010/03/31 11:37:53 jjhollar Exp $
 //
 //
 
@@ -27,6 +27,7 @@
 #include "DataFormats/PatCandidates/interface/MET.h" 
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
 #include "DataFormats/CastorReco/interface/CastorTower.h" 
+#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
 #include "DataFormats/Common/interface/Ref.h"   
 #include "DataFormats/Common/interface/TriggerResults.h"   
 #include "DataFormats/HLTReco/interface/TriggerEvent.h" 
@@ -148,6 +149,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   theCaloTowLabel    = pset.getParameter<edm::InputTag>("CaloTowerLabel");
   recCastorTowerLabel = pset.getParameter<edm::InputTag>("CastorTowerLabel"); 
   recZDCRecHitsLabel = pset.getParameter<edm::InputTag>("ZDCRecHitsLabel");
+  recCastorRecHitsLabel = pset.getParameter<edm::InputTag>("CastorRecHitsLabel");
   hltMenuLabel       = pset.getParameter<std::string>("HLTMenuLabel");
 
   mudptmax           = pset.getParameter<double>("DimuonMaxdpt");
@@ -254,7 +256,18 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("CaloTower_eta",CaloTower_eta,"CaloTower_eta[nCaloCand]/D"); 
   thetree->Branch("CaloTower_phi",CaloTower_phi,"CaloTower_phi[nCaloCand]/D"); 
   thetree->Branch("CaloTower_dr",CaloTower_dr,"CaloTower_dr[nCaloCand]/D");
-  thetree->Branch("CaloTower_eme",CaloTower_eme,"CaloTower_eme[nCaloCand]/D"); 
+  thetree->Branch("CaloTower_emE",CaloTower_emE,"CaloTower_emE[nCaloCand]/D");
+  thetree->Branch("CaloTower_hadE",CaloTower_hadE,"CaloTower_hadE[nCaloCand]/D");
+  thetree->Branch("CaloTower_outE",CaloTower_outE,"CaloTower_outE[nCaloCand]/D");
+  thetree->Branch("CaloTower_ID",CaloTower_ID,"CaloTower_ID[nCaloCand]/I");
+  thetree->Branch("CaloTower_x",CaloTower_x,"CaloTower_x[nCaloCand]/D");
+  thetree->Branch("CaloTower_y",CaloTower_y,"CaloTower_y[nCaloCand]/D");
+  thetree->Branch("CaloTower_z",CaloTower_z,"CaloTower_z[nCaloCand]/D");
+  thetree->Branch("CaloTower_t",CaloTower_t,"CaloTower_t[nCaloCand]/D");
+  thetree->Branch("CaloTower_badhcalcells",CaloTower_badhcalcells,"CaloTower_badhcalcells[nCaloCand]/I"); 
+  thetree->Branch("CaloTower_problemhcalcells",CaloTower_problemhcalcells,"CaloTower_problemhcalcells[nCaloCand]/I"); 
+  thetree->Branch("CaloTower_badecalcells",CaloTower_badecalcells,"CaloTower_badecalcells[nCaloCand]/I");  
+  thetree->Branch("CaloTower_problemecalcells",CaloTower_problemecalcells,"CaloTower_problemecalcells[nCaloCand]/I");  
   thetree->Branch("HighestCaloTower_e",&HighestCaloTower_e,"HighestCaloTower_e/D");
   thetree->Branch("HighestCaloTower_eta",&HighestCaloTower_eta,"HighestCaloTower_eta/D");
   thetree->Branch("HighestCaloTower_phi",&HighestCaloTower_phi,"HighestCaloTower_phi/D"); 
@@ -284,6 +297,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("ZDCsumHADplus", &ZDCsumHADplus, "ZDCsumHADplus/D");
   thetree->Branch("ZDCsumEMminus", &ZDCsumEMminus, "ZDCsumEMminus/D");
   thetree->Branch("ZDCsumHADminus", &ZDCsumHADminus, "ZDCsumHADminus/D");
+  thetree->Branch("CASTORsumRecHitsE", &CASTORsumRecHitsE, "CASTORsumRecHitsE/D");
 
   thetree->Branch("nExtraCaloTowersE1",&nExtraCaloTowersE1,"nExtraCaloTowersE1/I"); 
   thetree->Branch("nExtraCaloTowersE2",&nExtraCaloTowersE2,"nExtraCaloTowersE2/I"); 
@@ -384,6 +398,14 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("LumiSection",&LumiSection,"LumiSection/I");
   thetree->Branch("BX",&BX,"BX/I");
 
+  thetree->Branch("nPrimVertexCand",&nPrimVertexCand,"nPrimVertexCand/I");
+  thetree->Branch("PrimVertexCand_x",&PrimVertexCand_x,"PrimVertexCand_x[nPrimVertexCand]/D");
+  thetree->Branch("PrimVertexCand_y",&PrimVertexCand_y,"PrimVertexCand_y[nPrimVertexCand]/D");
+  thetree->Branch("PrimVertexCand_z",&PrimVertexCand_z,"PrimVertexCand_z[nPrimVertexCand]/D");
+  thetree->Branch("PrimVertexCand_tracks",&PrimVertexCand_tracks,"PrimVertexCand_tracks[nPrimVertexCand]/I");
+  thetree->Branch("PrimVertexCand_chi2",&PrimVertexCand_chi2,"PrimVertexCand_chi2[nPrimVertexCand]/D");
+  thetree->Branch("PrimVertexCand_ndof",&PrimVertexCand_ndof,"PrimVertexCand_ndof[nPrimVertexCand]/D");
+
   thetree->Branch("LowPt_pt",LowPt_pt,"LowPt_pt[nMuonCand]/D");
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
 
@@ -409,6 +431,7 @@ GammaGammaMuMu::~GammaGammaMuMu()
 void
 GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 {
+  nPrimVertexCand=0;
   nMuonCand=0;
   nHLTMu3MuonCand=0;
   nHLTDiMu3MuonCand=0;  
@@ -798,11 +821,20 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   const VertexCollection* vertexs = recoVertexs.product();
   VertexCollection::const_iterator vertex_i;
 
+  for (vertex_i = vertexs->begin(); vertex_i != vertexs->end(); vertex_i++){
+    PrimVertexCand_x[nPrimVertexCand] = vertex_i->x();
+    PrimVertexCand_y[nPrimVertexCand] = vertex_i->y();
+    PrimVertexCand_z[nPrimVertexCand] = vertex_i->z();
+    PrimVertexCand_tracks[nPrimVertexCand] = vertex_i->tracksSize();
+    PrimVertexCand_chi2[nPrimVertexCand] = vertex_i->chi2();
+    PrimVertexCand_ndof[nPrimVertexCand] = vertex_i->ndof();
+    nPrimVertexCand++;
+  }
+
+
   // Get the CASTOR towers collection from the event 
-  //  edm::Handle<reco::CastorTowerCollection> recoCastorTowers;  
-  //  event.getByLabel(recCastorTowerLabel, recoCastorTowers);  
-  //  const CastorTowerCollection* castortowers = recoCastorTowers.product();  
-  //  CastorTowerCollection::const_iterator castortower;  
+  edm::Handle<reco::CastorTowerCollection> recoCastorTowers;  
+  event.getByLabel(recCastorTowerLabel, recoCastorTowers);  
 
   // Get the ZDC rechits collection from the event
   edm::Handle<ZDCRecHitCollection> recoZDChits;
@@ -868,7 +900,35 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  CaloTower_et[nCaloCand]=calo->et();
 	  CaloTower_phi[nCaloCand]=calo->phi(); 
 	  CaloTower_eta[nCaloCand]=calo->eta(); 
-	  CaloTower_eme[nCaloCand]=calo->emEnergy();
+	  CaloTower_emE[nCaloCand]=calo->emEnergy();
+	  CaloTower_hadE[nCaloCand]=calo->hadEnergy();  //hcal
+	  CaloTower_outE[nCaloCand]=calo->outerEnergy(); //ho
+	  GlobalPoint emPosition=calo->emPosition();
+          GlobalPoint hadPosition=calo->hadPosition();
+	  if(CaloTower_emE[nCaloCand]>0){ //if ECAL
+		CaloTower_x[nCaloCand]=emPosition.x();
+                CaloTower_y[nCaloCand]=emPosition.y();
+                CaloTower_z[nCaloCand]=emPosition.z();
+                CaloTower_t[nCaloCand]=calo->ecalTime();
+		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=1;} //cout<<" -> EB"<<endl;}//EB
+		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95){CaloTower_ID[nCaloCand]=2;} //cout<<" -> EE"<<endl;}//EE
+		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2){CaloTower_ID[nCaloCand]=3;} //cout<<" -> EF"<<endl;}//EF ??
+	  }
+
+	  else if(CaloTower_hadE[nCaloCand]>0){
+                CaloTower_x[nCaloCand]=hadPosition.x();
+                CaloTower_y[nCaloCand]=hadPosition.y();
+                CaloTower_z[nCaloCand]=hadPosition.z();
+                CaloTower_t[nCaloCand]=calo->hcalTime();
+		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=4;} // cout<<" -> HB"<<endl;}//HB
+		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95) {CaloTower_ID[nCaloCand]=5;} // cout<<" -> HE"<<endl;}//HE
+		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2) {CaloTower_ID[nCaloCand]=6;} // cout<<" -> HF"<<endl;}//HF ??
+	  }
+
+	  CaloTower_badhcalcells[nCaloCand]=calo->numBadHcalCells();
+	  CaloTower_problemhcalcells[nCaloCand]=calo->numProblematicHcalCells(); 
+          CaloTower_badecalcells[nCaloCand]=calo->numBadEcalCells(); 
+          CaloTower_problemecalcells[nCaloCand]=calo->numProblematicEcalCells();  
 	  
 	  float calodr1 = sqrt(((CaloTower_eta[nCaloCand]-MuonCand_eta[0])*(CaloTower_eta[nCaloCand]-MuonCand_eta[0])) + 
 			       ((CaloTower_phi[nCaloCand]-MuonCand_phi[0])*(CaloTower_phi[nCaloCand]-MuonCand_phi[0])));
@@ -984,31 +1044,46 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestEtCaloTower_phi = highestettowerphi;
       HighestEtCaloTower_dr = highestettowerdr;
 
-      // Now CASTOR towers 
-      /*
-	for ( castortower = castortowers->begin(); castortower != castortowers->end(); ++castortower )  
-        { 
-          CastorTower_e[nCastorTowerCand] = castortower->energy(); 
-          CastorTower_eta[nCastorTowerCand] = castortower->eta();  
-          CastorTower_phi[nCastorTowerCand] = castortower->phi();  
-          CastorTower_emratio[nCastorTowerCand] = castortower->fem(); 
- 
-          if(CastorTower_eta[nCastorTowerCand] > 0)
-	    {
-	      totalecastorfwd+=CastorTower_e[nCastorTowerCand];
-	      if(CastorTower_e[nCastorTowerCand] > highestcastortowerfwd) 
-		highestcastortowerfwd = CastorTower_e[nCastorTowerCand];
-	    } 
-          if(CastorTower_eta[nCastorTowerCand] < 0) 
-	    {
-	      totalecastorbwd+=CastorTower_e[nCastorTowerCand];
-	      if(CastorTower_e[nCastorTowerCand] > highestcastortowerbwd)  
-		highestcastortowerbwd = CastorTower_e[nCastorTowerCand];  
-	    }
+      // Now CASTOR rechits
+      edm::Handle<CastorRecHitCollection> recoCASTORhits;
+      event.getByLabel(recCastorRecHitsLabel, recoCASTORhits);
+      const CastorRecHitCollection* castorhits = recoCASTORhits.product();
+      CastorRecHitCollection::const_iterator castorhit;
+      for ( castorhit = castorhits->begin(); castorhit != castorhits->end(); ++castorhit )
+	{
+	  CASTORsumRecHitsE += castorhit->energy();
+	}
 
-          nCastorTowerCand++;  
-        } 
-      */ 
+      // Now CASTOR towers 
+      if(recoCastorTowers.isValid()) 
+	{ 
+	  const CastorTowerCollection* castortowers = recoCastorTowers.product();   
+	  CastorTowerCollection::const_iterator castortower;   
+	  
+	  for ( castortower = castortowers->begin(); castortower != castortowers->end(); ++castortower )  
+	    { 
+	      CastorTower_e[nCastorTowerCand] = castortower->energy(); 
+	      CastorTower_eta[nCastorTowerCand] = castortower->eta();  
+	      CastorTower_phi[nCastorTowerCand] = castortower->phi();  
+	      CastorTower_emratio[nCastorTowerCand] = castortower->fem(); 
+	      
+	      if(CastorTower_eta[nCastorTowerCand] > 0)
+		{
+		  totalecastorfwd+=CastorTower_e[nCastorTowerCand];
+		  if(CastorTower_e[nCastorTowerCand] > highestcastortowerfwd) 
+		    highestcastortowerfwd = CastorTower_e[nCastorTowerCand];
+		} 
+	      if(CastorTower_eta[nCastorTowerCand] < 0) 
+		{
+		  totalecastorbwd+=CastorTower_e[nCastorTowerCand];
+		  if(CastorTower_e[nCastorTowerCand] > highestcastortowerbwd)  
+		    highestcastortowerbwd = CastorTower_e[nCastorTowerCand];  
+		}
+	      
+	      nCastorTowerCand++;  
+	    } 
+	}
+
       HighestCastorTowerFwd_e = highestcastortowerfwd; 
       HighestCastorTowerBwd_e = highestcastortowerbwd; 
       SumCastorFwd_e = totalecastorfwd;
@@ -1050,90 +1125,92 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;
   int MCPar_pdgid;
 
-  /*
   Handle<GenParticleCollection> genParticles;
   event.getByLabel( "genParticles", genParticles );
-  for ( size_t i = 0; i < genParticles->size(); ++ i ) 
+  if(genParticles.isValid())
     {
-      const Candidate & p = (*genParticles)[ i ];
-      MCPar_pdgid=p.pdgId();
-      MCPar_eta=p.eta();
-      MCPar_px=p.px();
-      MCPar_py=p.py();
-      MCPar_pz=p.pz();
-      MCPar_mass=p.mass();
-      MCPar_e = sqrt(MCPar_mass*MCPar_mass + (MCPar_px*MCPar_px + MCPar_py*MCPar_py + MCPar_pz*MCPar_pz));
-
-      if(MCPar_pdgid == 22)
+      for ( size_t i = 0; i < genParticles->size(); ++ i ) 
 	{
-	  if(p.status() == 1 && nGenPhotCand < GENPHOTONMAX)
+	  const Candidate & p = (*genParticles)[ i ];
+	  MCPar_pdgid=p.pdgId();
+	  MCPar_eta=p.eta();
+	  MCPar_px=p.px();
+	  MCPar_py=p.py();
+	  MCPar_pz=p.pz();
+	  MCPar_mass=p.mass();
+	  MCPar_e = sqrt(MCPar_mass*MCPar_mass + (MCPar_px*MCPar_px + MCPar_py*MCPar_py + MCPar_pz*MCPar_pz));
+	  
+	  if(MCPar_pdgid == 22)
 	    {
-	      GenPhotCand_pt[nGenPhotCand]=p.pt();
-	      GenPhotCand_eta[nGenPhotCand]=p.eta(); 
-	      GenPhotCand_phi[nGenPhotCand]=p.phi(); 
-	      nGenPhotCand++;
+	      if(p.status() == 1 && nGenPhotCand < GENPHOTONMAX)
+		{
+		  GenPhotCand_pt[nGenPhotCand]=p.pt();
+		  GenPhotCand_eta[nGenPhotCand]=p.eta(); 
+		  GenPhotCand_phi[nGenPhotCand]=p.phi(); 
+		  nGenPhotCand++;
+		}
 	    }
-	}
-
-      if(MCPar_pdgid == 13 || MCPar_pdgid == -13)
-	{
-	  if(p.status() == 1 && nGenMuonCand < GENMUONMAX) 
-            { 
-              GenMuonCand_px[nGenMuonCand]=p.px(); 
-              GenMuonCand_py[nGenMuonCand]=p.py();  
-              GenMuonCand_pz[nGenMuonCand]=p.pz();  
-              nGenMuonCand++; 
-            } 
-	}
-
-      if(MCPar_pdgid == 22 && abs(MCPar_eta) > 8.6 && MCPar_e > 20.0) 
-	HitInZDC++;
-      if(MCPar_pdgid == 2112 && abs(MCPar_eta) > 8.6 && MCPar_e > 50.0)
-	HitInZDC++;
-      if((MCPar_pdgid != 22 && MCPar_pdgid != 2112) && (abs(MCPar_eta) > 5.2 && abs(MCPar_eta) < 6.6))
-	HitInCastor++;
-
-      if(MCPar_pdgid == 2212 && MCPar_pz > 3000.0) 
-        { 
-          double MCPar_pt = sqrt(MCPar_px*MCPar_px + MCPar_py*MCPar_py); 
-          double phi = p.phi(); 
-          double mp = 0.938272029; 
-          // ... compute kinimatical variable  
-  
-          float xi  = 1.0;    // fractional momentum loss  
-          if (MCPar_pz>0)  
-            xi -= MCPar_pz/7000.0;  
-          else  
-            xi += MCPar_pz/7000.0;  
-  
-          double t   = (-MCPar_pt*MCPar_pt - mp*mp*xi*xi) / (1-xi); // "t"  
- 
-          float acc420b1, acc220b1, acc420and220b1, acc420or220b1; // beam 1 (clockwise)  
-          float acc420b2, acc220b2, acc420and220b2, acc420or220b2; // beam 2 (anti-clockwise)  
-  
-          acc420b1 = acc220b1 = acc420and220b1 = acc420or220b1 = 0;  
-          acc420b2 = acc220b2 = acc420and220b2 = acc420or220b2 = 0;  
- 
 	  
-          if(MCPar_pz > 0) 
-            { 
-              acc420b1       = helper420beam1.GetAcceptance(t, xi, phi);  
-              acc220b1       = helper220beam1.GetAcceptance(t, xi, phi);  
-              acc420and220b1 = helper420a220beam1.GetAcceptance(t, xi, phi);  
-              acc420or220b1  = acc420b1 + acc220b1 - acc420and220b1;  
-            } 
-          else 
-            { 
-              acc420b2       = helper420beam2.GetAcceptance(t, xi, phi);  
-              acc220b2       = helper220beam2.GetAcceptance(t, xi, phi);  
-              acc420and220b2 = helper420a220beam2.GetAcceptance(t, xi, phi);  
-              acc420or220b2  = acc420b2 + acc220b2 - acc420and220b2;  
-            } 
+	  if(MCPar_pdgid == 13 || MCPar_pdgid == -13)
+	    {
+	      if(p.status() == 1 && nGenMuonCand < GENMUONMAX) 
+		{ 
+		  GenMuonCand_px[nGenMuonCand]=p.px(); 
+		  GenMuonCand_py[nGenMuonCand]=p.py();  
+		  GenMuonCand_pz[nGenMuonCand]=p.pz();  
+		  nGenMuonCand++; 
+		} 
+	    }
 	  
-        } 
-
+	  if(MCPar_pdgid == 22 && abs(MCPar_eta) > 8.6 && MCPar_e > 20.0) 
+	    HitInZDC++;
+	  if(MCPar_pdgid == 2112 && abs(MCPar_eta) > 8.6 && MCPar_e > 50.0)
+	    HitInZDC++;
+	  if((MCPar_pdgid != 22 && MCPar_pdgid != 2112) && (abs(MCPar_eta) > 5.2 && abs(MCPar_eta) < 6.6))
+	    HitInCastor++;
+	  
+	  if(MCPar_pdgid == 2212 && MCPar_pz > 3000.0) 
+	    { 
+	      double MCPar_pt = sqrt(MCPar_px*MCPar_px + MCPar_py*MCPar_py); 
+	      double phi = p.phi(); 
+	      double mp = 0.938272029; 
+	      // ... compute kinimatical variable  
+	      
+	      float xi  = 1.0;    // fractional momentum loss  
+	      if (MCPar_pz>0)  
+		xi -= MCPar_pz/7000.0;  
+	      else  
+		xi += MCPar_pz/7000.0;  
+	      
+	      double t   = (-MCPar_pt*MCPar_pt - mp*mp*xi*xi) / (1-xi); // "t"  
+	      
+	      float acc420b1, acc220b1, acc420and220b1, acc420or220b1; // beam 1 (clockwise)  
+	      float acc420b2, acc220b2, acc420and220b2, acc420or220b2; // beam 2 (anti-clockwise)  
+	      
+	      acc420b1 = acc220b1 = acc420and220b1 = acc420or220b1 = 0;  
+	      acc420b2 = acc220b2 = acc420and220b2 = acc420or220b2 = 0;  
+	      
+	      
+	      if(MCPar_pz > 0) 
+		{ 
+		  acc420b1       = helper420beam1.GetAcceptance(t, xi, phi);  
+		  acc220b1       = helper220beam1.GetAcceptance(t, xi, phi);  
+		  acc420and220b1 = helper420a220beam1.GetAcceptance(t, xi, phi);  
+		  acc420or220b1  = acc420b1 + acc220b1 - acc420and220b1;  
+		} 
+	      else 
+		{ 
+		  acc420b2       = helper420beam2.GetAcceptance(t, xi, phi);  
+		  acc220b2       = helper220beam2.GetAcceptance(t, xi, phi);  
+		  acc420and220b2 = helper420a220beam2.GetAcceptance(t, xi, phi);  
+		  acc420or220b2  = acc420b2 + acc220b2 - acc420and220b2;  
+		} 
+	      
+	    } 
+	  
+	}
     }
-  */
+
   GenMuMu_eta = 0.0;
   GenMuMu_pt = 0.0;
   if(nGenMuonCand == 2)
@@ -1381,6 +1458,7 @@ GammaGammaMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
   iDesc.add<edm::InputTag>("RecoVertexLabel", edm::InputTag("offlinePrimaryVertices"))->setComment("input vertex collection"); 
   iDesc.add<edm::InputTag>("CastorTowerLabel", edm::InputTag("CastorFastTowerReco"))->setComment("input CASTOR tower collection"); 
   iDesc.add<edm::InputTag>("ZDCRecHitsLabel", edm::InputTag("zdchits"))->setComment("input ZDC rechit collection");
+  iDesc.add<edm::InputTag>("CastorRecHitsLabel", edm::InputTag("castorreco"))->setComment("input CASTOR rechit collection");
   iDesc.add<edm::InputTag>("JetCollectionLabel", edm::InputTag("selectedLayer1Jets"))->setComment("input jet collection"); 
   iDesc.add<edm::InputTag>("ElectronCollectionLabel", edm::InputTag("selectedLayer1Electrons"))->setComment("input electron collection"); 
   iDesc.add<edm::InputTag>("PhotonCollectionLabel", edm::InputTag("selectedLayer1Photons"))->setComment("input photon collection"); 

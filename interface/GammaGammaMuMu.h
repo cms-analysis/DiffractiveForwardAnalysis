@@ -52,6 +52,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   edm::InputTag theCaloTowLabel;
   edm::InputTag recCastorTowerLabel;   
   edm::InputTag recZDCRecHitsLabel;
+  edm::InputTag recCastorRecHitsLabel;
   std::string hltMenuLabel;
 
   double mudptmax;
@@ -183,7 +184,19 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double CaloTower_eta[1000];
   double CaloTower_phi[1000];
   double CaloTower_dr[1000];
-  double CaloTower_eme[1000];
+  double CaloTower_emE[1000];
+  double CaloTower_hadE[1000];
+  double CaloTower_outE[1000];
+  int CaloTower_ID[1000];
+  double CaloTower_x[1000];
+  double CaloTower_y[1000];
+  double CaloTower_z[1000];
+  double CaloTower_t[1000];
+  int CaloTower_badhcalcells[1000];
+  int CaloTower_problemhcalcells[1000];
+  int CaloTower_badecalcells[1000];
+  int CaloTower_problemecalcells[1000];
+
   double HighestCaloTower_e;
   double HighestCaloTower_eta;
   double HighestCaloTower_phi;
@@ -213,6 +226,16 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double ZDCsumHADplus;
   double ZDCsumEMminus;
   double ZDCsumHADminus;
+
+  double CASTORsumRecHitsE;
+
+  int nPrimVertexCand;
+  double PrimVertexCand_x[10];
+  double PrimVertexCand_y[10];
+  double PrimVertexCand_z[10];
+  int PrimVertexCand_tracks[10];
+  double PrimVertexCand_chi2[10];
+  double PrimVertexCand_ndof[10];
 
   int nTrackCand;
   int TRACKMAX;
