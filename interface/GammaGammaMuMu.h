@@ -87,6 +87,10 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int MuonCand_tmlsOptLowPtloosemuonid[4];
   int MuonCand_tm2dloosemuid[4];
   int MuonCand_arbmuid[4];
+  int MuonCand_tmlsAngloosemuonid[4];
+  int MuonCand_tmlsAngtightmuonid[4]; 
+  int MuonCand_tmosAngloosemuonid[4]; 
+  int MuonCand_tmosAngtightmuonid[4]; 
   int MuonCand_isglobal[4];
   int MuonCand_istracker[4];
   int MuonCand_isstandalone[4];
