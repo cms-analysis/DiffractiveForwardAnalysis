@@ -69,6 +69,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int Run;
   int LumiSection;
 
+  int L1TechnicalTriggers[128]; 
+
   int nEvt;
   int nMuonCand;
   int MUONMAX;// used to set maximum of arrays

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.58 2010/04/01 12:46:27 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.59 2010/04/06 07:48:36 jjhollar Exp $
 //
 //
 
@@ -73,8 +73,13 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-//#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 #include "DataFormats/L1GlobalCaloTrigger/src/L1GctJetCounts.cc"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h" 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h" 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h" 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h" 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h" 
+
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -401,6 +406,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("Run",&Run,"Run/I");
   thetree->Branch("LumiSection",&LumiSection,"LumiSection/I");
   thetree->Branch("BX",&BX,"BX/I");
+  thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I"); 
 
   thetree->Branch("nPrimVertexCand",&nPrimVertexCand,"nPrimVertexCand/I");
   thetree->Branch("PrimVertexCand_x",&PrimVertexCand_x,"PrimVertexCand_x[nPrimVertexCand]/D");
@@ -513,6 +519,21 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   BX = event.bunchCrossing();
   Run = event.id().run();
   LumiSection = event.luminosityBlock();
+
+  // L1 technical triggers 
+  edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRR; 
+  edm::Handle<L1GlobalTriggerObjectMapRecord> L1GTOMRec; 
+  event.getByLabel(InputTag("gtDigis::RECO"), L1GTRR); 
+  event.getByLabel(InputTag("hltL1GtObjectMap::HLT"), L1GTOMRec); 
+  if (L1GTRR.isValid()) { 
+    DecisionWord gtDecisionWord = L1GTRR->decisionWord(); 
+    const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = L1GTRR->technicalTriggerWord(); 
+    const unsigned int numberTechnicalTriggerBits(technicalTriggerWordBeforeMask.size()); 
+    for (unsigned int iBit = 0; iBit < numberTechnicalTriggerBits; ++iBit) { 
+      int techTrigger = (int) technicalTriggerWordBeforeMask.at(iBit); 
+      L1TechnicalTriggers[iBit] = techTrigger; 
+    } 
+  } 
 
   // Get the trigger information from the event
   edm::Handle<edm::TriggerResults> hltResults ; 
