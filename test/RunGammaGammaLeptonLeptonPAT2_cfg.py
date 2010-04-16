@@ -232,7 +232,7 @@ process.p = cms.Path(
 #      process.CastorFastReco
     process.hltFilter*
     process.scrapingVeto*
-    process.physDecl*
+    process.physDecl
 #    process.muonFilter
     + process.patDefaultSequence  
     + process.gamgammumuanalysis
