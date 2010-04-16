@@ -141,7 +141,7 @@ process.source = cms.Source("PoolSource",
     )
                             )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 
 # Load configuration stuff
@@ -179,6 +179,10 @@ process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                            maxAbsZ = cms.double(15),
                                            maxd0 = cms.double(2)
                                            )
+
+process.muonFilter=cms.EDFilter("CandViewCountFilter",
+                                src =cms.InputTag("muons"), minNumber = cms.uint32(1))
+
 
 # Trigger
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.HLTFilter_cfi")
@@ -220,7 +224,7 @@ removeMCMatching(process, ['All'])
 
 #process.output.outputCommands.extend(AODEventContent.outputCommands)
 
-process.gamgammumuanalysis.outfilename = "run132440_MinimumBiasPromptReco.root"
+process.gamgammumuanalysis.outfilename = "run132440torun132606_MinimumBiasPromptReco.root"
 
 # Put it all together
 process.p = cms.Path(
@@ -228,7 +232,8 @@ process.p = cms.Path(
 #      process.CastorFastReco
     process.hltFilter*
     process.scrapingVeto*
-    process.physDecl
+    process.physDecl*
+#    process.muonFilter
     + process.patDefaultSequence  
     + process.gamgammumuanalysis
 #   The output module here is only needed for making 'PATtuples'/skims

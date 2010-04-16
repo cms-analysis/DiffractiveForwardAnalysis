@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.59 2010/04/06 07:48:36 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.60 2010/04/12 07:10:25 jjhollar Exp $
 //
 //
 
@@ -240,6 +240,11 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_timeinerr", MuonCand_timeinerr, "MuonCand_timeinerr[nMuonCand]/D");  
   thetree->Branch("MuonCand_timeouterr", MuonCand_timeouterr, "MuonCand_timeouterr[nMuonCand]/D"); 	 
   thetree->Branch("MuonCand_efficiency", MuonCand_efficiency, "MuonCand_efficiency[nMuonCand]/D");        
+  thetree->Branch("MuonCand_validtrackhits", MuonCand_validtrackhits, "MuonCand_validtrackhits[nMuonCand]/I");        
+  thetree->Branch("MuonCand_validhits", MuonCand_validhits, "MuonCand_validhits[nMuonCand]/I");        
+  thetree->Branch("MuonCand_normchi2", MuonCand_normchi2, "MuonCand_normchi2[nMuonCand]/D");        
+  thetree->Branch("MuonCand_normtrackchi2", MuonCand_normtrackchi2, "MuonCand_normtrackchi2[nMuonCand]/D");         
+
 
   thetree->Branch("nHLTMu3MuonCand",&nHLTMu3MuonCand,"nHLTMu3MuonCand/I"); 
   thetree->Branch("HLT_Mu3_MuonCand_pt",&HLT_Mu3_MuonCand_pt,"HLT_Mu3_MuonCand_pt[nHLTMu3MuonCand]/D"); 
@@ -353,6 +358,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("TrackCand_eta",TrackCand_eta,"TrackCand_eta[nTrackCand]/D");
   thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nTrackCand]/D");
   thetree->Branch("TrackCand_vtxdxyz",TrackCand_vtxdxyz,"TrackCand_vtxdxyz[nTrackCand]/D");
+  thetree->Branch("TrackCand_purity",TrackCand_purity,"TrackCand_purity[nTrackCand]/D");
 
   thetree->Branch("TrackCand_vtxZ",TrackCand_vtxZ,"TrackCand_vtxZ[nTrackCand]/D");
   thetree->Branch("TrackCand_vtxT",TrackCand_vtxT,"TrackCand_vtxT[nTrackCand]/D");
@@ -745,7 +751,14 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           MuonCand_timeouterr[nMuonCand]=muon->time().timeAtIpInOutErr; 	 
           MuonCand_timeinerr[nMuonCand]=muon->time().timeAtIpOutInErr; 	 
  
-	  if(muon->isTrackerMuon() || muon->isGlobalMuon()) MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p();
+	  if(muon->isTrackerMuon() || muon->isGlobalMuon()) 
+	    {
+	      MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p();
+	      MuonCand_validtrackhits[nMuonCand]=muon->innerTrack()->numberOfValidHits();  
+	      MuonCand_validhits[nMuonCand]=muon->numberOfValidHits(); 
+	      MuonCand_normchi2[nMuonCand]=muon->normChi2(); 
+	      MuonCand_normtrackchi2[nMuonCand]=muon->innerTrack()->normalizedChi2(); 
+	    }
 
 	  std::string algoname;
 	  double totalmuoneff = 1.0;
@@ -1407,6 +1420,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           if(*ivec_isPU_read == 1) {ivec_isPU_read++; continue;}
 
           ivec_isPU_read++;
+          TrackCand_purity[nTrackCand]=track->quality(TrackBase::highPurity); 
           TrackCand_p[nTrackCand]=track->p(); 
           TrackCand_px[nTrackCand]=track->px(); 
           TrackCand_py[nTrackCand]=track->py(); 

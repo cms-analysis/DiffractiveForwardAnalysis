@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CosmicsMuMu.cc,v 1.7 2010/02/09 15:45:24 jjhollar Exp $
+// $Id: CosmicsMuMu.cc,v 1.8 2010/02/10 13:49:06 jjhollar Exp $
 //
 //
 
@@ -568,7 +568,7 @@ CosmicsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double highestettowereta = -999.0;
   double highestettowerphi = -999.0;
   double totalecalo = -1.0; 
-  double closesttrkdxyz = 999.0;
+  //  double closesttrkdxyz = 999.0;
 
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
   if(nMuonCand == 2)

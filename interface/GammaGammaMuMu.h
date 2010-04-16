@@ -108,6 +108,10 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuonCand_timeout[4]; 	 
   double MuonCand_timeouterr[4]; 	 
   double MuonCand_timeinerr[4]; 	 
+  int MuonCand_validtrackhits[4];
+  int MuonCand_validhits[4];
+  double MuonCand_normchi2[4];
+  double MuonCand_normtrackchi2[4];
 
   int nHLTMu3MuonCand;
   double HLT_Mu3_MuonCand_pt[10];
@@ -245,6 +249,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
 
   int nTrackCand;
   int TRACKMAX;
+  double TrackCand_purity[500];
   double TrackCand_px[500];
   double TrackCand_py[500];
   double TrackCand_pz[500];
