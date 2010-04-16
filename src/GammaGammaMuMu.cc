@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.60 2010/04/12 07:10:25 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.61 2010/04/16 08:03:37 jjhollar Exp $
 //
 //
 
@@ -756,8 +756,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	      MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p();
 	      MuonCand_validtrackhits[nMuonCand]=muon->innerTrack()->numberOfValidHits();  
 	      MuonCand_validhits[nMuonCand]=muon->numberOfValidHits(); 
-	      MuonCand_normchi2[nMuonCand]=muon->normChi2(); 
-	      MuonCand_normtrackchi2[nMuonCand]=muon->innerTrack()->normalizedChi2(); 
+              MuonCand_normtrackchi2[nMuonCand]=muon->innerTrack()->normalizedChi2();  
+
+	      if(muon->isGlobalMuon())
+		MuonCand_normchi2[nMuonCand]=muon->normChi2(); 
 	    }
 
 	  std::string algoname;
