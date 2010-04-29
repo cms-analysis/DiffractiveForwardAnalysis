@@ -250,6 +250,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int nTrackCand;
   int TRACKMAX;
   double TrackCand_purity[500];
+  int TrackCand_nhits[500];
   double TrackCand_px[500];
   double TrackCand_py[500];
   double TrackCand_pz[500];
