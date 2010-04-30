@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.62 2010/04/16 12:50:32 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.63 2010/04/29 13:58:54 jjhollar Exp $
 //
 //
 
@@ -350,6 +350,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersEt4",&nExtraCaloTowersEt4,"nExtraCaloTowersEt4/I");  
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
+  thetree->Branch("nQualityTrackCand",&nQualityTrackCand,"nQualityTrackCand/I"); 
   thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
   thetree->Branch("TrackCand_py",TrackCand_py,"TrackCand_py[nTrackCand]/D");
   thetree->Branch("TrackCand_pz",TrackCand_pz,"TrackCand_pz[nTrackCand]/D");
@@ -456,6 +457,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
+  nQualityTrackCand=0;
   nCastorTowerCand=0;
   nZDChitCand=0;
   ZDCsumHADminus=0;
@@ -1439,6 +1441,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  TrackCand_vtxT[nTrackCand] = sqrt(((track->vertex().x() - MuMu_vtxx)*(track->vertex().x() - MuMu_vtxx)) +
                                              ((track->vertex().y() - MuMu_vtxy)*(track->vertex().y() - MuMu_vtxy)));
 	  TrackCand_vtxZ[nTrackCand] = sqrt(((track->vertex().z() - MuMu_vtxz)*(track->vertex().z() - MuMu_vtxz)));
+
+	  if((TrackCand_purity[nTrackCand] == 2) && (TrackCand_nhits[nTrackCand] >= 3))
+	    nQualityTrackCand++;
 
 
           if(TrackCand_vtxdxyz[nTrackCand] < 0.1)
