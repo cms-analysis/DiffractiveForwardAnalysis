@@ -68,6 +68,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int BX;
   int Run;
   int LumiSection;
+  int EventNum;
 
   int L1TechnicalTriggers[128]; 
 
@@ -277,6 +278,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int HLT_DoubleMu3;
   int HLT_Mu3;
   int HLT_DoubleMu0;
+  int HLT_L2Mu0;
+  int HLT_L1DoubleMuOpen;
 
   double LowPt_pt[4];
   double LowPt_eta[4];

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.63 2010/04/29 13:58:54 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.64 2010/04/30 06:40:34 jjhollar Exp $
 //
 //
 
@@ -411,9 +411,13 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("HLT_DoubleMu3",&HLT_DoubleMu3,"HLT_DoubleMu3/I");
   thetree->Branch("HLT_DoubleMu0",&HLT_DoubleMu0,"HLT_DoubleMu0/I");
   thetree->Branch("HLT_Mu3",&HLT_Mu3,"HLT_Mu3/I");
+  thetree->Branch("HLT_L2Mu0", &HLT_L2Mu0, "HLT_L2Mu0/I"); 
+  thetree->Branch("HLT_L1DoubleMuOpen", &HLT_L1DoubleMuOpen, "HLT_L1DoubleMuOpen/I"); 
+
   thetree->Branch("Run",&Run,"Run/I");
   thetree->Branch("LumiSection",&LumiSection,"LumiSection/I");
   thetree->Branch("BX",&BX,"BX/I");
+  thetree->Branch("EventNum",&EventNum,"EventNum/I");
   thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I"); 
 
   thetree->Branch("nPrimVertexCand",&nPrimVertexCand,"nPrimVertexCand/I");
@@ -528,6 +532,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   BX = event.bunchCrossing();
   Run = event.id().run();
   LumiSection = event.luminosityBlock();
+  EventNum = event.id().event();
 
   // L1 technical triggers 
   edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRR; 
@@ -553,24 +558,38 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       if ( trigNames.triggerNames().at(i) == "HLT_Mu3" )       
         {  
           if ( hltResults->accept(i) )  
-            {HLT_Mu3 = 1; /*cout << "--> debug : HLT1µ_pt3" << endl;*/}
+            {HLT_Mu3 = 1;}
 	  else
 	    HLT_Mu3 = 0;
         }  
       if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu0" ) 
         {   
           if ( hltResults->accept(i) )  
-	    {HLT_DoubleMu0 = 1; /*cout << "--> debug : HLT2µ_NonIso" << endl;*/}
+	    {HLT_DoubleMu0 = 1;}
 	  else
 	    HLT_DoubleMu0 = 0;
         }  
       if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu3" ) 
         {   
           if ( hltResults->accept(i) )  
-	    {HLT_DoubleMu3 = 1; /*cout << "--> debug : HLT2µ_NonIso" << endl;*/}
+	    {HLT_DoubleMu3 = 1;}
 	  else
 	    HLT_DoubleMu3 = 0;
         }  
+      if ( trigNames.triggerNames().at(i) == "HLT_L1DoubleMuOpen" )
+        {    
+          if ( hltResults->accept(i) )   
+            {HLT_L1DoubleMuOpen = 1;}
+          else 
+            HLT_L1DoubleMuOpen = 0; 
+        }   
+      if ( trigNames.triggerNames().at(i) == "HLT_L2Mu0" ) 
+        {     
+          if ( hltResults->accept(i) )    
+            {HLT_L2Mu0 = 1;} 
+          else  
+            HLT_L2Mu0 = 0;  
+        }    
     }
 
   Handle<TriggerEvent> hltObjects;
