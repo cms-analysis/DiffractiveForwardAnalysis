@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.64 2010/04/30 06:40:34 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.65 2010/05/07 09:43:38 jjhollar Exp $
 //
 //
 
@@ -1398,6 +1398,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                      << ", Z = " << vertex_i->z() << endl;}*/
 //===================================
 
+/*
       vector<Int_t> vec_isPU;
       vector<Int_t>::iterator ivec_isPU=vec_isPU.begin();
       for ( ; ivec_isPU!=vec_isPU.end(); ivec_isPU++){
@@ -1425,25 +1426,23 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
              }
           }
 // in this sample, there are still PU tracks, but not associated to a RecoVertex
-/*
-	 if(!(is_assovtx)){
-		cout << "is not associated track @ z = " << track->vertex().z() << endl;
-	 }
-*/
+
 
           if(!(is_PU)) vec_isPU.push_back(0);
 	  else         vec_isPU.push_back(1);
       }
-      vector<Int_t>::iterator ivec_isPU_read=vec_isPU.begin();
+*/
+
+      //      vector<Int_t>::iterator ivec_isPU_read=vec_isPU.begin();
       // OK, now go back and count "extra" tracks on the dimuon vertex
       // Loop2 = compute "track" quantities
       for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track)
         {
           if(track->p() == MuonCandTrack_p[0] || track->p() == MuonCandTrack_p[1]) continue;
 
-          if(*ivec_isPU_read == 1) {ivec_isPU_read++; continue;}
+	  //          if(*ivec_isPU_read == 1) {ivec_isPU_read++; continue;}
 
-          ivec_isPU_read++;
+	  //          ivec_isPU_read++;
           TrackCand_purity[nTrackCand]=track->quality(TrackBase::highPurity); 
           TrackCand_p[nTrackCand]=track->p(); 
           TrackCand_px[nTrackCand]=track->px(); 
