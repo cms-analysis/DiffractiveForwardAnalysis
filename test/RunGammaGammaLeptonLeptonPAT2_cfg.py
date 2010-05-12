@@ -159,12 +159,6 @@ process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.PATGammaGammaMuM
 #process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.MCGammaGammaMuMu_cfi") 
 #process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.PATGammaGammaEE_cfi")
 
-# Physics declared and scraping removal
-# require physics declared
-process.physDecl = cms.EDFilter("PhysDecl",
-                                applyfilter = cms.untracked.bool(True)
-                                )
-
 # require scraping filter
 process.scrapingVeto = cms.EDFilter("FilterOutScraping",
                                     applyfilter = cms.untracked.bool(True),
@@ -224,15 +218,15 @@ removeMCMatching(process, ['All'])
 
 #process.output.outputCommands.extend(AODEventContent.outputCommands)
 
-process.gamgammumuanalysis.outfilename = "run132440torun132606_MinimumBiasPromptReco.root"
+process.gamgammumuanalysis.outfilename = "run135149_MinimumBiasPromptReco.root"
 
 # Put it all together
 process.p = cms.Path(
 #    process.mcgamgammumuanalysis
 #      process.CastorFastReco
     process.hltFilter*
-    process.scrapingVeto*
-    process.physDecl
+    process.scrapingVeto
+#    process.physDecl
 #    process.muonFilter
     + process.patDefaultSequence  
     + process.gamgammumuanalysis

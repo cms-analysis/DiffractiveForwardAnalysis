@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.66 2010/05/10 15:52:12 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.67 2010/05/10 15:55:00 jjhollar Exp $
 //
 //
 
@@ -211,6 +211,9 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_px",MuonCand_px,"MuonCand_px[nMuonCand]/D");
   thetree->Branch("MuonCand_py",MuonCand_py,"MuonCand_py[nMuonCand]/D");
   thetree->Branch("MuonCand_pz",MuonCand_pz,"MuonCand_pz[nMuonCand]/D");
+  thetree->Branch("MuonCand_vtxx",MuonCand_vtxx,"MuonCand_vtxx[nMuonCand]/D"); 
+  thetree->Branch("MuonCand_vtxy",MuonCand_vtxy,"MuonCand_vtxy[nMuonCand]/D"); 
+  thetree->Branch("MuonCand_vtxz",MuonCand_vtxz,"MuonCand_vtxz[nMuonCand]/D"); 
   thetree->Branch("MuonCand_p",MuonCand_p,"MuonCand_p[nMuonCand]/D");
   thetree->Branch("MuonCand_pt",MuonCand_pt,"MuonCand_pt[nMuonCand]/D");
   thetree->Branch("MuonCand_eta",MuonCand_eta,"MuonCand_eta[nMuonCand]/D");
@@ -707,102 +710,90 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     reco::MuonCollection::const_iterator muon;
   */
 
-//cout << "================" << endl;
-  if(muons->size() == 2)
+  for (muon = muons->begin(); muon != muons->end() && nMuonCand<MUONMAX; ++muon)
     {
-      for (muon = muons->begin(); muon != muons->end() && nMuonCand<MUONMAX; ++muon)
+      if((!muon->isTrackerMuon()) && (!muon->isGlobalMuon()))
+	continue;
+      
+      MuonCand_p[nMuonCand]=muon->p();
+      MuonCand_px[nMuonCand]=muon->px();
+      MuonCand_py[nMuonCand]=muon->py();
+      MuonCand_pz[nMuonCand]=muon->pz();
+      MuonCand_pt[nMuonCand]=muon->pt();
+      MuonCand_eta[nMuonCand]=muon->eta();
+      MuonCand_phi[nMuonCand]=muon->phi();
+      MuonCand_charge[nMuonCand]=muon->charge();
+      MuonCand_vtxx[nMuonCand]=muon->vertex().x();
+      MuonCand_vtxy[nMuonCand]=muon->vertex().y(); 
+      MuonCand_vtxz[nMuonCand]=muon->vertex().z();
+      
+      // Muon ID - 31X compatible
+      MuonCand_tmlsloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMLastStationLoose);
+      MuonCand_tmlsOptLowPtloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose);
+      MuonCand_tm2dloosemuid[nMuonCand]=muon::isGoodMuon(*muon, muon::TM2DCompatibilityLoose);
+      MuonCand_tmlsAngloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMLastStationAngLoose); 
+      MuonCand_tmlsAngtightmuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMLastStationAngTight);  
+      MuonCand_tmosAngloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMOneStationAngLoose);  
+      MuonCand_tmosAngtightmuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMOneStationAngTight);  
+      MuonCand_arbmuid[nMuonCand]=muon::isGoodMuon(*muon, muon::AllArbitrated);
+      MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
+      MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
+      MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon();
+      
+      if(!(muon::isGoodMuon(*muon, muon::TMLastStationLoose)) && (muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose))){	  
+	LowPt_eta[nMuonCand]=muon->eta();
+	LowPt_pt[nMuonCand]=muon->pt();
+      }else{  LowPt_eta[nMuonCand]=10.;
+	LowPt_pt[nMuonCand]=-1.;}
+      
+      if(muon::isGoodMuon(*muon, muon::TMLastStationLoose)) LS++;
+      if(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose)) LSopt++;
+      
+      // Isolation 
+      MuonCand_hcalisor3[nMuonCand]=muon->isolationR03().hadEt;
+      MuonCand_ecalisor3[nMuonCand]=muon->isolationR03().emEt;  
+      MuonCand_hoisor3[nMuonCand]=muon->isolationR03().hoEt;
+      MuonCand_trkisor3[nMuonCand]=muon->isolationR03().nTracks;  
+      
+      MuonCand_hcalisor5[nMuonCand]=muon->isolationR05().hadEt;  
+      MuonCand_ecalisor5[nMuonCand]=muon->isolationR05().emEt;   
+      MuonCand_hoisor5[nMuonCand]=muon->isolationR05().hoEt;
+      MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;  
+      
+      MuonCand_timeout[nMuonCand]=muon->time().timeAtIpInOut; 	 
+      MuonCand_timein[nMuonCand]=muon->time().timeAtIpOutIn; 	 
+      MuonCand_timeouterr[nMuonCand]=muon->time().timeAtIpInOutErr; 	 
+      MuonCand_timeinerr[nMuonCand]=muon->time().timeAtIpOutInErr; 	 
+      
+      if(muon->isTrackerMuon() || muon->isGlobalMuon()) 
 	{
-	  MuonCand_p[nMuonCand]=muon->p();
-	  MuonCand_px[nMuonCand]=muon->px();
-	  MuonCand_py[nMuonCand]=muon->py();
-	  MuonCand_pz[nMuonCand]=muon->pz();
-	  MuonCand_pt[nMuonCand]=muon->pt();
-	  MuonCand_eta[nMuonCand]=muon->eta();
-	  MuonCand_phi[nMuonCand]=muon->phi();
-	  MuonCand_charge[nMuonCand]=muon->charge();
-
-	  // Muon ID - 31X compatible
-	  MuonCand_tmlsloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMLastStationLoose);
-          MuonCand_tmlsOptLowPtloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose);
-	  MuonCand_tm2dloosemuid[nMuonCand]=muon::isGoodMuon(*muon, muon::TM2DCompatibilityLoose);
-	  MuonCand_tmlsAngloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMLastStationAngLoose); 
-	  MuonCand_tmlsAngtightmuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMLastStationAngTight);  
-	  MuonCand_tmosAngloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMOneStationAngLoose);  
-	  MuonCand_tmosAngtightmuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMOneStationAngTight);  
-	  MuonCand_arbmuid[nMuonCand]=muon::isGoodMuon(*muon, muon::AllArbitrated);
-	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
-          MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
-          MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon();
-
-	  // Muon ID - 22X compatible
-// 	  MuonCand_tmlsloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationLoose);
-//           MuonCand_tmlsOptLowPtloosemuonid[nMuonCand]=muon->isGood(reco::Muon::TMLastStationOptimizedLowPtLoose);
-// 	  //muonid::isGoodMuon(*muon, *muon,muonid::TMLastStationLoose);
-// 	  MuonCand_tm2dloosemuid[nMuonCand]=muon->isGood(reco::Muon::TM2DCompatibilityLoose);
-// 	  //Muon(*muon,muonid::TM2DCompatibilityLoose);
-// 	  MuonCand_arbmuid[nMuonCand]=muon->isGood(reco::Muon::AllArbitrated);
-// 	  MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
-//           MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
-//           MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon();
- 
-	  //if(!(muon->isGood(reco::Muon::TMLastStationLoose)) && (muon->isGood(reco::Muon::TMLastStationOptimizedLowPtLoose))){
-	  if(!(muon::isGoodMuon(*muon, muon::TMLastStationLoose)) && (muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose))){	  
-	    LowPt_eta[nMuonCand]=muon->eta();
-	    LowPt_pt[nMuonCand]=muon->pt();
-	  }else{  LowPt_eta[nMuonCand]=10.;
-	    LowPt_pt[nMuonCand]=-1.;}
+	  MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p();
+	  MuonCand_validtrackhits[nMuonCand]=muon->innerTrack()->numberOfValidHits();  
+	  MuonCand_validhits[nMuonCand]=muon->numberOfValidHits(); 
+	  MuonCand_normtrackchi2[nMuonCand]=muon->innerTrack()->normalizedChi2();  
 	  
-	  //	if(muon->isGood(reco::Muon::TMLastStationLoose)) LS++;
-	  //	if(muon->isGood(reco::Muon::TMLastStationOptimizedLowPtLoose)) LSopt++;
-
-	  if(muon::isGoodMuon(*muon, muon::TMLastStationLoose)) LS++;
-	  if(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose)) LSopt++;
-
-	  // Isolation 
-	  MuonCand_hcalisor3[nMuonCand]=muon->isolationR03().hadEt;
-	  MuonCand_ecalisor3[nMuonCand]=muon->isolationR03().emEt;  
-          MuonCand_hoisor3[nMuonCand]=muon->isolationR03().hoEt;
-	  MuonCand_trkisor3[nMuonCand]=muon->isolationR03().nTracks;  
-
-	  MuonCand_hcalisor5[nMuonCand]=muon->isolationR05().hadEt;  
-	  MuonCand_ecalisor5[nMuonCand]=muon->isolationR05().emEt;   
-          MuonCand_hoisor5[nMuonCand]=muon->isolationR05().hoEt;
-	  MuonCand_trkisor5[nMuonCand]=muon->isolationR05().nTracks;  
-
-          MuonCand_timeout[nMuonCand]=muon->time().timeAtIpInOut; 	 
-          MuonCand_timein[nMuonCand]=muon->time().timeAtIpOutIn; 	 
-          MuonCand_timeouterr[nMuonCand]=muon->time().timeAtIpInOutErr; 	 
-          MuonCand_timeinerr[nMuonCand]=muon->time().timeAtIpOutInErr; 	 
- 
-	  if(muon->isTrackerMuon() || muon->isGlobalMuon()) 
-	    {
-	      MuonCandTrack_p[nMuonCand] = muon->innerTrack()->p();
-	      MuonCand_validtrackhits[nMuonCand]=muon->innerTrack()->numberOfValidHits();  
-	      MuonCand_validhits[nMuonCand]=muon->numberOfValidHits(); 
-              MuonCand_normtrackchi2[nMuonCand]=muon->innerTrack()->normalizedChi2();  
-
-	      if(muon->isGlobalMuon())
-		MuonCand_normchi2[nMuonCand]=muon->normChi2(); 
-	    }
-
-	  std::string algoname;
-	  double totalmuoneff = 1.0;
-
-	  // October exercise - testing efficiencies!
-	  /*
-          for(unsigned int i = 0; i < algonames.size(); ++i)  
-            { 
-              algoname = algonames[i]; 
-
-	      const MuonPerformance &muonefficiency = effreader->getPerformanceRecord(algoname, iSetup);   
-	      double muoneff = effreader->getEff(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand], MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
-	      effreader->getEffError(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand], MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency);  
-	      
-	      if(muoneff > -1)
-		totalmuoneff *= muoneff;
-	    }
-	  */
-	  MuonCand_efficiency[nMuonCand] = totalmuoneff;
+	  if(muon->isGlobalMuon())
+	    MuonCand_normchi2[nMuonCand]=muon->normChi2(); 
+	}
+      
+      std::string algoname;
+      double totalmuoneff = 1.0;
+      
+      // October exercise - testing efficiencies!
+      /*
+	for(unsigned int i = 0; i < algonames.size(); ++i)  
+	{ 
+	algoname = algonames[i]; 
+	
+	const MuonPerformance &muonefficiency = effreader->getPerformanceRecord(algoname, iSetup);   
+	double muoneff = effreader->getEff(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand], MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
+	effreader->getEffError(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand], MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency);  
+	
+	if(muoneff > -1)
+	totalmuoneff *= muoneff;
+	}
+      */
+      MuonCand_efficiency[nMuonCand] = totalmuoneff;
 
 /*	
           if(muon->isStandAloneMuon() )
@@ -821,10 +812,12 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                  cout << "            chi² = " << muon->track()->normalizedChi2() << endl;
 		}
 */
-	  nMuonCand++;
-	}  
+      nMuonCand++;
+    }  
 
-      // Calculate invariant mass, delta-phi and delta-pT
+  // Calculate invariant mass, delta-phi and delta-pT
+  if(nMuonCand == 2)
+    {
       if((MuonCand_charge[0]*MuonCand_charge[1]<0) || (keepsamesign == true))
 	{
 	  double mass = pow(MuonCand_p[0]+MuonCand_p[1],2);
@@ -832,16 +825,18 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  mass-=pow(MuonCand_py[0]+MuonCand_py[1],2);
 	  mass-=pow(MuonCand_pz[0]+MuonCand_pz[1],2);
 	  MuMu_mass = sqrt(mass);
-
-          MuMu_dpt = fabs(MuonCand_pt[0]-MuonCand_pt[1]);
-
+	  
+	  MuMu_dpt = fabs(MuonCand_pt[0]-MuonCand_pt[1]);
+	  
 	  double dphi = fabs(MuonCand_phi[0]-MuonCand_phi[1]);
 	  if(dphi < 3.14159)
-	    MuMu_dphi = dphi;
+		MuMu_dphi = dphi;
 	  else
 	    MuMu_dphi = (2.0*3.14159)-dphi;
 	}
     }
+
+
   // Get the Jet collection from the event
   // PAT
   edm::Handle<edm::View<pat::Jet> > jets; 
@@ -897,7 +892,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     PrimVertexCand_ndof[nPrimVertexCand] = vertex_i->ndof();
     nPrimVertexCand++;
   }
-
 
   // Get the CASTOR towers collection from the event 
   edm::Handle<reco::CastorTowerCollection> recoCastorTowers;  
@@ -1461,7 +1455,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                                              ((track->vertex().y() - MuMu_vtxy)*(track->vertex().y() - MuMu_vtxy)));
 	  TrackCand_vtxZ[nTrackCand] = sqrt(((track->vertex().z() - MuMu_vtxz)*(track->vertex().z() - MuMu_vtxz)));
 
-	  if((TrackCand_purity[nTrackCand] == 2) && (TrackCand_nhits[nTrackCand] >= 3))
+	  if((TrackCand_purity[nTrackCand] == 1) && (TrackCand_nhits[nTrackCand] >= 3))
 	    nQualityTrackCand++;
 
 

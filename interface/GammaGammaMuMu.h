@@ -78,6 +78,9 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuonCand_px[4];
   double MuonCand_py[4];
   double MuonCand_pz[4];
+  double MuonCand_vtxx[4]; 
+  double MuonCand_vtxy[4]; 
+  double MuonCand_vtxz[4]; 
   double MuonCand_p[4];
   double MuonCand_eta[4];
   double MuonCand_pt[4];
