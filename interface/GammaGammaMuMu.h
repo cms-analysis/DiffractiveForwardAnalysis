@@ -13,7 +13,8 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h" 
-#include "FWCore/Framework/interface/TriggerNames.h" 
+//#include "FWCore/Framework/interface/TriggerNames.h" 
+#include "FWCore/Common/interface/TriggerNames.h"
 
 //#include "MuonAnalysis/TagAndProbe/interface/MuonPerformanceReadback.h" 
 //#include "MuonAnalysis/TagAndProbe/interface/MuonPerformance.h"  
@@ -75,47 +76,49 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int nEvt;
   int nMuonCand;
   int MUONMAX;// used to set maximum of arrays
-  double MuonCand_px[4];
-  double MuonCand_py[4];
-  double MuonCand_pz[4];
-  double MuonCand_vtxx[4]; 
-  double MuonCand_vtxy[4]; 
-  double MuonCand_vtxz[4]; 
-  double MuonCand_p[4];
-  double MuonCand_eta[4];
-  double MuonCand_pt[4];
-  double MuonCand_phi[4];
-  double MuonCand_e[4];
+  double MuonCand_px[10];
+  double MuonCand_py[10];
+  double MuonCand_pz[10];
+  double MuonCand_vtxx[10]; 
+  double MuonCand_vtxy[10]; 
+  double MuonCand_vtxz[10]; 
+  double MuonCand_p[10];
+  double MuonCand_eta[10];
+  double MuonCand_pt[10];
+  double MuonCand_phi[10];
+  double MuonCand_e[10];
   double MuonCandTrack_p[100];
-  double MuonCand_efficiency[4];
-  int MuonCand_charge[4];
-  int MuonCand_tmlsloosemuonid[4];
-  int MuonCand_tmlsOptLowPtloosemuonid[4];
-  int MuonCand_tm2dloosemuid[4];
-  int MuonCand_arbmuid[4];
-  int MuonCand_tmlsAngloosemuonid[4];
-  int MuonCand_tmlsAngtightmuonid[4]; 
-  int MuonCand_tmosAngloosemuonid[4]; 
-  int MuonCand_tmosAngtightmuonid[4]; 
-  int MuonCand_isglobal[4];
-  int MuonCand_istracker[4];
-  int MuonCand_isstandalone[4];
-  double MuonCand_ecalisor3[4]; 
-  double MuonCand_hcalisor3[4]; 
-  double MuonCand_trkisor3[4];
-  double MuonCand_hoisor3[4]; 
-  double MuonCand_ecalisor5[4];  
-  double MuonCand_hcalisor5[4];  
-  double MuonCand_trkisor5[4]; 
-  double MuonCand_hoisor5[4];
-  double MuonCand_timein[4]; 	 
-  double MuonCand_timeout[4]; 	 
-  double MuonCand_timeouterr[4]; 	 
-  double MuonCand_timeinerr[4]; 	 
-  int MuonCand_validtrackhits[4];
-  int MuonCand_validhits[4];
-  double MuonCand_normchi2[4];
-  double MuonCand_normtrackchi2[4];
+  double MuonCand_efficiency[10];
+  int MuonCand_charge[10];
+  int MuonCand_tmlsloosemuonid[10];
+  int MuonCand_tmlsOptLowPtloosemuonid[10];
+  int MuonCand_tm2dloosemuid[10];
+  int MuonCand_arbmuid[10];
+  int MuonCand_tmlsAngloosemuonid[10];
+  int MuonCand_tmlsAngtightmuonid[10]; 
+  int MuonCand_tmosAngloosemuonid[10]; 
+  int MuonCand_tmosAngtightmuonid[10]; 
+  int MuonCand_isglobal[10];
+  int MuonCand_istracker[10];
+  int MuonCand_isstandalone[10];
+  double MuonCand_ecalisor3[10]; 
+  double MuonCand_hcalisor3[10]; 
+  double MuonCand_trkisor3[10];
+  double MuonCand_hoisor3[10]; 
+  double MuonCand_ecalisor5[10];  
+  double MuonCand_hcalisor5[10];  
+  double MuonCand_trkisor5[10]; 
+  double MuonCand_hoisor5[10];
+  double MuonCand_timein[10]; 	 
+  double MuonCand_timeout[10]; 	 
+  double MuonCand_timeouterr[10]; 	 
+  double MuonCand_timeinerr[10]; 	 
+  int MuonCand_validtrackhits[10];
+  int MuonCand_validhits[10];
+  double MuonCand_normchi2[10];
+  double MuonCand_normtrackchi2[10];
+
+  int MuonPairCand[2];
 
   int nHLTMu3MuonCand;
   double HLT_Mu3_MuonCand_pt[10];
@@ -284,8 +287,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int HLT_L2Mu0;
   int HLT_L1DoubleMuOpen;
 
-  double LowPt_pt[4];
-  double LowPt_eta[4];
+  double LowPt_pt[10];
+  double LowPt_eta[10];
 
   int nPU;
 

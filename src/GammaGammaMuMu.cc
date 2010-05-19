@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.67 2010/05/10 15:55:00 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.68 2010/05/12 06:09:56 jjhollar Exp $
 //
 //
 
@@ -36,7 +36,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
-#include "FWCore/Framework/interface/TriggerNames.h"  
+//#include "FWCore/Framework/interface/TriggerNames.h" 
+#include "FWCore/Common/interface/TriggerNames.h" 
    
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
@@ -247,7 +248,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_validhits", MuonCand_validhits, "MuonCand_validhits[nMuonCand]/I");        
   thetree->Branch("MuonCand_normchi2", MuonCand_normchi2, "MuonCand_normchi2[nMuonCand]/D");        
   thetree->Branch("MuonCand_normtrackchi2", MuonCand_normtrackchi2, "MuonCand_normtrackchi2[nMuonCand]/D");         
-
+  thetree->Branch("MuonPairCand",MuonPairCand,"MuonPairCand[2]/I");
 
   thetree->Branch("nHLTMu3MuonCand",&nHLTMu3MuonCand,"nHLTMu3MuonCand/I"); 
   thetree->Branch("HLT_Mu3_MuonCand_pt",&HLT_Mu3_MuonCand_pt,"HLT_Mu3_MuonCand_pt[nHLTMu3MuonCand]/D"); 
@@ -556,7 +557,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   // Get the trigger information from the event
   edm::Handle<edm::TriggerResults> hltResults ; 
   event.getByLabel(InputTag("TriggerResults","",hltMenuLabel),hltResults) ; 
-  trigNames.init(*hltResults) ;
+//  trigNames.init(*hltResults) ;
+  const edm::TriggerNames & trigNames = event.triggerNames(*hltResults);
+
   for (unsigned int i=0; i<trigNames.size(); i++)  
     { 
       if ( trigNames.triggerNames().at(i) == "HLT_Mu3" )       
@@ -712,9 +715,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   for (muon = muons->begin(); muon != muons->end() && nMuonCand<MUONMAX; ++muon)
     {
-      if((!muon->isTrackerMuon()) && (!muon->isGlobalMuon()))
-	continue;
-      
+      if((!muon->isTrackerMuon()) && (!muon->isGlobalMuon()))continue;
+      if(nMuonCand>0 &&	muon->pt()==MuonCand_pt[nMuonCand-1] && muon->eta()==MuonCand_eta[nMuonCand-1]) continue;     
+ 
       MuonCand_p[nMuonCand]=muon->p();
       MuonCand_px[nMuonCand]=muon->px();
       MuonCand_py[nMuonCand]=muon->py();
@@ -816,24 +819,45 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }  
 
   // Calculate invariant mass, delta-phi and delta-pT
+  bool found_pair(false);
+  MuonPairCand[0]=0; MuonPairCand[1]=1;
   if(nMuonCand == 2)
     {
-      if((MuonCand_charge[0]*MuonCand_charge[1]<0) || (keepsamesign == true))
+      if((MuonCand_charge[0]*MuonCand_charge[1]<0) || (keepsamesign == true)) found_pair=true;
+    }
+
+  if(nMuonCand>2)
+    {
+    double minimal_distance(999); 
+    for(int k=0; k<nMuonCand; k++)
 	{
-	  double mass = pow(MuonCand_p[0]+MuonCand_p[1],2);
-	  mass-=pow(MuonCand_px[0]+MuonCand_px[1],2);
-	  mass-=pow(MuonCand_py[0]+MuonCand_py[1],2);
-	  mass-=pow(MuonCand_pz[0]+MuonCand_pz[1],2);
-	  MuMu_mass = sqrt(mass);
-	  
-	  MuMu_dpt = fabs(MuonCand_pt[0]-MuonCand_pt[1]);
-	  
-	  double dphi = fabs(MuonCand_phi[0]-MuonCand_phi[1]);
-	  if(dphi < 3.14159)
-		MuMu_dphi = dphi;
-	  else
-	    MuMu_dphi = (2.0*3.14159)-dphi;
+	for(int l=k+1; l<nMuonCand; l++)
+		{
+		if((MuonCand_charge[k]*MuonCand_charge[l]<0) || (keepsamesign == true))
+			{
+			found_pair=true;
+			double muonsDist=sqrt(pow(MuonCand_vtxx[k]-MuonCand_vtxx[l],2)
+        	                             +pow(MuonCand_vtxy[k]-MuonCand_vtxy[l],2)
+                	                     +pow(MuonCand_vtxz[k]-MuonCand_vtxz[l],2));
+			if(muonsDist<minimal_distance){minimal_distance=muonsDist; MuonPairCand[0]=k; MuonPairCand[1]=l;}
+			}
+		}
 	}
+    }
+    if(found_pair){
+      double mass = pow(MuonCand_p[MuonPairCand[0]]+MuonCand_p[MuonPairCand[1]],2);
+      mass-=pow(MuonCand_px[MuonPairCand[0]]+MuonCand_px[MuonPairCand[1]],2);
+      mass-=pow(MuonCand_py[MuonPairCand[0]]+MuonCand_py[MuonPairCand[1]],2);
+      mass-=pow(MuonCand_pz[MuonPairCand[0]]+MuonCand_pz[MuonPairCand[1]],2);
+      MuMu_mass = sqrt(mass);
+
+      MuMu_dpt = fabs(MuonCand_pt[MuonPairCand[0]]-MuonCand_pt[MuonPairCand[1]]);
+
+      double dphi = fabs(MuonCand_phi[MuonPairCand[0]]-MuonCand_phi[MuonPairCand[1]]);
+      if(dphi < 3.14159265359)
+            MuMu_dphi = dphi;
+      else
+        MuMu_dphi = (2.0*3.14159265359)-dphi;
     }
 
 
@@ -928,7 +952,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double closesttrkdxyz = 999.0;
 
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
-  if(nMuonCand == 2)
+  if(nMuonCand >= 2)
     {
       for ( jet = jets->begin(); jet != jets->end() && nJetCand<JETMAX; ++jet )
 	{
@@ -991,10 +1015,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           CaloTower_badecalcells[nCaloCand]=calo->numBadEcalCells(); 
           CaloTower_problemecalcells[nCaloCand]=calo->numProblematicEcalCells();  
 	  
-	  float calodr1 = sqrt(((CaloTower_eta[nCaloCand]-MuonCand_eta[0])*(CaloTower_eta[nCaloCand]-MuonCand_eta[0])) + 
-			       ((CaloTower_phi[nCaloCand]-MuonCand_phi[0])*(CaloTower_phi[nCaloCand]-MuonCand_phi[0])));
-	  float calodr2 = sqrt(((CaloTower_eta[nCaloCand]-MuonCand_eta[1])*(CaloTower_eta[nCaloCand]-MuonCand_eta[1])) + 
-			       ((CaloTower_phi[nCaloCand]-MuonCand_phi[1])*(CaloTower_phi[nCaloCand]-MuonCand_phi[1])));
+	  float calodr1 = sqrt(((CaloTower_eta[nCaloCand]-MuonCand_eta[MuonPairCand[0]])*(CaloTower_eta[nCaloCand]-MuonCand_eta[MuonPairCand[0]])) + 
+			       ((CaloTower_phi[nCaloCand]-MuonCand_phi[MuonPairCand[0]])*(CaloTower_phi[nCaloCand]-MuonCand_phi[MuonPairCand[0]])));
+	  float calodr2 = sqrt(((CaloTower_eta[nCaloCand]-MuonCand_eta[MuonPairCand[1]])*(CaloTower_eta[nCaloCand]-MuonCand_eta[MuonPairCand[1]])) + 
+			       ((CaloTower_phi[nCaloCand]-MuonCand_phi[MuonPairCand[1]])*(CaloTower_phi[nCaloCand]-MuonCand_phi[MuonPairCand[1]])));
 	  
 	  if(calodr1 < calodr2)
 	    CaloTower_dr[nCaloCand] = calodr1;
@@ -1314,12 +1338,12 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
               leadingphotp = pflow->p();  
             } 
 
-	  if(nMuonCand == 2)  
+	  if(nMuonCand >= 2)  
 	    {  
-	      double mmgmass = pow(MuonCand_p[0]+MuonCand_p[1]+pflow->p(),2);   
-	      mmgmass-=pow(MuonCand_px[0]+MuonCand_px[1]+pflow->px(),2);   
-	      mmgmass-=pow(MuonCand_py[0]+MuonCand_py[1]+pflow->py(),2);   
-	      mmgmass-=pow(MuonCand_pz[0]+MuonCand_pz[1]+pflow->pz(),2);   
+	      double mmgmass = pow(MuonCand_p[MuonPairCand[0]]+MuonCand_p[MuonPairCand[1]]+pflow->p(),2);   
+	      mmgmass-=pow(MuonCand_px[MuonPairCand[0]]+MuonCand_px[MuonPairCand[1]]+pflow->px(),2);   
+	      mmgmass-=pow(MuonCand_py[MuonPairCand[0]]+MuonCand_py[MuonPairCand[1]]+pflow->py(),2);   
+	      mmgmass-=pow(MuonCand_pz[MuonPairCand[0]]+MuonCand_pz[MuonPairCand[1]]+pflow->pz(),2);   
 	      MuMuGamma_mass[nPFPhotonCand] = sqrt(mmgmass);   
 	    }  
 
@@ -1339,9 +1363,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   for( track = tracks->begin(); track != tracks->end(); ++ track ) 
     { 
       isMuon = false;
-      for(int j = 0;j < nMuonCand; j++)
+      for(int j = 0;j < 2; j++)
 	{
-	  if(MuonCandTrack_p[j] == track->p())
+	  if(MuonCandTrack_p[MuonPairCand[j]] == track->p())
 	    {/*
               cout << "µ vertex Z"<<j << " = " << track->vertex().z() << endl;*/
 	      isMuon = true;
@@ -1433,7 +1457,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       // Loop2 = compute "track" quantities
       for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track)
         {
-          if(track->p() == MuonCandTrack_p[0] || track->p() == MuonCandTrack_p[1]) continue;
+          if(track->p() == MuonCandTrack_p[MuonPairCand[0]] || track->p() == MuonCandTrack_p[MuonPairCand[1]]) continue;
 
 	  //          if(*ivec_isPU_read == 1) {ivec_isPU_read++; continue;}
 
@@ -1491,17 +1515,18 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     } 
 
   // Check for di-objects with valid vertex
-  if(nMuonCand != 2 || MuMu_vtxisvalid != 1)
+    if(nMuonCand < 2) passed = false;
+/*  if(nMuonCand != 2 || MuMu_vtxisvalid != 1)
     passed = false;
   else
     {
       if(MuMu_dphi < mudphimin) 
 	passed = false;
-      if(fabs(MuonCand_pt[0]-MuonCand_pt[1]) > mudptmax)
+      if(fabs(MuonCand_pt[MuonPairCand[0]]-MuonCand_pt[MuonPairCand[1]]) > mudptmax)
 	passed = false;      
-      if((keepsamesign == false) && (MuonCand_charge[0]*MuonCand_charge[1] > 0))
+      if((keepsamesign == false) && (MuonCand_charge[MuonPairCand[0]]*MuonCand_charge[MuonPairCand[1]] > 0))
 	passed = false;
-    }
+    }*/
 
   // "Exclusivity" cuts
   if(passed == true){
