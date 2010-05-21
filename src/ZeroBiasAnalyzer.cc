@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ZeroBiasAnalyzer.cc,v 1.7 2010/03/26 09:33:36 jjhollar Exp $
+// $Id: ZeroBiasAnalyzer.cc,v 1.1 2010/05/17 13:58:46 jjhollar Exp $
 //
 //
 
@@ -164,6 +164,18 @@ ZeroBiasAnalyzer::ZeroBiasAnalyzer(const edm::ParameterSet& pset)
   thetree->Branch("CaloTower_et",CaloTower_et,"CaloTower_et[nCaloCand]/D");
   thetree->Branch("CaloTower_eta",CaloTower_eta,"CaloTower_eta[nCaloCand]/D"); 
   thetree->Branch("CaloTower_phi",CaloTower_phi,"CaloTower_phi[nCaloCand]/D"); 
+  thetree->Branch("CaloTower_emE",CaloTower_emE,"CaloTower_emE[nCaloCand]/D");
+  thetree->Branch("CaloTower_hadE",CaloTower_hadE,"CaloTower_hadE[nCaloCand]/D");
+  thetree->Branch("CaloTower_outE",CaloTower_outE,"CaloTower_outE[nCaloCand]/D");
+  thetree->Branch("CaloTower_ID",CaloTower_ID,"CaloTower_ID[nCaloCand]/I");
+  thetree->Branch("CaloTower_x",CaloTower_x,"CaloTower_x[nCaloCand]/D");
+  thetree->Branch("CaloTower_y",CaloTower_y,"CaloTower_y[nCaloCand]/D");
+  thetree->Branch("CaloTower_z",CaloTower_z,"CaloTower_z[nCaloCand]/D");
+  thetree->Branch("CaloTower_t",CaloTower_t,"CaloTower_t[nCaloCand]/D");
+  thetree->Branch("CaloTower_badhcalcells",CaloTower_badhcalcells,"CaloTower_badhcalcells[nCaloCand]/I"); 
+  thetree->Branch("CaloTower_problemhcalcells",CaloTower_problemhcalcells,"CaloTower_problemhcalcells[nCaloCand]/I"); 
+  thetree->Branch("CaloTower_badecalcells",CaloTower_badecalcells,"CaloTower_badecalcells[nCaloCand]/I");  
+  thetree->Branch("CaloTower_problemecalcells",CaloTower_problemecalcells,"CaloTower_problemecalcells[nCaloCand]/I"); 
   thetree->Branch("HighestCaloTower_e",&HighestCaloTower_e,"HighestCaloTower_e/D");
   thetree->Branch("HighestCaloTower_eta",&HighestCaloTower_eta,"HighestCaloTower_eta/D");
   thetree->Branch("HighestCaloTower_phi",&HighestCaloTower_phi,"HighestCaloTower_phi/D"); 
@@ -412,7 +424,35 @@ ZeroBiasAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iSetup
       CaloTower_et[nCaloCand]=calo->et();
       CaloTower_phi[nCaloCand]=calo->phi(); 
       CaloTower_eta[nCaloCand]=calo->eta(); 
+      CaloTower_emE[nCaloCand]=calo->emEnergy();
+      CaloTower_hadE[nCaloCand]=calo->hadEnergy();  //hcal
+      CaloTower_outE[nCaloCand]=calo->outerEnergy(); //ho
+      GlobalPoint emPosition=calo->emPosition();
+      GlobalPoint hadPosition=calo->hadPosition();
+      if(CaloTower_emE[nCaloCand]>0){ //if ECAL
+	CaloTower_x[nCaloCand]=emPosition.x();
+	CaloTower_y[nCaloCand]=emPosition.y();
+	CaloTower_z[nCaloCand]=emPosition.z();
+	CaloTower_t[nCaloCand]=calo->ecalTime();
+	if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=1;} //cout<<" -> EB"<<endl;}//EB
+	if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95){CaloTower_ID[nCaloCand]=2;} //cout<<" -> EE"<<endl;}//EE
+	if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2){CaloTower_ID[nCaloCand]=3;} //cout<<" -> EF"<<endl;}//EF ??
+      }
       
+      else if(CaloTower_hadE[nCaloCand]>0){
+	CaloTower_x[nCaloCand]=hadPosition.x();
+	CaloTower_y[nCaloCand]=hadPosition.y();
+	CaloTower_z[nCaloCand]=hadPosition.z();
+	CaloTower_t[nCaloCand]=calo->hcalTime();
+	if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=4;} // cout<<" -> HB"<<endl;}//HB
+	if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95) {CaloTower_ID[nCaloCand]=5;} // cout<<" -> HE"<<endl;}//HE
+	if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2) {CaloTower_ID[nCaloCand]=6;} // cout<<" -> HF"<<endl;}//HF ??
+      }
+      
+      CaloTower_badhcalcells[nCaloCand]=calo->numBadHcalCells();
+      CaloTower_problemhcalcells[nCaloCand]=calo->numProblematicHcalCells(); 
+      CaloTower_badecalcells[nCaloCand]=calo->numBadEcalCells(); 
+      CaloTower_problemecalcells[nCaloCand]=calo->numProblematicEcalCells();        
       totalecalo = totalecalo + CaloTower_e[nCaloCand]; 
       if(CaloTower_e[nCaloCand] > highestetower) 
 	{
