@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.68 2010/05/12 06:09:56 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.69 2010/05/19 13:53:37 schul Exp $
 //
 //
 
@@ -1515,7 +1515,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     } 
 
   // Check for di-objects with valid vertex
-    if(nMuonCand < 2) passed = false;
+    if(nMuonCand < 2 || !(found_pair) || MuMu_vtxisvalid != 1) passed = false;
 /*  if(nMuonCand != 2 || MuMu_vtxisvalid != 1)
     passed = false;
   else
