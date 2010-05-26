@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h" 
-#include "FWCore/Framework/interface/TriggerNames.h" 
+#include "FWCore/Common/interface/TriggerNames.h" 
 
 #include <TFile.h>
 #include <TH1D.h>

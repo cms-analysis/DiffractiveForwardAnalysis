@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.69 2010/05/19 13:53:37 schul Exp $
+// $Id: GammaGammaMuMu.cc,v 1.70 2010/05/21 09:11:54 schul Exp $
 //
 //
 
@@ -36,7 +36,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
-//#include "FWCore/Framework/interface/TriggerNames.h" 
+//#include "FWCore/Common/interface/TriggerNames.h" 
 #include "FWCore/Common/interface/TriggerNames.h" 
    
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"

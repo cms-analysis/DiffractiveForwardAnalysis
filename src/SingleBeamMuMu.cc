@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: SingleBeamMuMu.cc,v 1.2 2010/02/09 15:45:24 jjhollar Exp $
+// $Id: SingleBeamMuMu.cc,v 1.3 2010/02/10 13:49:06 jjhollar Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 #include "DataFormats/Common/interface/Ref.h"  
  
 #include "DataFormats/Common/interface/TriggerResults.h"  
-#include "FWCore/Framework/interface/TriggerNames.h"  
+#include "FWCore/Common/interface/TriggerNames.h"  
    
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
@@ -368,7 +368,8 @@ SingleBeamMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   // Get the trigger information from the event
   edm::Handle<edm::TriggerResults> hltResults ; 
   event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ; 
-  trigNames.init(*hltResults) ; 
+  //  trigNames.init(*hltResults) ; 
+  const edm::TriggerNames & trigNames = event.triggerNames(*hltResults); 
   for (unsigned int i=0; i<trigNames.size(); i++)  
     { 
       // This is for CMSSW_2_1_X!!! 

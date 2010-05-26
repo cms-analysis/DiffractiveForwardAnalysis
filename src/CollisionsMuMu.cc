@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CollisionsMuMu.cc,v 1.8 2010/02/09 15:45:24 jjhollar Exp $
+// $Id: CollisionsMuMu.cc,v 1.9 2010/02/10 13:49:06 jjhollar Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 #include "DataFormats/Common/interface/Ref.h"  
  
 #include "DataFormats/Common/interface/TriggerResults.h"  
-#include "FWCore/Framework/interface/TriggerNames.h"  
+#include "FWCore/Common/interface/TriggerNames.h"  
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
@@ -445,7 +445,8 @@ CollisionsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   edm::Handle<edm::TriggerResults> hltResults ; 
   event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ; 
-  trigNames.init(*hltResults) ; 
+  //  trigNames.init(*hltResults) ; 
+  const edm::TriggerNames & trigNames = event.triggerNames(*hltResults); 
   for (unsigned int i=0; i<trigNames.size(); i++)  
     //    {if(hltResults->accept(i)==1)} cout<<"bit "<<i<<" = \t"<<trigNames.triggerNames().at(i)<<" accepted "<<endl;}
     { 

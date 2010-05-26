@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CosmicsMuMu.cc,v 1.8 2010/02/10 13:49:06 jjhollar Exp $
+// $Id: CosmicsMuMu.cc,v 1.9 2010/04/16 08:03:37 jjhollar Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 #include "DataFormats/Common/interface/Ref.h"  
  
 #include "DataFormats/Common/interface/TriggerResults.h"  
-#include "FWCore/Framework/interface/TriggerNames.h"  
+#include "FWCore/Common/interface/TriggerNames.h"  
    
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
@@ -367,7 +367,8 @@ CosmicsMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   // Get the trigger information from the event
   edm::Handle<edm::TriggerResults> hltResults ; 
   event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ; 
-  trigNames.init(*hltResults) ; 
+  //  trigNames.init(*hltResults) ; 
+  const edm::TriggerNames & trigNames = event.triggerNames(*hltResults); 
   for (unsigned int i=0; i<trigNames.size(); i++)  
     { 
       // This is for CMSSW_2_1_X!!! 

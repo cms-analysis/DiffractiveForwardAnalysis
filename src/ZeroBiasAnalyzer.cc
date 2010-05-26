@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ZeroBiasAnalyzer.cc,v 1.1 2010/05/17 13:58:46 jjhollar Exp $
+// $Id: ZeroBiasAnalyzer.cc,v 1.2 2010/05/21 09:55:50 jjhollar Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"   
 #include "DataFormats/HLTReco/interface/TriggerEvent.h" 
-#include "FWCore/Framework/interface/TriggerNames.h"   
+#include "FWCore/Common/interface/TriggerNames.h"   
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"

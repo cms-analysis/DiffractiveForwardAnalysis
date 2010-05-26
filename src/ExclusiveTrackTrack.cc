@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.6 2010/02/23 07:26:05 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.7 2010/03/26 09:33:36 jjhollar Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"   
 #include "DataFormats/HLTReco/interface/TriggerEvent.h" 
-#include "FWCore/Framework/interface/TriggerNames.h"   
+#include "FWCore/Common/interface/TriggerNames.h"   
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
@@ -391,7 +391,8 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
 
   edm::Handle<edm::TriggerResults> hltResults ;
   event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ;
-  trigNames.init(*hltResults) ;
+  //  trigNames.init(*hltResults) ;
+  const edm::TriggerNames & trigNames = event.triggerNames(*hltResults); 
   for (unsigned int i=0; i<trigNames.size(); i++)
     //    {if(hltResults->accept(i)==1)} cout<<"bit "<<i<<" = \t"<<trigNames.triggerNames().at(i)<<" accepted "<<endl;}
     {

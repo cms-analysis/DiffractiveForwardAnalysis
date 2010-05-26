@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaEE.cc,v 1.33 2009/06/17 08:47:24 jjhollar Exp $
+// $Id: GammaGammaEE.cc,v 1.34 2010/02/10 13:49:06 jjhollar Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"   
 #include "DataFormats/HLTReco/interface/TriggerEvent.h" 
-#include "FWCore/Framework/interface/TriggerNames.h"   
+#include "FWCore/Common/interface/TriggerNames.h"   
 
 #include "DataFormats/CastorReco/interface/CastorTower.h"  
 
@@ -348,7 +348,8 @@ GammaGammaEE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   // Get the trigger information from the event 
   edm::Handle<edm::TriggerResults> hltResults ;  
   event.getByLabel(InputTag("TriggerResults::HLT"),hltResults) ;  
-  trigNames.init(*hltResults) ;  
+  //  trigNames.init(*hltResults) ;  
+  const edm::TriggerNames & trigNames = event.triggerNames(*hltResults); 
   for (unsigned int i=0; i<trigNames.size(); i++)   
     {  
       // This is for CMSSW_2_1_X!!!
