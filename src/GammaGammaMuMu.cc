@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.70 2010/05/21 09:11:54 schul Exp $
+// $Id: GammaGammaMuMu.cc,v 1.71 2010/05/26 07:17:59 jjhollar Exp $
 //
 //
 
@@ -690,12 +690,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   
   if((crossingFrameHepMCH.isValid())) 
     {  
-      //    unsigned int nbunches = 0;
-      //    for(int ibunch = crossingFrameHepMCH->getBunchRange().first; 
-      //            ibunch <= crossingFrameHepMCH->getBunchRange().second; ++ibunch,++nbunches){
-      //      int nrPileUpB = crossingFrameHepMCH->getNrPileups(ibunch);
-      //      std::cout << "  --> Number of added pile-up's for bunch " << ibunch   << ": " << nrPileUpB << std::endl;
-      //    }
       int nrPileUp = crossingFrameHepMCH->getNrPileups(0);
       nPU = nrPileUp;
     }
@@ -797,24 +791,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	}
       */
       MuonCand_efficiency[nMuonCand] = totalmuoneff;
-
-/*	
-          if(muon->isStandAloneMuon() )
-		{cout << "--> debug : stdalone  µ" << endl;
-		 cout << "            n valid hit = " << muon->standAloneMuon()->numberOfValidHits() << endl;
-		 cout << "            chi² = " << muon->standAloneMuon()->normalizedChi2() << endl;
-		}
-          if(muon->isGlobalMuon() )
-                {cout << "--> debug : global   µ" << endl;
-                 cout << "            n valid hit = " << muon->combinedMuon()->numberOfValidHits() << endl;
-                 cout << "            chi² = " << muon->combinedMuon()->normalizedChi2() << endl;
-		}
-          if(muon->isTrackerMuon() )
-                {cout << "--> debug : tracker    µ" << endl;
-                 cout << "            n valid hit = " << muon->track()->numberOfValidHits() << endl;
-                 cout << "            chi² = " << muon->track()->normalizedChi2() << endl;
-		}
-*/
       nMuonCand++;
     }  
 
@@ -995,9 +971,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 CaloTower_y[nCaloCand]=emPosition.y();
                 CaloTower_z[nCaloCand]=emPosition.z();
                 CaloTower_t[nCaloCand]=calo->ecalTime();
-		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=1;} //cout<<" -> EB"<<endl;}//EB
-		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95){CaloTower_ID[nCaloCand]=2;} //cout<<" -> EE"<<endl;}//EE
-		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2){CaloTower_ID[nCaloCand]=3;} //cout<<" -> EF"<<endl;}//EF ??
+		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=1;} 
+		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95){CaloTower_ID[nCaloCand]=2;} 
+		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2){CaloTower_ID[nCaloCand]=3;} 
 	  }
 
 	  else if(CaloTower_hadE[nCaloCand]>0){
@@ -1005,9 +981,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 CaloTower_y[nCaloCand]=hadPosition.y();
                 CaloTower_z[nCaloCand]=hadPosition.z();
                 CaloTower_t[nCaloCand]=calo->hcalTime();
-		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=4;} // cout<<" -> HB"<<endl;}//HB
-		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95) {CaloTower_ID[nCaloCand]=5;} // cout<<" -> HE"<<endl;}//HE
-		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2) {CaloTower_ID[nCaloCand]=6;} // cout<<" -> HF"<<endl;}//HF ??
+		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=4;} 
+		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95) {CaloTower_ID[nCaloCand]=5;} 
+		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2) {CaloTower_ID[nCaloCand]=6;} 
 	  }
 
 	  CaloTower_badhcalcells[nCaloCand]=calo->numBadHcalCells();
@@ -1366,8 +1342,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       for(int j = 0;j < 2; j++)
 	{
 	  if(MuonCandTrack_p[MuonPairCand[j]] == track->p())
-	    {/*
-              cout << "µ vertex Z"<<j << " = " << track->vertex().z() << endl;*/
+	    {
 	      isMuon = true;
 	      mutrks->push_back( *track );
 	      TransientTrack tmptrk = (*theVtx).build( *track );
@@ -1388,17 +1363,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuMu_vtxz = mumuVertex.position().z(); 
 	  MuMu_vtxchi2dof = mumuVertex.normalisedChiSquared();
 	  MuMu_vtxT = sqrt(mumuVertex.position().x()*mumuVertex.position().x() + mumuVertex.position().y()*mumuVertex.position().y() ); 
-	  MuMu_vtxisvalid = 1;/*
-	  cout << "µµ vertex Z = " << MuMu_vtxz << endl;
-          cout << "          x²= " << MuMu_vtxchi2dof << endl;
-          cout << "          reffited  = " << mumuVertex.hasRefittedTracks() << endl;
-          cout << "          weight_tk = " << mumuVertex.hasTrackWeight() << endl;
-          cout << "          error ZZ   = " << mumuVertex.positionError().czz() << endl;
-          cout << "          error ZX   = " << mumuVertex.positionError().czx() << endl;
-          cout << "          error ZY   = " << mumuVertex.positionError().czy() << endl;
-          cout << "          error XX   = " << mumuVertex.positionError().cxx() << endl;
-          cout << "          error YY   = " << mumuVertex.positionError().cyy() << endl;
-	  */
+	  MuMu_vtxisvalid = 1;
 	}
       else
 	{
@@ -1407,61 +1372,15 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuMu_vtxz = 99;  
 	  MuMu_vtxT = 99;
 	  MuMu_vtxchi2dof = 9999;
-	  MuMu_vtxisvalid = 0;/*
-          cout << "µµ vertex X is not valid " << endl;*/
+	  MuMu_vtxisvalid = 0;
 	}
-//=================================================
-/*      for (vertex_i = vertexs->begin(); vertex_i != vertexs->end(); vertex_i++){
-	cout << "?? vertex X = " << vertex_i->x() 
-                     << ", Y = " << vertex_i->y() 
-                     << ", Z = " << vertex_i->z() << endl;}*/
-//===================================
 
-/*
-      vector<Int_t> vec_isPU;
-      vector<Int_t>::iterator ivec_isPU=vec_isPU.begin();
-      for ( ; ivec_isPU!=vec_isPU.end(); ivec_isPU++){
-	vec_isPU.push_back(0);
-      }
-       //  OK, now go back and count "extra" tracks on the dimuon vertex
-      // Loop1 = tag a track as off-time PU-track
-      for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track) 
-        { 
-	  if(track->p() == MuonCandTrack_p[0] || track->p() == MuonCandTrack_p[1])  continue;
-
-      //Reject off-time PU events
-          bool is_PU = false;
-          bool is_assovtx = false;
-          Double_t extratrkZ = track->vertex().z();
-//   cout << "extra track @ z = " << extratrkZ << endl;
-          for (vertex_i = vertexs->begin(); vertex_i != vertexs->end(); vertex_i++){
-             Double_t extravtxZ = vertex_i->z();
-//           if the extra track is associated to a reco vertex
-             if(sqrt( (extravtxZ - extratrkZ)*(extravtxZ - extratrkZ) ) < 0.1){
-		is_assovtx = true;
-//   cout << "   > is associated " << endl;
-//              if this vertex is far from the µµ vertex and then could be considered as PU vtx
-                if(sqrt( (extravtxZ - MuMu_vtxz)*(extravtxZ - MuMu_vtxz)) > 5.) is_PU = true;
-             }
-          }
-// in this sample, there are still PU tracks, but not associated to a RecoVertex
-
-
-          if(!(is_PU)) vec_isPU.push_back(0);
-	  else         vec_isPU.push_back(1);
-      }
-*/
-
-      //      vector<Int_t>::iterator ivec_isPU_read=vec_isPU.begin();
       // OK, now go back and count "extra" tracks on the dimuon vertex
       // Loop2 = compute "track" quantities
       for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track)
         {
           if(track->p() == MuonCandTrack_p[MuonPairCand[0]] || track->p() == MuonCandTrack_p[MuonPairCand[1]]) continue;
 
-	  //          if(*ivec_isPU_read == 1) {ivec_isPU_read++; continue;}
-
-	  //          ivec_isPU_read++;
           TrackCand_purity[nTrackCand]=track->quality(TrackBase::highPurity); 
           TrackCand_p[nTrackCand]=track->p(); 
           TrackCand_px[nTrackCand]=track->px(); 
@@ -1502,7 +1421,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           nTrackCand++;  
       } 
       ClosestExtraTrack_vtxdxyz = closesttrkdxyz;
-      //      if(ClosestExtraTrack_vtxdxyz < 0.1){cout << "   --> closest < 1 mm !!! : "<< ClosestExtraTrack_vtxdxyz << endl;}
     } 
   else 
     { 
@@ -1515,23 +1433,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     } 
 
   // Check for di-objects with valid vertex
-    if(nMuonCand < 2 || !(found_pair) || MuMu_vtxisvalid != 1) passed = false;
-/*  if(nMuonCand != 2 || MuMu_vtxisvalid != 1)
-    passed = false;
-  else
-    {
-      if(MuMu_dphi < mudphimin) 
-	passed = false;
-      if(fabs(MuonCand_pt[MuonPairCand[0]]-MuonCand_pt[MuonPairCand[1]]) > mudptmax)
-	passed = false;      
-      if((keepsamesign == false) && (MuonCand_charge[MuonPairCand[0]]*MuonCand_charge[MuonPairCand[1]] > 0))
-	passed = false;
-    }*/
+  if(nMuonCand < 2 || !(found_pair) || MuMu_vtxisvalid != 1) passed = false;
 
   // "Exclusivity" cuts
   if(passed == true){
     thetree->Fill();
-    //    cout << "   --> SAVED" << endl;
   }
 }
 
