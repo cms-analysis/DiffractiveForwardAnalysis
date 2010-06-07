@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.71 2010/05/26 07:17:59 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.72 2010/06/04 12:13:29 jjhollar Exp $
 //
 //
 
@@ -297,6 +297,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("SumCalo_e",&SumCalo_e,"SumCalo_e/D");
 
   thetree->Branch("nCastorTowerCand",&nCastorTowerCand,"nCastorTowerCand/I");  
+  thetree->Branch("nCastorTowerCandE3",&nCastorTowerCandE3,"nCastorTowerCandE3/I");   
   thetree->Branch("CastorTower_e",CastorTower_e,"CastorTower_e[nCastorTowerCand]/D");  
   thetree->Branch("CastorTower_eta",CastorTower_eta,"CastorTower_eta[nCastorTowerCand]/D");   
   thetree->Branch("CastorTower_phi",CastorTower_phi,"CastorTower_phi[nCastorTowerCand]/D");  
@@ -352,6 +353,9 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersEt2",&nExtraCaloTowersEt2,"nExtraCaloTowersEt2/I"); 
   thetree->Branch("nExtraCaloTowersEt3",&nExtraCaloTowersEt3,"nExtraCaloTowersEt3/I");  
   thetree->Branch("nExtraCaloTowersEt4",&nExtraCaloTowersEt4,"nExtraCaloTowersEt4/I");  
+
+  thetree->Branch("nExtraCaloTowersE0pt6eb", &nExtraCaloTowersE0pt6eb, "nExtraCaloTowersE0pt6eb/I");
+  thetree->Branch("nExtraCaloTowersE2pt5ee", &nExtraCaloTowersE2pt5ee, "nExtraCaloTowersE2pt5ee/I");
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
   thetree->Branch("nQualityTrackCand",&nQualityTrackCand,"nQualityTrackCand/I"); 
@@ -468,6 +472,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nTrackCand=0;
   nQualityTrackCand=0;
   nCastorTowerCand=0;
+  nCastorTowerCandE3=0;
   nZDChitCand=0;
   ZDCsumHADminus=0;
   ZDCsumEMminus=0;
@@ -506,6 +511,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersE3hb=0; 	 
   nExtraCaloTowersE4hb=0;
   nExtraCaloTowersE5hb=0;   
+
+  nExtraCaloTowersE0pt6eb=0;
+  nExtraCaloTowersE2pt5ee=0;
 
   HitInZDC=0;
   HitInCastor=0;
@@ -1090,6 +1098,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 nExtraCaloTowersE4hb++;
               if(CaloTower_e[nCaloCand] > 5.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)    
                 nExtraCaloTowersE5hb++;    
+
+	      if(CaloTower_emE[nCaloCand] > 0.6 && abs(CaloTower_eta[nCaloCand]) < 1.479)
+		nExtraCaloTowersE0pt6eb++;
+	      if(CaloTower_emE[nCaloCand] > 2.5 && abs(CaloTower_eta[nCaloCand]) > 1.479 && abs(CaloTower_eta[nCaloCand]) < 3.0) 
+                nExtraCaloTowersE2pt5ee++; 
 	    }
 
 	  nCaloCand++;
@@ -1141,6 +1154,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		    highestcastortowerbwd = CastorTower_e[nCastorTowerCand];  
 		}
 	      
+	      if(CastorTower_e[nCastorTowerCand] > 3.0)
+		nCastorTowerCandE3++;
+
 	      nCastorTowerCand++;  
 	    } 
 	}

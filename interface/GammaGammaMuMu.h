@@ -189,6 +189,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double Etmiss;
 
   int nCaloCand;
+  int nExtraCaloTowersE0pt6eb, nExtraCaloTowersE2pt5ee;
   int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9; 
   int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4; 
   int nExtraCaloTowersE0hf, nExtraCaloTowersE1hf, nExtraCaloTowersE2hf, nExtraCaloTowersE3hf, nExtraCaloTowersE4hf, nExtraCaloTowersE5hf; 	 
@@ -224,6 +225,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double SumCalo_e;
 
   int nCastorTowerCand;   
+  int nCastorTowerCandE3;
   double CastorTower_e[1000];   
   double CastorTower_eta[1000];    
   double CastorTower_phi[1000];   
