@@ -37,8 +37,8 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   edm::InputTag recCastorRecHitsLabel;
 
   double drisocalo;
-
   std::string rootfilename;
+  bool fillallmc;
 
   TFile *thefile;
   TTree *thetree;
@@ -58,6 +58,7 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   double TrackCand_eta[100];
   double TrackCand_chi2[100];
   double TrackCand_ndof[100];
+  int TrackCand_purity[100]; 
   int TrackCand_charge[100];
 
   double TrTr_mass;
@@ -124,12 +125,24 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   double VertexCand_chi2[10];
   double VertexCand_ndof[10];
 
+  int nMCPar; 
+  int MCPARMAX;// used to set maximum of arrays 
+  int MCPar_status[500]; 
+  double MCPar_px[500]; 
+  double MCPar_py[500]; 
+  double MCPar_pz[500]; 
+  double MCPar_phi[500]; 
+  double MCPar_eta[500]; 
+  double MCPar_mass[500]; 
+  int MCPar_pdgid[500]; 
+
   int BX;
   int Run;
   int LumiSection;
 
   int L1TechnicalTriggers[128];
   int HLTMinBiasPixelSingleTrack;
+  int HLT_L1_BscMinBiasOR_BptxPlusORMinus;
   int HLTPhysicsDeclared;
 
   edm::TriggerNames trigNames ;

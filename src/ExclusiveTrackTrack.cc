@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.7 2010/03/26 09:33:36 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.8 2010/05/26 07:17:59 jjhollar Exp $
 //
 //
 
@@ -130,11 +130,13 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   recCastorRecHitsLabel = pset.getParameter<edm::InputTag>("CastorRecHitsLabel");
   recZDCRecHitsLabel = pset.getParameter<edm::InputTag>("ZDCRecHitsLabel");
   drisocalo          = pset.getParameter<double>("CaloTowerdR");
+  fillallmc          = pset.getParameter<bool>("FillAllMCParticles"); 
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
 
   //  nEvt=0;
   TRACKMAX=100;
+  MCPARMAX=500;
 
   thefile = new TFile(rootfilename.c_str(),"recreate");
   thefile->cd();
@@ -149,6 +151,7 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
 
   thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I");
   thetree->Branch("HLTMinBiasPixelSingleTrack",&HLTMinBiasPixelSingleTrack,"HLTMinBiasPixelSingleTrack/I");
+  thetree->Branch("HLT_L1_BscMinBiasOR_BptxPlusORMinus",&HLT_L1_BscMinBiasOR_BptxPlusORMinus,"HLT_L1_BscMinBiasOR_BptxPlusORMinus/I");
   thetree->Branch("HLTPhysicsDeclared",&HLTPhysicsDeclared,"HLTPhysicsDeclared/I");
 
 
@@ -164,6 +167,7 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("TrackCand_charge",TrackCand_charge,"TrackCand_charge[nTrackCand]/I");
   thetree->Branch("TrackCand_chi2",TrackCand_chi2,"TrackCand_chi2[nTrackCand]/D");
   thetree->Branch("TrackCand_ndof",TrackCand_ndof,"TrackCand_ndof[nTrackCand]/D");
+  thetree->Branch("TrackCand_purity",TrackCand_purity,"TrackCand_purity[nTrackCand]/I"); 
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -264,6 +268,18 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("VertexCand_chi2",&VertexCand_chi2,"VertexCand_chi2[nVertexCand]/D");
   thetree->Branch("VertexCand_ndof",&VertexCand_ndof,"VertexCand_ndof[nVertexCand]/D");
 
+  if(fillallmc == true) 
+    { 
+      thetree->Branch("nMCPar",&nMCPar,"nMCPar/I");  
+      thetree->Branch("MCPar_px",MCPar_px,"MCPar_px[nMCPar]/D");  
+      thetree->Branch("MCPar_py",MCPar_py,"MCPar_py[nMCPar]/D");  
+      thetree->Branch("MCPar_pz",MCPar_pz,"MCPar_pz[nMCPar]/D");  
+      thetree->Branch("MCPar_eta",MCPar_eta,"MCPar_eta[nMCPar]/D");  
+      thetree->Branch("MCPar_phi",MCPar_phi,"MCPar_phi[nMCPar]/D");  
+      thetree->Branch("MCPar_pdgid",MCPar_pdgid,"MCPar_pdgid[nMCPar]/I"); 
+      thetree->Branch("MCPar_status",MCPar_status,"MCPar_status[nMCPar]/I"); 
+    } 
+
 }
 
 
@@ -361,12 +377,27 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
   event.getByLabel( InputTag("genParticles"), genParticles );
   if(genParticles.isValid())
     { 
+      nMCPar=0;
+
       for ( size_t i = 0; i < genParticles->size(); ++ i )
 	{
 	  const Candidate & p = (*genParticles)[ i ];
-	  int MCPar_pdgid=p.pdgId();
-	  if(MCPar_pdgid == 113)
+	  int MCPar_rhocandid=p.pdgId();
+	  if(MCPar_rhocandid == 113)
 	    GenHasRho = 1;
+
+	  if(fillallmc == true)
+	    {
+	      MCPar_pdgid[i]=p.pdgId(); 
+	      MCPar_eta[i]=p.eta(); 
+	      MCPar_phi[i]=p.phi();
+	      MCPar_px[i]=p.px(); 
+	      MCPar_py[i]=p.py(); 
+	      MCPar_pz[i]=p.pz(); 
+	      MCPar_mass[i]=p.mass(); 
+	      MCPar_status[i]=p.status();
+	      nMCPar++;
+	    } 
 	}
     }
 
@@ -396,13 +427,20 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
   for (unsigned int i=0; i<trigNames.size(); i++)
     //    {if(hltResults->accept(i)==1)} cout<<"bit "<<i<<" = \t"<<trigNames.triggerNames().at(i)<<" accepted "<<endl;}
     {
-      if ( trigNames.triggerNames().at(i) == "HLT_MinBiasPixel_SingleTrack" )
+      if ( trigNames.triggerNames().at(i) == "HLT_ZeroBiasPixel_SingleTrack" )
         {
           if ( hltResults->accept(i) )
             HLTMinBiasPixelSingleTrack = 1;
           else
             HLTMinBiasPixelSingleTrack = 0;
         }
+      if ( trigNames.triggerNames().at(i) == "HLT_L1_BscMinBiasOR_BptxPlusORMinus" )
+	{
+	  if ( hltResults->accept(i) ) 
+	    HLT_L1_BscMinBiasOR_BptxPlusORMinus = 1;
+          else 
+	    HLT_L1_BscMinBiasOR_BptxPlusORMinus = 0;
+	}
       if ( trigNames.triggerNames().at(i) == "HLT_PhysicsDeclared" )
         {
           if ( hltResults->accept(i) )
@@ -458,6 +496,7 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
 	  TrackCand_charge[nTrackCand]=track->charge(); 
 	  TrackCand_chi2[nTrackCand]=track->chi2();
 	  TrackCand_ndof[nTrackCand]=track->ndof();
+          TrackCand_purity[nTrackCand]=track->quality(TrackBase::highPurity); 
 
 	  nTrackCand++;
 	}
@@ -652,7 +691,6 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
   event.getByLabel(recZDCRecHitsLabel, recoZDChits);
   const ZDCRecHitCollection* zdchits = recoZDChits.product();
   ZDCRecHitCollection::const_iterator zdchit;
-  cout << "\tZDC hits size " << zdchits->size() << endl;
 
   for ( zdchit = zdchits->begin(); zdchit != zdchits->end(); ++zdchit )
     {
