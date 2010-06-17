@@ -42,8 +42,12 @@ class ZeroBiasAnalyzer : public edm::EDAnalyzer {
   TTree *thetree;
 
   int nTrackCand;
+  int nQualityTrackCand;
   int TRACKMAX;// used to set maximum of arrays
   int CALOMAX;
+  double TrackCand_purity[500];
+  int TrackCand_nhits[500];
+  double TrackCand_z[500];
   double TrackCand_px[500];
   double TrackCand_py[500];
   double TrackCand_pz[500];

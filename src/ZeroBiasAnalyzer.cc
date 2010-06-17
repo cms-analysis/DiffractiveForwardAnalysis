@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ZeroBiasAnalyzer.cc,v 1.2 2010/05/21 09:55:50 jjhollar Exp $
+// $Id: ZeroBiasAnalyzer.cc,v 1.3 2010/05/26 07:17:59 jjhollar Exp $
 //
 //
 
@@ -147,6 +147,7 @@ ZeroBiasAnalyzer::ZeroBiasAnalyzer(const edm::ParameterSet& pset)
   thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I");
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
+  thetree->Branch("nQualityTrackCand",&nQualityTrackCand,"nQualityTrackCand/I");
   thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
   thetree->Branch("TrackCand_py",TrackCand_py,"TrackCand_py[nTrackCand]/D");
   thetree->Branch("TrackCand_pz",TrackCand_pz,"TrackCand_pz[nTrackCand]/D");
@@ -158,6 +159,9 @@ ZeroBiasAnalyzer::ZeroBiasAnalyzer(const edm::ParameterSet& pset)
   thetree->Branch("TrackCand_charge",TrackCand_charge,"TrackCand_charge[nTrackCand]/I");
   thetree->Branch("TrackCand_chi2",TrackCand_chi2,"TrackCand_chi2[nTrackCand]/D");
   thetree->Branch("TrackCand_ndof",TrackCand_ndof,"TrackCand_ndof[nTrackCand]/D");
+  thetree->Branch("TrackCand_purity",TrackCand_purity,"TrackCand_purity[nTrackCand]/D");
+  thetree->Branch("TrackCand_nhits",TrackCand_nhits,"TrackCand_nhits[nTrackCand]/I");
+  thetree->Branch("TrackCand_z",TrackCand_z,"TrackCand_z[nTrackCand]/D");
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -281,6 +285,7 @@ ZeroBiasAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iSetup
 {
   nCaloCand=0;
   nTrackCand=0;
+  nQualityTrackCand=0;
   nVertexCand=0;
 
   nExtraCaloTowersE1=0;
@@ -399,6 +404,11 @@ ZeroBiasAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iSetup
 	  TrackCand_charge[nTrackCand]=track->charge(); 
 	  TrackCand_chi2[nTrackCand]=track->chi2();
 	  TrackCand_ndof[nTrackCand]=track->ndof();
+	  TrackCand_z[nTrackCand]=track->vertex().z();
+          TrackCand_purity[nTrackCand]=track->quality(TrackBase::highPurity);
+          TrackCand_nhits[nTrackCand]=track->numberOfValidHits();
+          if((TrackCand_purity[nTrackCand] == 1) && (TrackCand_nhits[nTrackCand] >= 3))
+            nQualityTrackCand++;
 
 	  nTrackCand++;
 	}
