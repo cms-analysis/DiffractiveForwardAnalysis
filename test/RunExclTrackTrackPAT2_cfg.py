@@ -34,13 +34,13 @@ process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.PATExclusiveTrac
 # Trigger
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.HLTFilter_cfi")
 #process.hltFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-process.hltFilter.HLTPaths = ['HLT_ZeroBiasPixel_SingleTrack']
+process.hltFilter.HLTPaths = ['HLT_ZeroBiasPixel_SingleTrack','HLT_ZeroBias']
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring("drop *")
                                )
 
-process.excltrktrkanalysis.outfilename = "ExclTrackTrack_data.root"
+process.excltrktrkanalysis.outfilename = "ExclTrackTrack_June9_Commissioning10.root"
 
 # Put it all together
 process.p = cms.Path(

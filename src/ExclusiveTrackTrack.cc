@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.8 2010/05/26 07:17:59 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.9 2010/06/07 11:51:21 jjhollar Exp $
 //
 //
 
@@ -150,7 +150,7 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("BX",&BX,"BX/I");
 
   thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I");
-  thetree->Branch("HLTMinBiasPixelSingleTrack",&HLTMinBiasPixelSingleTrack,"HLTMinBiasPixelSingleTrack/I");
+  thetree->Branch("HLTZeroBiasPixelSingleTrack",&HLTZeroBiasPixelSingleTrack,"HLTZeroBiasPixelSingleTrack/I");
   thetree->Branch("HLT_L1_BscMinBiasOR_BptxPlusORMinus",&HLT_L1_BscMinBiasOR_BptxPlusORMinus,"HLT_L1_BscMinBiasOR_BptxPlusORMinus/I");
   thetree->Branch("HLTPhysicsDeclared",&HLTPhysicsDeclared,"HLTPhysicsDeclared/I");
 
@@ -259,6 +259,16 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("TrTr_dphi",&TrTr_dphi,"TrTr_dphi/D");
   thetree->Branch("TrTr_dpt",&TrTr_dpt,"TrTr_dpt/D");
   thetree->Branch("TrTr_pt",&TrTr_pt,"TrTr_pt/D");
+  thetree->Branch("TrTr_eta",&TrTr_eta,"TrTr_eta/D");
+  thetree->Branch("TrTr_Kalmanvtxx",&TrTr_Kalmanvtxx,"TrTr_Kalmanvtxx/D");  
+  thetree->Branch("TrTr_Kalmanvtxy",&TrTr_Kalmanvtxy,"TrTr_Kalmanvtxy/D");  
+  thetree->Branch("TrTr_Kalmanvtxz",&TrTr_Kalmanvtxz,"TrTr_Kalmanvtxz/D");  
+  thetree->Branch("TrTr_Kalmanvtxchi2dof",&TrTr_Kalmanvtxchi2dof,"TrTr_Kalmanvtxchi2dof/D");  
+  thetree->Branch("TrTr_Kalmanvtxisvalid",&TrTr_Kalmanvtxisvalid,"TrTr_Kalmanvtxisvalid/I");  
+
+  thetree->Branch("TrTr_mass_khyp",&TrTr_mass_khyp,"TrTr_mass_khyp/D");
+  thetree->Branch("TrTr_pt_khyp",&TrTr_pt_khyp,"TrTr_pt_khyp/D");
+  thetree->Branch("TrTr_eta_khyp",&TrTr_eta_khyp,"TrTr_eta_khyp/D");
 
   thetree->Branch("nVertexCand",&nVertexCand,"nVertexCand/I");
   thetree->Branch("VertexCand_x",&VertexCand_x,"VertexCand_x[nVertexCand]/D");
@@ -430,9 +440,9 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
       if ( trigNames.triggerNames().at(i) == "HLT_ZeroBiasPixel_SingleTrack" )
         {
           if ( hltResults->accept(i) )
-            HLTMinBiasPixelSingleTrack = 1;
+            HLTZeroBiasPixelSingleTrack = 1;
           else
-            HLTMinBiasPixelSingleTrack = 0;
+            HLTZeroBiasPixelSingleTrack = 0;
         }
       if ( trigNames.triggerNames().at(i) == "HLT_L1_BscMinBiasOR_BptxPlusORMinus" )
 	{
@@ -475,6 +485,12 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
 
  //using namespace edm;
   using reco::TrackCollection;
+
+  // Now do vertexing and track counting
+  edm::ESHandle<TransientTrackBuilder> theVtx;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theVtx);
+  vector<TransientTrack> transtrks; 
+  reco::TrackCollection * pitrks = new reco::TrackCollection;
   
   // Get the track collection from the event
   edm::Handle<reco::TrackCollection> recoTracks;
@@ -498,6 +514,29 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
 	  TrackCand_ndof[nTrackCand]=track->ndof();
           TrackCand_purity[nTrackCand]=track->quality(TrackBase::highPurity); 
 
+	  pitrks->push_back( *track );
+	  TransientTrack tmptrk = (*theVtx).build( *track );
+	  transtrks.push_back( tmptrk );
+	  KalmanVertexFitter fitter(true); 
+	  TransientVertex pipiVertex = fitter.vertex(transtrks); 
+	  if(pipiVertex.isValid())
+	    {
+	      TrTr_Kalmanvtxx = pipiVertex.position().x(); 
+	      TrTr_Kalmanvtxy = pipiVertex.position().y(); 
+	      TrTr_Kalmanvtxz = pipiVertex.position().z(); 
+	      TrTr_Kalmanvtxchi2dof = pipiVertex.normalisedChiSquared();
+	      TrTr_Kalmanvtxisvalid = 1;
+	    }
+	  else
+	    {
+	      TrTr_Kalmanvtxx = 99;  
+	      TrTr_Kalmanvtxy = 99;  
+	      TrTr_Kalmanvtxz = 99;  
+	      TrTr_Kalmanvtxchi2dof = 9999;
+	      TrTr_Kalmanvtxisvalid = 0;
+	    }
+
+
 	  nTrackCand++;
 	}
 
@@ -509,13 +548,20 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
 	  pi1.SetXYZM(TrackCand_px[0], TrackCand_py[0], TrackCand_pz[0], 0.1396);
 	  pi2.SetXYZM(TrackCand_px[1], TrackCand_py[1], TrackCand_pz[1], 0.1396);
 	  rho = pi1 + pi2;
-	  //	  double mass = pow(TrackCand_p[0]+TrackCand_p[1],2);
-	  //	  mass-=pow(TrackCand_px[0]+TrackCand_px[1],2);
-	  //	  mass-=pow(TrackCand_py[0]+TrackCand_py[1],2);
-	  //	  mass-=pow(TrackCand_pz[0]+TrackCand_pz[1],2);
-	  //	  TrTr_mass = sqrt(mass);
+
 	  TrTr_mass = rho.M();
 	  TrTr_pt = rho.Pt();
+	  TrTr_eta = rho.Eta();
+
+          TLorentzVector k1, k2, phi;
+          k1.SetXYZM(TrackCand_px[0], TrackCand_py[0], TrackCand_pz[0], 0.492);
+          k2.SetXYZM(TrackCand_px[1], TrackCand_py[1], TrackCand_pz[1], 0.492);
+          phi = k1 + k2;
+
+          TrTr_mass_khyp = phi.M();
+          TrTr_pt_khyp = phi.Pt();
+          TrTr_eta_khyp = phi.Eta();
+	  
 
 	  TrTr_dpt = TrackCand_pt[0]-TrackCand_pt[1];
 	  double dphi = fabs(TrackCand_phi[0]-TrackCand_phi[1]);

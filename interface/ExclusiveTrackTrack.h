@@ -65,11 +65,16 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   double TrTr_dphi;
   double TrTr_dpt;
   double TrTr_pt;
-  double TrTr_vtxx; 
-  double TrTr_vtxy; 
-  double TrTr_vtxz; 
-  double TrTr_vtxchi2dof; 
-  int TrTr_vtxisvalid; 
+  double TrTr_eta;
+  double TrTr_mass_khyp;
+  double TrTr_pt_khyp;
+  double TrTr_eta_khyp;
+
+  double TrTr_Kalmanvtxx; 
+  double TrTr_Kalmanvtxy; 
+  double TrTr_Kalmanvtxz; 
+  double TrTr_Kalmanvtxchi2dof; 
+  int TrTr_Kalmanvtxisvalid; 
 
   int nCaloCand;
   int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9;  
@@ -141,7 +146,7 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   int LumiSection;
 
   int L1TechnicalTriggers[128];
-  int HLTMinBiasPixelSingleTrack;
+  int HLTZeroBiasPixelSingleTrack;
   int HLT_L1_BscMinBiasOR_BptxPlusORMinus;
   int HLTPhysicsDeclared;
 
