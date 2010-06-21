@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: CosmicsMuMu.cc,v 1.9 2010/04/16 08:03:37 jjhollar Exp $
+// $Id: CosmicsMuMu.cc,v 1.10 2010/05/26 07:17:59 jjhollar Exp $
 //
 //
 
@@ -876,6 +876,9 @@ CosmicsMuMu::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 CosmicsMuMu::endJob() {
+  const edm::ParameterSet &thepset = edm::getProcessParameterSet();
+  TList *list = thetree->GetUserInfo();
+  list->Add(new TObjString(thepset.dump().c_str()));
   thefile->Write();
   thefile->Close();
 }

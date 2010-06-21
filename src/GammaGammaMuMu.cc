@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.72 2010/06/04 12:13:29 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.73 2010/06/07 06:14:44 jjhollar Exp $
 //
 //
 
@@ -1495,6 +1495,9 @@ GammaGammaMuMu::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 GammaGammaMuMu::endJob() {
+  const edm::ParameterSet &thepset = edm::getProcessParameterSet();
+  TList *list = thetree->GetUserInfo();
+  list->Add(new TObjString(thepset.dump().c_str()));
   thefile->Write();
   thefile->Close();
 }

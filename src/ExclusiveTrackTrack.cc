@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.9 2010/06/07 11:51:21 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.10 2010/06/20 12:11:42 jjhollar Exp $
 //
 //
 
@@ -839,6 +839,9 @@ ExclusiveTrackTrack::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 ExclusiveTrackTrack::endJob() {
+  const edm::ParameterSet &thepset = edm::getProcessParameterSet();
+  TList *list = thetree->GetUserInfo();
+  list->Add(new TObjString(thepset.dump().c_str()));
   thefile->Write();
   thefile->Close();
 }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ZeroBiasAnalyzer.cc,v 1.3 2010/05/26 07:17:59 jjhollar Exp $
+// $Id: ZeroBiasAnalyzer.cc,v 1.4 2010/06/17 09:40:38 jjhollar Exp $
 //
 //
 
@@ -676,6 +676,9 @@ ZeroBiasAnalyzer::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 ZeroBiasAnalyzer::endJob() {
+  const edm::ParameterSet &thepset = edm::getProcessParameterSet();
+  TList *list = thetree->GetUserInfo();
+  list->Add(new TObjString(thepset.dump().c_str()));
   thefile->Write();
   thefile->Close();
 }

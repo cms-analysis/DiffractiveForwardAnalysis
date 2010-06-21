@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: SingleBeamMuMu.cc,v 1.3 2010/02/10 13:49:06 jjhollar Exp $
+// $Id: SingleBeamMuMu.cc,v 1.4 2010/05/26 07:17:59 jjhollar Exp $
 //
 //
 
@@ -748,6 +748,9 @@ SingleBeamMuMu::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SingleBeamMuMu::endJob() {
+  const edm::ParameterSet &thepset = edm::getProcessParameterSet();
+  TList *list = thetree->GetUserInfo();
+  list->Add(new TObjString(thepset.dump().c_str()));
   thefile->Write();
   thefile->Close();
 }
