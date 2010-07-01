@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.73 2010/06/07 06:14:44 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.74 2010/06/21 07:18:14 jjhollar Exp $
 //
 //
 
@@ -373,6 +373,9 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
 
   thetree->Branch("TrackCand_vtxZ",TrackCand_vtxZ,"TrackCand_vtxZ[nTrackCand]/D");
   thetree->Branch("TrackCand_vtxT",TrackCand_vtxT,"TrackCand_vtxT[nTrackCand]/D");
+  thetree->Branch("TrackCand_X",TrackCand_X,"TrackCand_X[nTrackCand]/D");
+  thetree->Branch("TrackCand_Y",TrackCand_Y,"TrackCand_Y[nTrackCand]/D");
+  thetree->Branch("TrackCand_Z",TrackCand_Z,"TrackCand_Z[nTrackCand]/D");
   thetree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D");
   
   thetree->Branch("nPFPhotonCand",&nPFPhotonCand,"nPFPhotonCand/I");
@@ -1413,6 +1416,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  TrackCand_vtxT[nTrackCand] = sqrt(((track->vertex().x() - MuMu_vtxx)*(track->vertex().x() - MuMu_vtxx)) +
                                              ((track->vertex().y() - MuMu_vtxy)*(track->vertex().y() - MuMu_vtxy)));
 	  TrackCand_vtxZ[nTrackCand] = sqrt(((track->vertex().z() - MuMu_vtxz)*(track->vertex().z() - MuMu_vtxz)));
+          TrackCand_X[nTrackCand] = track->vertex().x();
+          TrackCand_Y[nTrackCand] = track->vertex().y();
+          TrackCand_Z[nTrackCand] = track->vertex().z();
 
 	  if((TrackCand_purity[nTrackCand] == 1) && (TrackCand_nhits[nTrackCand] >= 3))
 	    nQualityTrackCand++;

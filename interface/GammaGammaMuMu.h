@@ -270,6 +270,9 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double TrackCand_vtxdxyz[500];
   double TrackCand_vtxT[500];
   double TrackCand_vtxZ[500];
+  double TrackCand_X[500];
+  double TrackCand_Y[500];
+  double TrackCand_Z[500];
   int TrackCand_charge[500];
   double ClosestExtraTrack_vtxdxyz;
 
