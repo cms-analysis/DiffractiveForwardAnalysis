@@ -6,7 +6,7 @@ gStyle->SetPalette(1);
 
 #define pi 3.14159265359
 //definition des fichiers + Tree
-  TFile *f0 = new TFile("SD_MU-133863-135735.root"); // 
+  TFile *f0 = new TFile("MuPrompt-361p4-138560_139790.root"); // 
   TTree *t0 = f0->Get("ntp1");
   TFile *f1 = new TFile("../MuMu_0PU.root"); //
   TTree *t1 = f1->Get("ntp1");
@@ -146,18 +146,18 @@ gStyle->SetPalette(1);
   TH1F* CastorSumE4 = new TH1F("castorE_cumulUps","",140.,-500.,10300.);
 
 // definitions des # d'entrées
-  const int NUM0 = /*t0->GetEntries()*/100;
+  const int NUM0 = t0->GetEntries();
   const int NUM1 = t1->GetEntries();
   const int NUM2 = t2->GetEntries();
   const int NUM3 = t3->GetEntries();
   const int NUM4 = t4->GetEntries();
 
-  const float integrated_lumi = 7.0; //in nb-1
+  const float integrated_lumi = 70.034136 ; //in nb-1
 
-  const float fac_lumi1 = 1.0820e-9*integrated_lumi;
-  const float fac_lumi2 = 3.05250e-9*integrated_lumi;
-  const float fac_lumi3 = 4.740e-9*integrated_lumi;
-  const float fac_lumi4 = 1.350e-9*integrated_lumi;
+  const float fac_lumi1 = 1.0820e-6*integrated_lumi;
+  const float fac_lumi2 = 3.05250e-6*integrated_lumi;
+  const float fac_lumi3 = 4.740e-6*integrated_lumi;
+  const float fac_lumi4 = 1.350e-6*integrated_lumi;
   const float fac_lumi0 = 1.0;
 
 //definition des variables
@@ -540,8 +540,8 @@ gStyle->SetPalette(1);
 	  for(Int_t j=0; j<nPrimVtx; j++){
 		double distance_vertex=(var_MuMuvtxZ0[0]-var_vtxZ0[j] < 0) ? -(var_MuMuvtxZ0[0]-var_vtxZ0[j]) : var_MuMuvtxZ0[0]-var_vtxZ0[j];
 //		cout<<"vtx: nTracks="<<var_vtxTrack0[j]<<"\t d="<<distance_vertex<<endl;
-		if(var_vtxTrack0[j]>=2 && TMath::Prob(var_vertexChi2_0[j],var_vertexNdf0[j]+0.5)>0.01 
-                   && distance_vertex <0.05 && distance_vertex<min_distance_vertex && abs(var_vtxZ0[j])<16.0
+		if(var_vtxTrack0[j]==2 && TMath::Prob(var_vertexChi2_0[j],var_vertexNdf0[j]+0.5)>0.001 
+                   && distance_vertex <0.1 && distance_vertex<min_distance_vertex && abs(var_vtxZ0[j])<16.0
 		   && (techBit0[0][0]==1))   {label_vertex=j;
 				  	       min_distance_vertex=distance_vertex;}
 	  }
@@ -564,15 +564,15 @@ gStyle->SetPalette(1);
     	    int nEB(0),nEE(0),nHB(0),nHE(0),nHF(0);
 	    for(Int_t k=0; k<nCalo; k++){
 	       if(var_calodR0[k]>0.3){
-		  if(var_caloId0[k]==1 && var_caloEn0[k]>0.6) nEB++;
-                  if(var_caloId0[k]==2 && var_caloEn0[k]>2.5) nEE++;
-                  if(var_caloId0[k]==4 && var_caloEn0[k]>1.4) nHB++;
-                  if(var_caloId0[k]==5 && var_caloEn0[k]>2.0) nHE++;
-                  if((var_caloId0[k]==3 ||var_caloId0[k]==6) && var_caloEn0[k]>5.0) nHF++;
+		  if(var_caloId0[k]==1 && var_caloEn0[k]>1.15) nEB++;
+                  if(var_caloId0[k]==2 && var_caloEn0[k]>2.40) nEE++;
+                  if(var_caloId0[k]==4 && var_caloEn0[k]>1.25) nHB++;
+                  if(var_caloId0[k]==5 && var_caloEn0[k]>1.90) nHE++;
+                  if((var_caloId0[k]==3 ||var_caloId0[k]==6) && var_caloEn0[k]>4.2) nHF++;
 	       }
 	    }
 
-	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHF) <5){ 
+	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHF) <50){ 
           filter0Events++;
 
 	  hEB0->Fill(nEB,fac_lumi0);
@@ -640,8 +640,8 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 	if(nPrimVtx>=1){
 	  for(Int_t j=0; j<nPrimVtx; j++){
 		double distance_vertex=(var_MuMuvtxZ1[0]-var_vtxZ1[j] < 0) ? -(var_MuMuvtxZ1[0]-var_vtxZ1[j]) : var_MuMuvtxZ1[0]-var_vtxZ1[j];
-		if(var_vtxTrack1[j]==2 && TMath::Prob(var_vertexChi2_1[j],var_vertexNdf1[j]+0.5)>0.01 
-                   && distance_vertex <0.05 && distance_vertex<min_distance_vertex && abs(var_vtxZ1[j])<16.0
+		if(var_vtxTrack1[j]==2 && TMath::Prob(var_vertexChi2_1[j],var_vertexNdf1[j]+0.5)>0.001 
+                   && distance_vertex <0.1 && distance_vertex<min_distance_vertex && abs(var_vtxZ1[j])<16.0
 		   && !(techBit1[0][0]==1))   {label_vertex=j;
 				  	       min_distance_vertex=distance_vertex;}
 	  }
@@ -664,15 +664,15 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
     	    int nEB(0),nEE(0),nHB(0),nHE(0),nHF(0);
 	    for(Int_t k=0; k<nCalo; k++){
 	       if(var_calodR1[k]>0.3){
-		  if(var_caloId1[k]==1 && var_caloEn1[k]>0.6) nEB++;
-                  if(var_caloId1[k]==2 && var_caloEn1[k]>2.5) nEE++;
-                  if(var_caloId1[k]==4 && var_caloEn1[k]>1.4) nHB++;
-                  if(var_caloId1[k]==5 && var_caloEn1[k]>2.0) nHE++;
-                  if((var_caloId1[k]==3 ||var_caloId1[k]==6) && var_caloEn1[k]>5.0) nHF++;
+		  if(var_caloId1[k]==1 && var_caloEn1[k]>1.15) nEB++;
+                  if(var_caloId1[k]==2 && var_caloEn1[k]>2.40) nEE++;
+                  if(var_caloId1[k]==4 && var_caloEn1[k]>1.25) nHB++;
+                  if(var_caloId1[k]==5 && var_caloEn1[k]>1.90) nHE++;
+                  if((var_caloId1[k]==3 ||var_caloId1[k]==6) && var_caloEn1[k]>4.2) nHF++;
 	       }
 	    }
 
-	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHF) <5){ 
+	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHF) <50){ 
           filter1Events++;
 
 	  hEB3->Fill(nEB,fac_lumi1);          hEB4->Fill(nEB,fac_lumi1);
@@ -742,8 +742,8 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
 	if(nPrimVtx>=1){
 	  for(Int_t j=0; j<nPrimVtx; j++){
 		double distance_vertex=(var_MuMuvtxZ2[0]-var_vtxZ2[j] < 0) ? -(var_MuMuvtxZ2[0]-var_vtxZ2[j]) : var_MuMuvtxZ2[0]-var_vtxZ2[j];
-		if(var_vtxTrack2[j]==2 && TMath::Prob(var_vertexChi2_2[j],var_vertexNdf2[j]+0.5)>0.01 
-                   && distance_vertex <0.05 && distance_vertex<min_distance_vertex && abs(var_vtxZ2[j])<16.0
+		if(var_vtxTrack2[j]==2 && TMath::Prob(var_vertexChi2_2[j],var_vertexNdf2[j]+0.5)>0.001 
+                   && distance_vertex <0.1 && distance_vertex<min_distance_vertex && abs(var_vtxZ2[j])<16.0
 		   && !(techBit2[0][0]==1))   {label_vertex=j;
 				  	       min_distance_vertex=distance_vertex;}
 	  }
@@ -766,15 +766,15 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
     	    int nEB(0),nEE(0),nHB(0),nHE(0),nHF(0);
 	    for(Int_t k=0; k<nCalo; k++){
 	       if(var_calodR2[k]>0.3){
-		  if(var_caloId2[k]==1 && var_caloEn2[k]>0.6) nEB++;
-                  if(var_caloId2[k]==2 && var_caloEn2[k]>2.5) nEE++;
-                  if(var_caloId2[k]==4 && var_caloEn2[k]>1.4) nHB++;
-                  if(var_caloId2[k]==5 && var_caloEn2[k]>2.0) nHE++;
-                  if((var_caloId2[k]==3 ||var_caloId2[k]==6) && var_caloEn2[k]>5.0) nHF++;
+		  if(var_caloId2[k]==1 && var_caloEn2[k]>1.15) nEB++;
+                  if(var_caloId2[k]==2 && var_caloEn2[k]>2.40) nEE++;
+                  if(var_caloId2[k]==4 && var_caloEn2[k]>1.25) nHB++;
+                  if(var_caloId2[k]==5 && var_caloEn2[k]>1.90) nHE++;
+                  if((var_caloId2[k]==3 ||var_caloId2[k]==6) && var_caloEn2[k]>4.2) nHF++;
 	       }
 	    }
 
-	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHF) <5){ 
+	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHF) <50){ 
           filter2Events++;
 
 	  hEB4->Fill(nEB,fac_lumi2); hEB3->Fill(nEB,fac_lumi2); hEB2->Fill(nEB,fac_lumi2);
@@ -844,8 +844,8 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 	if(nPrimVtx>=1){
 	  for(Int_t j=0; j<nPrimVtx; j++){
 		double distance_vertex=(var_MuMuvtxZ3[0]-var_vtxZ3[j] < 0) ? -(var_MuMuvtxZ3[0]-var_vtxZ3[j]) : var_MuMuvtxZ3[0]-var_vtxZ3[j];
-		if(var_vtxTrack3[j]==2 && TMath::Prob(var_vertexChi2_3[j],var_vertexNdf3[j]+0.5)>0.01 
-                   && distance_vertex <0.05 && distance_vertex<min_distance_vertex && abs(var_vtxZ3[j])<16.0
+		if(var_vtxTrack3[j]==2 && TMath::Prob(var_vertexChi2_3[j],var_vertexNdf3[j]+0.5)>0.001 
+                   && distance_vertex <0.1 && distance_vertex<min_distance_vertex && abs(var_vtxZ3[j])<16.0
 		   && !(techBit3[0][0]==1))   {label_vertex=j;
 				  	       min_distance_vertex=distance_vertex;}
 	  }
@@ -868,15 +868,15 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
     	    int nEB(0),nEE(0),nHB(0),nHE(0),nHF(0);
 	    for(Int_t k=0; k<nCalo; k++){
 	       if(var_calodR3[k]>0.3){
-		  if(var_caloId3[k]==1 && var_caloEn3[k]>0.6) nEB++;
-                  if(var_caloId3[k]==2 && var_caloEn3[k]>2.5) nEE++;
-                  if(var_caloId3[k]==4 && var_caloEn3[k]>1.4) nHB++;
-                  if(var_caloId3[k]==5 && var_caloEn3[k]>2.0) nHE++;
-                  if((var_caloId3[k]==3 ||var_caloId3[k]==6) && var_caloEn3[k]>5.0) nHF++;
+		  if(var_caloId3[k]==1 && var_caloEn3[k]>1.15) nEB++;
+                  if(var_caloId3[k]==2 && var_caloEn3[k]>2.40) nEE++;
+                  if(var_caloId3[k]==4 && var_caloEn3[k]>1.25) nHB++;
+                  if(var_caloId3[k]==5 && var_caloEn3[k]>1.90) nHE++;
+                  if((var_caloId3[k]==3 ||var_caloId3[k]==6) && var_caloEn3[k]>4.2) nHF++;
 	       }
 	    }
 
-	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHF) <5){ 
+	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHF) <50){ 
           filter3Events++;
 
 	  hEB1->Fill(nEB,fac_lumi3); hEB2->Fill(nEB,fac_lumi3); hEB3->Fill(nEB,fac_lumi3); hEB4->Fill(nEB,fac_lumi3);
@@ -949,8 +949,8 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 	  for(Int_t j=0; j<nPrimVtx; j++){
 		double distance_vertex=(var_MuMuvtxZ4[0]-var_vtxZ4[j] < 0) ? -(var_MuMuvtxZ4[0]-var_vtxZ4[j]) : var_MuMuvtxZ4[0]-var_vtxZ4[j];
 //		cout<<"vtx: nTracks="<<var_vtxTrack4[j]<<"\t d="<<distance_vertex<<endl;
-		if(var_vtxTrack4[j]>=2 && TMath::Prob(var_vertexChi2_4[j],var_vertexNdf4[j]+0.5)>0.01 
-                   && distance_vertex <0.05 && distance_vertex<min_distance_vertex && abs(var_vtxZ4[j])<16.0
+		if(var_vtxTrack4[j]>=2 && TMath::Prob(var_vertexChi2_4[j],var_vertexNdf4[j]+0.5)>0.001 
+                   && distance_vertex <0.1 && distance_vertex<min_distance_vertex && abs(var_vtxZ4[j])<16.0
 		   && !(techBit4[0][0]==1))   {label_vertex=j;
 				  	       min_distance_vertex=distance_vertex;}
 	  }
@@ -973,15 +973,15 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
     	    int nEB(0),nEE(0),nHB(0),nHE(0),nHF(0);
 	    for(Int_t k=0; k<nCalo; k++){
 	       if(var_calodR4[k]>0.3){
-		  if(var_caloId4[k]==1 && var_caloEn4[k]>0.6) nEB++;
-                  if(var_caloId4[k]==2 && var_caloEn4[k]>2.5) nEE++;
-                  if(var_caloId4[k]==4 && var_caloEn4[k]>1.4) nHB++;
-                  if(var_caloId4[k]==5 && var_caloEn4[k]>2.0) nHE++;
-                  if((var_caloId4[k]==3 ||var_caloId4[k]==6) && var_caloEn4[k]>5.0) nHF++;
+		  if(var_caloId4[k]==1 && var_caloEn4[k]>1.15) nEB++;
+                  if(var_caloId4[k]==2 && var_caloEn4[k]>2.40) nEE++;
+                  if(var_caloId4[k]==4 && var_caloEn4[k]>1.25) nHB++;
+                  if(var_caloId4[k]==5 && var_caloEn4[k]>1.90) nHE++;
+                  if((var_caloId4[k]==3 ||var_caloId4[k]==6) && var_caloEn4[k]>4.2) nHF++;
 	       }
 	    }
 
-	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHF) <5){ 
+	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHF) <50){ 
           filter4Events++;
 
 	  hEB4->Fill(nEB,fac_lumi4);
@@ -1068,7 +1068,7 @@ TCanvas *Calo = new TCanvas("Calo","Calorimeter",800,500);
    Calo->SetFrameBorderMode(0);
 Calo->Divide(3,2);
 Calo->cd(4);
-hEB4->GetXaxis()->SetTitle("n EB towers (E>0.6GeV)");
+hEB4->GetXaxis()->SetTitle("n EB towers (E>1.15GeV)");
 hEB4->GetYaxis()->SetTitle("# events");
 hEB0->Sumw2();
 hEB0->SetLineWidth(2);
@@ -1086,7 +1086,7 @@ hEB0->Draw("same");
 
 
 Calo->cd(5);
-hEE4->GetXaxis()->SetTitle("n EE towers (E>2.5GeV)");
+hEE4->GetXaxis()->SetTitle("n EE towers (E>2.40GeV)");
 hEE4->GetYaxis()->SetTitle("# events");
 hEE0->Sumw2();
 hEE0->SetLineWidth(2);
@@ -1103,7 +1103,7 @@ hEE1->Draw("same");
 hEE0->Draw("same");
 
 Calo->cd(1);
-hHB4->GetXaxis()->SetTitle("n HB towers (E>1.4GeV)");
+hHB4->GetXaxis()->SetTitle("n HB towers (E>1.25GeV)");
 hHB4->GetYaxis()->SetTitle("# events");
 hHB0->Sumw2();
 hHB0->SetLineWidth(2);
@@ -1120,7 +1120,7 @@ hHB1->Draw("same");
 hHB0->Draw("same");
 
 Calo->cd(2);
-hHE4->GetXaxis()->SetTitle("n HE towers (E>2.0GeV)");
+hHE4->GetXaxis()->SetTitle("n HE towers (E>1.25GeV)");
 hHE4->GetYaxis()->SetTitle("# events");
 hHE0->Sumw2();
 hHE0->SetLineWidth(2);
@@ -1137,7 +1137,7 @@ hHE1->Draw("same");
 hHE0->Draw("same");
 
 Calo->cd(3);
-hHF4->GetXaxis()->SetTitle("n HF towers (E>5.0GeV)");
+hHF4->GetXaxis()->SetTitle("n HF towers (E>4.2GeV)");
 hHF4->GetYaxis()->SetTitle("# events");
 hHF0->Sumw2();
 hHF0->SetLineWidth(2);
