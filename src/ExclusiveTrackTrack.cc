@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.10 2010/06/20 12:11:42 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.11 2010/06/21 07:18:14 jjhollar Exp $
 //
 //
 
@@ -151,6 +151,7 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
 
   thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I");
   thetree->Branch("HLTZeroBiasPixelSingleTrack",&HLTZeroBiasPixelSingleTrack,"HLTZeroBiasPixelSingleTrack/I");
+  thetree->Branch("HLTZeroBias",&HLTZeroBias,"HLTZeroBias/I");
   thetree->Branch("HLT_L1_BscMinBiasOR_BptxPlusORMinus",&HLT_L1_BscMinBiasOR_BptxPlusORMinus,"HLT_L1_BscMinBiasOR_BptxPlusORMinus/I");
   thetree->Branch("HLTPhysicsDeclared",&HLTPhysicsDeclared,"HLTPhysicsDeclared/I");
 
@@ -437,6 +438,13 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
   for (unsigned int i=0; i<trigNames.size(); i++)
     //    {if(hltResults->accept(i)==1)} cout<<"bit "<<i<<" = \t"<<trigNames.triggerNames().at(i)<<" accepted "<<endl;}
     {
+      if ( trigNames.triggerNames().at(i) == "HLT_ZeroBias" )
+        {
+          if ( hltResults->accept(i) )
+            HLTZeroBias = 1;
+          else
+            HLTZeroBias = 0;
+        }
       if ( trigNames.triggerNames().at(i) == "HLT_ZeroBiasPixel_SingleTrack" )
         {
           if ( hltResults->accept(i) )
@@ -517,25 +525,6 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
 	  pitrks->push_back( *track );
 	  TransientTrack tmptrk = (*theVtx).build( *track );
 	  transtrks.push_back( tmptrk );
-	  KalmanVertexFitter fitter(true); 
-	  TransientVertex pipiVertex = fitter.vertex(transtrks); 
-	  if(pipiVertex.isValid())
-	    {
-	      TrTr_Kalmanvtxx = pipiVertex.position().x(); 
-	      TrTr_Kalmanvtxy = pipiVertex.position().y(); 
-	      TrTr_Kalmanvtxz = pipiVertex.position().z(); 
-	      TrTr_Kalmanvtxchi2dof = pipiVertex.normalisedChiSquared();
-	      TrTr_Kalmanvtxisvalid = 1;
-	    }
-	  else
-	    {
-	      TrTr_Kalmanvtxx = 99;  
-	      TrTr_Kalmanvtxy = 99;  
-	      TrTr_Kalmanvtxz = 99;  
-	      TrTr_Kalmanvtxchi2dof = 9999;
-	      TrTr_Kalmanvtxisvalid = 0;
-	    }
-
 
 	  nTrackCand++;
 	}
@@ -569,6 +558,25 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
 	    TrTr_dphi = dphi;
 	  else
 	    TrTr_dphi = (2.0*3.14159)-dphi;
+
+          KalmanVertexFitter fitter(true);
+          TransientVertex pipiVertex = fitter.vertex(transtrks);
+          if(pipiVertex.isValid())
+            {
+              TrTr_Kalmanvtxx = pipiVertex.position().x();
+              TrTr_Kalmanvtxy = pipiVertex.position().y();
+              TrTr_Kalmanvtxz = pipiVertex.position().z();
+              TrTr_Kalmanvtxchi2dof = pipiVertex.normalisedChiSquared();
+              TrTr_Kalmanvtxisvalid = 1;
+            }
+          else
+            {
+              TrTr_Kalmanvtxx = 99;
+              TrTr_Kalmanvtxy = 99;
+              TrTr_Kalmanvtxz = 99;
+              TrTr_Kalmanvtxchi2dof = 9999;
+	      TrTr_Kalmanvtxisvalid = 0;
+            }
 	}
     }
 

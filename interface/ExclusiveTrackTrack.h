@@ -147,6 +147,7 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
 
   int L1TechnicalTriggers[128];
   int HLTZeroBiasPixelSingleTrack;
+  int HLTZeroBias;
   int HLT_L1_BscMinBiasOR_BptxPlusORMinus;
   int HLTPhysicsDeclared;
 
