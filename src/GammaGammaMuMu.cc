@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.74 2010/06/21 07:18:14 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.75 2010/07/01 12:58:26 schul Exp $
 //
 //
 
@@ -425,6 +425,11 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("HLT_Mu3",&HLT_Mu3,"HLT_Mu3/I");
   thetree->Branch("HLT_L2Mu0", &HLT_L2Mu0, "HLT_L2Mu0/I"); 
   thetree->Branch("HLT_L1DoubleMuOpen", &HLT_L1DoubleMuOpen, "HLT_L1DoubleMuOpen/I"); 
+  thetree->Branch("HLT_DoubleMu3_Prescl",&HLT_DoubleMu3_Prescl,"HLT_DoubleMu3_Prescl/I"); 
+  thetree->Branch("HLT_DoubleMu0_Prescl",&HLT_DoubleMu0_Prescl,"HLT_DoubleMu0_Prescl/I"); 
+  thetree->Branch("HLT_Mu3_Prescl",&HLT_Mu3_Prescl,"HLT_Mu3_Prescl/I"); 
+  thetree->Branch("HLT_L2Mu0_Prescl", &HLT_L2Mu0_Prescl, "HLT_L2Mu0_Prescl/I");  
+  thetree->Branch("HLT_L1DoubleMuOpen_Prescl", &HLT_L1DoubleMuOpen_Prescl, "HLT_L1DoubleMuOpen_Prescl/I");  
 
   thetree->Branch("Run",&Run,"Run/I");
   thetree->Branch("LumiSection",&LumiSection,"LumiSection/I");
@@ -575,6 +580,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     { 
       if ( trigNames.triggerNames().at(i) == "HLT_Mu3" )       
         {  
+	  HLT_Mu3_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_Mu3"); 
+
           if ( hltResults->accept(i) )  
             {HLT_Mu3 = 1;}
 	  else
@@ -582,6 +589,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
         }  
       if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu0" ) 
         {   
+          HLT_DoubleMu0_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_DoubleMu0");  
+
           if ( hltResults->accept(i) )  
 	    {HLT_DoubleMu0 = 1;}
 	  else
@@ -589,13 +598,17 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
         }  
       if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu3" ) 
         {   
+          HLT_DoubleMu3_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_DoubleMu3");   
+
           if ( hltResults->accept(i) )  
 	    {HLT_DoubleMu3 = 1;}
 	  else
 	    HLT_DoubleMu3 = 0;
         }  
       if ( trigNames.triggerNames().at(i) == "HLT_L1DoubleMuOpen" )
-        {    
+        {   
+          HLT_L1DoubleMuOpen_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_L1DoubleMuOpen");   
+ 
           if ( hltResults->accept(i) )   
             {HLT_L1DoubleMuOpen = 1;}
           else 
@@ -603,6 +616,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
         }   
       if ( trigNames.triggerNames().at(i) == "HLT_L2Mu0" ) 
         {     
+          HLT_L2Mu0_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_L2Mu0");   
+
           if ( hltResults->accept(i) )    
             {HLT_L2Mu0 = 1;} 
           else  
@@ -1496,6 +1511,40 @@ GammaGammaMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
 void 
 GammaGammaMuMu::beginJob()
 {
+}
+
+void
+GammaGammaMuMu::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
+{
+  using namespace std;
+  using namespace edm;
+
+  bool changed(true);
+  if (hltConfig_.init(iRun,iSetup,hltMenuLabel,changed)) {
+    if (changed) {
+      // check if trigger name in (new) config
+      std::string   triggerName_ = "HLT_DoubleMu0";
+      if (triggerName_!="@") { // "@" means: analyze all triggers in config
+	const unsigned int n(hltConfig_.size());
+	const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName_));
+	if (triggerIndex>=n) {
+	  cout << "GammaGammaMuMu::analyze:"
+	       << " TriggerName " << triggerName_ 
+	       << " not available in (new) config!" << endl;
+	  cout << "Available TriggerNames are: " << endl;
+	  hltConfig_.dump("Triggers");
+	}
+      }
+      hltConfig_.dump("Streams");
+      hltConfig_.dump("Datasets");
+      hltConfig_.dump("PrescaleTable");
+      hltConfig_.dump("ProcessPSet");
+    }
+  } else {
+    cout << "GammaGammaMuMu::beginRun:"
+	 << " config extraction failure with process name "
+	 << hltMenuLabel << endl;
+  }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

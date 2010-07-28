@@ -22,6 +22,7 @@
 <use name=DataFormats/PatCandidates>
 <use name=PhysicsTools/UtilAlgos>
 <use name=MuonAnalysis/TagAndProbe>
+<use name=HLTrigger/HLTcore>
 <use name=rootcore>
 <use name=root>
 

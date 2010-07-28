@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h" 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h" 
 #include "FWCore/Common/interface/TriggerNames.h"
 
 //#include "MuonAnalysis/TagAndProbe/interface/MuonPerformanceReadback.h" 
@@ -34,6 +35,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   
  private:
   virtual void beginJob();
+  virtual void beginRun(edm::Run const &, edm::EventSetup const&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -290,11 +292,17 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int HLT_DoubleMu0;
   int HLT_L2Mu0;
   int HLT_L1DoubleMuOpen;
+  int HLT_DoubleMu3_Prescl; 
+  int HLT_Mu3_Prescl; 
+  int HLT_DoubleMu0_Prescl; 
+  int HLT_L2Mu0_Prescl; 
+  int HLT_L1DoubleMuOpen_Prescl; 
 
   double LowPt_pt[10];
   double LowPt_eta[10];
 
   int nPU;
+  HLTConfigProvider hltConfig_;  
 
   AcceptanceTableHelper helper420beam1;   
   AcceptanceTableHelper helper420beam2;   
