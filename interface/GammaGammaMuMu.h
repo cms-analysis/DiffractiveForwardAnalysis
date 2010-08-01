@@ -16,8 +16,8 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h" 
 #include "FWCore/Common/interface/TriggerNames.h"
 
-//#include "MuonAnalysis/TagAndProbe/interface/MuonPerformanceReadback.h" 
-//#include "MuonAnalysis/TagAndProbe/interface/MuonPerformance.h"  
+#include "MuonAnalysis/TagAndProbe/interface/MuonPerformanceReadback.h" 
+#include "MuonAnalysis/TagAndProbe/interface/MuonPerformance.h"  
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
 
@@ -41,7 +41,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
 
   // ----------member data ---------------------------
 
-  //  MuonPerformanceReadback *effreader; 
+  MuonPerformanceReadback *effreader; 
   std::vector<std::string> algonames; 
   
   edm::InputTag recTrackLabel;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.75 2010/07/01 12:58:26 schul Exp $
+// $Id: GammaGammaMuMu.cc,v 1.76 2010/07/28 08:09:37 jjhollar Exp $
 //
 //
 
@@ -801,22 +801,35 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       
       std::string algoname;
       double totalmuoneff = 1.0;
-      
+      double totalmuonmceff = 1.0;
+
       // October exercise - testing efficiencies!
-      /*
-	for(unsigned int i = 0; i < algonames.size(); ++i)  
+      for(unsigned int i = 0; i < algonames.size(); ++i)  
 	{ 
-	algoname = algonames[i]; 
-	
-	const MuonPerformance &muonefficiency = effreader->getPerformanceRecord(algoname, iSetup);   
-	double muoneff = effreader->getEff(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand], MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
-	effreader->getEffError(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand], MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency);  
-	
-	if(muoneff > -1)
-	totalmuoneff *= muoneff;
+	  std::string effname = algonames[i];  
+	  std::string effnameuppererror = effname + "_UpperError"; 
+	  std::string effnamelowererror = effname + "_LowerError"; 
+ 
+          const MuonPerformance &muonefficiency = effreader->getPerformanceRecord(effname, iSetup); 
+          const MuonPerformance &muonefficiencyuppererror = effreader->getPerformanceRecord(effnameuppererror, iSetup);  
+          const MuonPerformance &muonefficiencylowererror = effreader->getPerformanceRecord(effnamelowererror, iSetup);  
+ 
+	  double muoneff = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
+	  double myefflowererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
+						   muonefficiencylowererror);
+	  double myeffuppererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
+						   muonefficiencyuppererror);
+	  
+	  if(muoneff > -1 && (effname.find("_Data_") != std::string::npos))
+	    {
+	      totalmuoneff *= muoneff;
+	    }
+	  if(muoneff > -1 && (effname.find("_MC_") != std::string::npos))
+	    {
+	      totalmuonmceff *= muoneff;
+	    }
 	}
-      */
-      MuonCand_efficiency[nMuonCand] = totalmuoneff;
+      MuonCand_efficiency[nMuonCand] = totalmuoneff/totalmuonmceff;
       nMuonCand++;
     }  
 

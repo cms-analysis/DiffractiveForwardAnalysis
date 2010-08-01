@@ -17,8 +17,10 @@ gamgammumuanalysis = cms.EDFilter("GammaGammaMuMu",
     MetLabel = cms.InputTag("met"),
     DimuonMaxdpt = cms.double(2000.0),
     KeepSameSignDimuons = cms.bool(False),
-    AlgoNames = cms.vstring('TriggerMuonFromGlobalMuonZ', 'GlobalMuonFromTrackerTrackZ','TrackerTrackFromStandaloneMuonZ',
-                            'TriggerMuonFromGlobalMuonJpsi', 'GlobalMuonFromTrackerTrackJpsi', 'TrackerTrackFromStandaloneMuonJpsi'),
+    AlgoNames = cms.vstring('TrackerMuonLSAT_Data_CaloMuonProbe_JPsi',
+                            'HLT_L1DoubleMuOpen_Data_CaloMuonProbe_JPsi',
+                            'TrackerMuonLSAT_MC_CaloMuonProbe_JPsi',
+                            'HLT_L1DoubleMuOpen_MC_CaloMuonProbe_JPsi'),
     HLTMenuLabel = cms.string("HLT")                                  
 )
 
