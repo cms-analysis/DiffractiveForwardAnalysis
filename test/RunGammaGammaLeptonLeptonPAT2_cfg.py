@@ -14,7 +14,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # DB efficiency stuff
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:../../../MuonAnalysis/TagAndProbe/test/performanceDB/MuonPhysicsPerformance7TeV.db'
+process.CondDBCommon.connect = 'sqlite_file:MuonPhysicsPerformance7TeV.db'
 process.load("MuonAnalysis.TagAndProbe.MuonPerformanceESSource_cfi")
 process.load("MuonAnalysis.TagAndProbe.MuonPerformanceESProducer_cfi")
 # End of DB stuff
@@ -22,7 +22,11 @@ process.load("MuonAnalysis.TagAndProbe.MuonPerformanceESProducer_cfi")
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-                                'file:/tmp/jjhollar/elelMuMu1_lowpT.root'
+#                                'file:/tmp/jjhollar/elelMuMu1_lowpT.root'
+                                'file:/tmp/jjhollar/jpsi1_lowpTCond.root',
+                                'file:/tmp/jjhollar/jpsi2_lowpTCond.root',
+                                'file:/tmp/jjhollar/jpsi3_lowpTCond.root',
+                                'file:/tmp/jjhollar/jpsi4_lowpTCond.root'
                                 )
                             )
 
