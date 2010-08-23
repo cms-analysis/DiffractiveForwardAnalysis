@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ZeroBiasAnalyzer.cc,v 1.4 2010/06/17 09:40:38 jjhollar Exp $
+// $Id: ZeroBiasAnalyzer.cc,v 1.5 2010/06/21 07:18:14 jjhollar Exp $
 //
 //
 
@@ -221,32 +221,12 @@ ZeroBiasAnalyzer::ZeroBiasAnalyzer(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersE8",&nExtraCaloTowersE8,"nExtraCaloTowersE8/I");    
   thetree->Branch("nExtraCaloTowersE9",&nExtraCaloTowersE9,"nExtraCaloTowersE9/I");    
 
-  thetree->Branch("nExtraCaloTowersE0hf", &nExtraCaloTowersE0hf, "nExtraCaloTowersE0hf/I");
-  thetree->Branch("nExtraCaloTowersE1hf", &nExtraCaloTowersE1hf, "nExtraCaloTowersE1hf/I"); 
-  thetree->Branch("nExtraCaloTowersE2hf", &nExtraCaloTowersE2hf, "nExtraCaloTowersE12hf/I"); 
-  thetree->Branch("nExtraCaloTowersE3hf", &nExtraCaloTowersE3hf, "nExtraCaloTowersE3hf/I");
-  thetree->Branch("nExtraCaloTowersE4hf", &nExtraCaloTowersE4hf, "nExtraCaloTowersE4hf/I");
-  thetree->Branch("nExtraCaloTowersE5hf", &nExtraCaloTowersE5hf, "nExtraCaloTowersE5hf/I");
-
-  thetree->Branch("nExtraCaloTowersE0hfp", &nExtraCaloTowersE0hfp, "nExtraCaloTowersE0hfp/I");
-  thetree->Branch("nExtraCaloTowersE1hfp", &nExtraCaloTowersE1hfp, "nExtraCaloTowersE1hfp/I");
-  thetree->Branch("nExtraCaloTowersE2hfp", &nExtraCaloTowersE2hfp, "nExtraCaloTowersE12hfp/I");
-  thetree->Branch("nExtraCaloTowersE3hfp", &nExtraCaloTowersE3hfp, "nExtraCaloTowersE3hfp/I");
-  thetree->Branch("nExtraCaloTowersE4hfp", &nExtraCaloTowersE4hfp, "nExtraCaloTowersE4hfp/I");
-  thetree->Branch("nExtraCaloTowersE5hfp", &nExtraCaloTowersE5hfp, "nExtraCaloTowersE5hfp/I");
-  thetree->Branch("nExtraCaloTowersE0hfm", &nExtraCaloTowersE0hfm, "nExtraCaloTowersE0hfm/I");
-  thetree->Branch("nExtraCaloTowersE1hfm", &nExtraCaloTowersE1hfm, "nExtraCaloTowersE1hfm/I");
-  thetree->Branch("nExtraCaloTowersE2hfm", &nExtraCaloTowersE2hfm, "nExtraCaloTowersE12hfm/I");
-  thetree->Branch("nExtraCaloTowersE3hfm", &nExtraCaloTowersE3hfm, "nExtraCaloTowersE3hfm/I");
-  thetree->Branch("nExtraCaloTowersE4hfm", &nExtraCaloTowersE4hfm, "nExtraCaloTowersE4hfm/I");
-  thetree->Branch("nExtraCaloTowersE5hfm", &nExtraCaloTowersE5hfm, "nExtraCaloTowersE5hfm/I");
-
-  thetree->Branch("nExtraCaloTowersE1he", &nExtraCaloTowersE1he, "nExtraCaloTowersE1he/I"); 
-  thetree->Branch("nExtraCaloTowersE2he", &nExtraCaloTowersE2he, "nExtraCaloTowersE2he/I");  
-  thetree->Branch("nExtraCaloTowersE3he", &nExtraCaloTowersE3he, "nExtraCaloTowersE3he/I");  
-  thetree->Branch("nExtraCaloTowersE2hb", &nExtraCaloTowersE2hb, "nExtraCaloTowersE2hb/I"); 
-  thetree->Branch("nExtraCaloTowersE3hb", &nExtraCaloTowersE3hb, "nExtraCaloTowersE3hb/I");  
-  thetree->Branch("nExtraCaloTowersE4hb", &nExtraCaloTowersE4hb, "nExtraCaloTowersE4hb/I");  
+  thetree->Branch("nExtraCaloTowersE0pt6eb",&nExtraCaloTowersE0pt6eb, "nExtraCaloTowersE0pt6eb/I");
+  thetree->Branch("nExtraCaloTowersE2pt45ee", &nExtraCaloTowersE2pt45ee, "nExtraCaloTowersE2pt45ee/I");
+  thetree->Branch("nExtraCaloTowersE1pt25hb", &nExtraCaloTowersE1pt25hb, "nExtraCaloTowersE1pt25hb/I");
+  thetree->Branch("nExtraCaloTowersE1pt9he", &nExtraCaloTowersE1pt9he, "nExtraCaloTowersE1pt9he/I");
+  thetree->Branch("nExtraCaloTowersE4pt5hfp", &nExtraCaloTowersE4pt5hfp, "nExtraCaloTowersE4pt5hfp/I");
+  thetree->Branch("nExtraCaloTowersE4pt0hfm", &nExtraCaloTowersE4pt0hfm, "nExtraCaloTowersE4pt0hfm/I"); 
 
   thetree->Branch("nExtraCaloTowersEt0pt1",&nExtraCaloTowersEt0pt1,"nExtraCaloTowersEt0pt1/I");  
   thetree->Branch("nExtraCaloTowersEt0pt2",&nExtraCaloTowersEt0pt2,"nExtraCaloTowersEt0pt2/I");  
@@ -304,24 +284,14 @@ ZeroBiasAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iSetup
   nExtraCaloTowersEt2=0;  
   nExtraCaloTowersEt3=0;  
   nExtraCaloTowersEt4=0;   
-  nExtraCaloTowersE0hf=0;
-  nExtraCaloTowersE1hf=0;
-  nExtraCaloTowersE2hf=0;
-  nExtraCaloTowersE3hf=0;
-  nExtraCaloTowersE4hf=0;
-  nExtraCaloTowersE5hf=0;
-  nExtraCaloTowersE0hfp=0;
-  nExtraCaloTowersE1hfp=0;
-  nExtraCaloTowersE2hfp=0;
-  nExtraCaloTowersE3hfp=0;
-  nExtraCaloTowersE4hfp=0;
-  nExtraCaloTowersE5hfp=0;
-  nExtraCaloTowersE0hfm=0;
-  nExtraCaloTowersE1hfm=0;
-  nExtraCaloTowersE2hfm=0;
-  nExtraCaloTowersE3hfm=0;
-  nExtraCaloTowersE4hfm=0;
-  nExtraCaloTowersE5hfm=0;
+
+  nExtraCaloTowersE0pt6eb=0;
+  nExtraCaloTowersE2pt45ee=0;
+  nExtraCaloTowersE1pt25hb=0; 
+  nExtraCaloTowersE1pt9he=0; 
+  nExtraCaloTowersE4pt5hfp=0;
+  nExtraCaloTowersE4pt0hfm=0; 
+
   nCastorTowerCand=0;
   nZDChitCand=0;
   ZDCsumHADminus=0;
@@ -329,13 +299,6 @@ ZeroBiasAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iSetup
   ZDCsumHADplus=0;
   ZDCsumEMplus=0;
   CASTORsumRecHitsE=0;
-
-  nExtraCaloTowersE1he=0; 
-  nExtraCaloTowersE2he=0; 
-  nExtraCaloTowersE3he=0;  
-  nExtraCaloTowersE2hb=0; 
-  nExtraCaloTowersE3hb=0; 
-  nExtraCaloTowersE4hb=0;  
 
   nCastorTowerCand=0;
 
@@ -439,25 +402,36 @@ ZeroBiasAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iSetup
       CaloTower_outE[nCaloCand]=calo->outerEnergy(); //ho
       GlobalPoint emPosition=calo->emPosition();
       GlobalPoint hadPosition=calo->hadPosition();
-      if(CaloTower_emE[nCaloCand]>0){ //if ECAL
-	CaloTower_x[nCaloCand]=emPosition.x();
-	CaloTower_y[nCaloCand]=emPosition.y();
-	CaloTower_z[nCaloCand]=emPosition.z();
-	CaloTower_t[nCaloCand]=calo->ecalTime();
-	if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=1;} //cout<<" -> EB"<<endl;}//EB
-	if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95){CaloTower_ID[nCaloCand]=2;} //cout<<" -> EE"<<endl;}//EE
-	if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2){CaloTower_ID[nCaloCand]=3;} //cout<<" -> EF"<<endl;}//EF ??
+      CaloTowerDetId idTower=calo->id();
+
+      size_t numRecHits = calo->constituentsSize();
+      bool isEB(false),isEE(false),isHB(false),isHE(false),isHF(false),isHO(false);
+      for (size_t j = 0; j < numRecHits; j++) {
+	DetId RecHitDetID=calo->constituent(j);
+	DetId::Detector DetNum=RecHitDetID.det();
+	if( DetNum == DetId::Hcal){
+	  HcalDetId HcalID = RecHitDetID;
+	  int HcalNum =  HcalID.subdetId();
+	  if(HcalNum == HcalForward ){isHF=true;}
+	  if(HcalNum == HcalBarrel ) {isHB=true;}
+	  if(HcalNum == HcalEndcap ) {isHE=true;}
+	  if(HcalNum == HcalOuter ) {isHO=true;}
+	}
+	if( DetNum == DetId::Ecal){
+	  int EcalNum = RecHitDetID.subdetId();
+	  if(EcalNum==1){isEB=true;}
+	  if(EcalNum==2){isEE=true;}
+	}
       }
-      
-      else if(CaloTower_hadE[nCaloCand]>0){
-	CaloTower_x[nCaloCand]=hadPosition.x();
-	CaloTower_y[nCaloCand]=hadPosition.y();
-	CaloTower_z[nCaloCand]=hadPosition.z();
-	CaloTower_t[nCaloCand]=calo->hcalTime();
-	if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=4;} // cout<<" -> HB"<<endl;}//HB
-	if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95) {CaloTower_ID[nCaloCand]=5;} // cout<<" -> HE"<<endl;}//HE
-	if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2) {CaloTower_ID[nCaloCand]=6;} // cout<<" -> HF"<<endl;}//HF ??
-      }
+      if(isHF&&!isHB&&!isHE&&!isEB&&!isEE){CaloTower_ID[nCaloCand]=1;} //HF
+      else if(!isHF&&!isHB&&!isHE&&isEB&&!isEE){CaloTower_ID[nCaloCand]=2;} //EB
+      else if(!isHF&&!isHB&&!isHE&&!isEB&&isEE){CaloTower_ID[nCaloCand]=3;} //EE
+      else if(!isHF&&isHB&&!isHE&&!isEB&&!isEE){CaloTower_ID[nCaloCand]=4;} //HB
+      else if(!isHF&&!isHB&&isHE&&!isEB&&!isEE){CaloTower_ID[nCaloCand]=5;} //HE
+      else if(!isHF&&isHB&&!isHE&&isEB&&!isEE){CaloTower_ID[nCaloCand]=6;} // HB+EB
+      else if(!isHF&&!isHB&&isHE&&isEB&&!isEE){CaloTower_ID[nCaloCand]=7;} // HE+EB
+      else if(!isHF&&!isHB&&isHE&&!isEB&&isEE){CaloTower_ID[nCaloCand]=8;} // HE+EE
+      else if(!isHF&&isHB&&isHE&&!isEB&&!isEE){CaloTower_ID[nCaloCand]=9;} // HB+HE
       
       CaloTower_badhcalcells[nCaloCand]=calo->numBadHcalCells();
       CaloTower_problemhcalcells[nCaloCand]=calo->numProblematicHcalCells(); 
@@ -512,55 +486,19 @@ ZeroBiasAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iSetup
       if(CaloTower_et[nCaloCand] > 4.0)   
 	nExtraCaloTowersEt4++;   
       
-      if(CaloTower_e[nCaloCand] > 0.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)  
-	nExtraCaloTowersE0hf++; 
-      if(CaloTower_e[nCaloCand] > 1.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)   
-	nExtraCaloTowersE1hf++; 
-      if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)   
-	nExtraCaloTowersE2hf++;
-      if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)
-	nExtraCaloTowersE3hf++;
-      if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)
-	nExtraCaloTowersE4hf++;
-      if(CaloTower_e[nCaloCand] > 5.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)
-	nExtraCaloTowersE5hf++;
-      if(CaloTower_e[nCaloCand] > 1.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)      
-	nExtraCaloTowersE1he++;  
-      if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)   
-	nExtraCaloTowersE2he++;  
-      if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)   
-	nExtraCaloTowersE3he++;   
-      if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
-	nExtraCaloTowersE2hb++;  
-      if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
-	nExtraCaloTowersE3hb++;  
-      if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)   
-	nExtraCaloTowersE4hb++;   
-      
-      if(CaloTower_e[nCaloCand] > 0.0 && CaloTower_eta[nCaloCand] > 3.0)
-	nExtraCaloTowersE0hfp++;
-      if(CaloTower_e[nCaloCand] > 1.0 && CaloTower_eta[nCaloCand] > 3.0)
-	nExtraCaloTowersE1hfp++;
-      if(CaloTower_e[nCaloCand] > 2.0 && CaloTower_eta[nCaloCand] > 3.0)
-	nExtraCaloTowersE2hfp++;
-      if(CaloTower_e[nCaloCand] > 3.0 && CaloTower_eta[nCaloCand] > 3.0)
-	nExtraCaloTowersE3hfp++;
-      if(CaloTower_e[nCaloCand] > 4.0 && CaloTower_eta[nCaloCand] > 3.0)
-	nExtraCaloTowersE4hfp++;
-      if(CaloTower_e[nCaloCand] > 5.0 && CaloTower_eta[nCaloCand] > 3.0)
-	nExtraCaloTowersE5hfp++;
-      if(CaloTower_e[nCaloCand] > 0.0 && CaloTower_eta[nCaloCand] < -3.0)
-	nExtraCaloTowersE0hfm++;
-      if(CaloTower_e[nCaloCand] > 1.0 && CaloTower_eta[nCaloCand] < -3.0)
-	nExtraCaloTowersE1hfm++;
-      if(CaloTower_e[nCaloCand] > 2.0 && CaloTower_eta[nCaloCand] < -3.0)
-	nExtraCaloTowersE2hfm++;
-      if(CaloTower_e[nCaloCand] > 3.0 && CaloTower_eta[nCaloCand] < -3.0)
-	nExtraCaloTowersE3hfm++;
-      if(CaloTower_e[nCaloCand] > 4.0 && CaloTower_eta[nCaloCand] < -3.0)
-	nExtraCaloTowersE4hfm++;
-      if(CaloTower_e[nCaloCand] > 5.0 && CaloTower_eta[nCaloCand] < -3.0)
-	nExtraCaloTowersE5hfm++;
+      // Thresholds tuned on ZeroBias data
+      if(CaloTower_emE[nCaloCand] > 0.6 && CaloTower_ID[nCaloCand] == 1) 
+	nExtraCaloTowersE0pt6eb=0; 
+      if(CaloTower_emE[nCaloCand] > 2.45 && CaloTower_ID[nCaloCand] == 2)
+	nExtraCaloTowersE2pt45ee=0; 
+      if(CaloTower_hadE[nCaloCand] > 1.25 && CaloTower_ID[nCaloCand] == 4)
+	nExtraCaloTowersE1pt25hb=0;  
+      if(CaloTower_hadE[nCaloCand] > 1.9 && CaloTower_ID[nCaloCand] == 5) 
+	nExtraCaloTowersE1pt9he=0;  
+      if(CaloTower_e[nCaloCand] > 4.5 && CaloTower_eta[nCaloCand] > 2.95)
+	nExtraCaloTowersE4pt5hfp=0; 
+      if(CaloTower_e[nCaloCand] > 4.0 && CaloTower_eta[nCaloCand] < -2.95)      
+	nExtraCaloTowersE4pt0hfm=0;  
       
       if(CaloTower_eta[nCaloCand] > 3.0)
 	SumHFPlus_e += CaloTower_e[nCaloCand];

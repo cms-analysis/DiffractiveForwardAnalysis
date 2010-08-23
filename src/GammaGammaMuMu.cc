@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.77 2010/08/01 17:54:10 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.78 2010/08/23 06:37:17 jjhollar Exp $
 //
 //
 
@@ -979,25 +979,36 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  CaloTower_outE[nCaloCand]=calo->outerEnergy(); //ho
 	  GlobalPoint emPosition=calo->emPosition();
           GlobalPoint hadPosition=calo->hadPosition();
-	  if(CaloTower_emE[nCaloCand]>0){ //if ECAL
-		CaloTower_x[nCaloCand]=emPosition.x();
-                CaloTower_y[nCaloCand]=emPosition.y();
-                CaloTower_z[nCaloCand]=emPosition.z();
-                CaloTower_t[nCaloCand]=calo->ecalTime();
-		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=1;} 
-		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95){CaloTower_ID[nCaloCand]=2;} 
-		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2){CaloTower_ID[nCaloCand]=3;} 
+	  CaloTowerDetId idTower=calo->id();
+	  
+	  size_t numRecHits = calo->constituentsSize();
+	  bool isEB(false),isEE(false),isHB(false),isHE(false),isHF(false),isHO(false);
+	  for (size_t j = 0; j < numRecHits; j++) {
+	    DetId RecHitDetID=calo->constituent(j);
+	    DetId::Detector DetNum=RecHitDetID.det();
+	    if( DetNum == DetId::Hcal){
+	      HcalDetId HcalID = RecHitDetID;
+	      int HcalNum =  HcalID.subdetId();
+	      if(HcalNum == HcalForward ){isHF=true;}
+	      if(HcalNum == HcalBarrel ) {isHB=true;}
+	      if(HcalNum == HcalEndcap ) {isHE=true;}
+	      if(HcalNum == HcalOuter ) {isHO=true;}
+	    }
+	    if( DetNum == DetId::Ecal){
+	      int EcalNum = RecHitDetID.subdetId();
+	      if(EcalNum==1){isEB=true;}
+	      if(EcalNum==2){isEE=true;}
+	    }
 	  }
-
-	  else if(CaloTower_hadE[nCaloCand]>0){
-                CaloTower_x[nCaloCand]=hadPosition.x();
-                CaloTower_y[nCaloCand]=hadPosition.y();
-                CaloTower_z[nCaloCand]=hadPosition.z();
-                CaloTower_t[nCaloCand]=calo->hcalTime();
-		if(fabs(CaloTower_eta[nCaloCand])>=0   && fabs(CaloTower_eta[nCaloCand])<1.4) {CaloTower_ID[nCaloCand]=4;} 
-		if(fabs(CaloTower_eta[nCaloCand])>=1.4 && fabs(CaloTower_eta[nCaloCand])<2.95) {CaloTower_ID[nCaloCand]=5;} 
-		if(fabs(CaloTower_eta[nCaloCand])>=2.95 && fabs(CaloTower_eta[nCaloCand])<5.2) {CaloTower_ID[nCaloCand]=6;} 
-	  }
+	  if(isHF&&!isHB&&!isHE&&!isEB&&!isEE){CaloTower_ID[nCaloCand]=1;} //HF
+	  else if(!isHF&&!isHB&&!isHE&&isEB&&!isEE){CaloTower_ID[nCaloCand]=2;} //EB
+	  else if(!isHF&&!isHB&&!isHE&&!isEB&&isEE){CaloTower_ID[nCaloCand]=3;} //EE
+	  else if(!isHF&&isHB&&!isHE&&!isEB&&!isEE){CaloTower_ID[nCaloCand]=4;} //HB
+	  else if(!isHF&&!isHB&&isHE&&!isEB&&!isEE){CaloTower_ID[nCaloCand]=5;} //HE
+	  else if(!isHF&&isHB&&!isHE&&isEB&&!isEE){CaloTower_ID[nCaloCand]=6;} // HB+EB
+	  else if(!isHF&&!isHB&&isHE&&isEB&&!isEE){CaloTower_ID[nCaloCand]=7;} // HE+EB
+	  else if(!isHF&&!isHB&&isHE&&!isEB&&isEE){CaloTower_ID[nCaloCand]=8;} // HE+EE
+	  else if(!isHF&&isHB&&isHE&&!isEB&&!isEE){CaloTower_ID[nCaloCand]=9;} // HB+HE
 
 	  CaloTower_badhcalcells[nCaloCand]=calo->numBadHcalCells();
 	  CaloTower_problemhcalcells[nCaloCand]=calo->numProblematicHcalCells(); 
