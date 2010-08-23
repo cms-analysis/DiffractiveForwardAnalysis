@@ -191,12 +191,9 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double Etmiss;
 
   int nCaloCand;
-  int nExtraCaloTowersE0pt6eb, nExtraCaloTowersE2pt5ee;
+  int nExtraCaloTowersE0pt6eb, nExtraCaloTowersE2pt45ee, nExtraCaloTowersE1pt25hb, nExtraCaloTowersE1pt9he, nExtraCaloTowersE4pt5hfp, nExtraCaloTowersE4pt0hfm;
   int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9; 
   int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4; 
-  int nExtraCaloTowersE0hf, nExtraCaloTowersE1hf, nExtraCaloTowersE2hf, nExtraCaloTowersE3hf, nExtraCaloTowersE4hf, nExtraCaloTowersE5hf; 	 
-  int nExtraCaloTowersE1he, nExtraCaloTowersE2he, nExtraCaloTowersE3he, nExtraCaloTowersE4he, nExtraCaloTowersE5he; 	 
-  int nExtraCaloTowersE2hb, nExtraCaloTowersE3hb, nExtraCaloTowersE4hb, nExtraCaloTowersE5hb; 	 
 
   double CaloTower_e[1000];
   double CaloTower_et[1000];

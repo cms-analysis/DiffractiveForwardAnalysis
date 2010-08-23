@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.76 2010/07/28 08:09:37 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.77 2010/08/01 17:54:10 jjhollar Exp $
 //
 //
 
@@ -328,24 +328,6 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersE8",&nExtraCaloTowersE8,"nExtraCaloTowersE8/I");   
   thetree->Branch("nExtraCaloTowersE9",&nExtraCaloTowersE9,"nExtraCaloTowersE9/I");   
 
-  thetree->Branch("nExtraCaloTowersE0hf", &nExtraCaloTowersE0hf, "nExtraCaloTowersE0hf/I"); 	 
-  thetree->Branch("nExtraCaloTowersE1hf", &nExtraCaloTowersE1hf, "nExtraCaloTowersE1hf/I"); 	 
-  thetree->Branch("nExtraCaloTowersE2hf", &nExtraCaloTowersE2hf, "nExtraCaloTowersE2hf/I"); 	 
-  thetree->Branch("nExtraCaloTowersE3hf", &nExtraCaloTowersE3hf, "nExtraCaloTowersE3hf/I");  
-  thetree->Branch("nExtraCaloTowersE4hf", &nExtraCaloTowersE4hf, "nExtraCaloTowersE4hf/I");  
-  thetree->Branch("nExtraCaloTowersE5hf", &nExtraCaloTowersE5hf, "nExtraCaloTowersE5hf/I");  
-
-  thetree->Branch("nExtraCaloTowersE1he", &nExtraCaloTowersE1he, "nExtraCaloTowersE1he/I"); 	 
-  thetree->Branch("nExtraCaloTowersE2he", &nExtraCaloTowersE2he, "nExtraCaloTowersE2he/I"); 	 
-  thetree->Branch("nExtraCaloTowersE3he", &nExtraCaloTowersE3he, "nExtraCaloTowersE3he/I"); 	 
-  thetree->Branch("nExtraCaloTowersE4he", &nExtraCaloTowersE4he, "nExtraCaloTowersE4he/I");   
-  thetree->Branch("nExtraCaloTowersE5he", &nExtraCaloTowersE5he, "nExtraCaloTowersE5he/I");   
-
-  thetree->Branch("nExtraCaloTowersE2hb", &nExtraCaloTowersE2hb, "nExtraCaloTowersE2hb/I"); 	 
-  thetree->Branch("nExtraCaloTowersE3hb", &nExtraCaloTowersE3hb, "nExtraCaloTowersE3hb/I"); 	 
-  thetree->Branch("nExtraCaloTowersE4hb", &nExtraCaloTowersE4hb, "nExtraCaloTowersE4hb/I");
-  thetree->Branch("nExtraCaloTowersE5hb", &nExtraCaloTowersE5hb, "nExtraCaloTowersE5hb/I");   
-
   thetree->Branch("nExtraCaloTowersEt0pt1",&nExtraCaloTowersEt0pt1,"nExtraCaloTowersEt0pt1/I"); 
   thetree->Branch("nExtraCaloTowersEt0pt2",&nExtraCaloTowersEt0pt2,"nExtraCaloTowersEt0pt2/I"); 
   thetree->Branch("nExtraCaloTowersEt0pt5",&nExtraCaloTowersEt0pt5,"nExtraCaloTowersEt0pt5/I"); 
@@ -354,8 +336,12 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("nExtraCaloTowersEt3",&nExtraCaloTowersEt3,"nExtraCaloTowersEt3/I");  
   thetree->Branch("nExtraCaloTowersEt4",&nExtraCaloTowersEt4,"nExtraCaloTowersEt4/I");  
 
-  thetree->Branch("nExtraCaloTowersE0pt6eb", &nExtraCaloTowersE0pt6eb, "nExtraCaloTowersE0pt6eb/I");
-  thetree->Branch("nExtraCaloTowersE2pt5ee", &nExtraCaloTowersE2pt5ee, "nExtraCaloTowersE2pt5ee/I");
+  thetree->Branch("nExtraCaloTowersE0pt6eb",&nExtraCaloTowersE0pt6eb, "nExtraCaloTowersE0pt6eb/I");
+  thetree->Branch("nExtraCaloTowersE2pt45ee", &nExtraCaloTowersE2pt45ee, "nExtraCaloTowersE2pt45ee/I");
+  thetree->Branch("nExtraCaloTowersE1pt25hb", &nExtraCaloTowersE1pt25hb, "nExtraCaloTowersE1pt25hb/I");
+  thetree->Branch("nExtraCaloTowersE1pt9he", &nExtraCaloTowersE1pt9he, "nExtraCaloTowersE1pt9he/I");
+  thetree->Branch("nExtraCaloTowersE4pt5hfp", &nExtraCaloTowersE4pt5hfp, "nExtraCaloTowersE4pt5hfp/I");
+  thetree->Branch("nExtraCaloTowersE4pt0hfm", &nExtraCaloTowersE4pt0hfm, "nExtraCaloTowersE4pt0hfm/I"); 
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
   thetree->Branch("nQualityTrackCand",&nQualityTrackCand,"nQualityTrackCand/I"); 
@@ -502,26 +488,13 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nExtraCaloTowersEt2=0;  
   nExtraCaloTowersEt3=0;  
   nExtraCaloTowersEt4=0;   
-  nExtraCaloTowersE0hf=0; 	 
-  nExtraCaloTowersE1hf=0; 	 
-  nExtraCaloTowersE2hf=0; 	 
-  nExtraCaloTowersE3hf=0; 
-  nExtraCaloTowersE4hf=0; 
-  nExtraCaloTowersE5hf=0;   
- 
-  nExtraCaloTowersE1he=0; 	 
-  nExtraCaloTowersE2he=0; 	 
-  nExtraCaloTowersE3he=0; 	 
-  nExtraCaloTowersE4he=0;  
-  nExtraCaloTowersE5he=0;   
-
-  nExtraCaloTowersE2hb=0; 	 
-  nExtraCaloTowersE3hb=0; 	 
-  nExtraCaloTowersE4hb=0;
-  nExtraCaloTowersE5hb=0;   
 
   nExtraCaloTowersE0pt6eb=0;
-  nExtraCaloTowersE2pt5ee=0;
+  nExtraCaloTowersE2pt45ee=0;
+  nExtraCaloTowersE1pt25hb=0; 
+  nExtraCaloTowersE1pt9he=0; 
+  nExtraCaloTowersE4pt5hfp=0;
+  nExtraCaloTowersE4pt0hfm=0; 
 
   HitInZDC=0;
   HitInCastor=0;
@@ -819,6 +792,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 						   muonefficiencylowererror);
 	  double myeffuppererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
 						   muonefficiencyuppererror);
+
 	  
 	  if(muoneff > -1 && (effname.find("_Data_") != std::string::npos))
 	    {
@@ -1080,7 +1054,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
               if(CaloTower_e[nCaloCand] > 9.0)   
                 nExtraCaloTowersE9++;   
 
-	      
               if(CaloTower_et[nCaloCand] > 0.1) 
                 nExtraCaloTowersEt0pt1++; 
               if(CaloTower_et[nCaloCand] > 0.2)  
@@ -1096,44 +1069,19 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
               if(CaloTower_et[nCaloCand] > 4.0)   
                 nExtraCaloTowersEt4++;   
 
-	 
-              if(CaloTower_e[nCaloCand] > 0.0 && abs(CaloTower_eta[nCaloCand]) > 3.0) 	 
-                nExtraCaloTowersE0hf++; 	 
-              if(CaloTower_e[nCaloCand] > 1.0 && abs(CaloTower_eta[nCaloCand]) > 3.0) 	 
-                nExtraCaloTowersE1hf++; 	 
-              if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) > 3.0) 	 
-                nExtraCaloTowersE2hf++; 	 
-	      if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)   
-                nExtraCaloTowersE3hf++;  
-              if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)    
-                nExtraCaloTowersE4hf++;  
-              if(CaloTower_e[nCaloCand] > 5.0 && abs(CaloTower_eta[nCaloCand]) > 3.0)    
-                nExtraCaloTowersE5hf++; 
-
-              if(CaloTower_e[nCaloCand] > 1.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5) 	 
-                nExtraCaloTowersE1he++; 	 
-              if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5) 	 
-                nExtraCaloTowersE2he++; 	 
-              if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5) 	 
-                nExtraCaloTowersE3he++; 	 
-	      if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)    
-                nExtraCaloTowersE4he++;   
-              if(CaloTower_e[nCaloCand] > 5.0 && abs(CaloTower_eta[nCaloCand]) < 3.0 && abs(CaloTower_eta[nCaloCand]) > 1.5)    
-                nExtraCaloTowersE5he++;    
-
-              if(CaloTower_e[nCaloCand] > 2.0 && abs(CaloTower_eta[nCaloCand]) < 1.5) 	 
-                nExtraCaloTowersE2hb++; 	 
-              if(CaloTower_e[nCaloCand] > 3.0 && abs(CaloTower_eta[nCaloCand]) < 1.5) 	 
-                nExtraCaloTowersE3hb++; 	 
-              if(CaloTower_e[nCaloCand] > 4.0 && abs(CaloTower_eta[nCaloCand]) < 1.5) 	 
-                nExtraCaloTowersE4hb++;
-              if(CaloTower_e[nCaloCand] > 5.0 && abs(CaloTower_eta[nCaloCand]) < 1.5)    
-                nExtraCaloTowersE5hb++;    
-
-	      if(CaloTower_emE[nCaloCand] > 0.6 && abs(CaloTower_eta[nCaloCand]) < 1.479)
-		nExtraCaloTowersE0pt6eb++;
-	      if(CaloTower_emE[nCaloCand] > 2.5 && abs(CaloTower_eta[nCaloCand]) > 1.479 && abs(CaloTower_eta[nCaloCand]) < 3.0) 
-                nExtraCaloTowersE2pt5ee++; 
+	      // Thresholds tuned on ZeroBias data
+	      if(CaloTower_emE[nCaloCand] > 0.6 && CaloTower_ID[nCaloCand] == 1) 
+		nExtraCaloTowersE0pt6eb=0; 
+	      if(CaloTower_emE[nCaloCand] > 2.45 && CaloTower_ID[nCaloCand] == 2)
+		nExtraCaloTowersE2pt45ee=0; 
+	      if(CaloTower_hadE[nCaloCand] > 1.25 && CaloTower_ID[nCaloCand] == 4)
+		nExtraCaloTowersE1pt25hb=0;  
+	      if(CaloTower_hadE[nCaloCand] > 1.9 && CaloTower_ID[nCaloCand] == 5) 
+		nExtraCaloTowersE1pt9he=0;  
+	      if(CaloTower_e[nCaloCand] > 4.5 && CaloTower_eta[nCaloCand] > 2.95)
+		  nExtraCaloTowersE4pt5hfp=0; 
+	      if(CaloTower_e[nCaloCand] > 4.0 && CaloTower_eta[nCaloCand] < -2.95)      
+		  nExtraCaloTowersE4pt0hfm=0;  
 	    }
 
 	  nCaloCand++;
