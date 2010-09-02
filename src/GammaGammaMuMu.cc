@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.79 2010/08/23 12:07:19 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.80 2010/09/02 12:24:07 jjhollar Exp $
 //
 //
 
@@ -365,7 +365,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("TrackCand_Y",TrackCand_Y,"TrackCand_Y[nTrackCand]/D");
   thetree->Branch("TrackCand_Z",TrackCand_Z,"TrackCand_Z[nTrackCand]/D");
   thetree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D");
-  
+  thetree->Branch("ClosestHighPurityExtraTrack_vtxdxyz",&ClosestHighPurityExtraTrack_vtxdxyz,"ClosestHighPurityExtraTrack_vtxdxyz/D");
+
   thetree->Branch("nPFPhotonCand",&nPFPhotonCand,"nPFPhotonCand/I");
   thetree->Branch("PFPhotonCand_pt",PFPhotonCand_pt,"PFPhotonCand_pt[nPFPhotonCand]/D");
   thetree->Branch("PFPhotonCand_eta",PFPhotonCand_eta,"PFPhotonCand_eta[nPFPhotonCand]/D");
@@ -970,6 +971,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double totalecastorbwd = 0.0;
   double totalecalo = -1.0; 
   double closesttrkdxyz = 999.0;
+  double closesthighpuritytrkdxyz = 999.0;
 
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
   if(nMuonCand >= 2)
@@ -1457,9 +1459,15 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
             MuMu_extratracks10cm++; 
 	  if(TrackCand_vtxdxyz[nTrackCand] < closesttrkdxyz)
 	    closesttrkdxyz = TrackCand_vtxdxyz[nTrackCand];
+          if((TrackCand_vtxdxyz[nTrackCand] < closesthighpuritytrkdxyz) && 
+	     (TrackCand_purity[nTrackCand] == 1) && 
+	     (TrackCand_nhits[nTrackCand] >= 3))
+	    closesthighpuritytrkdxyz = TrackCand_vtxdxyz[nTrackCand];
+
           nTrackCand++;  
       } 
       ClosestExtraTrack_vtxdxyz = closesttrkdxyz;
+      ClosestHighPurityExtraTrack_vtxdxyz = closesthighpuritytrkdxyz;
     } 
   else 
     { 
@@ -1473,7 +1481,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   // Check for di-objects with valid vertex
   if(nMuonCand < 2 || !(found_pair)) passed = false;
-  if(ClosestExtraTrack_vtxdxyz < minmumuvtxd) passed = false;
+  if(ClosestHighPurityExtraTrack_vtxdxyz < minmumuvtxd) passed = false;
 
   // "Exclusivity" cuts
   if(passed == true){

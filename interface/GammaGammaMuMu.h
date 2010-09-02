@@ -277,6 +277,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double TrackCand_Z[500];
   int TrackCand_charge[500];
   double ClosestExtraTrack_vtxdxyz;
+  double ClosestHighPurityExtraTrack_vtxdxyz;
 
   int nPFPhotonCand;  
   int PHOTONMAX;
