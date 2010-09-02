@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.78 2010/08/23 06:37:17 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.79 2010/08/23 12:07:19 jjhollar Exp $
 //
 //
 
@@ -162,7 +162,9 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   mudphimin          = pset.getParameter<double>("DimuonMindphi");
   drisocalo          = pset.getParameter<double>("CaloTowerdR");
   keepsamesign       = pset.getParameter<bool>("KeepSameSignDimuons");
+  minmumuvtxd        = pset.getParameter<double>("MinMuMuVertexSeparation"); 
 
+  readmcEffCorrections = pset.getParameter<bool>("ReadMCEffCorrections");
   algonames          =  pset.getParameter< std::vector<std::string> >("AlgoNames"); 
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
@@ -373,12 +375,12 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuMu_mass",&MuMu_mass,"MuMu_mass/D");
   thetree->Branch("MuMu_dphi",&MuMu_dphi,"MuMu_dphi/D");
   thetree->Branch("MuMu_dpt",&MuMu_dpt,"MuMu_dpt/D");
-  thetree->Branch("MuMu_vtxx",&MuMu_vtxx,"MuMu_vtxx/D");
-  thetree->Branch("MuMu_vtxy",&MuMu_vtxy,"MuMu_vtxy/D"); 
-  thetree->Branch("MuMu_vtxz",&MuMu_vtxz,"MuMu_vtxz/D");
-  thetree->Branch("MuMu_vtxT",&MuMu_vtxT,"MuMu_vtxT/D"); 
-  thetree->Branch("MuMu_vtxchi2dof",&MuMu_vtxchi2dof,"MuMu_vtxchi2dof/D");
-  thetree->Branch("MuMu_vtxisvalid",&MuMu_vtxisvalid,"MuMu_vtxisvalid/I");
+  thetree->Branch("MuMu_Kalmanvtxx",&MuMu_Kalmanvtxx,"MuMu_Kalmanvtxx/D");
+  thetree->Branch("MuMu_Kalmanvtxy",&MuMu_Kalmanvtxy,"MuMu_Kalmanvtxy/D"); 
+  thetree->Branch("MuMu_Kalmanvtxz",&MuMu_Kalmanvtxz,"MuMu_Kalmanvtxz/D");
+  thetree->Branch("MuMu_KalmanvtxT",&MuMu_KalmanvtxT,"MuMu_KalmanvtxT/D"); 
+  thetree->Branch("MuMu_Kalmanvtxchi2dof",&MuMu_Kalmanvtxchi2dof,"MuMu_Kalmanvtxchi2dof/D");
+  thetree->Branch("MuMu_Kalmanvtxisvalid",&MuMu_Kalmanvtxisvalid,"MuMu_Kalmanvtxisvalid/I");
   thetree->Branch("MuMu_extratracks1mm",&MuMu_extratracks1mm,"MuMu_extratracks1mm/I");
   thetree->Branch("MuMu_extratracks3mm",&MuMu_extratracks3mm,"MuMu_extratracks3mm/I");
   thetree->Branch("MuMu_extratracks5mm",&MuMu_extratracks5mm,"MuMu_extratracks5mm/I");
@@ -430,6 +432,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("PrimVertexCand_tracks",&PrimVertexCand_tracks,"PrimVertexCand_tracks[nPrimVertexCand]/I");
   thetree->Branch("PrimVertexCand_chi2",&PrimVertexCand_chi2,"PrimVertexCand_chi2[nPrimVertexCand]/D");
   thetree->Branch("PrimVertexCand_ndof",&PrimVertexCand_ndof,"PrimVertexCand_ndof[nPrimVertexCand]/D");
+  thetree->Branch("PrimVertexCand_mumuTwoTracks",&PrimVertexCand_mumuTwoTracks,"PrimVertexCand_mumuTwoTracks[nPrimVertexCand]/D"); 
 
   thetree->Branch("LowPt_pt",LowPt_pt,"LowPt_pt[nMuonCand]/D");
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
@@ -514,6 +517,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   MuMu_extratracks5cm = 0;
   MuMu_extratracks10cm = 0;
   ClosestExtraTrack_vtxdxyz = 999.;
+  double mumuprimvtxx = 0.0; 
+  double mumuprimvtxy = 0.0; 
+  double mumuprimvtxz = 0.0; 
 
   bool passed = true;
   int LS = 0;
@@ -783,29 +789,40 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  std::string effnameuppererror = effname + "_UpperError"; 
 	  std::string effnamelowererror = effname + "_LowerError"; 
  
-          const MuonPerformance &muonefficiency = effreader->getPerformanceRecord(effname, iSetup); 
-          const MuonPerformance &muonefficiencyuppererror = effreader->getPerformanceRecord(effnameuppererror, iSetup);  
-          const MuonPerformance &muonefficiencylowererror = effreader->getPerformanceRecord(effnamelowererror, iSetup);  
- 
-	  double muoneff = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
-	  double myefflowererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
-						   muonefficiencylowererror);
-	  double myeffuppererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
-						   muonefficiencyuppererror);
-
+	  if(readmcEffCorrections == true)
+	    {
+	      const MuonPerformance &muonefficiency = effreader->getPerformanceRecord(effname, iSetup); 
+	      const MuonPerformance &muonefficiencyuppererror = effreader->getPerformanceRecord(effnameuppererror, iSetup);  
+	      const MuonPerformance &muonefficiencylowererror = effreader->getPerformanceRecord(effnamelowererror, iSetup);  
+	      
+	      double muoneff = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
+						 MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
+	      double myefflowererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
+						       MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
+						       muonefficiencylowererror);
+	      double myeffuppererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
+						       MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
+						       muonefficiencyuppererror);
 	  
-	  if(muoneff > -1 && (effname.find("_Data_") != std::string::npos))
-	    {
-	      totalmuoneff *= muoneff;
+	      if(muoneff > -1 && (effname.find("_Data_") != std::string::npos))
+		{
+		  totalmuoneff *= muoneff;
+		}
+	      if(muoneff > -1 && (effname.find("_MC_") != std::string::npos))
+		{
+		  totalmuonmceff *= muoneff;
+		}
 	    }
-	  if(muoneff > -1 && (effname.find("_MC_") != std::string::npos))
+	  else
 	    {
-	      totalmuonmceff *= muoneff;
+	      totalmuonmceff = 1.0;
+	      totalmuonmceff = 1.0;
 	    }
 	}
       MuonCand_efficiency[nMuonCand] = totalmuoneff/totalmuonmceff;
+      
       nMuonCand++;
-    }  
+    }
 
   // Calculate invariant mass, delta-phi and delta-pT
   bool found_pair(false);
@@ -903,6 +920,20 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     PrimVertexCand_tracks[nPrimVertexCand] = vertex_i->tracksSize();
     PrimVertexCand_chi2[nPrimVertexCand] = vertex_i->chi2();
     PrimVertexCand_ndof[nPrimVertexCand] = vertex_i->ndof();
+
+    // Now check if a primary vertex is consistent with having exactly 2 muons 
+    // and no other tracks
+    PrimVertexCand_mumuTwoTracks[nPrimVertexCand] = 0;
+    if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && 
+       (fabs(MuonCand_vtxz[0] - PrimVertexCand_z[nPrimVertexCand]) < 0.1) &&
+       (fabs(MuonCand_vtxz[1] - PrimVertexCand_z[nPrimVertexCand]) < 0.1))
+      {
+	PrimVertexCand_mumuTwoTracks[nPrimVertexCand] = 1;
+	mumuprimvtxx = PrimVertexCand_x[nPrimVertexCand];
+	mumuprimvtxy = PrimVertexCand_y[nPrimVertexCand]; 
+        mumuprimvtxz = PrimVertexCand_z[nPrimVertexCand]; 
+      }
+
     nPrimVertexCand++;
   }
 
@@ -1364,21 +1395,21 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       TransientVertex mumuVertex = fitter.vertex(transmutrks); 
       if(mumuVertex.isValid())
 	{
-	  MuMu_vtxx = mumuVertex.position().x(); 
-	  MuMu_vtxy = mumuVertex.position().y(); 
-	  MuMu_vtxz = mumuVertex.position().z(); 
-	  MuMu_vtxchi2dof = mumuVertex.normalisedChiSquared();
-	  MuMu_vtxT = sqrt(mumuVertex.position().x()*mumuVertex.position().x() + mumuVertex.position().y()*mumuVertex.position().y() ); 
-	  MuMu_vtxisvalid = 1;
+	  MuMu_Kalmanvtxx = mumuVertex.position().x(); 
+	  MuMu_Kalmanvtxy = mumuVertex.position().y(); 
+	  MuMu_Kalmanvtxz = mumuVertex.position().z(); 
+	  MuMu_Kalmanvtxchi2dof = mumuVertex.normalisedChiSquared();
+	  MuMu_KalmanvtxT = sqrt(mumuVertex.position().x()*mumuVertex.position().x() + mumuVertex.position().y()*mumuVertex.position().y() ); 
+	  MuMu_Kalmanvtxisvalid = 1;
 	}
       else
 	{
-	  MuMu_vtxx = 99;  
-	  MuMu_vtxy = 99;  
-	  MuMu_vtxz = 99;  
-	  MuMu_vtxT = 99;
-	  MuMu_vtxchi2dof = 9999;
-	  MuMu_vtxisvalid = 0;
+	  MuMu_Kalmanvtxx = 99;  
+	  MuMu_Kalmanvtxy = 99;  
+	  MuMu_Kalmanvtxz = 99;  
+	  MuMu_KalmanvtxT = 99;
+	  MuMu_Kalmanvtxchi2dof = 9999;
+	  MuMu_Kalmanvtxisvalid = 0;
 	}
 
       // OK, now go back and count "extra" tracks on the dimuon vertex
@@ -1397,19 +1428,18 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           TrackCand_phi[nTrackCand]=track->phi(); 
           TrackCand_charge[nTrackCand]=track->charge();
 	  TrackCand_nhits[nTrackCand]=track->numberOfValidHits();
-	  TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - MuMu_vtxx)*(track->vertex().x() - MuMu_vtxx)) + 
-					     ((track->vertex().y() - MuMu_vtxy)*(track->vertex().y() - MuMu_vtxy)) +
-					     ((track->vertex().z() - MuMu_vtxz)*(track->vertex().z() - MuMu_vtxz)));
-	  TrackCand_vtxT[nTrackCand] = sqrt(((track->vertex().x() - MuMu_vtxx)*(track->vertex().x() - MuMu_vtxx)) +
-                                             ((track->vertex().y() - MuMu_vtxy)*(track->vertex().y() - MuMu_vtxy)));
-	  TrackCand_vtxZ[nTrackCand] = sqrt(((track->vertex().z() - MuMu_vtxz)*(track->vertex().z() - MuMu_vtxz)));
+	  TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - mumuprimvtxx)*(track->vertex().x() - mumuprimvtxx)) + 
+					     ((track->vertex().y() - mumuprimvtxy)*(track->vertex().y() - mumuprimvtxy)) +
+					     ((track->vertex().z() - mumuprimvtxz)*(track->vertex().z() - mumuprimvtxz)));
+	  TrackCand_vtxT[nTrackCand] = sqrt(((track->vertex().x() - mumuprimvtxx)*(track->vertex().x() - mumuprimvtxx)) +
+                                             ((track->vertex().y() - mumuprimvtxy)*(track->vertex().y() - mumuprimvtxy)));
+	  TrackCand_vtxZ[nTrackCand] = sqrt(((track->vertex().z() - mumuprimvtxz)*(track->vertex().z() - mumuprimvtxz)));
           TrackCand_X[nTrackCand] = track->vertex().x();
           TrackCand_Y[nTrackCand] = track->vertex().y();
           TrackCand_Z[nTrackCand] = track->vertex().z();
 
 	  if((TrackCand_purity[nTrackCand] == 1) && (TrackCand_nhits[nTrackCand] >= 3))
 	    nQualityTrackCand++;
-
 
           if(TrackCand_vtxdxyz[nTrackCand] < 0.1)
             MuMu_extratracks1mm++;
@@ -1433,16 +1463,17 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     } 
   else 
     { 
-      MuMu_vtxx = 99; 
-      MuMu_vtxy = 99; 
-      MuMu_vtxz = 99; 
-      MuMu_vtxT = 99;
-      MuMu_vtxchi2dof = 9999; 
-      MuMu_vtxisvalid = 0; 
+      MuMu_Kalmanvtxx = 99; 
+      MuMu_Kalmanvtxy = 99; 
+      MuMu_Kalmanvtxz = 99; 
+      MuMu_KalmanvtxT = 99;
+      MuMu_Kalmanvtxchi2dof = 9999; 
+      MuMu_Kalmanvtxisvalid = 0; 
     } 
 
   // Check for di-objects with valid vertex
-  if(nMuonCand < 2 || !(found_pair) || MuMu_vtxisvalid != 1) passed = false;
+  if(nMuonCand < 2 || !(found_pair)) passed = false;
+  if(ClosestExtraTrack_vtxdxyz < minmumuvtxd) passed = false;
 
   // "Exclusivity" cuts
   if(passed == true){
@@ -1475,6 +1506,8 @@ GammaGammaMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
   iDesc.addOptionalUntracked<std::string>("outfilename", ("mumu.pat.root"))->setComment("output flat ntuple file name");  
   iDesc.add<std::string>("HLTMenuLabel", ("HLT8E29"))->setComment("HLT AOD trigger summary label");
   iDesc.add< vector<std::string> >("AlgoNames")->setComment("Tag-and-probe algorithm names");
+  iDesc.add<bool>("ReadMCEffCorrections", false)->setComment("Flag to read Tag-&-Probe eff. corrections when running on MC"); 
+  iDesc.add<double>("MinMuMuVertexSeparation",0.1)->setComment("Minimum distance in cm between the dimuon vertex and any other track");
 
   descriptions.add("ParameterDescriptionsForGammaGammaMuMu", iDesc);
 }

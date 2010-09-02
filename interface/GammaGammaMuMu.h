@@ -43,7 +43,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
 
   MuonPerformanceReadback *effreader; 
   std::vector<std::string> algonames; 
-  
+  bool readmcEffCorrections; 
+
   edm::InputTag recTrackLabel;
   edm::InputTag recVertexLabel;
   edm::InputTag theGLBMuonLabel;
@@ -60,6 +61,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double mudptmax;
   double mudphimin;
   double drisocalo; 
+  double minmumuvtxd;
   bool keepsamesign;
 
   std::string rootfilename;
@@ -142,12 +144,12 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuMu_mass;
   double MuMu_dphi;
   double MuMu_dpt;
-  double MuMu_vtxx;
-  double MuMu_vtxy;
-  double MuMu_vtxz;
-  double MuMu_vtxT;
-  double MuMu_vtxchi2dof;
-  int MuMu_vtxisvalid;
+  double MuMu_Kalmanvtxx;
+  double MuMu_Kalmanvtxy;
+  double MuMu_Kalmanvtxz;
+  double MuMu_KalmanvtxT;
+  double MuMu_Kalmanvtxchi2dof;
+  int MuMu_Kalmanvtxisvalid;
   int MuMu_extratracks1mm;
   int MuMu_extratracks3mm;
   int MuMu_extratracks5mm;
@@ -247,12 +249,13 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double CASTORsumRecHitsE;
 
   int nPrimVertexCand;
-  double PrimVertexCand_x[10];
-  double PrimVertexCand_y[10];
-  double PrimVertexCand_z[10];
-  int PrimVertexCand_tracks[10];
-  double PrimVertexCand_chi2[10];
-  double PrimVertexCand_ndof[10];
+  double PrimVertexCand_x[20];
+  double PrimVertexCand_y[20];
+  double PrimVertexCand_z[20];
+  int PrimVertexCand_tracks[20];
+  double PrimVertexCand_chi2[20];
+  double PrimVertexCand_ndof[20];
+  int PrimVertexCand_mumuTwoTracks[20];
 
   int nTrackCand;
   int nQualityTrackCand;

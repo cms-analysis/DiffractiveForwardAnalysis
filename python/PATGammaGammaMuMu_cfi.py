@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-gamgammumuanalysis = cms.EDFilter("GammaGammaMuMu",
+gamgammumuanalysis = cms.EDAnalyzer("GammaGammaMuMu",
     ElectronCollectionLabel = cms.InputTag("selectedPatElectrons"),
     outfilename = cms.untracked.string('mumu.pat.root'),
     JetCollectionLabel = cms.InputTag("selectedPatJets"),
@@ -15,8 +15,11 @@ gamgammumuanalysis = cms.EDFilter("GammaGammaMuMu",
     CaloTowerdR = cms.double(0.3),
     DimuonMindphi = cms.double(0.0),
     MetLabel = cms.InputTag("met"),
+                                    
     DimuonMaxdpt = cms.double(2000.0),
+    MinMuMuVertexSeparation = cms.double(0.1),
     KeepSameSignDimuons = cms.bool(False),
+    ReadMCEffCorrections = cms.bool(False),
     AlgoNames = cms.vstring('TrackerMuonLSAT_Data_CaloMuonProbe_JPsi',
                             'HLT_L1DoubleMuOpen_Data_CaloMuonProbe_JPsi',
                             'TrackerMuonLSAT_MC_CaloMuonProbe_JPsi',

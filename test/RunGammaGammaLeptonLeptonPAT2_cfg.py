@@ -12,21 +12,25 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #)
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-# DB efficiency stuff
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:MuonPhysicsPerformance7TeV.db'
-process.load("MuonAnalysis.TagAndProbe.MuonPerformanceESSource_cfi")
-process.load("MuonAnalysis.TagAndProbe.MuonPerformanceESProducer_cfi")
+# DB efficiency stuff - uncomment if running on MC
+##process.load("CondCore.DBCommon.CondDBCommon_cfi")
+##process.CondDBCommon.connect = 'sqlite_file:MuonPhysicsPerformance7TeV.db'
+##process.load("MuonAnalysis.TagAndProbe.MuonPerformanceESSource_cfi")
+##process.load("MuonAnalysis.TagAndProbe.MuonPerformanceESProducer_cfi")
 # End of DB stuff
 
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-#                                'file:/tmp/jjhollar/elelMuMu1_lowpT.root'
-                                'file:/tmp/jjhollar/jpsi1_lowpTCond.root',
-                                'file:/tmp/jjhollar/jpsi2_lowpTCond.root',
-                                'file:/tmp/jjhollar/jpsi3_lowpTCond.root',
-                                'file:/tmp/jjhollar/jpsi4_lowpTCond.root'
+                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/EEE64447-9F9B-DF11-A573-001617C3B69C.root',
+                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/E04E9705-8A9B-DF11-8EDB-003048D37560.root',
+                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/CA804E38-8E9B-DF11-A825-001D09F252DA.root',
+                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/C4A1CB31-9D9B-DF11-805E-003048F1BF66.root',
+                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/BA38B11B-C39B-DF11-B826-001D09F25208.root',
+                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/8AD5A5DC-969B-DF11-A088-001D09F2441B.root',
+                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/60D7391C-9B9B-DF11-A1E6-001D09F231C9.root',
+                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/445A9EF8-989B-DF11-BC84-0030487CD7C0.root',
+                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/00BE9355-909B-DF11-A111-001617C3B69C.root'
                                 )
                             )
 
@@ -36,7 +40,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 # Load configuration stuff
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START3X_V21::All')
+process.GlobalTag.globaltag = cms.string('GR_R_38X_V9::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
@@ -104,6 +108,8 @@ removeMCMatching(process, ['All'])
 
 #process.output.outputCommands.extend(AODEventContent.outputCommands)
 
+# Set to True if running on MC  
+##process.gamgammumuanalysis.readmcEffCorrections = True
 process.gamgammumuanalysis.outfilename = "DimuonAnalyzer.root"
 
 # Put it all together
