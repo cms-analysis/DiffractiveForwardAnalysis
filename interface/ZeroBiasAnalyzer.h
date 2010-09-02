@@ -7,7 +7,7 @@
 #include <FWCore/Framework/interface/EDFilter.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Framework/interface/Event.h>
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h" 
 
 #include "DataFormats/Common/interface/TriggerResults.h" 
 #include "FWCore/Common/interface/TriggerNames.h" 
@@ -61,13 +61,9 @@ class ZeroBiasAnalyzer : public edm::EDAnalyzer {
   int TrackCand_charge[500];
 
   int nCaloCand;
+  int nExtraCaloTowersE0pt6eb, nExtraCaloTowersE2pt45ee, nExtraCaloTowersE1pt25hb, nExtraCaloTowersE1pt9he, nExtraCaloTowersE4pt5hfp, nExtraCaloTowersE4pt0hfm; 
   int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9;  
   int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4;  
-  int nExtraCaloTowersE0hf, nExtraCaloTowersE1hf, nExtraCaloTowersE2hf, nExtraCaloTowersE3hf, nExtraCaloTowersE4hf, nExtraCaloTowersE5hf;
-  int nExtraCaloTowersE0hfp, nExtraCaloTowersE1hfp, nExtraCaloTowersE2hfp, nExtraCaloTowersE3hfp, nExtraCaloTowersE4hfp, nExtraCaloTowersE5hfp;
-  int nExtraCaloTowersE0hfm, nExtraCaloTowersE1hfm, nExtraCaloTowersE2hfm, nExtraCaloTowersE3hfm, nExtraCaloTowersE4hfm, nExtraCaloTowersE5hfm;
-  int nExtraCaloTowersE1he, nExtraCaloTowersE2he, nExtraCaloTowersE3he;
-  int nExtraCaloTowersE2hb, nExtraCaloTowersE3hb, nExtraCaloTowersE4hb;
   double CaloTower_e[1000];
   double CaloTower_et[1000];
   double CaloTower_eta[1000];

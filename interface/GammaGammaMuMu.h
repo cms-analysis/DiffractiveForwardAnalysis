@@ -10,7 +10,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 #include <FWCore/ParameterSet/interface/ParameterDescriptionNode.h> 
 #include <FWCore/Framework/interface/Event.h>
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h" 
 
 #include "DataFormats/Common/interface/TriggerResults.h" 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h" 
