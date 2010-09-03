@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.80 2010/09/02 12:24:07 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.81 2010/09/02 13:09:45 jjhollar Exp $
 //
 //
 
@@ -414,11 +414,13 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("HLT_Mu3",&HLT_Mu3,"HLT_Mu3/I");
   thetree->Branch("HLT_L2Mu0", &HLT_L2Mu0, "HLT_L2Mu0/I"); 
   thetree->Branch("HLT_L1DoubleMuOpen", &HLT_L1DoubleMuOpen, "HLT_L1DoubleMuOpen/I"); 
+  thetree->Branch("HLT_L1DoubleMuOpen_Tight", &HLT_L1DoubleMuOpen_Tight, "HLT_L1DoubleMuOpen_Tight/I");
   thetree->Branch("HLT_DoubleMu3_Prescl",&HLT_DoubleMu3_Prescl,"HLT_DoubleMu3_Prescl/I"); 
   thetree->Branch("HLT_DoubleMu0_Prescl",&HLT_DoubleMu0_Prescl,"HLT_DoubleMu0_Prescl/I"); 
   thetree->Branch("HLT_Mu3_Prescl",&HLT_Mu3_Prescl,"HLT_Mu3_Prescl/I"); 
   thetree->Branch("HLT_L2Mu0_Prescl", &HLT_L2Mu0_Prescl, "HLT_L2Mu0_Prescl/I");  
   thetree->Branch("HLT_L1DoubleMuOpen_Prescl", &HLT_L1DoubleMuOpen_Prescl, "HLT_L1DoubleMuOpen_Prescl/I");  
+  thetree->Branch("HLT_L1DoubleMuOpen_Tight_Prescl", &HLT_L1DoubleMuOpen_Tight_Prescl, "HLT_L1DoubleMuOpen_Tight_Prescl/I");
 
   thetree->Branch("Run",&Run,"Run/I");
   thetree->Branch("LumiSection",&LumiSection,"LumiSection/I");
@@ -534,7 +536,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   Run = event.id().run();
   LumiSection = event.luminosityBlock();
   EventNum = event.id().event();
-
+lumiSection.lumiSummary.InstantETLumi
   // L1 technical triggers 
   edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRR; 
   edm::Handle<L1GlobalTriggerObjectMapRecord> L1GTOMRec; 
@@ -594,6 +596,15 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           else 
             HLT_L1DoubleMuOpen = 0; 
         }   
+      if ( trigNames.triggerNames().at(i) == "HLT_L1DoubleMuOpen_Tight" )
+        {
+          HLT_L1DoubleMuOpen_Tight_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_L1DoubleMuOpen_Tight");
+
+          if ( hltResults->accept(i) )
+            {HLT_L1DoubleMuOpen_Tight = 1;}
+          else
+            HLT_L1DoubleMuOpen_Tight = 0;
+        }
       if ( trigNames.triggerNames().at(i) == "HLT_L2Mu0" ) 
         {     
           HLT_L2Mu0_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_L2Mu0");   
@@ -827,6 +838,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   // Calculate invariant mass, delta-phi and delta-pT
   bool found_pair(false);
+  bool found_mumuvertex(false);
   MuonPairCand[0]=0; MuonPairCand[1]=1;
   if(nMuonCand == 2)
     {
@@ -933,6 +945,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	mumuprimvtxx = PrimVertexCand_x[nPrimVertexCand];
 	mumuprimvtxy = PrimVertexCand_y[nPrimVertexCand]; 
         mumuprimvtxz = PrimVertexCand_z[nPrimVertexCand]; 
+	found_mumuvertex = true;
       }
 
     nPrimVertexCand++;
@@ -1481,6 +1494,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   // Check for di-objects with valid vertex
   if(nMuonCand < 2 || !(found_pair)) passed = false;
+  if(!(found_mumuvertex)) passed = false;
   if(ClosestHighPurityExtraTrack_vtxdxyz < minmumuvtxd) passed = false;
 
   // "Exclusivity" cuts
