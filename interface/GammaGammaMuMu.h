@@ -293,11 +293,14 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int HLT_DoubleMu0;
   int HLT_L2Mu0;
   int HLT_L1DoubleMuOpen;
+  int HLT_L1DoubleMuOpen_Tight;
   int HLT_DoubleMu3_Prescl; 
   int HLT_Mu3_Prescl; 
   int HLT_DoubleMu0_Prescl; 
   int HLT_L2Mu0_Prescl; 
   int HLT_L1DoubleMuOpen_Prescl; 
+  int HLT_L1DoubleMuOpen_Tight_Prescl;
+
 
   double LowPt_pt[10];
   double LowPt_eta[10];

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.81 2010/09/02 13:09:45 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.82 2010/09/03 07:10:43 jjhollar Exp $
 //
 //
 
@@ -44,6 +44,8 @@
 #include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
+
+#include "DataFormats/Luminosity/interface/LumiSummary.h"
 
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -536,7 +538,14 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   Run = event.id().run();
   LumiSection = event.luminosityBlock();
   EventNum = event.id().event();
-lumiSection.lumiSummary.InstantETLumi
+
+  //  edm::Handle<LumiSummary> lumisummary; 
+  //  LuminosityBlock const& lumiBlock = event.getLuminosityBlock();
+  //  lumiBlock.getByLabel("lumiProducer",lumisummary);
+  //  cout << lsummary.avgInsDelLumi() << endl;
+  //  edm::Handle<LumiDetails> lumiDetails;
+  //  lumiBlock.getByLabel("lumiProducer", lumiDetails);
+
   // L1 technical triggers 
   edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRR; 
   edm::Handle<L1GlobalTriggerObjectMapRecord> L1GTOMRec; 
