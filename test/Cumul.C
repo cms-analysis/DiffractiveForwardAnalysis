@@ -1,4 +1,3 @@
-void Cumul()
 {
 
 gROOT->Reset();
@@ -7,7 +6,7 @@ gStyle->SetOptStat(0);
 #define pi 3.14159265359
 
 //definition des fichiers + Tree
-  TFile *f0 = new TFile("../cand_2tracks.root"); // 
+  TFile *f0 = new TFile("cand_2tracks.root"); // 
   TTree *t0 = f0->Get("ntp1");
   TFile *f1 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/ElEl_MuMu_lowpT.root"); //
   TTree *t1 = f1->Get("ntp1");
@@ -20,7 +19,7 @@ gStyle->SetOptStat(0);
   TFile *f5 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Jpsi_MuMu_lowpT.root"); //
   TTree *t5 = f5->Get("ntp1");
 
-  TFile *f6 = new TFile("bkg-2tracks.root"); //
+  TFile *f6 = new TFile("Studies/bkg-2tracks.root"); //
   TTree *t6 = f6->Get("ntp1");
   
 // definitions : example for mass:
@@ -28,11 +27,11 @@ gStyle->SetOptStat(0);
 //               ||   |  |  /\    /\  <<----Upsilon resonnances (4)
 //               ||   |  | |  |  |  |  
 //              |--------------------|
-//              |    El-El (3)       |
+//              |    El-El (1)       |
 //              |--------------------|
 //              |    Inel-El (2)     |
 //              |--------------------|
-//              |    Inel-Inel (1)   |
+//              |    Inel-Inel (3)   |
 //              |--------------------|
 //		|    Inclusive (6)   -------|
 //		|---------------------------|
@@ -45,13 +44,13 @@ gStyle->SetOptStat(0);
   TH1F* hHFp0 = new TH1F("nhfp_data","",6,-1.,5.);
   TH1F* hHFm0 = new TH1F("ncastor_data","",6,-1.,5.);
   TH1F* nTower0 = new TH1F("nTower_data","",16,-1.,15.);
-  TH1F* hEB1 = new TH1F("neb_cumulInelInel","",6,-1.,5.);
-  TH1F* hEE1 = new TH1F("nee_cumulInelInel","",6,-1.,5.);
-  TH1F* hHB1 = new TH1F("nhb_cumulInelInel","",6,-1.,5.);
-  TH1F* hHE1 = new TH1F("nhe_cumulInelInel","",6,-1.,5.);
-  TH1F* hHFp1 = new TH1F("nhfp_cumulInelInel","",6,-1.,5.);
-  TH1F* hHFm1 = new TH1F("ncastor_cumulInelInel","",6,-1.,5.);
-  TH1F* nTower1 = new TH1F("nTower_cumulInelInel","",16,-1.,15.);
+  TH1F* hEB1 = new TH1F("neb_cumulElEl","",6,-1.,5.);
+  TH1F* hEE1 = new TH1F("nee_cumulElEl","",6,-1.,5.);
+  TH1F* hHB1 = new TH1F("nhb_cumulElEl","",6,-1.,5.);
+  TH1F* hHE1 = new TH1F("nhe_cumulElEl","",6,-1.,5.);
+  TH1F* hHFp1 = new TH1F("nhfp_cumulElEl","",6,-1.,5.);
+  TH1F* hHFm1 = new TH1F("ncastor_cumulElEl","",6,-1.,5.);
+  TH1F* nTower1 = new TH1F("nTower_cumulElEl","",16,-1.,15.);
   TH1F* hEB2 = new TH1F("neb_cumulInelEl","",6,-1.,5.);
   TH1F* hEE2 = new TH1F("nee_cumulInelEl","",6,-1.,5.);
   TH1F* hHB2 = new TH1F("nhb_cumulInelEl","",6,-1.,5.);
@@ -59,13 +58,13 @@ gStyle->SetOptStat(0);
   TH1F* hHFp2 = new TH1F("nhfp_cumulInelEl","",6,-1.,5.);
   TH1F* hHFm2 = new TH1F("ncastor_cumulInelEl","",6,-1.,5.);
   TH1F* nTower2 = new TH1F("nTower_cumulInelEl","",16,-1.,15.);
-  TH1F* hEB3 = new TH1F("neb_cumulElEl","",6,-1.,5.);
-  TH1F* hEE3 = new TH1F("nee_cumulElEl","",6,-1.,5.);
-  TH1F* hHB3 = new TH1F("nhb_cumulElEl","",6,-1.,5.);
-  TH1F* hHE3 = new TH1F("nhe_cumulElEl","",6,-1.,5.);
-  TH1F* hHFp3 = new TH1F("nhfp_cumulElEl","",6,-1.,5.);
-  TH1F* hHFm3 = new TH1F("ncastor_cumulElEl","",6,-1.,5.);
-  TH1F* nTower3 = new TH1F("nTower_cumulElEl","",16,-1.,15.);
+  TH1F* hEB3 = new TH1F("neb_cumulInelInel","",6,-1.,5.);
+  TH1F* hEE3 = new TH1F("nee_cumulInelInel","",6,-1.,5.);
+  TH1F* hHB3 = new TH1F("nhb_cumulInelInel","",6,-1.,5.);
+  TH1F* hHE3 = new TH1F("nhe_cumulInelInel","",6,-1.,5.);
+  TH1F* hHFp3 = new TH1F("nhfp_cumulInelInel","",6,-1.,5.);
+  TH1F* hHFm3 = new TH1F("ncastor_cumulInelInel","",6,-1.,5.);
+  TH1F* nTower3 = new TH1F("nTower_cumulInelInel","",16,-1.,15.);
   TH1F* hEB4 = new TH1F("neb_cumulUps","",6,-1.,5.);
   TH1F* hEE4 = new TH1F("nee_cumulUps","",6,-1.,5.);
   TH1F* hHB4 = new TH1F("nhb_cumulUps","",6,-1.,5.);
@@ -87,139 +86,169 @@ gStyle->SetOptStat(0);
   TH1F* hHFp6 = new TH1F("nhfp_cumulInclu","",6,-1.,5.);
   TH1F* hHFm6 = new TH1F("ncastor_cumulInclu","",6,-1.,5.);
   TH1F* nTower6 = new TH1F("nTower_cumulInclu","",16,-1.,15.);
-
+  THStack sEB("sEB","stack EB");
+  THStack sEE("sEE","stack EE");
+  THStack sHB("sHB","stack HB");
+  THStack sHE("sHE","stack HE");
+  THStack sHFp("sHFp","stack HFp");
+  THStack sHFm("sHFm","stack Hfm");
+  THStack sTower("sTower","stack nTower");
 
   TH1F* nTrack0 = new TH1F("ntrack_data","",101,-1.,100.);
-  TH1F* nTrack1 = new TH1F("ntrack_cumulInelInel","",101,-1.,100.);
+  TH1F* nTrack1 = new TH1F("ntrack_cumulElEl","",101,-1.,100.);
   TH1F* nTrack2 = new TH1F("ntrack_cumulInelEl","",101,-1.,100.);
-  TH1F* nTrack3 = new TH1F("ntrack_cumulElEl","",101,-1.,100.);
+  TH1F* nTrack3 = new TH1F("ntrack_cumulInelInel","",101,-1.,100.);
   TH1F* nTrack4 = new TH1F("ntrack_cumulUps","",101,-1.,100.);
   TH1F* nTrack5 = new TH1F("ntrack_cumulJpsi","",101,-1.,100.);
   TH1F* nTrack6 = new TH1F("ntrack_cumulInclu","",101,-1.,100.);
+  THStack sTrack("sTrack","stack Tracks");
 
   // 120.,0.,40.
   // 10.,0.,100.	
   TH1F* MuMuMass0 = new TH1F("mass_data","",120.,0.,40.);
-  TH1F* MuMuMass1 = new TH1F("mass_cumulInelInel","",120.,0.,40.);
+  TH1F* MuMuMass1 = new TH1F("mass_cumulElEl","",120.,0.,40.);
   TH1F* MuMuMass2 = new TH1F("mass_cumulInelEl","",120.,0.,40.);
-  TH1F* MuMuMass3 = new TH1F("mass_cumulElEl","",120.,0.,40.);
+  TH1F* MuMuMass3 = new TH1F("mass_cumulInelInel","",120.,0.,40.);
   TH1F* MuMuMass4 = new TH1F("mass_cumulUps","",120.,0.,40.);
   TH1F* MuMuMass5 = new TH1F("mass_cumulJpsi","",120.,0.,40.);
   TH1F* MuMuMass6 = new TH1F("mass_cumulInclu","",120.,0.,40.);
+  THStack sMuMuMass("sMuMuMass","stack Mass");
 
   TH1F* MuMuMassUps0 = new TH1F("massUps_data","",10.,8.,12.);
-  TH1F* MuMuMassUps1 = new TH1F("massUps_cumulInelInel","",10.,8.,12.);
+  TH1F* MuMuMassUps1 = new TH1F("massUps_cumulElEl","",10.,8.,12.);
   TH1F* MuMuMassUps2 = new TH1F("massUps_cumulInelEl","",10.,8.,12.);
-  TH1F* MuMuMassUps3 = new TH1F("massUps_cumulElEl","",10.,8.,12.);
+  TH1F* MuMuMassUps3 = new TH1F("massUps_cumulInelInel","",10.,8.,12.);
   TH1F* MuMuMassUps4 = new TH1F("massUps_cumulUps","",10.,8.,12.);
   TH1F* MuMuMassUps5 = new TH1F("massUps_cumulJpsi","",10.,8.,12.);
   TH1F* MuMuMassUps6 = new TH1F("massUps_cumulInclu","",10.,8.,12.);
+  THStack sMuMuMassUps("sMuMuMassUps","stack MassUps");
 
   TH1F* MuMuMassJpsi0 = new TH1F("massJpsi_data","",20.,2.6,3.6);
-  TH1F* MuMuMassJpsi1 = new TH1F("massJpsi_cumulInelInel","",20.,2.6,3.6);
+  TH1F* MuMuMassJpsi1 = new TH1F("massJpsi_cumulElEl","",20.,2.6,3.6);
   TH1F* MuMuMassJpsi2 = new TH1F("massJpsi_cumulInelEl","",20.,2.6,3.6);
-  TH1F* MuMuMassJpsi3 = new TH1F("massJpsi_cumulElEl","",20.,2.6,3.6);
+  TH1F* MuMuMassJpsi3 = new TH1F("massJpsi_cumulInelInel","",20.,2.6,3.6);
   TH1F* MuMuMassJpsi4 = new TH1F("massJpsi_cumulUps","",20.,2.6,3.6);
   TH1F* MuMuMassJpsi5 = new TH1F("massJpsi_cumulJpsi","",20.,2.6,3.6);
   TH1F* MuMuMassJpsi6 = new TH1F("massJpsi_cumulInclu","",20.,2.6,3.6);
+  THStack sMuMuMassJpsi("sMuMuMassJpsi","stack MassJpsi");
 
   TH1F* MuMudpt0 = new TH1F("dpt_data","",20,-0.5,1.5);
-  TH1F* MuMudpt1 = new TH1F("dpt_cumulInelInel","",20,-0.5,1.5);
+  TH1F* MuMudpt1 = new TH1F("dpt_cumulElEl","",20,-0.5,1.5);
   TH1F* MuMudpt2 = new TH1F("dpt_cumulInelEl","",20,-0.5,1.5);
-  TH1F* MuMudpt3 = new TH1F("dpt_cumulElEl","",20,-0.5,1.5);
+  TH1F* MuMudpt3 = new TH1F("dpt_cumulInelInel","",20,-0.5,1.5);
   TH1F* MuMudpt4 = new TH1F("dpt_cumulUps","",20,-0.5,1.5);
   TH1F* MuMudpt5 = new TH1F("dpt_cumulJpsi","",20,-0.5,1.5);
   TH1F* MuMudpt6 = new TH1F("dpt_cumulInclu","",20,-0.5,1.5);
+  THStack sMuMudpt("sMuMudpt","stack dpt");
 
   TH1F* MuMudphi0 = new TH1F("dphi_data","",6,0.9,1.02);
-  TH1F* MuMudphi1 = new TH1F("dphi_cumulInelInel","",6,0.9,1.02);
+  TH1F* MuMudphi1 = new TH1F("dphi_cumulElEl","",6,0.9,1.02);
   TH1F* MuMudphi2 = new TH1F("dphi_cumulInelEl","",6,0.9,1.02);
-  TH1F* MuMudphi3 = new TH1F("dphi_cumulElEl","",6,0.9,1.02);
+  TH1F* MuMudphi3 = new TH1F("dphi_cumulInelInel","",6,0.9,1.02);
   TH1F* MuMudphi4 = new TH1F("dphi_cumulUps","",6,0.9,1.02);
   TH1F* MuMudphi5 = new TH1F("dphi_cumulJpsi","",6,0.9,1.02);
   TH1F* MuMudphi6 = new TH1F("dphi_cumulInclu","",6,0.9,1.02);
+  THStack sMuMudphi("sMuMudphi","stack dphi");
 
   TH1F* MuMudeta0 = new TH1F("deta_data","",28.,-1.,6.);
-  TH1F* MuMudeta1 = new TH1F("deta_cumulInelInel","",28.,-1.,6.);
+  TH1F* MuMudeta1 = new TH1F("deta_cumulElEl","",28.,-1.,6.);
   TH1F* MuMudeta2 = new TH1F("deta_cumulInelEl","",28.,-1.,6.);
-  TH1F* MuMudeta3 = new TH1F("deta_cumulElEl","",28.,-1.,6.);
+  TH1F* MuMudeta3 = new TH1F("deta_cumulInelInel","",28.,-1.,6.);
   TH1F* MuMudeta4 = new TH1F("deta_cumulUps","",28.,-1.,6.);
   TH1F* MuMudeta5 = new TH1F("deta_cumulJpsi","",28.,-1.,6.);
   TH1F* MuMudeta6 = new TH1F("deta_cumulInclu","",28.,-1.,6.);
+  THStack sMuMudeta("sMuMudeta","stack deta");
 
   TH1F* MuMuvtxXY0 = new TH1F("vtxXY_data","",100,-0.5,0.5);
-  TH1F* MuMuvtxXY1 = new TH1F("vtxXY_cumulInelInel","",100,-0.5,0.5);
+  TH1F* MuMuvtxXY1 = new TH1F("vtxXY_cumulElEl","",100,-0.5,0.5);
   TH1F* MuMuvtxXY2 = new TH1F("vtxXY_cumulInelEl","",100,-0.5,0.5);
-  TH1F* MuMuvtxXY3 = new TH1F("vtxXY_cumulElEl","",100,-0.5,0.5);
+  TH1F* MuMuvtxXY3 = new TH1F("vtxXY_cumulInelInel","",100,-0.5,0.5);
   TH1F* MuMuvtxXY4 = new TH1F("vtxXY_cumulUps","",100,-0.5,0.5);
   TH1F* MuMuvtxXY5 = new TH1F("vtxXY_cumulJpsi","",100,-0.5,0.5);
   TH1F* MuMuvtxXY6 = new TH1F("vtxXY_cumulInclu","",100,-0.5,0.5);
+  THStack sMuMuvtxXY("sMuMuvtxXY","stack vtxXY");
 
   TH1F* Tdist0 = new TH1F("tDist_data","",10,-0.2,1.8); 
-  TH1F* Tdist1 = new TH1F("tDist_cumulInelInel","",10,-0.2,1.8); 
+  TH1F* Tdist1 = new TH1F("tDist_cumulElEl","",10,-0.2,1.8); 
   TH1F* Tdist2 = new TH1F("tDist_cumulInelEl","",10,-0.2,1.8); 
-  TH1F* Tdist3 = new TH1F("tDist_cumulElEl","",10,-0.2,1.8); 
+  TH1F* Tdist3 = new TH1F("tDist_cumulInelInel","",10,-0.2,1.8); 
   TH1F* Tdist4 = new TH1F("tDist_cumulUps","",10,-0.2,1.8); 
   TH1F* Tdist5 = new TH1F("tDist_cumulJpsi","",10,-0.2,1.8); 
   TH1F* Tdist6 = new TH1F("tDist_cumulInclu","",10,-0.2,1.8); 
+  THStack sTdist("sTdist","stack Tdist");
 
   TH1F* ZDCemplus0 = new TH1F("zdcEm+_data","",72.,-100.,3500.);
-  TH1F* ZDCemplus1 = new TH1F("zdcEm+_cumulInelInel","",72.,-100.,3500.);
+  TH1F* ZDCemplus1 = new TH1F("zdcEm+_cumulElEl","",72.,-100.,3500.);
   TH1F* ZDCemplus2 = new TH1F("zdcEm+_cumulInelEl","",72.,-100.,3500.);
-  TH1F* ZDCemplus3 = new TH1F("zdcEm+_cumulElEl","",72.,-100.,3500.);
+  TH1F* ZDCemplus3 = new TH1F("zdcEm+_cumulInelInel","",72.,-100.,3500.);
   TH1F* ZDCemplus4 = new TH1F("zdcEm+_cumulUps","",72.,-100.,3500.);
   TH1F* ZDCemplus5 = new TH1F("zdcEm+_cumulJpsi","",72.,-100.,3500.);
   TH1F* ZDCemplus6 = new TH1F("zdcEm+_cumulInclu","",72.,-100.,3500.);
+  THStack sZDCemplus("sZDCemplus","stack ZDC EM+");
+
   TH1F* ZDChadplus0 = new TH1F("zdcHad+_data","",92.,-1000.,45000.);
-  TH1F* ZDChadplus1 = new TH1F("zdcHad+_cumulInelInel","",92.,-1000.,45000.);
+  TH1F* ZDChadplus1 = new TH1F("zdcHad+_cumulElEl","",92.,-1000.,45000.);
   TH1F* ZDChadplus2 = new TH1F("zdcHad+_cumulInelEl","",92.,-1000.,45000.);
-  TH1F* ZDChadplus3 = new TH1F("zdcHad+_cumulElEl","",92.,-1000.,45000.);
+  TH1F* ZDChadplus3 = new TH1F("zdcHad+_cumulInelInel","",92.,-1000.,45000.);
   TH1F* ZDChadplus4 = new TH1F("zdcHad+_cumulUps","",92.,-1000.,45000.);
   TH1F* ZDChadplus5 = new TH1F("zdcHad+_cumulJpsi","",92.,-1000.,45000.);
   TH1F* ZDChadplus6 = new TH1F("zdcHad+_cumulInclu","",92.,-1000.,45000.);
+  THStack sZDChadplus("sZDChadplus","stack ZDC HAD+");
+
   TH1F* ZDCemminus0 = new TH1F("zdcEm-_data","",72.,-100.,3500.);
-  TH1F* ZDCemminus1 = new TH1F("zdcEm-_cumulInelInel","",72.,-100.,3500.);
+  TH1F* ZDCemminus1 = new TH1F("zdcEm-_cumulElEl","",72.,-100.,3500.);
   TH1F* ZDCemminus2 = new TH1F("zdcEm-_cumulInelEl","",72.,-100.,3500.);
-  TH1F* ZDCemminus3 = new TH1F("zdcEm-_cumulElEl","",72.,-100.,3500.);
+  TH1F* ZDCemminus3 = new TH1F("zdcEm-_cumulInelInel","",72.,-100.,3500.);
   TH1F* ZDCemminus4 = new TH1F("zdcEm-_cumulUps","",72.,-100.,3500.);
   TH1F* ZDCemminus5 = new TH1F("zdcEm-_cumulJpsi","",72.,-100.,3500.);
   TH1F* ZDCemminus6 = new TH1F("zdcEm-_cumulInclu","",72.,-100.,3500.);
+  THStack sZDCemminus("sZDCemminus","stack ZDC EM-");
+
   TH1F* ZDChadminus0 = new TH1F("zdcHad-_data","",92.,-1000.,45000.);
-  TH1F* ZDChadminus1 = new TH1F("zdcHad-_cumulInelInel","",92.,-1000.,45000.);
+  TH1F* ZDChadminus1 = new TH1F("zdcHad-_cumulElEl","",92.,-1000.,45000.);
   TH1F* ZDChadminus2 = new TH1F("zdcHad-_cumulInelEl","",92.,-1000.,45000.);
-  TH1F* ZDChadminus3 = new TH1F("zdcHad-_cumulElEl","",92.,-1000.,45000.);
+  TH1F* ZDChadminus3 = new TH1F("zdcHad-_cumulInelInel","",92.,-1000.,45000.);
   TH1F* ZDChadminus4 = new TH1F("zdcHad-_cumulUps","",92.,-1000.,45000.);
   TH1F* ZDChadminus5 = new TH1F("zdcHad-_cumulJpsi","",92.,-1000.,45000.);
   TH1F* ZDChadminus6 = new TH1F("zdcHad-_cumulInclu","",92.,-1000.,45000.);
+  THStack sZDChadminus("sZDChadminus","stack ZDC HAD-");
+
   TH1F* ZDCtime0 =  new TH1F("zdcTime_data","",80.,-20.,60.);
-  TH1F* ZDCtime1 =  new TH1F("zdcTime_cumulInelInel","",80.,-20.,60.);
+  TH1F* ZDCtime1 =  new TH1F("zdcTime_cumulElEl","",80.,-20.,60.);
   TH1F* ZDCtime2 =  new TH1F("zdcTime_cumulInelEl","",80.,-20.,60.);
-  TH1F* ZDCtime3 =  new TH1F("zdcTime_cumulElEl","",80.,-20.,60.);
+  TH1F* ZDCtime3 =  new TH1F("zdcTime_cumulInelInel","",80.,-20.,60.);
   TH1F* ZDCtime4 =  new TH1F("zdcTime_cumulUps","",80.,-20.,60.);
   TH1F* ZDCtime5 =  new TH1F("zdcTime_cumulJpsi","",80.,-20.,60.);
   TH1F* ZDCtime6 =  new TH1F("zdcTime_cumulInclu","",80.,-20.,60.);
+  THStack sZDCtime("sZDCtime","stack ZDC time");
+
   TH1F* ZDCenergyEM0 =  new TH1F("zdcEnEM_data","",100.,-500.,2500.);
-  TH1F* ZDCenergyEM1 =  new TH1F("zdcEnEM_cumulInelInel","",100.,-500.,2500.);
+  TH1F* ZDCenergyEM1 =  new TH1F("zdcEnEM_cumulElEl","",100.,-500.,2500.);
   TH1F* ZDCenergyEM2 =  new TH1F("zdcEnEM_cumulInelEl","",100.,-500.,2500.);
-  TH1F* ZDCenergyEM3 =  new TH1F("zdcEnEM_cumulElEl","",100.,-500.,2500.);
+  TH1F* ZDCenergyEM3 =  new TH1F("zdcEnEM_cumulInelInel","",100.,-500.,2500.);
   TH1F* ZDCenergyEM4 =  new TH1F("zdcEnEM_cumulUps","",100.,-500.,2500.);
   TH1F* ZDCenergyEM5 =  new TH1F("zdcEnEM_cumulJpsi","",100.,-500.,2500.);
   TH1F* ZDCenergyEM6 =  new TH1F("zdcEnEM_cumulInclu","",100.,-500.,2500.);
+  THStack sZDCenergyEM("sZDCenergyEM","stack ZDC energy EM");
+
   TH1F* ZDCenergyHAD0 =  new TH1F("zdcEnHAD_data","",100.,-5000.,25000.);
-  TH1F* ZDCenergyHAD1 =  new TH1F("zdcEnHAD_cumulInelInel","",100.,-5000.,25000.);
+  TH1F* ZDCenergyHAD1 =  new TH1F("zdcEnHAD_cumulElEl","",100.,-5000.,25000.);
   TH1F* ZDCenergyHAD2 =  new TH1F("zdcEnHAD_cumulInelEl","",100.,-5000.,25000.);
-  TH1F* ZDCenergyHAD3 =  new TH1F("zdcEnHAD_cumulElEl","",100.,-5000.,25000.);
+  TH1F* ZDCenergyHAD3 =  new TH1F("zdcEnHAD_cumulInelInel","",100.,-5000.,25000.);
   TH1F* ZDCenergyHAD4 =  new TH1F("zdcEnHAD_cumulUps","",100.,-5000.,25000.);
   TH1F* ZDCenergyHAD5 =  new TH1F("zdcEnHAD_cumulJpsi","",100.,-5000.,25000.);
   TH1F* ZDCenergyHAD6 =  new TH1F("zdcEnHAD_cumulInclu","",100.,-5000.,25000.);
+  THStack sZDCenergyHAD("sZDCenergyHAD","stack ZDC energy HAD");
 
   TH1F* CastorSumE0 = new TH1F("castorE_data","",140.,-500.,10300.);
-  TH1F* CastorSumE1 = new TH1F("castorE_cumulInelInel","",140.,-500.,10300.);
+  TH1F* CastorSumE1 = new TH1F("castorE_cumulElEl","",140.,-500.,10300.);
   TH1F* CastorSumE2 = new TH1F("castorE_cumulInelEl","",140.,-500.,10300.);
-  TH1F* CastorSumE3 = new TH1F("castorE_cumulElEl","",140.,-500.,10300.);
+  TH1F* CastorSumE3 = new TH1F("castorE_cumulInelInel","",140.,-500.,10300.);
   TH1F* CastorSumE4 = new TH1F("castorE_cumulUps","",140.,-500.,10300.);
   TH1F* CastorSumE5 = new TH1F("castorE_cumulJpsi","",140.,-500.,10300.);
   TH1F* CastorSumE6 = new TH1F("castorE_cumulInclu","",140.,-500.,10300.);
+  THStack sCastorSumE("sCastorSumE","stack Castor energy");
+
 
 // definitions des # d'entrées
   const int NUM0 = t0->GetEntries();
@@ -786,7 +815,7 @@ gStyle->SetOptStat(0);
            && ((var_tracker0[pair1] && muAng1) || var_global0[pair1])
            && ((var_tracker0[pair2] && muAng2) || var_global0[pair2])
            && var_nhitsTrack0[pair1]>10. && var_nhitsTrack0[pair2]>10.
- 	   && (var_dpt0[0]<1.5 && (var_dphi0[0]/pi) > 0.9)
+ 	   && var_dpt0[0]<1.5 && (var_dphi0[0]/pi) > 0.9
 		) {
 	    int nTrackExclu(0);
             for(Int_t j=0; j<nTrack; j++){  
@@ -909,7 +938,7 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
            && ((var_tracker1[pair1] && muAng1) || var_global1[pair1])
            && ((var_tracker1[pair2] && muAng2) || var_global1[pair2])
            && var_nhitsTrack1[pair1]>10. && var_nhitsTrack1[pair2]>10.
- 	   && (var_dpt1[0]<1.5 && (var_dphi1[0]/pi) > 0.9)
+ 	   && var_dpt1[0]<1.5 && (var_dphi1[0]/pi) > 0.9
 		) {
 	    int nTrackExclu(0);
             for(Int_t j=0; j<nTrack; j++){  
@@ -941,55 +970,53 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 	       }
 	    }
 
-	if(nTrackExclu<1 &&(var_zdcEmMinus1[0]<18&&var_zdcEmPlus1[0]<18&&var_zdcHadMinus1[0]<120&&var_zdcHadPlus1[0]<120)))
+	if(nTrackExclu<1 &&(var_zdcEmMinus1[0]<18&&var_zdcEmPlus1[0]<18&&var_zdcHadMinus1[0]<120&&var_zdcHadPlus1[0]<120))
 	{
-		nTower3->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); nTower4->Fill(nEB+nEE+nHB+nHE+nHFp,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);    nTower5->Fill(nEB+nEE+nHB+nHE+nHFp,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); 
+		nTower1->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); 
 	}
 
 	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHFp+nHFm) <5 &&(var_zdcEmMinus1[0]<18&&var_zdcEmPlus1[0]<18&&var_zdcHadMinus1[0]<120&&var_zdcHadPlus1[0]<120)){ 
           filter1Events+=fac_lumi1*var_eff1[pair1]*var_eff1[pair2];
 
-	  hEB3->Fill(nEB,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); hEB4->Fill(nEB,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	hEB5->Fill(nEB,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-          hEE3->Fill(nEE,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); hEE4->Fill(nEE,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	hEE5->Fill(nEE,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-          hHB3->Fill(nHB,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); hHB4->Fill(nHB,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	hHB5->Fill(nHB,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-          hHE3->Fill(nHE,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); hHE4->Fill(nHE,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	hHE5->Fill(nHE,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-          hHFp3->Fill(nHFp,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); hHFp4->Fill(nHFp,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	hHFp5->Fill(nHFp,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-          hHFm3->Fill(nHFm,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); hHFm4->Fill(nHFm,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	hHFm5->Fill(nHFm,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-//	  nTower3->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); nTower4->Fill(nEB+nEE+nHB+nHE+nHFp,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	nTower5->Fill(nEB+nEE+nHB+nHE+nHFp,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-	  nTrack3->Fill(nTrackExclu,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); nTrack4->Fill(nTrackExclu,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	nTrack5->Fill(nTrackExclu,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+	  hEB1->Fill(nEB,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          hEE1->Fill(nEE,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          hHB1->Fill(nHB,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          hHE1->Fill(nHE,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          hHFp1->Fill(nHFp,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          hHFm1->Fill(nHFm,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+//	  nTower1->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+	  nTrack1->Fill(nTrackExclu,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
 
-	  MuMuMass3->Fill(var_mass1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);    MuMuMass4->Fill(var_mass1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);		MuMuMass5->Fill(var_mass1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-          MuMuMassUps3->Fill(var_mass1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); MuMuMassUps4->Fill(var_mass1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	MuMuMassUps5->Fill(var_mass1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-          MuMuMassJpsi3->Fill(var_mass1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);MuMuMassJpsi4->Fill(var_mass1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	MuMuMassJpsi5->Fill(var_mass1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-          MuMudpt3->Fill(var_dpt1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);      MuMudpt4->Fill(var_dpt1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);		MuMudpt5->Fill(var_dpt1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-          MuMudphi3->Fill(var_dphi1[0]/pi,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); MuMudphi4->Fill(var_dphi1[0]/pi,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	MuMudphi5->Fill(var_dphi1[0]/pi,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-          MuMudeta3->Fill(fabs(var_eta1[pair1]+var_eta1[pair2]),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);          MuMudeta4->Fill(fabs(var_eta1[pair1]+var_eta1[pair2]),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	MuMudeta5->Fill(fabs(var_eta1[pair1]+var_eta1[pair2]),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-          MuMuvtxXY3->Fill(sqrt(var_MuMuvtxX1[0]*var_MuMuvtxX1[0]+var_MuMuvtxY1[0]*var_MuMuvtxY1[0]),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);MuMuvtxXY5->Fill(sqrt(var_MuMuvtxX1[0]*var_MuMuvtxX1[0]+var_MuMuvtxY1[0]*var_MuMuvtxY1[0]),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);MuMuvtxXY4->Fill(sqrt(var_MuMuvtxX1[0]*var_MuMuvtxX1[0]+var_MuMuvtxY1[0]*var_MuMuvtxY1[0]),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+	  MuMuMass1->Fill(var_mass1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          MuMuMassUps1->Fill(var_mass1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          MuMuMassJpsi1->Fill(var_mass1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          MuMudpt1->Fill(var_dpt1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          MuMudphi1->Fill(var_dphi1[0]/pi,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          MuMudeta1->Fill(fabs(var_eta1[pair1]+var_eta1[pair2]),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          MuMuvtxXY1->Fill(sqrt(var_MuMuvtxX1[0]*var_MuMuvtxX1[0]+var_MuMuvtxY1[0]*var_MuMuvtxY1[0]),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
 
           TLorentzVector mu11, mu12, dimuon1;   
           mu11.SetPtEtaPhiM(var_pt1[0],var_eta1[0],var_phi1[0],0.1396);     
           mu12.SetPtEtaPhiM(var_pt1[1],var_eta1[1],var_phi1[1],0.1396);      
           dimuon1 = mu11 + mu12;   
-          Tdist3->Fill(dimuon1.Pt()*dimuon1.Pt(),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);    
-          Tdist4->Fill(dimuon1.Pt()*dimuon1.Pt(),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);    
-          Tdist5->Fill(dimuon1.Pt()*dimuon1.Pt(),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);    
+          Tdist1->Fill(dimuon1.Pt()*dimuon1.Pt(),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);    
 
-	  ZDCemminus3->Fill(var_zdcEmMinus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);  ZDCemminus4->Fill(var_zdcEmMinus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	ZDCemminus5->Fill(var_zdcEmMinus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-	  ZDCemplus3->Fill(var_zdcEmPlus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);    ZDCemplus4->Fill(var_zdcEmPlus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	ZDCemplus5->Fill(var_zdcEmPlus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-	  ZDChadminus3->Fill(var_zdcHadMinus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);ZDChadminus4->Fill(var_zdcHadMinus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	ZDChadminus5->Fill(var_zdcHadMinus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-	  ZDChadplus3->Fill(var_zdcHadPlus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);  ZDChadplus4->Fill(var_zdcHadPlus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	ZDChadplus5->Fill(var_zdcHadPlus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+	  ZDCemminus1->Fill(var_zdcEmMinus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+	  ZDCemplus1->Fill(var_zdcEmPlus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+	  ZDChadminus1->Fill(var_zdcHadMinus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+	  ZDChadplus1->Fill(var_zdcHadPlus1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); 
 	  for(Int_t l=0; l<var_nZDC1[0]; l++){
 	     if(var_zdcsection1[l]==1 && var_zdcE1[l]>7.0){ 
-                ZDCtime3->Fill(var_zdcTime1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);  ZDCtime4->Fill(var_zdcTime1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	ZDCtime5->Fill(var_zdcTime1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-                ZDCenergyEM3->Fill(var_zdcE1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); ZDCenergyEM4->Fill(var_zdcE1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	ZDCenergyEM5->Fill(var_zdcE1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+                ZDCtime1->Fill(var_zdcTime1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]); 
+                ZDCenergyEM1->Fill(var_zdcE1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
 	     }
 	     if(var_zdcsection1[l]==2 && var_zdcE1[l]>120.0){
-		ZDCtime3->Fill(var_zdcTime1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);  ZDCtime4->Fill(var_zdcTime1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	ZDCtime5->Fill(var_zdcTime1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
-                ZDCenergyHAD3->Fill(var_zdcE1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);ZDCenergyHAD4->Fill(var_zdcE1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);ZDCenergyHAD5->Fill(var_zdcE1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+		ZDCtime1->Fill(var_zdcTime1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+                ZDCenergyHAD1->Fill(var_zdcE1[l],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
 	     }
 	  }
 
-	  CastorSumE3->Fill(var_CastorRecHit1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);          CastorSumE4->Fill(var_CastorRecHit1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);	CastorSumE5->Fill(var_CastorRecHit1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+	  CastorSumE1->Fill(var_CastorRecHit1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
 	  } // if nTrack&nCalo if relevant
         }
   }
@@ -1032,7 +1059,7 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
            && ((var_tracker2[pair1] && muAng1) || var_global2[pair1])
            && ((var_tracker2[pair2] && muAng2) || var_global2[pair2])
            && var_nhitsTrack2[pair1]>10. && var_nhitsTrack2[pair2]>10.
- 	   && (var_dpt2[0]<1.5 && (var_dphi2[0]/pi) > 0.9)
+ 	   && var_dpt2[0]<1.5 && (var_dphi2[0]/pi) > 0.9
 		) {
 	    int nTrackExclu(0);
             for(Int_t j=0; j<nTrack; j++){  
@@ -1064,56 +1091,53 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
 	       }
 	    }
 
-	if(nTrackExclu<1 &&(var_zdcEmMinus2[0]<18&&var_zdcEmPlus2[0]<18&&var_zdcHadMinus2[0]<120&&var_zdcHadPlus2[0]<120)))
+	if(nTrackExclu<1 &&(var_zdcEmMinus2[0]<18&&var_zdcEmPlus2[0]<18&&var_zdcHadMinus2[0]<120&&var_zdcHadPlus2[0]<120))
 	{
-		nTower4->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);nTower3->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); 
+		nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
 	}
 
 	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHFp+nHFm) <5 &&(var_zdcEmMinus2[0]<18&&var_zdcEmPlus2[0]<18&&var_zdcHadMinus2[0]<120&&var_zdcHadPlus2[0]<120)){ 
           filter2Events+=fac_lumi2*var_eff2[pair1]*var_eff2[pair2];
 
-	  hEB4->Fill(nEB,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); hEB3->Fill(nEB,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); hEB2->Fill(nEB,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);hEB5->Fill(nEB,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-          hEE4->Fill(nEE,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); hEE3->Fill(nEE,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); hEE2->Fill(nEE,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);hEE5->Fill(nEE,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-          hHB4->Fill(nHB,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); hHB3->Fill(nHB,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); hHB2->Fill(nHB,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);hHB5->Fill(nHB,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-          hHE4->Fill(nHE,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); hHE3->Fill(nHE,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); hHE2->Fill(nHE,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);hHE5->Fill(nHE,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-          hHFp4->Fill(nHFp,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); hHFp3->Fill(nHFp,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); hHFp2->Fill(nHFp,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);hHFp5->Fill(nHFp,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-          hHFm4->Fill(nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); hHFm3->Fill(nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); hHFm2->Fill(nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);hHFm5->Fill(nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-//	  nTower4->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);nTower3->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-	  nTrack4->Fill(nTrackExclu,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);nTrack3->Fill(nTrackExclu,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);nTrack2->Fill(nTrackExclu,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);nTrack5->Fill(nTrackExclu,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+	  hEB2->Fill(nEB,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+          hEE2->Fill(nEE,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+          hHB2->Fill(nHB,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+          hHE2->Fill(nHE,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+          hHFp2->Fill(nHFp,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+          hHFm2->Fill(nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); 
+//	  nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+	  nTrack2->Fill(nTrackExclu,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
 
-	  MuMuMass4->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); MuMuMass3->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); MuMuMass2->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);MuMuMass5->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-          MuMuMassUps4->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); MuMuMassUps3->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); MuMuMassUps2->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);MuMuMassUps5->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-          MuMuMassJpsi4->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); MuMuMassJpsi3->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); MuMuMassJpsi2->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);MuMuMassJpsi5->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-          MuMudpt4->Fill(var_dpt2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);  MuMudpt3->Fill(var_dpt2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);  MuMudpt2->Fill(var_dpt2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);MuMudpt5->Fill(var_dpt2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-          MuMudphi4->Fill(var_dphi2[0]/pi,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); MuMudphi3->Fill(var_dphi2[0]/pi,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);  MuMudphi2->Fill(var_dphi2[0]/pi,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);MuMudphi5->Fill(var_dphi2[0]/pi,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-          MuMudeta4->Fill(fabs(var_eta2[pair1]+var_eta2[pair2]),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); MuMudeta3->Fill(fabs(var_eta2[pair1]+var_eta2[pair2]),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); MuMudeta2->Fill(fabs(var_eta2[pair1]+var_eta2[pair2]),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);MuMudeta5->Fill(fabs(var_eta2[pair1]+var_eta2[pair2]),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-	  MuMuvtxXY4->Fill(sqrt(var_MuMuvtxX2[0]*var_MuMuvtxX2[0]+var_MuMuvtxY2[0]*var_MuMuvtxY2[0]),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX2[0]*var_MuMuvtxX2[0]+var_MuMuvtxY2[0]*var_MuMuvtxY2[0]),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);MuMuvtxXY3->Fill(sqrt(var_MuMuvtxX2[0]*var_MuMuvtxX2[0]+var_MuMuvtxY2[0]*var_MuMuvtxY2[0]),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);MuMuvtxXY5->Fill(sqrt(var_MuMuvtxX2[0]*var_MuMuvtxX2[0]+var_MuMuvtxY2[0]*var_MuMuvtxY2[0]),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+	  MuMuMass2->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); 
+          MuMuMassUps2->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+          MuMuMassJpsi2->Fill(var_mass2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+          MuMudpt2->Fill(var_dpt2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); 
+          MuMudphi2->Fill(var_dphi2[0]/pi,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); 
+          MuMudeta2->Fill(fabs(var_eta2[pair1]+var_eta2[pair2]),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+	  MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX2[0]*var_MuMuvtxX2[0]+var_MuMuvtxY2[0]*var_MuMuvtxY2[0]),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
 
           TLorentzVector mu21, mu22, dimuon2;    
           mu21.SetPtEtaPhiM(var_pt2[0],var_eta2[0],var_phi2[0],0.1396);      
           mu22.SetPtEtaPhiM(var_pt2[1],var_eta2[1],var_phi2[1],0.1396);       
           dimuon2 = mu21 + mu22;    
-          Tdist2->Fill(dimuon2.Pt()*dimuon2.Pt(),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);      
-          Tdist3->Fill(dimuon2.Pt()*dimuon2.Pt(),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);     
-          Tdist4->Fill(dimuon2.Pt()*dimuon2.Pt(),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);     
-          Tdist5->Fill(dimuon2.Pt()*dimuon2.Pt(),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);     
+          Tdist2->Fill(dimuon2.Pt()*dimuon2.Pt(),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);     
 
-	  ZDCemminus4->Fill(var_zdcEmMinus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDCemminus3->Fill(var_zdcEmMinus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDCemminus2->Fill(var_zdcEmMinus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);ZDCemminus5->Fill(var_zdcEmMinus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-	  ZDCemplus4->Fill(var_zdcEmPlus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDCemplus3->Fill(var_zdcEmPlus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDCemplus2->Fill(var_zdcEmPlus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);ZDCemplus5->Fill(var_zdcEmPlus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-	  ZDChadminus4->Fill(var_zdcHadMinus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDChadminus3->Fill(var_zdcHadMinus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDChadminus2->Fill(var_zdcHadMinus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);ZDChadminus5->Fill(var_zdcHadMinus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-	  ZDChadplus4->Fill(var_zdcHadPlus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDChadplus3->Fill(var_zdcHadPlus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDChadplus2->Fill(var_zdcHadPlus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);ZDChadplus5->Fill(var_zdcHadPlus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+	  ZDCemminus2->Fill(var_zdcEmMinus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); 
+	  ZDCemplus2->Fill(var_zdcEmPlus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+	  ZDChadminus2->Fill(var_zdcHadMinus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); 
+	  ZDChadplus2->Fill(var_zdcHadPlus2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); 
 	  for(Int_t l=0; l<var_nZDC2[0]; l++){
 	     if(var_zdcsection2[l]==1 && var_zdcE2[l]>7.0){ 
-                ZDCtime4->Fill(var_zdcTime2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDCtime3->Fill(var_zdcTime2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDCtime2->Fill(var_zdcTime2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);ZDCtime5->Fill(var_zdcTime2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-                ZDCenergyEM4->Fill(var_zdcE2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDCenergyEM3->Fill(var_zdcE2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDCenergyEM2->Fill(var_zdcE2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);ZDCenergyEM5->Fill(var_zdcE2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+                ZDCtime2->Fill(var_zdcTime2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+                ZDCenergyEM2->Fill(var_zdcE2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
 	     }
 	     if(var_zdcsection2[l]==2 && var_zdcE2[l]>120.0){
-		ZDCtime4->Fill(var_zdcTime2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDCtime3->Fill(var_zdcTime2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); ZDCtime2->Fill(var_zdcTime2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);ZDCtime5->Fill(var_zdcTime2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
-                ZDCenergyHAD4->Fill(var_zdcE2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);ZDCenergyHAD3->Fill(var_zdcE2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);ZDCenergyHAD2->Fill(var_zdcE2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);ZDCenergyHAD5->Fill(var_zdcE2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+		ZDCtime2->Fill(var_zdcTime2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+                ZDCenergyHAD2->Fill(var_zdcE2[l],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
 	     }
 	  }
 
-	  CastorSumE4->Fill(var_CastorRecHit2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); CastorSumE3->Fill(var_CastorRecHit2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]); CastorSumE2->Fill(var_CastorRecHit2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);CastorSumE5->Fill(var_CastorRecHit2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+	  CastorSumE2->Fill(var_CastorRecHit2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
 	  } // if nTrack&nCalo if relevant
         }
   }
@@ -1156,7 +1180,7 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
            && ((var_tracker3[pair1] && muAng1) || var_global3[pair1])
            && ((var_tracker3[pair2] && muAng2) || var_global3[pair2])
            && var_nhitsTrack3[pair1]>10. && var_nhitsTrack3[pair2]>10.
-	   && (var_dpt3[0]<1.5 && (var_dphi3[0]/pi) > 0.9)
+	   && var_dpt3[0]<1.5 && (var_dphi3[0]/pi) > 0.9
 		) {
 	    int nTrackExclu(0);
             for(Int_t j=0; j<nTrack; j++){  
@@ -1188,35 +1212,35 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 	       }
 	    }
 
-	if(nTrackExclu<1 &&(var_zdcEmMinus3[0]<18&&var_zdcEmPlus3[0]<18&&var_zdcHadMinus3[0]<120&&var_zdcHadPlus3[0]<120)))
+	if(nTrackExclu<1 &&(var_zdcEmMinus3[0]<18&&var_zdcEmPlus3[0]<18&&var_zdcHadMinus3[0]<120&&var_zdcHadPlus3[0]<120))
 	{
-		nTower1->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);nTower3->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);;nTower4->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); 
+		nTower3->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
 	}
 
 	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHFp+nHFm) <5 &&(var_zdcEmMinus3[0]<18&&var_zdcEmPlus3[0]<18&&var_zdcHadMinus3[0]<120&&var_zdcHadPlus3[0]<120)){ 
           filter3Events+=fac_lumi3*var_eff3[pair1]*var_eff3[pair2];
 
-	  hEB1->Fill(nEB,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hEB2->Fill(nEB,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hEB3->Fill(nEB,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hEB4->Fill(nEB,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);hEB5->Fill(nEB,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-          hEE1->Fill(nEE,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hEE2->Fill(nEE,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hEE3->Fill(nEE,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hEE4->Fill(nEE,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);hEE5->Fill(nEE,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-          hHB1->Fill(nHB,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hHB2->Fill(nHB,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hHB3->Fill(nHB,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hHB4->Fill(nHB,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);hHB5->Fill(nHB,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-          hHE1->Fill(nHE,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hHE2->Fill(nHE,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hHE3->Fill(nHE,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hHE4->Fill(nHE,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);hHE5->Fill(nHE,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-          hHFp1->Fill(nHFp,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hHFp2->Fill(nHFp,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hHFp3->Fill(nHFp,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hHFp4->Fill(nHFp,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);hHFp5->Fill(nHFp,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-          hHFm1->Fill(nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hHFm2->Fill(nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hHFm3->Fill(nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); hHFm4->Fill(nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);hHFm5->Fill(nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-//	  nTower1->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);nTower3->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);;nTower4->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-	  nTrack1->Fill(nTrackExclu,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);nTrack2->Fill(nTrackExclu,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);nTrack3->Fill(nTrackExclu,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);nTrack4->Fill(nTrackExclu,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);nTrack5->Fill(nTrackExclu,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+	  hEB3->Fill(nEB,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); 
+          hEE3->Fill(nEE,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+          hHB3->Fill(nHB,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); 
+          hHE3->Fill(nHE,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+          hHFp3->Fill(nHFp,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+          hHFm3->Fill(nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+//	  nTower3->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+	  nTrack3->Fill(nTrackExclu,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
 
-	  MuMuMass1->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMuMass2->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMuMass3->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMuMass4->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);MuMuMass5->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-          MuMuMassUps1->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMuMassUps2->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMuMassUps3->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMuMassUps4->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);MuMuMassUps5->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-          MuMuMassJpsi1->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMuMassJpsi2->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMuMassJpsi3->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMuMassJpsi4->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);MuMuMassJpsi5->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-          MuMudpt1->Fill(var_dpt3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);  MuMudpt2->Fill(var_dpt3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);  MuMudpt3->Fill(var_dpt3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);  MuMudpt4->Fill(var_dpt3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);MuMudpt5->Fill(var_dpt3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-          MuMudphi1->Fill(var_dphi3[0]/pi,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);  MuMudphi2->Fill(var_dphi3[0]/pi,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);  MuMudphi3->Fill(var_dphi3[0]/pi,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMudphi4->Fill(var_dphi3[0]/pi,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);MuMudphi5->Fill(var_dphi3[0]/pi,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-          MuMudeta1->Fill(fabs(var_eta3[pair1]+var_eta3[pair2]),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMudeta2->Fill(fabs(var_eta3[pair1]+var_eta3[pair2]),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMudeta3->Fill(fabs(var_eta3[pair1]+var_eta3[pair2]),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); MuMudeta4->Fill(fabs(var_eta3[pair1]+var_eta3[pair2]),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);MuMudeta5->Fill(fabs(var_eta3[pair1]+var_eta3[pair2]),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-	  MuMuvtxXY1->Fill(sqrt(var_MuMuvtxX3[0]*var_MuMuvtxX3[0]+var_MuMuvtxY3[0]*var_MuMuvtxY3[0]),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX3[0]*var_MuMuvtxX3[0]+var_MuMuvtxY3[0]*var_MuMuvtxY3[0]),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);MuMuvtxXY3->Fill(sqrt(var_MuMuvtxX3[0]*var_MuMuvtxX3[0]+var_MuMuvtxY3[0]*var_MuMuvtxY3[0]),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);MuMuvtxXY4->Fill(sqrt(var_MuMuvtxX3[0]*var_MuMuvtxX3[0]+var_MuMuvtxY3[0]*var_MuMuvtxY3[0]),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);MuMuvtxXY5->Fill(sqrt(var_MuMuvtxX3[0]*var_MuMuvtxX3[0]+var_MuMuvtxY3[0]*var_MuMuvtxY3[0]),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+	  MuMuMass3->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+          MuMuMassUps3->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+          MuMuMassJpsi3->Fill(var_mass3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+          MuMudpt3->Fill(var_dpt3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+          MuMudphi3->Fill(var_dphi3[0]/pi,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+          MuMudeta3->Fill(fabs(var_eta3[pair1]+var_eta3[pair2]),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+	  MuMuvtxXY3->Fill(sqrt(var_MuMuvtxX3[0]*var_MuMuvtxX3[0]+var_MuMuvtxY3[0]*var_MuMuvtxY3[0]),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
 
-	  ZDCemminus1->Fill(var_zdcEmMinus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDCemminus2->Fill(var_zdcEmMinus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCemminus3->Fill(var_zdcEmMinus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCemminus4->Fill(var_zdcEmMinus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCemminus5->Fill(var_zdcEmMinus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-	  ZDCemplus1->Fill(var_zdcEmPlus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDCemplus2->Fill(var_zdcEmPlus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDCemplus3->Fill(var_zdcEmPlus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDCemplus4->Fill(var_zdcEmPlus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCemplus5->Fill(var_zdcEmPlus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-	  ZDChadminus1->Fill(var_zdcHadMinus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDChadminus2->Fill(var_zdcHadMinus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDChadminus3->Fill(var_zdcHadMinus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDChadminus4->Fill(var_zdcHadMinus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDChadminus5->Fill(var_zdcHadMinus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-	  ZDChadplus1->Fill(var_zdcHadPlus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDChadplus2->Fill(var_zdcHadPlus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDChadplus3->Fill(var_zdcHadPlus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDChadplus4->Fill(var_zdcHadPlus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDChadplus5->Fill(var_zdcHadPlus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+	  ZDCemminus3->Fill(var_zdcEmMinus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+	  ZDCemplus3->Fill(var_zdcEmPlus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+	  ZDChadminus3->Fill(var_zdcHadMinus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+	  ZDChadplus3->Fill(var_zdcHadPlus3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
 
 
           TLorentzVector mu31, mu32, dimuon3; 
@@ -1231,25 +1255,20 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
           mu11.SetPtEtaPhiM(var_pt1[0],var_eta1[0],var_phi1[0],0.1396);    
           mu12.SetPtEtaPhiM(var_pt1[1],var_eta1[1],var_phi1[1],0.1396);     
           dimuon1 = mu11 + mu12;  
-          Tdist1->Fill(dimuon3.Pt()*dimuon3.Pt(),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);  
-          Tdist2->Fill(dimuon3.Pt()*dimuon3.Pt(),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);   
-          Tdist3->Fill(dimuon3.Pt()*dimuon3.Pt(),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);   
-          Tdist4->Fill(dimuon3.Pt()*dimuon3.Pt(),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);   
-          Tdist5->Fill(dimuon3.Pt()*dimuon3.Pt(),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);   
-
+          Tdist3->Fill(dimuon3.Pt()*dimuon3.Pt(),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);  
 
 	  for(Int_t l=0; l<var_nZDC3[0]; l++){
 	     if(var_zdcsection3[l]==1 && var_zdcE3[l]>7.0){ 
-                ZDCtime1->Fill(var_zdcTime3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDCtime2->Fill(var_zdcTime3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDCtime3->Fill(var_zdcTime3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);  ZDCtime4->Fill(var_zdcTime3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCtime5->Fill(var_zdcTime3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-                ZDCenergyEM1->Fill(var_zdcE3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);  ZDCenergyEM2->Fill(var_zdcE3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDCenergyEM3->Fill(var_zdcE3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDCenergyEM4->Fill(var_zdcE3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCenergyEM5->Fill(var_zdcE3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+                ZDCtime3->Fill(var_zdcTime3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); 
+                ZDCenergyEM3->Fill(var_zdcE3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
 	     }
 	     if(var_zdcsection3[l]==2 && var_zdcE3[l]>120.0){
-		ZDCtime1->Fill(var_zdcTime3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); ZDCtime2->Fill(var_zdcTime3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCtime3->Fill(var_zdcTime3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCtime4->Fill(var_zdcTime3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCtime5->Fill(var_zdcTime3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
-                ZDCenergyHAD1->Fill(var_zdcE3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCenergyHAD2->Fill(var_zdcE3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCenergyHAD3->Fill(var_zdcE3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCenergyHAD4->Fill(var_zdcE3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);ZDCenergyHAD5->Fill(var_zdcE3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+		ZDCtime3->Fill(var_zdcTime3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+                ZDCenergyHAD3->Fill(var_zdcE3[l],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
 	     }
 	  }
 
-	  CastorSumE1->Fill(var_CastorRecHit3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]); CastorSumE2->Fill(var_CastorRecHit3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);CastorSumE3->Fill(var_CastorRecHit3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);CastorSumE4->Fill(var_CastorRecHit3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);CastorSumE5->Fill(var_CastorRecHit3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+	  CastorSumE3->Fill(var_CastorRecHit3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -1293,7 +1312,7 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
            && ((var_tracker4[pair1] && muAng1) || var_global4[pair1])
            && ((var_tracker4[pair2] && muAng2) || var_global4[pair2])
            && var_nhitsTrack4[pair1]>10. && var_nhitsTrack4[pair2]>10.
- 	   && (var_dpt4[0]<1.5 && (var_dphi4[0]/pi) > 0.9)
+ 	   && var_dpt4[0]<1.5 && (var_dphi4[0]/pi) > 0.9
 		) {
 	    int nTrackExclu(0);
             for(Int_t j=0; j<nTrack; j++){  
@@ -1324,49 +1343,51 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
                                         if(var_caloEmE4[k]>2.40) nEE++;}
 	       }
 	    }
+        if(nTrackExclu<1 &&(var_zdcEmMinus4[0]<18&&var_zdcEmPlus4[0]<18&&var_zdcHadMinus4[0]<120&&var_zdcHadPlus4[0]<120)){
+	        nTower4->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+	}
 
 	if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHFp+nHFm) <5&&(var_zdcEmMinus4[0]<18&&var_zdcEmPlus4[0]<18&&var_zdcHadMinus4[0]<120&&var_zdcHadPlus4[0]<120)){ 
           filter4Events+=fac_lumi4*var_eff4[pair1]*var_eff4[pair2];
 
-	  hEB4->Fill(nEB,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);hEB5->Fill(nEB,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-          hEE4->Fill(nEE,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);hEE5->Fill(nEE,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-          hHB4->Fill(nHB,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);hHB5->Fill(nHB,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-          hHE4->Fill(nHE,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);hHE5->Fill(nHE,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-          hHFp4->Fill(nHFp,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);hHFp5->Fill(nHFp,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-          hHFm4->Fill(nHFm,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);hHFm5->Fill(nHFm,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-	  nTower4->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-	  nTrack4->Fill(nTrackExclu,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);nTrack5->Fill(nTrackExclu,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+	  hEB4->Fill(nEB,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          hEE4->Fill(nEE,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          hHB4->Fill(nHB,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          hHE4->Fill(nHE,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          hHFp4->Fill(nHFp,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          hHFm4->Fill(nHFm,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+//	  nTower4->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+	  nTrack4->Fill(nTrackExclu,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
 
-	  MuMuMass4->Fill(var_mass4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);MuMuMass5->Fill(var_mass4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-          MuMuMassUps4->Fill(var_mass4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);MuMuMassUps5->Fill(var_mass4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-          MuMuMassJpsi4->Fill(var_mass4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);MuMuMassJpsi5->Fill(var_mass4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-          MuMudpt4->Fill(var_dpt4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);MuMudpt5->Fill(var_dpt4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-          MuMudphi4->Fill(var_dphi4[0]/pi,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);MuMudphi5->Fill(var_dphi4[0]/pi,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-          MuMudeta4->Fill(fabs(var_eta4[pair1]+var_eta4[pair2]),fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);MuMudeta5->Fill(fabs(var_eta4[pair1]+var_eta4[pair2]),fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-	  MuMuvtxXY4->Fill(sqrt(var_MuMuvtxX4[0]*var_MuMuvtxX4[0]+var_MuMuvtxY4[0]*var_MuMuvtxY4[0]),fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);MuMuvtxXY5->Fill(sqrt(var_MuMuvtxX4[0]*var_MuMuvtxX4[0]+var_MuMuvtxY4[0]*var_MuMuvtxY4[0]),fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+	  MuMuMass4->Fill(var_mass4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          MuMuMassUps4->Fill(var_mass4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          MuMuMassJpsi4->Fill(var_mass4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          MuMudpt4->Fill(var_dpt4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          MuMudphi4->Fill(var_dphi4[0]/pi,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          MuMudeta4->Fill(fabs(var_eta4[pair1]+var_eta4[pair2]),fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+	  MuMuvtxXY4->Fill(sqrt(var_MuMuvtxX4[0]*var_MuMuvtxX4[0]+var_MuMuvtxY4[0]*var_MuMuvtxY4[0]),fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
 
-	  ZDCemminus4->Fill(var_zdcEmMinus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]); ZDCemplus4->Fill(var_zdcEmPlus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-	  ZDChadminus4->Fill(var_zdcHadMinus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]); ZDChadplus4->Fill(var_zdcHadPlus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-          ZDCemminus5->Fill(var_zdcEmMinus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]); ZDCemplus5->Fill(var_zdcEmPlus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
-          ZDChadminus5->Fill(var_zdcHadMinus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]); ZDChadplus5->Fill(var_zdcHadPlus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+	  ZDCemminus4->Fill(var_zdcEmMinus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]); 
+	  ZDChadminus4->Fill(var_zdcHadMinus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          ZDCemminus5->Fill(var_zdcEmMinus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]); 
+          ZDChadminus5->Fill(var_zdcHadMinus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
 
           TLorentzVector mu41, mu42, dimuon4;  
           mu41.SetPtEtaPhiM(var_pt4[0],var_eta4[0],var_phi4[0],0.1396);    
           mu42.SetPtEtaPhiM(var_pt4[1],var_eta4[1],var_phi4[1],0.1396);     
           dimuon4 = mu41 + mu42;  
           Tdist4->Fill(dimuon4.Pt()*dimuon4.Pt(),fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);   
-          Tdist5->Fill(dimuon4.Pt()*dimuon4.Pt(),fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);    
 
 	  for(Int_t l=0; l<var_nZDC4[0]; l++){
 	     if(var_zdcsection4[l]==1 && var_zdcE4[l]>7.0){ 
-                ZDCtime4->Fill(var_zdcTime4[l],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]); ZDCenergyEM4->Fill(var_zdcE4[l],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);ZDCtime5->Fill(var_zdcTime4[l],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]); ZDCenergyEM5->Fill(var_zdcE4[l],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+                ZDCtime4->Fill(var_zdcTime4[l],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
 	     }
 	     if(var_zdcsection4[l]==2 && var_zdcE4[l]>120.0){
-		ZDCtime4->Fill(var_zdcTime4[l],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]); ZDCenergyHAD4->Fill(var_zdcE4[l],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);ZDCtime5->Fill(var_zdcTime4[l],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]); ZDCenergyHAD5->Fill(var_zdcE4[l],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+		ZDCtime4->Fill(var_zdcTime4[l],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
 	     }
 	  }
 
-	  CastorSumE4->Fill(var_CastorRecHit4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);CastorSumE5->Fill(var_CastorRecHit4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+	  CastorSumE4->Fill(var_CastorRecHit4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
 	  } // if nTrack&nCalo if relevant
         }
   }
@@ -1409,7 +1430,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
            && ((var_tracker5[pair1] && muAng1) || var_global5[pair1])
            && ((var_tracker5[pair2] && muAng2) || var_global5[pair2])
            && var_nhitsTrack5[pair1]>10. && var_nhitsTrack5[pair2]>10.
-           && (var_dpt5[0]<1.5 && (var_dphi5[0]/pi) > 0.9)
+           && var_dpt5[0]<1.5 && (var_dphi5[0]/pi) > 0.9
                 ) {
             int nTrackExclu(0);
             for(Int_t j=0; j<nTrack; j++){
@@ -1440,6 +1461,9 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
                                         if(var_caloEmE5[k]>2.40) nEE++;}
                       }
             }
+        if(nTrackExclu<1 &&(var_zdcEmMinus5[0]<18&&var_zdcEmPlus5[0]<18&&var_zdcHadMinus5[0]<120&&var_zdcHadPlus5[0]<120)){
+	          nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
+	}
 
         if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHFp+nHFm) <5 &&(var_zdcEmMinus5[0]<18&&var_zdcEmPlus5[0]<18&&var_zdcHadMinus5[0]<120&&var_zdcHadPlus5[0]<120)){
           filter5Events+=fac_lumi5*var_eff5[pair1]*var_eff5[pair2];
@@ -1450,7 +1474,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
           hHE5->Fill(nHE,fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
           hHFp5->Fill(nHFp,fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
           hHFm5->Fill(nHFm,fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
-          nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
+//          nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
           nTrack5->Fill(nTrackExclu,fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
 
           MuMuMass5->Fill(var_mass5[0],fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
@@ -1558,7 +1582,7 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
 
 	if(nTrackExclu<1 &&(var_zdcEmMinus6[0]<18&&var_zdcEmPlus6[0]<18&&var_zdcHadMinus6[0]<120&&var_zdcHadPlus6[0]<120)))
 	{
-		nTower1->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);nTower3->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);;nTower4->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);nTower6->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]); 
+		nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);
 	}
 
         if(nTrackExclu<1 && (nEB+nEE+nHB+nHE+nHFp+nHFm) <5 
@@ -1567,50 +1591,45 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
           filter6Events_norm+=fac_lumiBkg[bkgNum];
 	cout<<"I added "<<fac_lumiBkg[bkgNum]<<" event from bkg #"<<bkgNum<<endl;
 
-          hEB1->Fill(nEB,fac_lumiBkg[bkgNum]); hEB2->Fill(nEB,fac_lumiBkg[bkgNum]); hEB3->Fill(nEB,fac_lumiBkg[bkgNum]); hEB4->Fill(nEB,fac_lumiBkg[bkgNum]);hEB5->Fill(nEB,fac_lumiBkg[bkgNum]);hEB6->Fill(nEB,fac_lumiBkg[bkgNum]);
-          hEE1->Fill(nEE,fac_lumiBkg[bkgNum]); hEE2->Fill(nEE,fac_lumiBkg[bkgNum]); hEE3->Fill(nEE,fac_lumiBkg[bkgNum]); hEE4->Fill(nEE,fac_lumiBkg[bkgNum]);hEE5->Fill(nEE,fac_lumiBkg[bkgNum]);hEE6->Fill(nEE,fac_lumiBkg[bkgNum]);
-          hHB1->Fill(nHB,fac_lumiBkg[bkgNum]); hHB2->Fill(nHB,fac_lumiBkg[bkgNum]); hHB3->Fill(nHB,fac_lumiBkg[bkgNum]); hHB4->Fill(nHB,fac_lumiBkg[bkgNum]);hHB5->Fill(nHB,fac_lumiBkg[bkgNum]);hHB6->Fill(nHB,fac_lumiBkg[bkgNum]);
-          hHE1->Fill(nHE,fac_lumiBkg[bkgNum]); hHE2->Fill(nHE,fac_lumiBkg[bkgNum]); hHE3->Fill(nHE,fac_lumiBkg[bkgNum]); hHE4->Fill(nHE,fac_lumiBkg[bkgNum]);hHE5->Fill(nHE,fac_lumiBkg[bkgNum]);hHE6->Fill(nHE,fac_lumiBkg[bkgNum]);
-          hHFp1->Fill(nHFp,fac_lumiBkg[bkgNum]); hHFp2->Fill(nHFp,fac_lumiBkg[bkgNum]); hHFp3->Fill(nHFp,fac_lumiBkg[bkgNum]); hHFp4->Fill(nHFp,fac_lumiBkg[bkgNum]);hHFp5->Fill(nHFp,fac_lumiBkg[bkgNum]);hHFp6->Fill(nHFp,fac_lumiBkg[bkgNum]);
-          hHFm1->Fill(nHFm,fac_lumiBkg[bkgNum]); hHFm2->Fill(nHFm,fac_lumiBkg[bkgNum]); hHFm3->Fill(nHFm,fac_lumiBkg[bkgNum]); hHFm4->Fill(nHFm,fac_lumiBkg[bkgNum]);hHFm5->Fill(nHFm,fac_lumiBkg[bkgNum]);hHFm6->Fill(nHFm,fac_lumiBkg[bkgNum]);
-//          nTower1->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);nTower3->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);;nTower4->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);nTower6->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);
-          nTrack1->Fill(nTrackExclu,fac_lumiBkg[bkgNum]);nTrack2->Fill(nTrackExclu,fac_lumiBkg[bkgNum]);nTrack3->Fill(nTrackExclu,fac_lumiBkg[bkgNum]);nTrack4->Fill(nTrackExclu,fac_lumiBkg[bkgNum]);nTrack5->Fill(nTrackExclu,fac_lumiBkg[bkgNum]);nTrack6->Fill(nTrackExclu,fac_lumiBkg[bkgNum]);
+          hEB2->Fill(nEB,fac_lumiBkg[bkgNum]); 
+          hEE2->Fill(nEE,fac_lumiBkg[bkgNum]); 
+          hHB2->Fill(nHB,fac_lumiBkg[bkgNum]);
+          hHE2->Fill(nHE,fac_lumiBkg[bkgNum]);
+          hHFp2->Fill(nHFp,fac_lumiBkg[bkgNum]);
+          hHFm2->Fill(nHFm,fac_lumiBkg[bkgNum]);
+//          nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);
+          nTrack2->Fill(nTrackExclu,fac_lumiBkg[bkgNum]);
 
-          MuMuMass1->Fill(var_mass6[0],fac_lumiBkg[bkgNum]); MuMuMass2->Fill(var_mass6[0],fac_lumiBkg[bkgNum]); MuMuMass3->Fill(var_mass6[0],fac_lumiBkg[bkgNum]); MuMuMass4->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);MuMuMass5->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);MuMuMass6->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);
-          MuMuMassUps1->Fill(var_mass6[0],fac_lumiBkg[bkgNum]); MuMuMassUps2->Fill(var_mass6[0],fac_lumiBkg[bkgNum]); MuMuMassUps3->Fill(var_mass6[0],fac_lumiBkg[bkgNum]); MuMuMassUps4->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);MuMuMassUps5->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);MuMuMassUps6->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);
-          MuMuMassJpsi1->Fill(var_mass6[0],fac_lumiBkg[bkgNum]); MuMuMassJpsi2->Fill(var_mass6[0],fac_lumiBkg[bkgNum]); MuMuMassJpsi3->Fill(var_mass6[0],fac_lumiBkg[bkgNum]); MuMuMassJpsi4->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);MuMuMassJpsi5->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);MuMuMassJpsi6->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);
-          MuMudpt1->Fill(var_dpt6[0],fac_lumiBkg[bkgNum]);  MuMudpt2->Fill(var_dpt6[0],fac_lumiBkg[bkgNum]);  MuMudpt3->Fill(var_dpt6[0],fac_lumiBkg[bkgNum]);  MuMudpt4->Fill(var_dpt6[0],fac_lumiBkg[bkgNum]);MuMudpt5->Fill(var_dpt6[0],fac_lumiBkg[bkgNum]);MuMudpt6->Fill(var_dpt6[0],fac_lumiBkg[bkgNum]);
-          MuMudphi1->Fill(var_dphi6[0]/pi,fac_lumiBkg[bkgNum]);  MuMudphi2->Fill(var_dphi6[0]/pi,fac_lumiBkg[bkgNum]);  MuMudphi3->Fill(var_dphi6[0]/pi,fac_lumiBkg[bkgNum]); MuMudphi4->Fill(var_dphi6[0]/pi,fac_lumiBkg[bkgNum]);MuMudphi5->Fill(var_dphi6[0]/pi,fac_lumiBkg[bkgNum]);MuMudphi6->Fill(var_dphi6[0]/pi,fac_lumiBkg[bkgNum]);
-          MuMudeta1->Fill(fabs(var_eta6[pair1]+var_eta6[pair2]),fac_lumiBkg[bkgNum]); MuMudeta2->Fill(fabs(var_eta6[pair1]+var_eta6[pair2]),fac_lumiBkg[bkgNum]); MuMudeta3->Fill(fabs(var_eta6[pair1]+var_eta6[pair2]),fac_lumiBkg[bkgNum]); MuMudeta4->Fill(fabs(var_eta6[pair1]+var_eta6[pair2]),fac_lumiBkg[bkgNum]);MuMudeta5->Fill(fabs(var_eta6[pair1]+var_eta6[pair2]),fac_lumiBkg[bkgNum]);MuMudeta6->Fill(fabs(var_eta6[pair1]+var_eta6[pair2]),fac_lumiBkg[bkgNum]);
-          MuMuvtxXY1->Fill(sqrt(var_MuMuvtxX6[0]*var_MuMuvtxX6[0]+var_MuMuvtxY6[0]*var_MuMuvtxY6[0]),fac_lumiBkg[bkgNum]);MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX6[0]*var_MuMuvtxX6[0]+var_MuMuvtxY6[0]*var_MuMuvtxY6[0]),fac_lumiBkg[bkgNum]);MuMuvtxXY3->Fill(sqrt(var_MuMuvtxX6[0]*var_MuMuvtxX6[0]+var_MuMuvtxY6[0]*var_MuMuvtxY6[0]),fac_lumiBkg[bkgNum]);MuMuvtxXY4->Fill(sqrt(var_MuMuvtxX6[0]*var_MuMuvtxX6[0]+var_MuMuvtxY6[0]*var_MuMuvtxY6[0]),fac_lumiBkg[bkgNum]);MuMuvtxXY5->Fill(sqrt(var_MuMuvtxX6[0]*var_MuMuvtxX6[0]+var_MuMuvtxY6[0]*var_MuMuvtxY6[0]),fac_lumiBkg[bkgNum]);MuMuvtxXY6->Fill(sqrt(var_MuMuvtxX6[0]*var_MuMuvtxX6[0]+var_MuMuvtxY6[0]*var_MuMuvtxY6[0]),fac_lumiBkg[bkgNum]);
+          MuMuMass2->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);
+          MuMuMassUps2->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);
+          MuMuMassJpsi2->Fill(var_mass6[0],fac_lumiBkg[bkgNum]); 
+          MuMudpt2->Fill(var_dpt6[0],fac_lumiBkg[bkgNum]);
+          MuMudphi2->Fill(var_dphi6[0]/pi,fac_lumiBkg[bkgNum]);
+          MuMudeta2->Fill(fabs(var_eta6[pair1]+var_eta6[pair2]),fac_lumiBkg[bkgNum]);
+          MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX6[0]*var_MuMuvtxX6[0]+var_MuMuvtxY6[0]*var_MuMuvtxY6[0]),fac_lumiBkg[bkgNum]);
 
           TLorentzVector mu61, mu62, dimuon6;   
           mu61.SetPtEtaPhiM(var_pt6[0],var_eta6[0],var_phi6[0],0.1396);     
           mu62.SetPtEtaPhiM(var_pt6[1],var_eta6[1],var_phi6[1],0.1396);      
           dimuon6 = mu61 + mu62;   
-          Tdist1->Fill(dimuon6.Pt()*dimuon6.Pt(),fac_lumiBkg[bkgNum]);    
-          Tdist2->Fill(dimuon6.Pt()*dimuon6.Pt(),fac_lumiBkg[bkgNum]);     
-          Tdist3->Fill(dimuon6.Pt()*dimuon6.Pt(),fac_lumiBkg[bkgNum]);     
-          Tdist4->Fill(dimuon6.Pt()*dimuon6.Pt(),fac_lumiBkg[bkgNum]);     
-          Tdist5->Fill(dimuon6.Pt()*dimuon6.Pt(),fac_lumiBkg[bkgNum]);     
-          Tdist6->Fill(dimuon6.Pt()*dimuon6.Pt(),fac_lumiBkg[bkgNum]);     
+          Tdist2->Fill(dimuon6.Pt()*dimuon6.Pt(),fac_lumiBkg[bkgNum]);    
 
-          ZDCemminus1->Fill(var_zdcEmMinus6[0],fac_lumiBkg[bkgNum]); ZDCemminus2->Fill(var_zdcEmMinus6[0],fac_lumiBkg[bkgNum]);ZDCemminus3->Fill(var_zdcEmMinus6[0],fac_lumiBkg[bkgNum]);ZDCemminus4->Fill(var_zdcEmMinus6[0],fac_lumiBkg[bkgNum]);ZDCemminus5->Fill(var_zdcEmMinus6[0],fac_lumiBkg[bkgNum]);ZDCemminus6->Fill(var_zdcEmMinus6[0],fac_lumiBkg[bkgNum]);
-          ZDCemplus1->Fill(var_zdcEmPlus6[0],fac_lumiBkg[bkgNum]); ZDCemplus2->Fill(var_zdcEmPlus6[0],fac_lumiBkg[bkgNum]); ZDCemplus3->Fill(var_zdcEmPlus6[0],fac_lumiBkg[bkgNum]); ZDCemplus4->Fill(var_zdcEmPlus6[0],fac_lumiBkg[bkgNum]);ZDCemplus5->Fill(var_zdcEmPlus6[0],fac_lumiBkg[bkgNum]);ZDCemplus6->Fill(var_zdcEmPlus6[0],fac_lumiBkg[bkgNum]);
-          ZDChadminus1->Fill(var_zdcHadMinus6[0],fac_lumiBkg[bkgNum]); ZDChadminus2->Fill(var_zdcHadMinus6[0],fac_lumiBkg[bkgNum]); ZDChadminus3->Fill(var_zdcHadMinus6[0],fac_lumiBkg[bkgNum]); ZDChadminus4->Fill(var_zdcHadMinus6[0],fac_lumiBkg[bkgNum]);ZDChadminus5->Fill(var_zdcHadMinus6[0],fac_lumiBkg[bkgNum]);ZDChadminus6->Fill(var_zdcHadMinus6[0],fac_lumiBkg[bkgNum]);
-          ZDChadplus1->Fill(var_zdcHadPlus6[0],fac_lumiBkg[bkgNum]); ZDChadplus2->Fill(var_zdcHadPlus6[0],fac_lumiBkg[bkgNum]); ZDChadplus3->Fill(var_zdcHadPlus6[0],fac_lumiBkg[bkgNum]); ZDChadplus4->Fill(var_zdcHadPlus6[0],fac_lumiBkg[bkgNum]);ZDChadplus5->Fill(var_zdcHadPlus6[0],fac_lumiBkg[bkgNum]);ZDChadplus6->Fill(var_zdcHadPlus6[0],fac_lumiBkg[bkgNum]);
+          ZDCemminus2->Fill(var_zdcEmMinus6[0],fac_lumiBkg[bkgNum]);
+          ZDCemplus2->Fill(var_zdcEmPlus6[0],fac_lumiBkg[bkgNum]);
+          ZDChadminus2->Fill(var_zdcHadMinus6[0],fac_lumiBkg[bkgNum]);
+          ZDChadplus2->Fill(var_zdcHadPlus6[0],fac_lumiBkg[bkgNum]);
           for(Int_t l=0; l<var_nZDC6[0]; l++){
              if(var_zdcsection6[l]==1 && var_zdcE6[l]>7.0){
-                ZDCtime1->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]); ZDCtime2->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]); ZDCtime3->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);  ZDCtime4->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);ZDCtime5->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);ZDCtime6->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);
-                ZDCenergyEM1->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);  ZDCenergyEM2->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]); ZDCenergyEM3->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]); ZDCenergyEM4->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);ZDCenergyEM5->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);ZDCenergyEM6->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);
+                ZDCtime2->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);
+                ZDCenergyEM2->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);
              }
              if(var_zdcsection6[l]==2 && var_zdcE6[l]>120.0){
-                ZDCtime1->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]); ZDCtime2->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);ZDCtime3->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);ZDCtime4->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);ZDCtime5->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);ZDCtime6->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);
-                ZDCenergyHAD1->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);ZDCenergyHAD2->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);ZDCenergyHAD3->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);ZDCenergyHAD4->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);ZDCenergyHAD5->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);ZDCenergyHAD6->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);
+                ZDCtime2->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);
+                ZDCenergyHAD2->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);
              }
           }
 
-          CastorSumE1->Fill(var_CastorRecHit6[0],fac_lumiBkg[bkgNum]); CastorSumE2->Fill(var_CastorRecHit6[0],fac_lumiBkg[bkgNum]);CastorSumE3->Fill(var_CastorRecHit6[0],fac_lumiBkg[bkgNum]);CastorSumE4->Fill(var_CastorRecHit6[0],fac_lumiBkg[bkgNum]);CastorSumE5->Fill(var_CastorRecHit6[0],fac_lumiBkg[bkgNum]);CastorSumE6->Fill(var_CastorRecHit6[0],fac_lumiBkg[bkgNum]);
+          CastorSumE2->Fill(var_CastorRecHit6[0],fac_lumiBkg[bkgNum]);
 
           } // if nTrack&nCalo if relevant
         }
@@ -1634,49 +1653,51 @@ TCanvas *PtSpectrumEl = new TCanvas("PtSpectrumEl","Tracks",800,500);
 //   leg->Draw();
 
 PtSpectrumEl->cd(1);
-nTrack5->GetXaxis()->SetTitle("n Extra Tracks");
-nTrack5->GetYaxis()->SetTitle("# events");
 nTrack0->Sumw2();
 nTrack0->SetLineWidth(2);
 nTrack0->SetMarkerStyle(20);
-nTrack1->SetFillColor(30);
+nTrack1->SetFillColor(ci);
 nTrack2->SetFillColor(30);
 nTrack2->SetFillStyle(3001);
-nTrack3->SetFillColor(ci);
+nTrack3->SetFillColor(30);
 nTrack4->SetFillColor(38);
 nTrack5->SetFillColor(903);
-nTrack5->Draw("hist");
-nTrack4->Draw("same");
-nTrack3->Draw("same");
-nTrack2->Draw("same");
-nTrack1->Draw("same");
+sTrack.Add(nTrack3);
+sTrack.Add(nTrack2);
+sTrack.Add(nTrack1);
+sTrack.Add(nTrack4);
+sTrack.Add(nTrack5);
+sTrack.Draw();
+sTrack->GetXaxis()->SetTitle("n Extra Tracks");
+sTrack->GetYaxis()->SetTitle("# events");
 nTrack0->Draw("same");
+
 //------------
-TCanvas *Vertex = new TCanvas("Vertex","Tracks",800,500);
+TCanvas *Vertex = new TCanvas("Vertex","Vertex",800,500);
    Vertex->SetFillColor(0);
    Vertex->SetBorderMode(0);
    Vertex->SetBorderSize(2);
    Vertex->SetFrameBorderMode(0);
 
 Vertex->cd(1);
-MuMuvtxXY5->GetXaxis()->SetTitle("n Extra Tracks");
-MuMuvtxXY5->GetYaxis()->SetTitle("# events");
 MuMuvtxXY0->Sumw2();
 MuMuvtxXY0->SetLineWidth(2);
 MuMuvtxXY0->SetMarkerStyle(20);
-MuMuvtxXY1->SetFillColor(30);
+MuMuvtxXY1->SetFillColor(ci);
 MuMuvtxXY2->SetFillColor(30);
 MuMuvtxXY2->SetFillStyle(3001);
-MuMuvtxXY3->SetFillColor(ci);
+MuMuvtxXY3->SetFillColor(30);
 MuMuvtxXY4->SetFillColor(38);
 MuMuvtxXY5->SetFillColor(903);
-MuMuvtxXY5->Draw("hist");
-MuMuvtxXY4->Draw("same");
-MuMuvtxXY3->Draw("same");
-MuMuvtxXY2->Draw("same");
-MuMuvtxXY1->Draw("same");
+sMuMuvtxXY.Add(MuMuvtxXY3);
+sMuMuvtxXY.Add(MuMuvtxXY2);
+sMuMuvtxXY.Add(MuMuvtxXY1);
+sMuMuvtxXY.Add(MuMuvtxXY4);
+sMuMuvtxXY.Add(MuMuvtxXY5);
+sMuMuvtxXY.Draw();
+sMuMuvtxXY->GetXaxis()->SetTitle("transverse vertex position [cm]");
+sMuMuvtxXY->GetYaxis()->SetTitle("# events");
 MuMuvtxXY0->Draw("same");
-
 
 
 //---------------------------
@@ -1687,127 +1708,131 @@ TCanvas *Calo = new TCanvas("Calo","Calorimeter",800,500);
    Calo->SetFrameBorderMode(0);
 Calo->Divide(3,2);
 Calo->cd(4);
-hEB5->GetXaxis()->SetTitle("n EB towers (E>0.60GeV)");
-hEB5->GetYaxis()->SetTitle("# events");
 hEB0->Sumw2();
 hEB0->SetLineWidth(2);
 hEB0->SetMarkerStyle(20);
-hEB1->SetFillColor(30);
+hEB1->SetFillColor(ci);
 hEB2->SetFillColor(30);
 hEB2->SetFillStyle(3001);
-hEB3->SetFillColor(ci);
+hEB3->SetFillColor(30);
 hEB4->SetFillColor(38);
 hEB5->SetFillColor(903);
-hEB5->SetMaximum(hEB0->GetMaximum() * 1.5);   
-hEB5->Draw("hist");
-hEB4->Draw("same");
-hEB3->Draw("same");
-hEB2->Draw("same");
-hEB1->Draw("same");
+sEB.Add(hEB3);
+sEB.Add(hEB2);
+sEB.Add(hEB1);
+sEB.Add(hEB4);
+sEB.Add(hEB5);
+sEB.Draw();
+sEB->GetXaxis()->SetTitle("n EB towers (E>0.60GeV)");
+sEB->GetYaxis()->SetTitle("# events");
 hEB0->Draw("same");
 
-
 Calo->cd(5);
-hEE5->GetXaxis()->SetTitle("n EE towers (E>2.40GeV)");
-hEE5->GetYaxis()->SetTitle("# events");
 hEE0->Sumw2();
 hEE0->SetLineWidth(2);
 hEE0->SetMarkerStyle(20);
-hEE1->SetFillColor(30);
+hEE1->SetFillColor(ci);
 hEE2->SetFillColor(30);
 hEE2->SetFillStyle(3001);
-hEE3->SetFillColor(ci);
+hEE3->SetFillColor(30);
 hEE4->SetFillColor(38);
 hEE5->SetFillColor(903);
-hEE5->SetMaximum(hEE0->GetMaximum() * 1.5);   
-hEE5->Draw("hist");
-hEE4->Draw("same");
-hEE3->Draw("same");
-hEE2->Draw("same");
-hEE1->Draw("same");
+//hEE5->SetMaximum(hEE0->GetMaximum() * 1.5);   
+sEE.Add(hEE3);
+sEE.Add(hEE2);
+sEE.Add(hEE1);
+sEE.Add(hEE4);
+sEE.Add(hEE5);
+sEE.Draw();
+sEE->GetXaxis()->SetTitle("n EE towers (E>2.40GeV)");
+sEE->GetYaxis()->SetTitle("# events");
 hEE0->Draw("same");
 
 Calo->cd(1);
-hHB5->GetXaxis()->SetTitle("n HB towers (E>1.25GeV)");
-hHB5->GetYaxis()->SetTitle("# events");
 hHB0->Sumw2();
 hHB0->SetLineWidth(2);
 hHB0->SetMarkerStyle(20);
-hHB1->SetFillColor(30);
+hHB1->SetFillColor(ci);
 hHB2->SetFillColor(30);
 hHB2->SetFillStyle(3001);
-hHB3->SetFillColor(ci);
+hHB3->SetFillColor(30);
 hHB4->SetFillColor(38);
 hHB5->SetFillColor(903);
 hHB5->SetFillColor(903);
-hHB5->SetMaximum(hHB0->GetMaximum() * 1.5);   
-hHB5->Draw("hist");
-hHB4->Draw("same");
-hHB3->Draw("same");
-hHB2->Draw("same");
-hHB1->Draw("same");
+//hHB5->SetMaximum(hHB0->GetMaximum() * 1.5);   
+sHB.Add(hHB3);
+sHB.Add(hHB2);
+sHB.Add(hHB1);
+sHB.Add(hHB4);
+sHB.Add(hHB5);
+sHB.Draw();
+sHB->GetXaxis()->SetTitle("n HB towers (E>1.25GeV)");
+sHB->GetYaxis()->SetTitle("# events");
 hHB0->Draw("same");
 
 Calo->cd(2);
-hHE5->GetXaxis()->SetTitle("n HE towers (E>1.90GeV)");
-hHE5->GetYaxis()->SetTitle("# events");
 hHE0->Sumw2();
 hHE0->SetLineWidth(2);
 hHE0->SetMarkerStyle(20);
-hHE1->SetFillColor(30);
+hHE1->SetFillColor(ci);
 hHE2->SetFillColor(30);
 hHE2->SetFillStyle(3001);
-hHE3->SetFillColor(ci);
+hHE3->SetFillColor(30);
 hHE4->SetFillColor(38);
 hHE5->SetFillColor(903);
-hHE5->SetMaximum(hHE0->GetMaximum() * 1.5);  
-hHE5->Draw("hist");
-hHE4->Draw("same");
-hHE3->Draw("same");
-hHE2->Draw("same");
-hHE1->Draw("same");
+//hHE5->SetMaximum(hHE0->GetMaximum() * 1.5);  
+sHE.Add(hHE3);
+sHE.Add(hHE2);
+sHE.Add(hHE1);
+sHE.Add(hHE4);
+sHE.Add(hHE5);
+sHE.Draw();
+sHE->GetXaxis()->SetTitle("n HE towers (E>1.90GeV)");
+sHE->GetYaxis()->SetTitle("# events");
 hHE0->Draw("same");
 
 Calo->cd(3);
-hHFp5->GetXaxis()->SetTitle("n HF+ towers (E>4.5GeV)");
-hHFp5->GetYaxis()->SetTitle("# events");
 hHFp0->Sumw2();
 hHFp0->SetLineWidth(2);
 hHFp0->SetMarkerStyle(20);
-hHFp1->SetFillColor(30);
+hHFp1->SetFillColor(ci);
 hHFp2->SetFillColor(30);
 hHFp2->SetFillStyle(3001);
-hHFp3->SetFillColor(ci);
+hHFp3->SetFillColor(30);
 hHFp4->SetFillColor(38);
 hHFp5->SetFillColor(903);
-hHFp5->SetMaximum(hHFp0->GetMaximum() * 1.5);  
-hHFp5->Draw("hist");
-hHFp4->Draw("same");
-hHFp3->Draw("same");
-hHFp2->Draw("same");
-hHFp1->Draw("same");
+//hHFp5->SetMaximum(hHFp0->GetMaximum() * 1.5);  sHB.Add(hHB3);
+sHFp.Add(hHFp3);
+sHFp.Add(hHFp2);
+sHFp.Add(hHFp1);
+sHFp.Add(hHFp4);
+sHFp.Add(hHFp5);
+sHFp.Draw();
+sHFp->GetXaxis()->SetTitle("n HF+ towers (E>4.5GeV)");
+sHFp->GetYaxis()->SetTitle("# events");
 hHFp0->Draw("same");
 
 Calo->cd(6);
-hHFm5->GetXaxis()->SetTitle("n HF- towers (E>3.7GeV)");
-hHFm5->GetYaxis()->SetTitle("# events");
 hHFm0->Sumw2();
 hHFm0->SetLineWidth(2);
 hHFm0->SetMarkerStyle(20);
-hHFm1->SetFillColor(30);
+hHFm1->SetFillColor(ci);
 hHFm2->SetFillColor(30);
 hHFm2->SetFillStyle(3001);
-hHFm3->SetFillColor(ci);
+hHFm3->SetFillColor(30);
 hHFm4->SetFillColor(38);
 hHFm5->SetFillColor(903);
-hHFm5->SetMaximum(hHFm0->GetMaximum() * 1.5); 
-hHFm5->Draw("hist");
-hHFm4->Draw("same");
-hHFm3->Draw("same");
-hHFm2->Draw("same");
-hHFm1->Draw("same");
+//hHFm5->SetMaximum(hHFm0->GetMaximum() * 1.5); 
+sHFm.Add(hHFm3);
+sHFm.Add(hHFm2);
+sHFm.Add(hHFm1);
+sHFm.Add(hHFm4);
+sHFm.Add(hHFm5);
+sHFm.Draw();
+//Calo->SaveAs("Calo_851nb.eps"); 
+sHFm->GetXaxis()->SetTitle("n HF- towers (E>3.7GeV)");
+sHFm->GetYaxis()->SetTitle("# events");
 hHFm0->Draw("same");
-Calo->SaveAs("Calo_851nb.eps"); 
 
 TCanvas *Calo2 = new TCanvas("Calo2","Calorimeter 2",800,500);
    Calo2->SetFillColor(0);
@@ -1815,25 +1840,27 @@ TCanvas *Calo2 = new TCanvas("Calo2","Calorimeter 2",800,500);
    Calo2->SetBorderSize(2);
    Calo2->SetFrameBorderMode(0);
 Calo2->cd(1);
-nTower5->GetXaxis()->SetTitle("n towers (E>E_{Threshold})");
-nTower5->GetYaxis()->SetTitle("# events");
 nTower0->Sumw2();
 nTower0->SetLineWidth(2);
 nTower0->SetMarkerStyle(20);
-nTower1->SetFillColor(30);
+nTower1->SetFillColor(ci);
 nTower2->SetFillColor(30);
 nTower2->SetFillStyle(3001);
-nTower3->SetFillColor(ci);
+nTower3->SetFillColor(30);
 nTower4->SetFillColor(38);
 nTower5->SetFillColor(903);
-nTower5->SetMaximum(nTower0->GetMaximum() * 1.5);
-nTower5->Draw("hist");
-nTower4->Draw("same");
-nTower3->Draw("same");
-nTower2->Draw("same");
-nTower1->Draw("same");
+//nTower5->SetMaximum(nTower0->GetMaximum() * 1.5);
+sTower.Add(nTower3);
+sTower.Add(nTower2);
+sTower.Add(nTower1);
+sTower.Add(nTower4);
+sTower.Add(nTower5);
+sTower.Draw();
+sTower->GetXaxis()->SetTitle("n towers (E>E_{Threshold})");
+sTower->GetYaxis()->SetTitle("# events");
 nTower0->Draw("same");
-Calo2->SaveAs("Calo2_851nb.eps");  
+
+//Calo2->SaveAs("Calo2_851nb.eps");  
 
 TCanvas *Upsilon_Jpsi = new TCanvas("Upsilon_Jpsi","Upsilon J/psi",800,500);
    Upsilon_Jpsi->SetFillColor(0);
@@ -1843,47 +1870,48 @@ TCanvas *Upsilon_Jpsi = new TCanvas("Upsilon_Jpsi","Upsilon J/psi",800,500);
 
 Upsilon_Jpsi->Divide(2,1);
 Upsilon_Jpsi->cd(1);
-MuMuMassUps5->GetXaxis()->SetTitle("#mu#mu mass [GeV]");
-MuMuMassUps5->GetYaxis()->SetTitle("# events / 0.05 GeV");
 MuMuMassUps0->Sumw2();
 MuMuMassUps0->SetLineWidth(2);
 MuMuMassUps0->SetMarkerStyle(20);
-MuMuMassUps1->SetFillColor(30);
+MuMuMassUps1->SetFillColor(ci);
 MuMuMassUps2->SetFillColor(30);
 MuMuMassUps2->SetFillStyle(3001);
-MuMuMassUps3->SetFillColor(ci);
+MuMuMassUps3->SetFillColor(30);
 MuMuMassUps4->SetFillColor(38);
 MuMuMassUps5->SetFillColor(903);
-MuMuMassUps5->SetMaximum(5);
-MuMuMassUps4->SetMaximum(5);
-MuMuMassUps5->Draw("hist");
-MuMuMassUps4->Draw("same");
-MuMuMassUps3->Draw("same");
-MuMuMassUps2->Draw("same");
-MuMuMassUps1->Draw("same");
+//MuMuMassUps5->SetMaximum(5);
+//MuMuMassUps4->SetMaximum(5);
+sMuMuMassUps.Add(MuMuMassUps3);
+sMuMuMassUps.Add(MuMuMassUps2);
+sMuMuMassUps.Add(MuMuMassUps1);
+sMuMuMassUps.Add(MuMuMassUps4);
+sMuMuMassUps.Add(MuMuMassUps5);
+sMuMuMassUps.Draw();
+sMuMuMassUps->GetXaxis()->SetTitle("#mu#mu mass [GeV]");
+sMuMuMassUps->GetYaxis()->SetTitle("# events / 0.05 GeV");
 MuMuMassUps0->Draw("same");
 
 Upsilon_Jpsi->cd(2);
-MuMuMassJpsi5->GetXaxis()->SetTitle("#mu#mu mass [GeV]");
-MuMuMassJpsi5->GetYaxis()->SetTitle("# events / 0.025 GeV");
 MuMuMassJpsi0->Sumw2();
 MuMuMassJpsi0->SetLineWidth(2);
 MuMuMassJpsi0->SetMarkerStyle(20);
-MuMuMassJpsi1->SetFillColor(30);
+MuMuMassJpsi1->SetFillColor(ci);
 MuMuMassJpsi2->SetFillColor(30);
 MuMuMassJpsi2->SetFillStyle(3001);
-MuMuMassJpsi3->SetFillColor(ci);
+MuMuMassJpsi3->SetFillColor(30);
 MuMuMassJpsi4->SetFillColor(38);
 MuMuMassJpsi5->SetFillColor(903);
-MuMuMassJpsi5->SetMaximum(10);
-MuMuMassJpsi5->Draw("hist");
-MuMuMassJpsi4->Draw("same");
-MuMuMassJpsi3->Draw("same");
-MuMuMassJpsi2->Draw("same");
-MuMuMassJpsi1->Draw("same");
+//MuMuMassJpsi5->SetMaximum(10);
+sMuMuMassJpsi.Add(MuMuMassJpsi3);
+sMuMuMassJpsi.Add(MuMuMassJpsi2);
+sMuMuMassJpsi.Add(MuMuMassJpsi1);
+sMuMuMassJpsi.Add(MuMuMassJpsi4);
+sMuMuMassJpsi.Add(MuMuMassJpsi5);
+sMuMuMassJpsi.Draw();
+sMuMuMassJpsi->GetXaxis()->SetTitle("#mu#mu mass [GeV]");
+sMuMuMassJpsi->GetYaxis()->SetTitle("# events / 0.025 GeV");
 MuMuMassJpsi0->Draw("same");
-Upsilon_Jpsi->SaveAs("Upsilon_Jpsi_851nb.eps");  
-
+//Upsilon_Jpsi->SaveAs("Upsilon_Jpsi_851nb.eps");  
 
 
 TCanvas *Kinematic1 = new TCanvas("Kinematic1","Kinematic MuMu",800,500);
@@ -1892,88 +1920,100 @@ TCanvas *Kinematic1 = new TCanvas("Kinematic1","Kinematic MuMu",800,500);
    Kinematic1->SetBorderSize(2);
    Kinematic1->SetFrameBorderMode(0);
 
-Kinematic1->Divide(2,2);
+Kinematic1->Divide(2,1);
 Kinematic1->cd(1);
-MuMuMass5->GetXaxis()->SetTitle("#mu#mu mass [GeV]");
-MuMuMass5->GetYaxis()->SetTitle("# events / 0.5 GeV");
 MuMuMass0->Sumw2();
 MuMuMass0->SetLineWidth(2);
 MuMuMass0->SetMarkerStyle(20);
-MuMuMass1->SetFillColor(30);
+MuMuMass1->SetFillColor(ci);
 MuMuMass2->SetFillColor(30);
 MuMuMass2->SetFillStyle(3001);
-MuMuMass3->SetFillColor(ci);
+MuMuMass3->SetFillColor(30);
 MuMuMass4->SetFillColor(38);
 MuMuMass5->SetFillColor(903);
-MuMuMass5->SetMaximum(MuMuMass0->GetMaximum() * 1.5); 
-MuMuMass5->Draw("hist");
-MuMuMass4->Draw("same");
-MuMuMass3->Draw("same");
-MuMuMass2->Draw("same");
-MuMuMass1->Draw("same");
-MuMuMass6->Draw("same");
+//MuMuMass5->SetMaximum(MuMuMass0->GetMaximum() * 1.5); 
+sMuMuMass.Add(MuMuMass3);
+sMuMuMass.Add(MuMuMass2);
+sMuMuMass.Add(MuMuMass1);
+sMuMuMass.Add(MuMuMass4);
+sMuMuMass.Add(MuMuMass5);
+sMuMuMass.Draw();
+sMuMuMass->GetXaxis()->SetTitle("#mu#mu mass [GeV]");
+sMuMuMass->GetYaxis()->SetTitle("# events / 0.5 GeV");
 MuMuMass0->Draw("same");
 
 Kinematic1->cd(2);
-MuMudeta5->GetXaxis()->SetTitle("#eta(#mu^{+}) + #eta(#mu^{-})");
-MuMudeta5->GetYaxis()->SetTitle("# events / 0.5 ");
 MuMudeta0->Sumw2();
 MuMudeta0->SetLineWidth(2);
 MuMudeta0->SetMarkerStyle(20);
-MuMudeta1->SetFillColor(30);
+MuMudeta1->SetFillColor(ci);
 MuMudeta2->SetFillColor(30);
 MuMudeta2->SetFillStyle(3001);
-MuMudeta3->SetFillColor(ci);
+MuMudeta3->SetFillColor(30);
 MuMudeta4->SetFillColor(38);
 MuMudeta5->SetFillColor(903);
-MuMudeta5->SetMaximum(MuMudeta0->GetMaximum() * 1.5);
-MuMudeta5->Draw("hist");
-MuMudeta4->Draw("same");
-MuMudeta3->Draw("same");
-MuMudeta2->Draw("same");
-MuMudeta1->Draw("same");
+//MuMudeta5->SetMaximum(MuMudeta0->GetMaximum() * 1.5);
+sMuMudeta.Add(MuMudeta3);
+sMuMudeta.Add(MuMudeta2);
+sMuMudeta.Add(MuMudeta1);
+sMuMudeta.Add(MuMudeta4);
+sMuMudeta.Add(MuMudeta5);
+sMuMudeta.Draw();
+sMuMudeta->GetXaxis()->SetTitle("#eta(#mu^{+}) + #eta(#mu^{-})");
+sMuMudeta->GetYaxis()->SetTitle("# events / 0.5 ");
 MuMudeta0->Draw("same");
 
-Kinematic1->cd(3);
-MuMudpt5->GetXaxis()->SetTitle("#mu#mu |#Delta p_{T}| [GeV]");
-MuMudpt5->GetYaxis()->SetTitle("# events / 0.25 GeV ");
+
+TCanvas *Kinematic2 = new TCanvas("Kinematic2","Kinematic MuMu",800,500);
+   Kinematic2->SetFillColor(0);
+   Kinematic2->SetBorderMode(0);
+   Kinematic2->SetBorderSize(2);
+   Kinematic2->SetFrameBorderMode(0);
+
+Kinematic2->Divide(2,1);
+Kinematic2->cd(1);
 MuMudpt0->Sumw2();
 MuMudpt0->SetLineWidth(2);
 MuMudpt0->SetMarkerStyle(20);
-MuMudpt1->SetFillColor(30);
+MuMudpt1->SetFillColor(ci);
 MuMudpt2->SetFillColor(30);
 MuMudpt2->SetFillStyle(3001);
-MuMudpt3->SetFillColor(ci);
+MuMudpt3->SetFillColor(30);
 MuMudpt4->SetFillColor(38);
 MuMudpt5->SetFillColor(903);
-MuMudpt5->SetMaximum(MuMudpt0->GetMaximum() * 1.5); 
-MuMudpt5->Draw("hist");
-MuMudpt4->Draw("same");
-MuMudpt3->Draw("same");
-MuMudpt2->Draw("same");
-MuMudpt1->Draw("same");
+//MuMudpt5->SetMaximum(MuMudpt0->GetMaximum() * 1.5); 
+sMuMudpt.Add(MuMudpt3);
+sMuMudpt.Add(MuMudpt2);
+sMuMudpt.Add(MuMudpt1);
+sMuMudpt.Add(MuMudpt4);
+sMuMudpt.Add(MuMudpt5);
+sMuMudpt.Draw();
+sMuMudpt->GetXaxis()->SetTitle("#mu#mu |#Delta p_{T}| [GeV]");
+sMuMudpt->GetYaxis()->SetTitle("# events / 0.25 GeV ");
 MuMudpt0->Draw("same");
 
-Kinematic1->cd(4);
-MuMudphi5->GetXaxis()->SetTitle("#mu#mu |#Delta #phi / #pi|");
-MuMudphi5->GetYaxis()->SetTitle("# events / 0.01 ");
+Kinematic2->cd(2);
 MuMudphi0->Sumw2();
 MuMudphi0->SetLineWidth(2);
 MuMudphi0->SetMarkerStyle(20);
-MuMudphi1->SetFillColor(30);
+MuMudphi1->SetFillColor(ci);
 MuMudphi2->SetFillColor(30);
 MuMudphi2->SetFillStyle(3001);
-MuMudphi3->SetFillColor(ci);
+MuMudphi3->SetFillColor(30);
 MuMudphi4->SetFillColor(38);
 MuMudphi5->SetFillColor(903);
-MuMudphi5->SetMaximum(MuMudphi0->GetMaximum() * 2.0); 
-MuMudphi5->Draw("hist");
-MuMudphi4->Draw("same");
-MuMudphi3->Draw("same");
-MuMudphi2->Draw("same");
-MuMudphi1->Draw("same");
+//MuMudphi5->SetMaximum(MuMudphi0->GetMaximum() * 2.0); 
+sMuMudphi.Add(MuMudphi3);
+sMuMudphi.Add(MuMudphi2);
+sMuMudphi.Add(MuMudphi1);
+sMuMudphi.Add(MuMudphi4);
+sMuMudphi.Add(MuMudphi5);
+sMuMudphi.Draw();
+sMuMudphi->GetXaxis()->SetTitle("#mu#mu |#Delta #phi / #pi|");
+sMuMudphi->GetYaxis()->SetTitle("# events / 0.01 ");
 MuMudphi0->Draw("same");
-Kinematic1->SaveAs("Kinematic1_851nb.eps");
+//Kinematic1->SaveAs("Kinematic1_851nb.eps");
+
 
 TCanvas *CASTOR = new TCanvas("CASTOR","CASTOR",800,550);
    CASTOR->SetFillColor(0);
@@ -1982,22 +2022,23 @@ TCanvas *CASTOR = new TCanvas("CASTOR","CASTOR",800,550);
    CASTOR->SetFrameBorderMode(0);
 
 CASTOR->cd(1);
-CastorSumE5->GetXaxis()->SetTitle("Castor Sum Energy [GeV]");
-CastorSumE5->GetYaxis()->SetTitle("# events / 5 GeV");
 CastorSumE0->Sumw2();
 CastorSumE0->SetLineWidth(2);
 CastorSumE0->SetMarkerStyle(20);
-CastorSumE1->SetFillColor(30);
+CastorSumE1->SetFillColor(ci);
 CastorSumE2->SetFillColor(30);
 CastorSumE2->SetFillStyle(3001);
-CastorSumE3->SetFillColor(ci);
+CastorSumE3->SetFillColor(30);
 CastorSumE4->SetFillColor(38);
 CastorSumE5->SetFillColor(903);
-CastorSumE5->Draw("hist");
-CastorSumE4->Draw("same");
-CastorSumE3->Draw("same");
-CastorSumE2->Draw("same");
-CastorSumE1->Draw("same");
+sCastorSumE.Add(CastorSumE3);
+sCastorSumE.Add(CastorSumE2);
+sCastorSumE.Add(CastorSumE1);
+sCastorSumE.Add(CastorSumE4);
+sCastorSumE.Add(CastorSumE5);
+sCastorSumE.Draw();
+sCastorSumE->GetXaxis()->SetTitle("Castor Sum Energy [GeV]");
+sCastorSumE->GetYaxis()->SetTitle("# events / 5 GeV");
 CastorSumE0->Draw("same");
 
 TCanvas *ZDC = new TCanvas("ZDC","ZDC",800,550);
@@ -2008,135 +2049,143 @@ TCanvas *ZDC = new TCanvas("ZDC","ZDC",800,550);
 
 ZDC->Divide(4,2);
 ZDC->cd(1);
-ZDCemplus5->GetXaxis()->SetTitle("ZDC + em [GeV]");
-ZDCemplus5->GetYaxis()->SetTitle("# events / 20 GeV");
 ZDCemplus0->Sumw2();
 ZDCemplus0->SetLineWidth(2);
 ZDCemplus0->SetMarkerStyle(20);
-ZDCemplus1->SetFillColor(30);
+ZDCemplus1->SetFillColor(ci);
 ZDCemplus2->SetFillColor(30);
 ZDCemplus2->SetFillStyle(3001);
-ZDCemplus3->SetFillColor(ci);
+ZDCemplus3->SetFillColor(30);
 ZDCemplus4->SetFillColor(38);
 ZDCemplus5->SetFillColor(903);
-ZDCemplus5->Draw("hist");
-ZDCemplus4->Draw("same");
-ZDCemplus3->Draw("same");
-ZDCemplus2->Draw("same");
-ZDCemplus1->Draw("same");
+sZDCemplus.Add(ZDCemplus3);
+sZDCemplus.Add(ZDCemplus2);
+sZDCemplus.Add(ZDCemplus1);
+sZDCemplus.Add(ZDCemplus4);
+sZDCemplus.Add(ZDCemplus5);
+sZDCemplus.Draw();
+sZDCemplus->GetXaxis()->SetTitle("ZDC + em [GeV]");
+sZDCemplus->GetYaxis()->SetTitle("# events / 20 GeV");
 ZDCemplus0->Draw("same");
 
 ZDC->cd(2);
-ZDCemminus5->GetXaxis()->SetTitle("ZDC - em [GeV]");
-ZDCemminus5->GetYaxis()->SetTitle("# events / 20 GeV");
 ZDCemminus0->Sumw2();
 ZDCemminus0->SetLineWidth(2);
 ZDCemminus0->SetMarkerStyle(20);
-ZDCemminus1->SetFillColor(30);
+ZDCemminus1->SetFillColor(ci);
 ZDCemminus2->SetFillColor(30);
 ZDCemminus2->SetFillStyle(3001);
-ZDCemminus3->SetFillColor(ci);
+ZDCemminus3->SetFillColor(30);
 ZDCemminus4->SetFillColor(38);
 ZDCemminus5->SetFillColor(903);
-ZDCemminus5->Draw("hist");
-ZDCemminus4->Draw("same");
-ZDCemminus3->Draw("same");
-ZDCemminus2->Draw("same");
-ZDCemminus1->Draw("same");
+sZDCemminus.Add(ZDCemminus3);
+sZDCemminus.Add(ZDCemminus2);
+sZDCemminus.Add(ZDCemminus1);
+sZDCemminus.Add(ZDCemminus4);
+sZDCemminus.Add(ZDCemminus5);
+sZDCemminus.Draw();
+sZDCemminus->GetXaxis()->SetTitle("ZDC - em [GeV]");
+sZDCemminus->GetYaxis()->SetTitle("# events / 20 GeV");
 ZDCemminus0->Draw("same");
 
 ZDC->cd(3);
-ZDChadplus5->GetXaxis()->SetTitle("ZDC + had [GeV]");
-ZDChadplus5->GetYaxis()->SetTitle("# events / 20 GeV");
 ZDChadplus0->Sumw2();
 ZDChadplus0->SetLineWidth(2);
 ZDChadplus0->SetMarkerStyle(20);
-ZDChadplus1->SetFillColor(30);
+ZDChadplus1->SetFillColor(ci);
 ZDChadplus2->SetFillColor(30);
 ZDChadplus2->SetFillStyle(3001);
-ZDChadplus3->SetFillColor(ci);
+ZDChadplus3->SetFillColor(30);
 ZDChadplus4->SetFillColor(38);
 ZDChadplus5->SetFillColor(903);
-ZDChadplus5->Draw("hist");
-ZDChadplus4->Draw("same");
-ZDChadplus3->Draw("same");
-ZDChadplus2->Draw("same");
-ZDChadplus1->Draw("same");
+sZDChadplus.Add(ZDChadplus3);
+sZDChadplus.Add(ZDChadplus2);
+sZDChadplus.Add(ZDChadplus1);
+sZDChadplus.Add(ZDChadplus4);
+sZDChadplus.Add(ZDChadplus5);
+sZDChadplus.Draw();
+sZDChadplus->GetXaxis()->SetTitle("ZDC + had [GeV]");
+sZDChadplus->GetYaxis()->SetTitle("# events / 20 GeV");
 ZDChadplus0->Draw("same");
 
 ZDC->cd(4);
-ZDChadminus5->GetXaxis()->SetTitle("ZDC - had [GeV]");
-ZDChadminus5->GetYaxis()->SetTitle("# events / 20 GeV");
 ZDChadminus0->Sumw2();
 ZDChadminus0->SetLineWidth(2);
 ZDChadminus0->SetMarkerStyle(20);
-ZDChadminus1->SetFillColor(30);
+ZDChadminus1->SetFillColor(ci);
 ZDChadminus2->SetFillColor(30);
 ZDChadminus2->SetFillStyle(3001);
-ZDChadminus3->SetFillColor(ci);
+ZDChadminus3->SetFillColor(30);
 ZDChadminus4->SetFillColor(38);
 ZDChadminus5->SetFillColor(903);
-ZDChadminus5->Draw("hist");
-ZDChadminus4->Draw("same");
-ZDChadminus3->Draw("same");
-ZDChadminus2->Draw("same");
-ZDChadminus1->Draw("same");
+sZDChadminus.Add(ZDChadminus3);
+sZDChadminus.Add(ZDChadminus2);
+sZDChadminus.Add(ZDChadminus1);
+sZDChadminus.Add(ZDChadminus4);
+sZDChadminus.Add(ZDChadminus5);
+sZDChadminus.Draw();
+sZDChadminus->GetXaxis()->SetTitle("ZDC - had [GeV]");
+sZDChadminus->GetYaxis()->SetTitle("# events / 20 GeV");
 ZDChadminus0->Draw("same");
 
 ZDC->cd(5);
-ZDCtime5->GetXaxis()->SetTitle("ZDC hit time [???]");
-ZDCtime5->GetYaxis()->SetTitle("# events / 1 ???");
 ZDCtime0->Sumw2();
 ZDCtime0->SetLineWidth(2);
 ZDCtime0->SetMarkerStyle(20);
-ZDCtime1->SetFillColor(30);
+ZDCtime1->SetFillColor(ci);
 ZDCtime2->SetFillColor(30);
 ZDCtime2->SetFillStyle(3001);
-ZDCtime3->SetFillColor(ci);
+ZDCtime3->SetFillColor(30);
 ZDCtime4->SetFillColor(38);
 ZDCtime5->SetFillColor(903);
-ZDCtime5->Draw("hist");
-ZDCtime4->Draw("same");
-ZDCtime3->Draw("same");
-ZDCtime2->Draw("same");
-ZDCtime1->Draw("same");
+sZDCtime.Add(ZDCtime3);
+sZDCtime.Add(ZDCtime2);
+sZDCtime.Add(ZDCtime1);
+sZDCtime.Add(ZDCtime4);
+sZDCtime.Add(ZDCtime5);
+sZDCtime.Draw();
+sZDCtime->GetXaxis()->SetTitle("ZDC hit time [???]");
+sZDCtime->GetYaxis()->SetTitle("# events / 1 ???");
 ZDCtime0->Draw("same");
+
 ZDC->cd(7);
-ZDCenergyEM5->GetXaxis()->SetTitle("ZDC hit EM energy [GeV ??]");
-ZDCenergyEM5->GetYaxis()->SetTitle("# events / 30 GeV ???");
 ZDCenergyEM0->Sumw2();
 ZDCenergyEM0->SetLineWidth(2);
 ZDCenergyEM0->SetMarkerStyle(20);
-ZDCenergyEM1->SetFillColor(30);
+ZDCenergyEM1->SetFillColor(ci);
 ZDCenergyEM2->SetFillColor(30);
 ZDCenergyEM2->SetFillStyle(3001);
-ZDCenergyEM3->SetFillColor(ci);
+ZDCenergyEM3->SetFillColor(30);
 ZDCenergyEM4->SetFillColor(38);
 ZDCenergyEM5->SetFillColor(903);
-ZDCenergyEM5->Draw("hist");
-ZDCenergyEM4->Draw("same");
-ZDCenergyEM3->Draw("same");
-ZDCenergyEM2->Draw("same");
-ZDCenergyEM1->Draw("same");
+sZDCenergyEM.Add(ZDCenergyEM3);
+sZDCenergyEM.Add(ZDCenergyEM2);
+sZDCenergyEM.Add(ZDCenergyEM1);
+sZDCenergyEM.Add(ZDCenergyEM4);
+sZDCenergyEM.Add(ZDCenergyEM5);
+sZDCenergyEM.Draw();
+sZDCenergyEM->GetXaxis()->SetTitle("ZDC hit EM energy [GeV ??]");
+sZDCenergyEM->GetYaxis()->SetTitle("# events / 30 GeV ???");
 ZDCenergyEM0->Draw("same");
 
 ZDC->cd(8);
-ZDCenergyHAD5->GetXaxis()->SetTitle("ZDC hit HAD energy [GeV ??]");
-ZDCenergyHAD5->GetYaxis()->SetTitle("# events / 300 GeV ???");
 ZDCenergyHAD0->Sumw2();
 ZDCenergyHAD0->SetLineWidth(2);
 ZDCenergyHAD0->SetMarkerStyle(20);
-ZDCenergyHAD1->SetFillColor(30);
+ZDCenergyHAD1->SetFillColor(ci);
 ZDCenergyHAD2->SetFillColor(30);
 ZDCenergyHAD2->SetFillStyle(3001);
-ZDCenergyHAD3->SetFillColor(ci);
+ZDCenergyHAD3->SetFillColor(30);
 ZDCenergyHAD4->SetFillColor(38);
 ZDCenergyHAD5->SetFillColor(903);
-ZDCenergyHAD5->Draw("hist");
-ZDCenergyHAD4->Draw("same");
-ZDCenergyHAD3->Draw("same");
-ZDCenergyHAD2->Draw("same");
-ZDCenergyHAD1->Draw("same");
+sZDCenergyHAD.Add(ZDCenergyHAD3);
+sZDCenergyHAD.Add(ZDCenergyHAD2);
+sZDCenergyHAD.Add(ZDCenergyHAD1);
+sZDCenergyHAD.Add(ZDCenergyHAD4);
+sZDCenergyHAD.Add(ZDCenergyHAD5);
+sZDCenergyHAD.Draw();
+sZDCenergyHAD->GetXaxis()->SetTitle("ZDC hit HAD energy [GeV ??]");
+sZDCenergyHAD->GetYaxis()->SetTitle("# events / 300 GeV ???");
 ZDCenergyHAD0->Draw("same");
 
 TCanvas *Tdist = new TCanvas("Tdist","Tdist",800,550); 
@@ -2146,25 +2195,26 @@ TCanvas *Tdist = new TCanvas("Tdist","Tdist",800,550);
    Tdist->SetFrameBorderMode(0); 
  
 Tdist->cd(1); 
-Tdist5->GetXaxis()->SetTitle("#mu#mu p_{T}^{2} [GeV]"); 
-Tdist5->GetYaxis()->SetTitle("# events / 5 GeV"); 
 Tdist0->Sumw2(); 
 Tdist0->SetLineWidth(2); 
 Tdist0->SetMarkerStyle(20); 
-Tdist1->SetFillColor(30); 
+Tdist1->SetFillColor(ci); 
 Tdist2->SetFillColor(30); 
 Tdist2->SetFillStyle(3001); 
-Tdist3->SetFillColor(ci); 
+Tdist3->SetFillColor(30); 
 Tdist4->SetFillColor(38); 
 Tdist5->SetFillColor(903); 
-Tdist5->SetMaximum(Tdist0->GetMaximum() * 1.5);
-Tdist5->Draw("hist"); 
-Tdist4->Draw("same"); 
-Tdist3->Draw("same"); 
-Tdist2->Draw("same"); 
-Tdist1->Draw("same"); 
+//Tdist5->SetMaximum(Tdist0->GetMaximum() * 1.5);
+sTdist.Add(Tdist3);
+sTdist.Add(Tdist2);
+sTdist.Add(Tdist1);
+sTdist.Add(Tdist4);
+sTdist.Add(Tdist5);
+sTdist.Draw();
+sTdist->GetXaxis()->SetTitle("#mu#mu p_{T}^{2} [GeV]"); 
+sTdist->GetYaxis()->SetTitle("# events / 5 GeV"); 
 Tdist0->Draw("same"); 
-Tdist->SaveAs("Tdist_851nb.eps");
+//Tdist->SaveAs("Tdist_851nb.eps");
 
 }
 cout << "END" << endl;   
