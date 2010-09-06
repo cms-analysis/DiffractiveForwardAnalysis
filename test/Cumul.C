@@ -177,6 +177,26 @@ gStyle->SetOptStat(0);
   TH1F* Tdist6 = new TH1F("tDist_cumulInclu","",10,-0.2,1.8); 
   THStack sTdist("sTdist","stack Tdist");
 
+  TH1F* etaPair0 = new TH1F("etaPair_data","",24,-3.,3.);
+  TH1F* etaPair1 = new TH1F("etaPair_cumulElEl","",24,-3.,3.);
+  TH1F* etaPair2 = new TH1F("etaPair_cumulInelEl","",24,-3.,3.);
+  TH1F* etaPair3 = new TH1F("etaPair_cumulInelInel","",24,-3.,3.);
+  TH1F* etaPair4 = new TH1F("etaPair_cumulUps","",24,-3.,3.);
+  TH1F* etaPair5 = new TH1F("etaPair_cumulJpsi","",24,-3.,3.);
+  TH1F* etaPair6 = new TH1F("etaPair_cumulInclu","",24,-3.,3.);
+  THStack setaPair("setaPair","stack eta Pair");
+
+
+  TH1F* pTPair0 = new TH1F("pTPair_data","",24,-1.,5.);
+  TH1F* pTPair1 = new TH1F("pTPair_cumulElEl","",24,-1.,5.);
+  TH1F* pTPair2 = new TH1F("pTPair_cumulInelEl","",24,-1.,5.);
+  TH1F* pTPair3 = new TH1F("pTPair_cumulInelInel","",24,-1.,5.);
+  TH1F* pTPair4 = new TH1F("pTPair_cumulUps","",24,-1.,5.);
+  TH1F* pTPair5 = new TH1F("pTPair_cumulJpsi","",24,-1.,5.);
+  TH1F* pTPair6 = new TH1F("pTPair_cumulInclu","",24,-1.,5.);
+  THStack spTPair("spTPair","stack pT Pair");
+
+
   TH1F* ZDCemplus0 = new TH1F("zdcEm+_data","",72.,-100.,3500.);
   TH1F* ZDCemplus1 = new TH1F("zdcEm+_cumulElEl","",72.,-100.,3500.);
   TH1F* ZDCemplus2 = new TH1F("zdcEm+_cumulInelEl","",72.,-100.,3500.);
@@ -323,6 +343,10 @@ gStyle->SetOptStat(0);
   Double_t var_pt1[10], var_pt2[10], var_pt0[10],var_pt3[10],var_pt4[10],var_pt5[10],var_pt6[10],var_pz1[10], var_pz2[10], var_pz0[10],var_pz3[10],var_pz4[10],var_pz5[10],var_pz6[10],var_phi1[10], var_phi2[10], var_phi0[10],var_phi3[10], var_phi4[10],var_phi5[10],var_phi6[10],var_eta1[10], var_eta2[10], var_eta0[10], var_eta3[10], var_eta4[10], var_eta5[10], var_eta6[10];
   Int_t var_nhitsTrack1[10], var_nhitsTrack2[10], var_nhitsTrack0[10],  var_nhitsTrack3[10], var_nhitsTrack4[10], var_nhitsTrack5[10], var_nhitsTrack6[10];;
   Int_t var_Pair0[2], var_Pair1[2],var_Pair2[2],var_Pair3[2],var_Pair4[2],var_Pair5[2],var_Pair6[2];
+  Double_t var_p0[10],var_p1[10],var_p2[10],var_p3[10],var_p4[10],var_p5[10],var_p6[10];
+  Double_t var_px0[10],var_px1[10],var_px2[10],var_px3[10],var_px4[10],var_px5[10],var_px6[10];
+  Double_t var_py0[10],var_py1[10],var_py2[10],var_py3[10],var_py4[10],var_py5[10],var_py6[10];
+  Double_t var_pz0[10],var_pz1[10],var_pz2[10],var_pz3[10],var_pz4[10],var_pz5[10],var_pz6[10];
 
 // ZDC
   Int_t var_nZDC1[1], var_nZDC2[1], var_nZDC0[1], var_nZDC3[1], var_nZDC4[1], var_nZDC5[1],var_nZDC6[1];
@@ -642,26 +666,54 @@ gStyle->SetOptStat(0);
   t2->SetBranchAddress("MuonCand_phi",var_phi2);
   t1->SetBranchAddress("MuonCand_eta",var_eta1);
   t2->SetBranchAddress("MuonCand_eta",var_eta2);
+  t1->SetBranchAddress("MuonCand_p",var_p1);
+  t1->SetBranchAddress("MuonCand_px",var_px1);
+  t1->SetBranchAddress("MuonCand_py",var_py1);
+  t1->SetBranchAddress("MuonCand_pz",var_pz1);
+  t2->SetBranchAddress("MuonCand_p",var_p2);
+  t2->SetBranchAddress("MuonCand_px",var_px2);
+  t2->SetBranchAddress("MuonCand_py",var_py2);
+  t2->SetBranchAddress("MuonCand_pz",var_pz2);
   t0->SetBranchAddress("MuonCand_pt",var_pt0);
   t0->SetBranchAddress("MuonCand_pz",var_pz0);
   t0->SetBranchAddress("MuonCand_phi",var_phi0);
   t0->SetBranchAddress("MuonCand_eta",var_eta0);
+  t0->SetBranchAddress("MuonCand_p",var_p0);
+  t0->SetBranchAddress("MuonCand_px",var_px0);
+  t0->SetBranchAddress("MuonCand_py",var_py0);
+  t0->SetBranchAddress("MuonCand_pz",var_pz0);
   t3->SetBranchAddress("MuonCand_pt",var_pt3);
   t3->SetBranchAddress("MuonCand_pz",var_pz3);
   t3->SetBranchAddress("MuonCand_phi",var_phi3);
   t3->SetBranchAddress("MuonCand_eta",var_eta3);
+  t3->SetBranchAddress("MuonCand_p",var_p3);
+  t3->SetBranchAddress("MuonCand_px",var_px3);
+  t3->SetBranchAddress("MuonCand_py",var_py3);
+  t3->SetBranchAddress("MuonCand_pz",var_pz3);
   t4->SetBranchAddress("MuonCand_pt",var_pt4);
   t4->SetBranchAddress("MuonCand_pz",var_pz4);
   t4->SetBranchAddress("MuonCand_phi",var_phi4);
   t4->SetBranchAddress("MuonCand_eta",var_eta4);
+  t4->SetBranchAddress("MuonCand_p",var_p4);
+  t4->SetBranchAddress("MuonCand_px",var_px4);
+  t4->SetBranchAddress("MuonCand_py",var_py4);
+  t4->SetBranchAddress("MuonCand_pz",var_pz4);
   t5->SetBranchAddress("MuonCand_pt",var_pt5);
   t5->SetBranchAddress("MuonCand_pz",var_pz5);
   t5->SetBranchAddress("MuonCand_phi",var_phi5);
   t5->SetBranchAddress("MuonCand_eta",var_eta5);
+  t5->SetBranchAddress("MuonCand_p",var_p5);
+  t5->SetBranchAddress("MuonCand_px",var_px5);
+  t5->SetBranchAddress("MuonCand_py",var_py5);
+  t5->SetBranchAddress("MuonCand_pz",var_pz5);
   t6->SetBranchAddress("MuonCand_pt",var_pt6);
   t6->SetBranchAddress("MuonCand_pz",var_pz6);
   t6->SetBranchAddress("MuonCand_phi",var_phi6);
   t6->SetBranchAddress("MuonCand_eta",var_eta6);
+  t6->SetBranchAddress("MuonCand_p",var_p6);
+  t6->SetBranchAddress("MuonCand_px",var_px6);
+  t6->SetBranchAddress("MuonCand_py",var_py6);
+  t6->SetBranchAddress("MuonCand_pz",var_pz6);
 
   t0->SetBranchAddress("MuonPairCand",var_Pair0);
   t1->SetBranchAddress("MuonPairCand",var_Pair1);
@@ -896,6 +948,12 @@ gStyle->SetOptStat(0);
 	  }
 
 	  CastorSumE0->Fill(var_CastorRecHit0[0],fac_lumi0);
+
+          double eta_pair=0.5*TMath::Log((double)((var_p0[pair1]+var_p0[pair2]+var_pz0[pair1]+var_pz0[pair2])/(var_p0[pair1]+var_p0[pair2]-var_pz0[pair1]-var_pz0[pair2])));
+	  double pt_pair =sqrt((var_px0[pair1]+var_px0[pair2])*(var_px0[pair1]+var_px0[pair2])+(var_py0[pair1]+var_py0[pair2])*(var_py0[pair1]+var_py0[pair2]));
+          etaPair0->Fill(eta_pair,fac_lumi0);
+	  pTPair0->Fill(pt_pair,fac_lumi0);
+
 	  } // if nTrack&nCalo if relevant
         }
   }
@@ -1017,6 +1075,12 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 	  }
 
 	  CastorSumE1->Fill(var_CastorRecHit1[0],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+
+          double eta_pair=0.5*TMath::Log((double)((var_p1[pair1]+var_p1[pair2]+var_pz1[pair1]+var_pz1[pair2])/(var_p1[pair1]+var_p1[pair2]-var_pz1[pair1]-var_pz1[pair2])));
+          double pt_pair =sqrt((var_px1[pair1]+var_px1[pair2])*(var_px1[pair1]+var_px1[pair2])+(var_py1[pair1]+var_py1[pair2])*(var_py1[pair1]+var_py1[pair2]));
+          etaPair1->Fill(eta_pair,fac_lumi1);
+          pTPair1->Fill(pt_pair,fac_lumi1);
+
 	  } // if nTrack&nCalo if relevant
         }
   }
@@ -1138,6 +1202,12 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
 	  }
 
 	  CastorSumE2->Fill(var_CastorRecHit2[0],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+
+          double eta_pair=0.5*TMath::Log((double)((var_p2[pair1]+var_p2[pair2]+var_pz2[pair1]+var_pz2[pair2])/(var_p2[pair1]+var_p2[pair2]-var_pz2[pair1]-var_pz2[pair2])));
+          double pt_pair =sqrt((var_px2[pair1]+var_px2[pair2])*(var_px2[pair1]+var_px2[pair2])+(var_py2[pair1]+var_py2[pair2])*(var_py2[pair1]+var_py2[pair2]));
+          etaPair2->Fill(eta_pair,fac_lumi2);
+          pTPair2->Fill(pt_pair,fac_lumi2);
+
 	  } // if nTrack&nCalo if relevant
         }
   }
@@ -1270,6 +1340,11 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 
 	  CastorSumE3->Fill(var_CastorRecHit3[0],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
 
+          double eta_pair=0.5*TMath::Log((double)((var_p3[pair1]+var_p3[pair2]+var_pz3[pair1]+var_pz3[pair2])/(var_p3[pair1]+var_p3[pair2]-var_pz3[pair1]-var_pz3[pair2])));
+          double pt_pair =sqrt((var_px3[pair1]+var_px3[pair2])*(var_px3[pair1]+var_px3[pair2])+(var_py3[pair1]+var_py3[pair2])*(var_py3[pair1]+var_py3[pair2]));
+          etaPair3->Fill(eta_pair,fac_lumi3);
+          pTPair3->Fill(pt_pair,fac_lumi3);
+
 	  } // if nTrack&nCalo if relevant
         }
   }
@@ -1388,6 +1463,12 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 	  }
 
 	  CastorSumE4->Fill(var_CastorRecHit4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+
+          double eta_pair=0.5*TMath::Log((double)((var_p4[pair1]+var_p4[pair2]+var_pz4[pair1]+var_pz4[pair2])/(var_p4[pair1]+var_p4[pair2]-var_pz4[pair1]-var_pz4[pair2])));
+          double pt_pair =sqrt((var_px4[pair1]+var_px4[pair2])*(var_px4[pair1]+var_px4[pair2])+(var_py4[pair1]+var_py4[pair2])*(var_py4[pair1]+var_py4[pair2]));
+          etaPair4->Fill(eta_pair,fac_lumi4);
+          pTPair4->Fill(pt_pair,fac_lumi4);
+
 	  } // if nTrack&nCalo if relevant
         }
   }
@@ -1504,6 +1585,12 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
           }
 
           CastorSumE5->Fill(var_CastorRecHit5[0],fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
+
+          double eta_pair=0.5*TMath::Log((double)((var_p5[pair1]+var_p5[pair2]+var_pz5[pair1]+var_pz5[pair2])/(var_p5[pair1]+var_p5[pair2]-var_pz5[pair1]-var_pz5[pair2])));
+          double pt_pair =sqrt((var_px5[pair1]+var_px5[pair2])*(var_px5[pair1]+var_px5[pair2])+(var_py5[pair1]+var_py5[pair2])*(var_py5[pair1]+var_py5[pair2]));
+          etaPair5->Fill(eta_pair,fac_lumi5);
+          pTPair5->Fill(pt_pair,fac_lumi5);
+
           } // if nTrack&nCalo if relevant
         }
   }
@@ -1630,6 +1717,11 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
           }
 
           CastorSumE2->Fill(var_CastorRecHit6[0],fac_lumiBkg[bkgNum]);
+
+          double eta_pair=0.5*TMath::Log((double)((var_p6[pair1]+var_p6[pair2]+var_pz6[pair1]+var_pz6[pair2])/(var_p6[pair1]+var_p6[pair2]-var_pz6[pair1]-var_pz6[pair2])));
+          double pt_pair =sqrt((var_px6[pair1]+var_px6[pair2])*(var_px6[pair1]+var_px6[pair2])+(var_py6[pair1]+var_py6[pair2])*(var_py6[pair1]+var_py6[pair2]));
+          etaPair6->Fill(eta_pair,fac_lumi6);
+          pTPair6->Fill(pt_pair,fac_lumi6);
 
           } // if nTrack&nCalo if relevant
         }
@@ -2013,6 +2105,58 @@ sMuMudphi->GetXaxis()->SetTitle("#mu#mu |#Delta #phi / #pi|");
 sMuMudphi->GetYaxis()->SetTitle("# events / 0.01 ");
 MuMudphi0->Draw("same");
 //Kinematic1->SaveAs("Kinematic1_851nb.eps");
+
+
+TCanvas *Kinematic3 = new TCanvas("Kinematic3","Kinematic MuMu",800,500);
+   Kinematic3->SetFillColor(0);
+   Kinematic3->SetBorderMode(0);
+   Kinematic3->SetBorderSize(2);
+   Kinematic3->SetFrameBorderMode(0);
+   
+Kinematic3->Divide(2,1);
+Kinematic3->cd(1);
+etaPair0->Sumw2();
+etaPair0->SetLineWidth(2);
+etaPair0->SetMarkerStyle(20);
+etaPair1->SetFillColor(ci);
+etaPair2->SetFillColor(30);
+etaPair2->SetFillStyle(3001);
+etaPair3->SetFillColor(30);
+etaPair4->SetFillColor(38);
+etaPair5->SetFillColor(903);
+//etaPair5->SetMaximum(etaPair0->GetMaximum() * 1.5); 
+setaPair.Add(etaPair3);
+setaPair.Add(etaPair2);
+setaPair.Add(etaPair1);
+setaPair.Add(etaPair4);
+setaPair.Add(etaPair5);
+setaPair.Draw();
+setaPair->GetXaxis()->SetTitle("#mu#mu #eta");
+setaPair->GetYaxis()->SetTitle("# events / 0.25");
+etaPair0->Draw("same");
+
+Kinematic3->cd(2);
+pTPair0->Sumw2();
+pTPair0->SetLineWidth(2);
+pTPair0->SetMarkerStyle(20);
+pTPair1->SetFillColor(ci);
+pTPair2->SetFillColor(30);
+pTPair2->SetFillStyle(3001);
+pTPair3->SetFillColor(30);
+pTPair4->SetFillColor(38);
+pTPair5->SetFillColor(903);
+//pTPair5->SetMaximum(pTPair0->GetMaximum() * 1.5); 
+spTPair.Add(pTPair3);
+spTPair.Add(pTPair2);
+spTPair.Add(pTPair1);
+spTPair.Add(pTPair4);
+spTPair.Add(pTPair5);
+spTPair.Draw();
+spTPair->GetXaxis()->SetTitle("#mu#mu p_{T} [GeV]");
+spTPair->GetYaxis()->SetTitle("# events / 0.25 GeV");
+pTPair0->Draw("same");
+
+
 
 
 TCanvas *CASTOR = new TCanvas("CASTOR","CASTOR",800,550);
