@@ -186,7 +186,6 @@ gStyle->SetOptStat(0);
   TH1F* etaPair6 = new TH1F("etaPair_cumulInclu","",24,-3.,3.);
   THStack setaPair("setaPair","stack eta Pair");
 
-
   TH1F* pTPair0 = new TH1F("pTPair_data","",24,-1.,5.);
   TH1F* pTPair1 = new TH1F("pTPair_cumulElEl","",24,-1.,5.);
   TH1F* pTPair2 = new TH1F("pTPair_cumulInelEl","",24,-1.,5.);
@@ -195,6 +194,34 @@ gStyle->SetOptStat(0);
   TH1F* pTPair5 = new TH1F("pTPair_cumulJpsi","",24,-1.,5.);
   TH1F* pTPair6 = new TH1F("pTPair_cumulInclu","",24,-1.,5.);
   THStack spTPair("spTPair","stack pT Pair");
+
+
+  TH1F* phiSingle0 = new TH1F("phiSingle_data","",22.,-1.1,1.1);
+  TH1F* phiSingle1 = new TH1F("phiSingle_cumulElEl","",22.,-1.1,1.1);
+  TH1F* phiSingle2 = new TH1F("phiSingle_cumulInelEl","",22.,-1.1,1.1);
+  TH1F* phiSingle3 = new TH1F("phiSingle_cumulInelInel","",22.,-1.1,1.1);
+  TH1F* phiSingle4 = new TH1F("phiSingle_cumulUps","",22.,-1.1,1.1);
+  TH1F* phiSingle5 = new TH1F("phiSingle_cumulJpsi","",22.,-1.1,1.1);
+  TH1F* phiSingle6 = new TH1F("phiSingle_cumulInclu","",22.,-1.1,1.1);
+  THStack sphiSingle("sphiSingle","stack eta Single");
+
+  TH1F* etaSingle0 = new TH1F("etaSingle_data","",24,-3.,3.);
+  TH1F* etaSingle1 = new TH1F("etaSingle_cumulElEl","",24,-3.,3.);
+  TH1F* etaSingle2 = new TH1F("etaSingle_cumulInelEl","",24,-3.,3.);
+  TH1F* etaSingle3 = new TH1F("etaSingle_cumulInelInel","",24,-3.,3.);
+  TH1F* etaSingle4 = new TH1F("etaSingle_cumulUps","",24,-3.,3.);
+  TH1F* etaSingle5 = new TH1F("etaSingle_cumulJpsi","",24,-3.,3.);
+  TH1F* etaSingle6 = new TH1F("etaSingle_cumulInclu","",24,-3.,3.);
+  THStack setaSingle("setaSingle","stack eta Single");
+
+  TH1F* pTSingle0 = new TH1F("pTSingle_data","",48,-1.,23.);
+  TH1F* pTSingle1 = new TH1F("pTSingle_cumulElEl","",48,-1.,23.);
+  TH1F* pTSingle2 = new TH1F("pTSingle_cumulInelEl","",48,-1.,23.);
+  TH1F* pTSingle3 = new TH1F("pTSingle_cumulInelInel","",48,-1.,23.);
+  TH1F* pTSingle4 = new TH1F("pTSingle_cumulUps","",48,-1.,23.);
+  TH1F* pTSingle5 = new TH1F("pTSingle_cumulJpsi","",48,-1.,23.);
+  TH1F* pTSingle6 = new TH1F("pTSingle_cumulInclu","",48,-1.,23.);
+  THStack spTSingle("spTSingle","stack pT muon");
 
 
   TH1F* ZDCemplus0 = new TH1F("zdcEm+_data","",72.,-100.,3500.);
@@ -931,8 +958,8 @@ gStyle->SetOptStat(0);
 	  MuMuvtxXY0->Fill(sqrt(var_MuMuvtxX0[0]*var_MuMuvtxX0[0]+var_MuMuvtxY0[0]*var_MuMuvtxY0[0]),fac_lumi0);
 
 	  TLorentzVector mu1, mu2, dimuon;
-	  mu1.SetPtEtaPhiM(var_pt0[0],var_eta0[0],var_phi0[0],0.1396);	
-          mu2.SetPtEtaPhiM(var_pt0[1],var_eta0[1],var_phi0[1],0.1396);   
+	  mu1.SetPtEtaPhiM(var_pt0[pair1],var_eta0[pair1],var_phi0[pair1],0.1396);	
+          mu2.SetPtEtaPhiM(var_pt0[pair2],var_eta0[pair2],var_phi0[pair2],0.1396);   
 	  dimuon = mu1 + mu2;
 	  Tdist0->Fill(dimuon.Pt()*dimuon.Pt()); 
 
@@ -953,6 +980,10 @@ gStyle->SetOptStat(0);
 	  double pt_pair =sqrt((var_px0[pair1]+var_px0[pair2])*(var_px0[pair1]+var_px0[pair2])+(var_py0[pair1]+var_py0[pair2])*(var_py0[pair1]+var_py0[pair2]));
           etaPair0->Fill(eta_pair,fac_lumi0);
 	  pTPair0->Fill(pt_pair,fac_lumi0);
+
+	  phiSingle0->Fill(var_phi0[pair1]/pi,fac_lumi0);           phiSingle0->Fill(var_phi0[pair2]/pi,fac_lumi0);
+          etaSingle0->Fill(var_eta0[pair1],fac_lumi0);           etaSingle0->Fill(var_eta0[pair2],fac_lumi0);
+           pTSingle0->Fill(var_pt0[pair1],fac_lumi0);             pTSingle0->Fill(var_pt0[pair2],fac_lumi0);
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -1054,8 +1085,8 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
           MuMuvtxXY1->Fill(sqrt(var_MuMuvtxX1[0]*var_MuMuvtxX1[0]+var_MuMuvtxY1[0]*var_MuMuvtxY1[0]),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
 
           TLorentzVector mu11, mu12, dimuon1;   
-          mu11.SetPtEtaPhiM(var_pt1[0],var_eta1[0],var_phi1[0],0.1396);     
-          mu12.SetPtEtaPhiM(var_pt1[1],var_eta1[1],var_phi1[1],0.1396);      
+          mu11.SetPtEtaPhiM(var_pt1[pair1],var_eta1[pair1],var_phi1[pair1],0.1396);     
+          mu12.SetPtEtaPhiM(var_pt1[pair2],var_eta1[pair2],var_phi1[pair2],0.1396);      
           dimuon1 = mu11 + mu12;   
           Tdist1->Fill(dimuon1.Pt()*dimuon1.Pt(),fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);    
 
@@ -1078,8 +1109,12 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 
           double eta_pair=0.5*TMath::Log((double)((var_p1[pair1]+var_p1[pair2]+var_pz1[pair1]+var_pz1[pair2])/(var_p1[pair1]+var_p1[pair2]-var_pz1[pair1]-var_pz1[pair2])));
           double pt_pair =sqrt((var_px1[pair1]+var_px1[pair2])*(var_px1[pair1]+var_px1[pair2])+(var_py1[pair1]+var_py1[pair2])*(var_py1[pair1]+var_py1[pair2]));
-          etaPair1->Fill(eta_pair,fac_lumi1);
-          pTPair1->Fill(pt_pair,fac_lumi1);
+          etaPair1->Fill(eta_pair,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          pTPair1->Fill(pt_pair,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+
+          phiSingle1->Fill(var_phi1[pair1]/pi,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);           phiSingle1->Fill(var_phi1[pair2]/pi,fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+          etaSingle1->Fill(var_eta1[pair1],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);           etaSingle1->Fill(var_eta1[pair2],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
+           pTSingle1->Fill(var_pt1[pair1],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);             pTSingle1->Fill(var_pt1[pair2],fac_lumi1*var_eff1[pair1]*var_eff1[pair2]);
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -1181,8 +1216,8 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
 	  MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX2[0]*var_MuMuvtxX2[0]+var_MuMuvtxY2[0]*var_MuMuvtxY2[0]),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
 
           TLorentzVector mu21, mu22, dimuon2;    
-          mu21.SetPtEtaPhiM(var_pt2[0],var_eta2[0],var_phi2[0],0.1396);      
-          mu22.SetPtEtaPhiM(var_pt2[1],var_eta2[1],var_phi2[1],0.1396);       
+          mu21.SetPtEtaPhiM(var_pt2[pair1],var_eta2[pair1],var_phi2[pair1],0.1396);      
+          mu22.SetPtEtaPhiM(var_pt2[pair2],var_eta2[pair2],var_phi2[pair2],0.1396);       
           dimuon2 = mu21 + mu22;    
           Tdist2->Fill(dimuon2.Pt()*dimuon2.Pt(),fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);     
 
@@ -1205,8 +1240,12 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
 
           double eta_pair=0.5*TMath::Log((double)((var_p2[pair1]+var_p2[pair2]+var_pz2[pair1]+var_pz2[pair2])/(var_p2[pair1]+var_p2[pair2]-var_pz2[pair1]-var_pz2[pair2])));
           double pt_pair =sqrt((var_px2[pair1]+var_px2[pair2])*(var_px2[pair1]+var_px2[pair2])+(var_py2[pair1]+var_py2[pair2])*(var_py2[pair1]+var_py2[pair2]));
-          etaPair2->Fill(eta_pair,fac_lumi2);
-          pTPair2->Fill(pt_pair,fac_lumi2);
+          etaPair2->Fill(eta_pair,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+          pTPair2->Fill(pt_pair,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+
+          phiSingle2->Fill(var_phi2[pair1]/pi,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);           phiSingle2->Fill(var_phi2[pair2]/pi,fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+          etaSingle2->Fill(var_eta2[pair1],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);           etaSingle2->Fill(var_eta2[pair2],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
+           pTSingle2->Fill(var_pt2[pair1],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);             pTSingle2->Fill(var_pt2[pair2],fac_lumi2*var_eff2[pair1]*var_eff2[pair2]);
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -1314,17 +1353,9 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 
 
           TLorentzVector mu31, mu32, dimuon3; 
-          mu31.SetPtEtaPhiM(var_pt3[0],var_eta3[0],var_phi3[0],0.1396);   
-          mu32.SetPtEtaPhiM(var_pt3[1],var_eta3[1],var_phi3[1],0.1396);    
+          mu31.SetPtEtaPhiM(var_pt3[pair1],var_eta3[pair1],var_phi3[pair1],0.1396);   
+          mu32.SetPtEtaPhiM(var_pt3[pair2],var_eta3[pair2],var_phi3[pair2],0.1396);    
           dimuon3 = mu31 + mu32; 
-          TLorentzVector mu21, mu22, dimuon2;  
-          mu21.SetPtEtaPhiM(var_pt2[0],var_eta2[0],var_phi2[0],0.1396);    
-          mu22.SetPtEtaPhiM(var_pt2[1],var_eta2[1],var_phi2[1],0.1396);     
-          dimuon2 = mu21 + mu22;  
-          TLorentzVector mu11, mu12, dimuon1;  
-          mu11.SetPtEtaPhiM(var_pt1[0],var_eta1[0],var_phi1[0],0.1396);    
-          mu12.SetPtEtaPhiM(var_pt1[1],var_eta1[1],var_phi1[1],0.1396);     
-          dimuon1 = mu11 + mu12;  
           Tdist3->Fill(dimuon3.Pt()*dimuon3.Pt(),fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);  
 
 	  for(Int_t l=0; l<var_nZDC3[0]; l++){
@@ -1342,8 +1373,13 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 
           double eta_pair=0.5*TMath::Log((double)((var_p3[pair1]+var_p3[pair2]+var_pz3[pair1]+var_pz3[pair2])/(var_p3[pair1]+var_p3[pair2]-var_pz3[pair1]-var_pz3[pair2])));
           double pt_pair =sqrt((var_px3[pair1]+var_px3[pair2])*(var_px3[pair1]+var_px3[pair2])+(var_py3[pair1]+var_py3[pair2])*(var_py3[pair1]+var_py3[pair2]));
-          etaPair3->Fill(eta_pair,fac_lumi3);
-          pTPair3->Fill(pt_pair,fac_lumi3);
+          etaPair3->Fill(eta_pair,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+          pTPair3->Fill(pt_pair,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+
+          phiSingle3->Fill(var_phi3[pair1]/pi,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);           phiSingle3->Fill(var_phi3[pair2]/pi,fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+          etaSingle3->Fill(var_eta3[pair1],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);           etaSingle3->Fill(var_eta3[pair2],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+           pTSingle3->Fill(var_pt3[pair1],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);             pTSingle3->Fill(var_pt3[pair2],fac_lumi3*var_eff3[pair1]*var_eff3[pair2]);
+
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -1448,8 +1484,8 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
           ZDChadminus5->Fill(var_zdcHadMinus4[0],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
 
           TLorentzVector mu41, mu42, dimuon4;  
-          mu41.SetPtEtaPhiM(var_pt4[0],var_eta4[0],var_phi4[0],0.1396);    
-          mu42.SetPtEtaPhiM(var_pt4[1],var_eta4[1],var_phi4[1],0.1396);     
+          mu41.SetPtEtaPhiM(var_pt4[pair1],var_eta4[pair1],var_phi4[pair1],0.1396);    
+          mu42.SetPtEtaPhiM(var_pt4[pair2],var_eta4[pair2],var_phi4[pair2],0.1396);     
           dimuon4 = mu41 + mu42;  
           Tdist4->Fill(dimuon4.Pt()*dimuon4.Pt(),fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);   
 
@@ -1466,8 +1502,12 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 
           double eta_pair=0.5*TMath::Log((double)((var_p4[pair1]+var_p4[pair2]+var_pz4[pair1]+var_pz4[pair2])/(var_p4[pair1]+var_p4[pair2]-var_pz4[pair1]-var_pz4[pair2])));
           double pt_pair =sqrt((var_px4[pair1]+var_px4[pair2])*(var_px4[pair1]+var_px4[pair2])+(var_py4[pair1]+var_py4[pair2])*(var_py4[pair1]+var_py4[pair2]));
-          etaPair4->Fill(eta_pair,fac_lumi4);
-          pTPair4->Fill(pt_pair,fac_lumi4);
+          etaPair4->Fill(eta_pair,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          pTPair4->Fill(pt_pair,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+
+          phiSingle4->Fill(var_phi4[pair1]/pi,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);           phiSingle4->Fill(var_phi4[pair2]/pi,fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+          etaSingle4->Fill(var_eta4[pair1],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);           etaSingle4->Fill(var_eta4[pair2],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
+           pTSingle4->Fill(var_pt4[pair1],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);             pTSingle4->Fill(var_pt4[pair2],fac_lumi4*var_eff4[pair1]*var_eff4[pair2]);
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -1567,8 +1607,8 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
 	  MuMuvtxXY5->Fill(sqrt(var_MuMuvtxX5[0]*var_MuMuvtxX5[0]+var_MuMuvtxY5[0]*var_MuMuvtxY5[0]),fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
 
           TLorentzVector mu51, mu52, dimuon5;   
-          mu51.SetPtEtaPhiM(var_pt5[0],var_eta5[0],var_phi5[0],0.1396);     
-          mu52.SetPtEtaPhiM(var_pt5[1],var_eta5[1],var_phi5[1],0.1396);      
+          mu51.SetPtEtaPhiM(var_pt5[pair1],var_eta5[pair1],var_phi5[pair1],0.1396);     
+          mu52.SetPtEtaPhiM(var_pt5[pair2],var_eta5[pair2],var_phi5[pair2],0.1396);      
           dimuon5 = mu51 + mu52;   
           Tdist5->Fill(dimuon5.Pt()*dimuon5.Pt(),fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);     
 
@@ -1588,8 +1628,13 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
 
           double eta_pair=0.5*TMath::Log((double)((var_p5[pair1]+var_p5[pair2]+var_pz5[pair1]+var_pz5[pair2])/(var_p5[pair1]+var_p5[pair2]-var_pz5[pair1]-var_pz5[pair2])));
           double pt_pair =sqrt((var_px5[pair1]+var_px5[pair2])*(var_px5[pair1]+var_px5[pair2])+(var_py5[pair1]+var_py5[pair2])*(var_py5[pair1]+var_py5[pair2]));
-          etaPair5->Fill(eta_pair,fac_lumi5);
-          pTPair5->Fill(pt_pair,fac_lumi5);
+          etaPair5->Fill(eta_pair,fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
+          pTPair5->Fill(pt_pair,fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
+
+          phiSingle5->Fill(var_phi5[pair1]/pi,fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);           phiSingle5->Fill(var_phi5[pair2]/pi,fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
+          etaSingle5->Fill(var_eta5[pair1],fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);           etaSingle5->Fill(var_eta5[pair2],fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
+           pTSingle5->Fill(var_pt5[pair1],fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);             pTSingle5->Fill(var_pt5[pair2],fac_lumi5*var_eff5[pair1]*var_eff5[pair2]);
+
 
           } // if nTrack&nCalo if relevant
         }
@@ -1696,8 +1741,8 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
           MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX6[0]*var_MuMuvtxX6[0]+var_MuMuvtxY6[0]*var_MuMuvtxY6[0]),fac_lumiBkg[bkgNum]);
 
           TLorentzVector mu61, mu62, dimuon6;   
-          mu61.SetPtEtaPhiM(var_pt6[0],var_eta6[0],var_phi6[0],0.1396);     
-          mu62.SetPtEtaPhiM(var_pt6[1],var_eta6[1],var_phi6[1],0.1396);      
+          mu61.SetPtEtaPhiM(var_pt6[pair1],var_eta6[pair1],var_phi6[pair1],0.1396);     
+          mu62.SetPtEtaPhiM(var_pt6[pair2],var_eta6[pair2],var_phi6[pair2],0.1396);      
           dimuon6 = mu61 + mu62;   
           Tdist2->Fill(dimuon6.Pt()*dimuon6.Pt(),fac_lumiBkg[bkgNum]);    
 
@@ -1720,8 +1765,13 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
 
           double eta_pair=0.5*TMath::Log((double)((var_p6[pair1]+var_p6[pair2]+var_pz6[pair1]+var_pz6[pair2])/(var_p6[pair1]+var_p6[pair2]-var_pz6[pair1]-var_pz6[pair2])));
           double pt_pair =sqrt((var_px6[pair1]+var_px6[pair2])*(var_px6[pair1]+var_px6[pair2])+(var_py6[pair1]+var_py6[pair2])*(var_py6[pair1]+var_py6[pair2]));
-          etaPair6->Fill(eta_pair,fac_lumi6);
-          pTPair6->Fill(pt_pair,fac_lumi6);
+          etaPair6->Fill(eta_pair,fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);
+          pTPair6->Fill(pt_pair,fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);
+
+          phiSingle6->Fill(var_phi6[pair1]/pi,fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);           phiSingle6->Fill(var_phi6[pair2]/pi,fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);
+          etaSingle6->Fill(var_eta6[pair1],fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);           etaSingle6->Fill(var_eta6[pair2],fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);
+           pTSingle6->Fill(var_pt6[pair1],fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);             pTSingle6->Fill(var_pt6[pair2],fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);
+
 
           } // if nTrack&nCalo if relevant
         }
@@ -2155,6 +2205,79 @@ spTPair.Draw();
 spTPair->GetXaxis()->SetTitle("#mu#mu p_{T} [GeV]");
 spTPair->GetYaxis()->SetTitle("# events / 0.25 GeV");
 pTPair0->Draw("same");
+
+
+
+TCanvas *Kinematic4 = new TCanvas("Kinematic4","Kinematic single Muon",800,500);
+   Kinematic4->SetFillColor(0);
+   Kinematic4->SetBorderMode(0);
+   Kinematic4->SetBorderSize(2);
+   Kinematic4->SetFrameBorderMode(0);
+
+Kinematic4->Divide(3,1);
+Kinematic4->cd(1);
+etaSingle0->Sumw2();
+etaSingle0->SetLineWidth(2);
+etaSingle0->SetMarkerStyle(20);
+etaSingle1->SetFillColor(ci);
+etaSingle2->SetFillColor(30);
+etaSingle2->SetFillStyle(3001);
+etaSingle3->SetFillColor(30);
+etaSingle4->SetFillColor(38);
+etaSingle5->SetFillColor(903);
+//etaSingle5->SetMaximum(etaSingle0->GetMaximum() * 1.5); 
+setaSingle.Add(etaSingle3);
+setaSingle.Add(etaSingle2);
+setaSingle.Add(etaSingle1);
+setaSingle.Add(etaSingle4);
+setaSingle.Add(etaSingle5);
+setaSingle.Draw();
+setaSingle->GetXaxis()->SetTitle("#mu #eta");
+setaSingle->GetYaxis()->SetTitle("# events / 0.25");
+etaSingle0->Draw("same");
+
+Kinematic4->cd(2);
+phiSingle0->Sumw2();
+phiSingle0->SetLineWidth(2);
+phiSingle0->SetMarkerStyle(20);
+phiSingle1->SetFillColor(ci);
+phiSingle2->SetFillColor(30);
+phiSingle2->SetFillStyle(3001);
+phiSingle3->SetFillColor(30);
+phiSingle4->SetFillColor(38);
+phiSingle5->SetFillColor(903);
+//phiSingle5->SetMaximum(phiSingle0->GetMaximum() * 1.5); 
+sphiSingle.Add(phiSingle3);
+sphiSingle.Add(phiSingle2);
+sphiSingle.Add(phiSingle1);
+sphiSingle.Add(phiSingle4);
+sphiSingle.Add(phiSingle5);
+sphiSingle.Draw();
+sphiSingle->GetXaxis()->SetTitle("#mu #phi/#pi");
+sphiSingle->GetYaxis()->SetTitle("# events / 0.25");
+phiSingle0->Draw("same");
+
+Kinematic4->cd(3);
+pTSingle0->Sumw2();
+pTSingle0->SetLineWidth(2);
+pTSingle0->SetMarkerStyle(20);
+pTSingle1->SetFillColor(ci);
+pTSingle2->SetFillColor(30);
+pTSingle2->SetFillStyle(3001);
+pTSingle3->SetFillColor(30);
+pTSingle4->SetFillColor(38);
+pTSingle5->SetFillColor(903);
+//pTSingle5->SetMaximum(pTSingle0->GetMaximum() * 1.5); 
+spTSingle.Add(pTSingle3);
+spTSingle.Add(pTSingle2);
+spTSingle.Add(pTSingle1);
+spTSingle.Add(pTSingle4);
+spTSingle.Add(pTSingle5);
+spTSingle.Draw();
+spTSingle->GetXaxis()->SetTitle("#mu#mu #pT");
+spTSingle->GetYaxis()->SetTitle("# events / 0.25");
+pTSingle0->Draw("same");
+
 
 
 
