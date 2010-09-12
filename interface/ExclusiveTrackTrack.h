@@ -60,6 +60,10 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   double TrackCand_ndof[100];
   int TrackCand_purity[100]; 
   int TrackCand_charge[100];
+  //You can access dE/dx Estimation of your track with: 
+  double TrackCand_dEdx[100];
+  int TrackCand_nSaturated[100];
+  int TrackCand_nMeasurements[100];
 
   double TrTr_mass;
   double TrTr_dphi;

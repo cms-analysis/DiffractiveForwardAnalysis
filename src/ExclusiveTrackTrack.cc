@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.12 2010/07/22 06:26:22 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.13 2010/09/02 06:51:35 jjhollar Exp $
 //
 //
 
@@ -85,6 +85,10 @@
 #include <DataFormats/TrackReco/interface/Track.h>
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+
+// dEdX
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/TrackReco/interface/DeDxData.h"
 
 // Vertexing 
 #include "DataFormats/VertexReco/interface/Vertex.h" 
@@ -169,6 +173,9 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   thetree->Branch("TrackCand_chi2",TrackCand_chi2,"TrackCand_chi2[nTrackCand]/D");
   thetree->Branch("TrackCand_ndof",TrackCand_ndof,"TrackCand_ndof[nTrackCand]/D");
   thetree->Branch("TrackCand_purity",TrackCand_purity,"TrackCand_purity[nTrackCand]/I"); 
+  thetree->Branch("TrackCand_dEdx",TrackCand_dEdx,"TrackCand_dEdx[nTrackCand]/D");
+  thetree->Branch("TrackCand_nSaturated",TrackCand_nSaturated,"TrackCand_nSaturated[nTrackCand]/I");
+  thetree->Branch("TrackCand_nMeasurements",TrackCand_nMeasurements,"TrackCand_nMeasurements[nTrackCand]/I");
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -470,10 +477,21 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
   const TrackCollection* tracks = recoTracks.product();
   TrackCollection::const_iterator track;
 
+  // Get the dE/dX map from the event
+  edm::Handle<edm::ValueMap<reco::DeDxData> > dEdxTrackHandle;
+  event.getByLabel("dedxHarmonic2", dEdxTrackHandle);
+  const edm::ValueMap<reco::DeDxData> dEdxTrack = *dEdxTrackHandle.product();
+
   if(tracks->size() == 2)
     {
       for ( track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++track )
 	{
+	  reco::TrackRef trackref  = reco::TrackRef( recoTracks, nTrackCand );
+	  //You can access dE/dx Estimation of your track with:
+	  TrackCand_dEdx[nTrackCand] = dEdxTrack[trackref].dEdx();
+	  TrackCand_nSaturated[nTrackCand] = dEdxTrack[trackref].numberOfSaturatedMeasurements();
+	  TrackCand_nMeasurements[nTrackCand] = dEdxTrack[trackref].numberOfMeasurements();
+
 	  TrackCand_pt[nTrackCand]=track->pt();
 	  TrackCand_px[nTrackCand]=track->px();
 	  TrackCand_py[nTrackCand]=track->py();
