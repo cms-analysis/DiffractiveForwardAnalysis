@@ -134,27 +134,40 @@ gROOT->SetStyle("Plain");
 #define pi 3.14159265359
 
 //definition des fichiers + Tree
+<<<<<<< Cumul.C
+//  TFile *f0 = new TFile("../cand_2tracks_3pt04pb.root"); // 
+  TFile *f0 = new TFile("cand_2tracks.root"); // 
+=======
   TFile *f0 = new TFile("../cand_2tracks_3pt04pb.root"); // 
 //  TFile *f0 = new TFile("cand_2tracks.root"); // 
+>>>>>>> 1.10
   TTree *t0 = f0->Get("ntp1");
-  TFile *f1 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/ElEl_MuMu_lowpT.root"); //
+  TFile *f1 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/newEff_ElEl_MuMu_lowpT.root"); //
   TTree *t1 = f1->Get("ntp1");
-  TFile *f2 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/InelEl_MuMu_lowpT.root"); //
+  TFile *f2 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/newEff_InelEl_MuMu_lowpT.root"); //
   TTree *t2 = f2->Get("ntp1");
-  TFile *f3 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/InelInel_MuMu_lowpT.root"); //
+  TFile *f3 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/newEff_InelInel_MuMu_lowpT.root"); //
   TTree *t3 = f3->Get("ntp1");
-  TFile *f4 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Upsilon_MuMu_lowpT.root"); //
+  TFile *f4 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/newEff_Upsilon_MuMu_lowpT.root"); //
   TTree *t4 = f4->Get("ntp1");
-  TFile *f5 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Jpsi_MuMu_lowpT.root"); //
+  TFile *f5 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/newEff_Jpsi_MuMu_lowpT.root"); //
   TTree *t5 = f5->Get("ntp1");
 
   TFile *f6 = new TFile("bkg-2tracks.root"); //
   TTree *t6 = f6->Get("ntp1");
+<<<<<<< Cumul.C
+//  TFile *f5 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/newEff_Jpsi_MuMu_lowpT.root"); //
+//  TTree *t5 = f5->Get("ntp1");
+
+//  TFile *f6 = new TFile("Studies/bkg-2tracks.root"); //
+//  TTree *t6 = f6->Get("ntp1");
+=======
 //  TFile *f5 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Jpsi_MuMu_lowpT.root"); //
 //  TTree *t5 = f5->Get("ntp1");
 
 //  TFile *f6 = new TFile("Studies/bkg-2tracks.root"); //
 //  TTree *t6 = f6->Get("ntp1");
+>>>>>>> 1.10
   
 // definitions : example for mass:
 //  J/psi (5) -> ||    /\
@@ -455,6 +468,22 @@ gROOT->SetStyle("Plain");
 
 //  const float integrated_lumi = 299.30569*0.5857; //in nb-1
   const float integrated_lumi = 2872.246*0.5; // in nb-1	
+<<<<<<< Cumul.C
+//  const float integrated_lumi = 2872.246;
+
+  const float doublemuopenfractionallumi = 1.0;
+  const float doublemuopentightfractionallumi = 0.0;
+  const float HBThresh = 1.25; 
+  const float HEThresh = 1.80; 
+  const float EEThresh = 2.40; 
+  const float EBThresh = 0.6; 
+  const float HFPlusThresh = 4.5; 
+  const float HFMinusThresh = 4.0; 
+  const float ZDChadThresh = 120.0; 
+  const float ZDCemThresh = 16.0;                
+  const float dRcone = 0.3;
+
+=======
 //  const float integrated_lumi = 2872.246;
 
   const float doublemuopenfractionallumi = 0.0927;
@@ -469,6 +498,7 @@ gROOT->SetStyle("Plain");
   const float ZDCemThresh = 16.0;                
   const float dRcone = 0.3;
 
+>>>>>>> 1.10
   const float fac_lumi0 = 1.0;
   const float fac_lumi1 = 1.3028e-5*integrated_lumi;			//  1.0820e-6*integrated_lumi;
   const float fac_lumi2 = 4.312e-6*integrated_lumi;			//  3.05250e-6*integrated_lumi;
@@ -1096,10 +1126,17 @@ gROOT->SetStyle("Plain");
 		nTower0->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi0); 
 	}
 
+<<<<<<< Cumul.C
+	if(nTrackExclu<1 
+		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
+		 && PassesZDCVeto(var_zdcEmMinus0[0],var_zdcEmPlus0[0],var_zdcHadMinus0[0],var_zdcHadPlus0[0]))
+	{ 
+=======
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
 		 && PassesZDCVeto(var_zdcEmMinus0[0],var_zdcEmPlus0[0],var_zdcHadMinus0[0],var_zdcHadPlus0[0]))
 	){ 
+>>>>>>> 1.10
           filter0Events++;
 	cout<<"candidate  Run "<<var_run0[0]<<"  LS "<<var_ls0[0]<<"\tEvt "<<var_event0[0]<<"\t mass="<<var_mass0[0]<<" GeV"<<endl;
 
@@ -1231,6 +1268,32 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 		nTower1->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi1*effcorrection1); 
 	}
 
+<<<<<<< Cumul.C
+	if(nTrackExclu<1 
+		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
+		&& PassesZDCVeto(var_zdcEmMinus1[0],var_zdcEmPlus1[0],var_zdcHadMinus1[0],var_zdcHadPlus1[0]))
+	{ 
+          filter1Events+=fac_lumi1*effcorrection1;
+
+	  hEB1->Fill(nEB,fac_lumi1*effcorrection1);
+          hEE1->Fill(nEE,fac_lumi1*effcorrection1);
+          hHB1->Fill(nHB,fac_lumi1*effcorrection1);
+          hHE1->Fill(nHE,fac_lumi1*effcorrection1);
+          hHFp1->Fill(nHFp,fac_lumi1*effcorrection1);
+          hHFm1->Fill(nHFm,fac_lumi1*effcorrection1);
+	  nTrack1->Fill(nTrackExclu,fac_lumi1*effcorrection1);
+
+	  MuMuMass1->Fill(var_mass1[0],fac_lumi1*effcorrection1);
+          MuMuMassUps1->Fill(var_mass1[0],fac_lumi1*effcorrection1);
+          MuMuMassJpsi1->Fill(var_mass1[0],fac_lumi1*effcorrection1);
+          MuMudpt1->Fill(var_dpt1[0],fac_lumi1*effcorrection1);
+          MuMudphi1->Fill(var_dphi1[0]/pi,fac_lumi1*effcorrection1);
+          double symdphi1 = 1 - fabs(var_phi1[pair1]-var_phi1[pair2])/pi;    
+          MuMuSymdphi1->Fill(symdphi1,fac_lumi1); 
+
+	//          MuMudeta1->Fill(fabs(var_eta1[pair1]+var_eta1[pair2]),fac_lumi1*effcorrection1);
+          MuMuvtxXY1->Fill(sqrt(var_MuMuvtxX1[0]*var_MuMuvtxX1[0]+var_MuMuvtxY1[0]*var_MuMuvtxY1[0]),fac_lumi1*effcorrection1);
+=======
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
 		&& PassesZDCVeto(var_zdcEmMinus1[0],var_zdcEmPlus1[0],var_zdcHadMinus1[0],var_zdcHadPlus1[0]))
@@ -1255,6 +1318,7 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 
 	//          MuMudeta1->Fill(fabs(var_eta1[pair1]+var_eta1[pair2]),fac_lumi1*effcorrection1);
           MuMuvtxXY1->Fill(sqrt(var_MuMuvtxX1[0]*var_MuMuvtxX1[0]+var_MuMuvtxY1[0]*var_MuMuvtxY1[0]),fac_lumi1*effcorrection1);
+>>>>>>> 1.10
 
           TLorentzVector mu11, mu12, dimuon1;   
           mu11.SetPtEtaPhiM(var_pt1[pair1],var_eta1[pair1],var_phi1[pair1],0.1057);     
@@ -1370,6 +1434,32 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
 		nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*effcorrection2);
 	}
 
+<<<<<<< Cumul.C
+	if(nTrackExclu<1 
+		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
+		&& PassesZDCVeto(var_zdcEmMinus2[0],var_zdcEmPlus2[0],var_zdcHadMinus2[0],var_zdcHadPlus2[0]))
+	{ 
+          filter2Events+=fac_lumi2*effcorrection2;
+
+	  hEB2->Fill(nEB,fac_lumi2*effcorrection2);
+          hEE2->Fill(nEE,fac_lumi2*effcorrection2);
+          hHB2->Fill(nHB,fac_lumi2*effcorrection2);
+          hHE2->Fill(nHE,fac_lumi2*effcorrection2);
+          hHFp2->Fill(nHFp,fac_lumi2*effcorrection2);
+          hHFm2->Fill(nHFm,fac_lumi2*effcorrection2); 
+//	  nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*effcorrection2);
+	  nTrack2->Fill(nTrackExclu,fac_lumi2*effcorrection2);
+
+	  MuMuMass2->Fill(var_mass2[0],fac_lumi2*effcorrection2); 
+          MuMuMassUps2->Fill(var_mass2[0],fac_lumi2*effcorrection2);
+          MuMuMassJpsi2->Fill(var_mass2[0],fac_lumi2*effcorrection2);
+          MuMudpt2->Fill(var_dpt2[0],fac_lumi2*effcorrection2); 
+          MuMudphi2->Fill(var_dphi2[0]/pi,fac_lumi2*effcorrection2); 
+          double symdphi2 = 1 - fabs(var_phi2[pair1]-var_phi2[pair2])/pi;    
+          MuMuSymdphi2->Fill(symdphi2,fac_lumi2); 
+	//          MuMudeta2->Fill(fabs(var_eta2[pair1]+var_eta2[pair2]),fac_lumi2*effcorrection2);
+	  MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX2[0]*var_MuMuvtxX2[0]+var_MuMuvtxY2[0]*var_MuMuvtxY2[0]),fac_lumi2*effcorrection2);
+=======
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
 		&& PassesZDCVeto(var_zdcEmMinus2[0],var_zdcEmPlus2[0],var_zdcHadMinus2[0],var_zdcHadPlus2[0]))
@@ -1394,6 +1484,7 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
           MuMuSymdphi2->Fill(symdphi2,fac_lumi2); 
 	//          MuMudeta2->Fill(fabs(var_eta2[pair1]+var_eta2[pair2]),fac_lumi2*effcorrection2);
 	  MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX2[0]*var_MuMuvtxX2[0]+var_MuMuvtxY2[0]*var_MuMuvtxY2[0]),fac_lumi2*effcorrection2);
+>>>>>>> 1.10
 
           TLorentzVector mu21, mu22, dimuon2;    
           mu21.SetPtEtaPhiM(var_pt2[pair1],var_eta2[pair1],var_phi2[pair1],0.1057);      
@@ -1510,6 +1601,36 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 		nTower3->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi3*effcorrection3);
 	}
 
+<<<<<<< Cumul.C
+	if(nTrackExclu<1 
+		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
+		&& PassesZDCVeto(var_zdcEmMinus3[0],var_zdcEmPlus3[0],var_zdcHadMinus3[0],var_zdcHadPlus3[0]))	
+	{ 
+          filter3Events+=fac_lumi3*effcorrection3;
+
+	  hEB3->Fill(nEB,fac_lumi3*effcorrection3); 
+          hEE3->Fill(nEE,fac_lumi3*effcorrection3);
+          hHB3->Fill(nHB,fac_lumi3*effcorrection3); 
+          hHE3->Fill(nHE,fac_lumi3*effcorrection3);
+          hHFp3->Fill(nHFp,fac_lumi3*effcorrection3);
+          hHFm3->Fill(nHFm,fac_lumi3*effcorrection3);
+	  nTrack3->Fill(nTrackExclu,fac_lumi3*effcorrection3);
+
+	  MuMuMass3->Fill(var_mass3[0],fac_lumi3*effcorrection3);
+          MuMuMassUps3->Fill(var_mass3[0],fac_lumi3*effcorrection3);
+          MuMuMassJpsi3->Fill(var_mass3[0],fac_lumi3*effcorrection3);
+          MuMudpt3->Fill(var_dpt3[0],fac_lumi3*effcorrection3);
+          MuMudphi3->Fill(var_dphi3[0]/pi,fac_lumi3*effcorrection3);
+          double symdphi3 = 1 - fabs(var_phi3[pair1]-var_phi3[pair2])/pi;    
+          MuMuSymdphi3->Fill(symdphi3,fac_lumi3); 
+	//          MuMudeta3->Fill(fabs(var_eta3[pair1]+var_eta3[pair2]),fac_lumi3*effcorrection3);
+	  MuMuvtxXY3->Fill(sqrt(var_MuMuvtxX3[0]*var_MuMuvtxX3[0]+var_MuMuvtxY3[0]*var_MuMuvtxY3[0]),fac_lumi3*effcorrection3);
+
+	  ZDCemminus3->Fill(var_zdcEmMinus3[0],fac_lumi3*effcorrection3);
+	  ZDCemplus3->Fill(var_zdcEmPlus3[0],fac_lumi3*effcorrection3);
+	  ZDChadminus3->Fill(var_zdcHadMinus3[0],fac_lumi3*effcorrection3);
+	  ZDChadplus3->Fill(var_zdcHadPlus3[0],fac_lumi3*effcorrection3);
+=======
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
 		&& PassesZDCVeto(var_zdcEmMinus3[0],var_zdcEmPlus3[0],var_zdcHadMinus3[0],var_zdcHadPlus3[0]))	
@@ -1538,6 +1659,7 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 	  ZDCemplus3->Fill(var_zdcEmPlus3[0],fac_lumi3*effcorrection3);
 	  ZDChadminus3->Fill(var_zdcHadMinus3[0],fac_lumi3*effcorrection3);
 	  ZDChadplus3->Fill(var_zdcHadPlus3[0],fac_lumi3*effcorrection3);
+>>>>>>> 1.10
 
           TLorentzVector mu31, mu32, dimuon3; 
           mu31.SetPtEtaPhiM(var_pt3[pair1],var_eta3[pair1],var_phi3[pair1],0.1057);   
@@ -1651,6 +1773,37 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 	        nTower4->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi4*effcorrection4);
 	}
 
+<<<<<<< Cumul.C
+	if(nTrackExclu<1 
+		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
+		&& PassesZDCVeto(var_zdcEmMinus4[0],var_zdcEmPlus4[0],var_zdcHadMinus4[0],var_zdcHadPlus4[0]))
+	{ 
+          filter4Events+=fac_lumi4*effcorrection4;
+
+	  hEB4->Fill(nEB,fac_lumi4*effcorrection4);
+          hEE4->Fill(nEE,fac_lumi4*effcorrection4);
+          hHB4->Fill(nHB,fac_lumi4*effcorrection4);
+          hHE4->Fill(nHE,fac_lumi4*effcorrection4);
+          hHFp4->Fill(nHFp,fac_lumi4*effcorrection4);
+          hHFm4->Fill(nHFm,fac_lumi4*effcorrection4);
+//	  nTower4->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi4*effcorrection4);
+	  nTrack4->Fill(nTrackExclu,fac_lumi4*effcorrection4);
+
+	  MuMuMass4->Fill(var_mass4[0],fac_lumi4*effcorrection4);
+          MuMuMassUps4->Fill(var_mass4[0],fac_lumi4*effcorrection4);
+          MuMuMassJpsi4->Fill(var_mass4[0],fac_lumi4*effcorrection4);
+          MuMudpt4->Fill(var_dpt4[0],fac_lumi4*effcorrection4);
+          MuMudphi4->Fill(var_dphi4[0]/pi,fac_lumi4*effcorrection4);
+          double symdphi4 = 1 - fabs(var_phi4[pair1]-var_phi4[pair2])/pi;    
+          MuMuSymdphi4->Fill(symdphi4,fac_lumi4); 
+	//          MuMudeta4->Fill(fabs(var_eta4[pair1]+var_eta4[pair2]),fac_lumi4*effcorrection4);
+	  MuMuvtxXY4->Fill(sqrt(var_MuMuvtxX4[0]*var_MuMuvtxX4[0]+var_MuMuvtxY4[0]*var_MuMuvtxY4[0]),fac_lumi4*effcorrection4);
+
+	  ZDCemminus4->Fill(var_zdcEmMinus4[0],fac_lumi4*effcorrection4); 
+	  ZDChadminus4->Fill(var_zdcHadMinus4[0],fac_lumi4*effcorrection4);
+          ZDCemminus5->Fill(var_zdcEmMinus4[0],fac_lumi4*effcorrection4); 
+          ZDChadminus5->Fill(var_zdcHadMinus4[0],fac_lumi4*effcorrection4);
+=======
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
 		&& PassesZDCVeto(var_zdcEmMinus4[0],var_zdcEmPlus4[0],var_zdcHadMinus4[0],var_zdcHadPlus4[0]))
@@ -1680,6 +1833,7 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 	  ZDChadminus4->Fill(var_zdcHadMinus4[0],fac_lumi4*effcorrection4);
           ZDCemminus5->Fill(var_zdcEmMinus4[0],fac_lumi4*effcorrection4); 
           ZDChadminus5->Fill(var_zdcHadMinus4[0],fac_lumi4*effcorrection4);
+>>>>>>> 1.10
 
           TLorentzVector mu41, mu42, dimuon4;  
           mu41.SetPtEtaPhiM(var_pt4[pair1],var_eta4[pair1],var_phi4[pair1],0.1057);    
@@ -1790,6 +1944,32 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
 	          nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi5*effcorrection5);
 	}
 
+<<<<<<< Cumul.C
+        if(nTrackExclu<1 
+		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
+		&& PassesZDCVeto(var_zdcEmMinus5[0],var_zdcEmPlus5[0],var_zdcHadMinus5[0],var_zdcHadPlus5[0]))
+	{
+          filter5Events+=fac_lumi5*effcorrection5;
+
+          hEB5->Fill(nEB,fac_lumi5*effcorrection5);
+          hEE5->Fill(nEE,fac_lumi5*effcorrection5);
+          hHB5->Fill(nHB,fac_lumi5*effcorrection5);
+          hHE5->Fill(nHE,fac_lumi5*effcorrection5);
+          hHFp5->Fill(nHFp,fac_lumi5*effcorrection5);
+          hHFm5->Fill(nHFm,fac_lumi5*effcorrection5);
+//          nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi5*effcorrection5);
+          nTrack5->Fill(nTrackExclu,fac_lumi5*effcorrection5);
+
+          MuMuMass5->Fill(var_mass5[0],fac_lumi5*effcorrection5);
+          MuMuMassUps5->Fill(var_mass5[0],fac_lumi5*effcorrection5);
+          MuMuMassJpsi5->Fill(var_mass5[0],fac_lumi5*effcorrection5);
+          MuMudpt5->Fill(var_dpt5[0],fac_lumi5*effcorrection5);
+          MuMudphi5->Fill(var_dphi5[0]/pi,fac_lumi5*effcorrection5);
+          double symdphi5 = 1 - fabs(var_phi5[pair1]-var_phi5[pair2])/pi;    
+          MuMuSymdphi5->Fill(symdphi5,fac_lumi5); 
+	//          MuMudeta5->Fill(fabs(var_eta5[pair1]+var_eta5[pair2]),fac_lumi5*effcorrection5);
+	  MuMuvtxXY5->Fill(sqrt(var_MuMuvtxX5[0]*var_MuMuvtxX5[0]+var_MuMuvtxY5[0]*var_MuMuvtxY5[0]),fac_lumi5*effcorrection5);
+=======
         if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
 		&& PassesZDCVeto(var_zdcEmMinus5[0],var_zdcEmPlus5[0],var_zdcHadMinus5[0],var_zdcHadPlus5[0]))
@@ -1814,6 +1994,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
           MuMuSymdphi5->Fill(symdphi5,fac_lumi5); 
 	//          MuMudeta5->Fill(fabs(var_eta5[pair1]+var_eta5[pair2]),fac_lumi5*effcorrection5);
 	  MuMuvtxXY5->Fill(sqrt(var_MuMuvtxX5[0]*var_MuMuvtxX5[0]+var_MuMuvtxY5[0]*var_MuMuvtxY5[0]),fac_lumi5*effcorrection5);
+>>>>>>> 1.10
 
           TLorentzVector mu51, mu52, dimuon5;   
           mu51.SetPtEtaPhiM(var_pt5[pair1],var_eta5[pair1],var_phi5[pair1],0.1057);     
@@ -1922,10 +2103,17 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
 		nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);
 	}
 
+<<<<<<< Cumul.C
+        if(nTrackExclu<1 
+		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
+		&& PassesZDCVeto(var_zdcEmMinus6[0],var_zdcEmPlus6[0],var_zdcHadMinus6[0],var_zdcHadPlus6[0]))
+	{
+=======
         if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
 		&& PassesZDCVeto(var_zdcEmMinus6[0],var_zdcEmPlus6[0],var_zdcHadMinus6[0],var_zdcHadPlus6[0]))
 	){
+>>>>>>> 1.10
           filter6Events_norm+=fac_lumiBkg[bkgNum];
 	cout<<"I added "<<fac_lumiBkg[bkgNum]<<" event from bkg #"<<bkgNum<<endl;
 
@@ -2448,7 +2636,33 @@ sMuMuSymdphi->GetXaxis()->SetTitle("#mu#mu 1 - |#Delta #phi / #pi|");
 sMuMuSymdphi->GetYaxis()->SetTitle("# events / 0.02 "); 
 MuMuSymdphi0->Draw("same"); 
 
+<<<<<<< Cumul.C
+Kinematic3->cd(3);
+MuMuSymdphi0->Sumw2(); 
+MuMuSymdphi0->SetLineWidth(2); 
+MuMuSymdphi0->SetMarkerStyle(20); 
+MuMuSymdphi1->SetFillColor(ci); 
+MuMuSymdphi2->SetFillColor(30); 
+MuMuSymdphi2->SetFillStyle(3001); 
+MuMuSymdphi3->SetFillColor(30); 
+MuMuSymdphi4->SetFillColor(38); 
+MuMuSymdphi5->SetFillColor(903); 
+sMuMuSymdphi->Add(MuMuSymdphi3); 
+sMuMuSymdphi->Add(MuMuSymdphi2); 
+sMuMuSymdphi->Add(MuMuSymdphi1); 
+sMuMuSymdphi->Add(MuMuSymdphi4); 
+sMuMuSymdphi->Add(MuMuSymdphi5); 
+if(sMuMuSymdphi.GetMaximum() > 0) sMuMuSymdphi.SetMaximum(sMuMuSymdphi.GetMaximum() * 1.5);   
+else sMuMuSymdphi.SetMaximum(MuMuSymdphi0->GetMaximum() * 2.0); 
+sMuMuSymdphi->Draw(); 
+sMuMuSymdphi->GetXaxis()->SetTitle("#mu#mu 1 - |#Delta #phi / #pi|"); 
+sMuMuSymdphi->GetYaxis()->SetTitle("# events / 0.02 "); 
+MuMuSymdphi0->Draw("same"); 
+
 }
+=======
+}
+>>>>>>> 1.10
 
 if(1){
 TCanvas *Kinematic4 = new TCanvas("Kinematic4","Kinematic single Muon",800,500);
