@@ -109,7 +109,7 @@ removeMCMatching(process, ['All'])
 #process.output.outputCommands.extend(AODEventContent.outputCommands)
 
 # Set to True if running on MC  
-##process.gamgammumuanalysis.readmcEffCorrections = True
+##process.gamgammumuanalysis.ReadMCEffCorrections = True
 process.gamgammumuanalysis.outfilename = "DimuonAnalyzer.root"
 
 # Put it all together
