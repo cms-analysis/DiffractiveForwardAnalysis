@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.82 2010/09/03 07:10:43 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.83 2010/09/03 12:21:02 jjhollar Exp $
 //
 //
 
@@ -437,7 +437,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("PrimVertexCand_tracks",&PrimVertexCand_tracks,"PrimVertexCand_tracks[nPrimVertexCand]/I");
   thetree->Branch("PrimVertexCand_chi2",&PrimVertexCand_chi2,"PrimVertexCand_chi2[nPrimVertexCand]/D");
   thetree->Branch("PrimVertexCand_ndof",&PrimVertexCand_ndof,"PrimVertexCand_ndof[nPrimVertexCand]/D");
-  thetree->Branch("PrimVertexCand_mumuTwoTracks",&PrimVertexCand_mumuTwoTracks,"PrimVertexCand_mumuTwoTracks[nPrimVertexCand]/D"); 
+  thetree->Branch("PrimVertexCand_mumuTwoTracks",&PrimVertexCand_mumuTwoTracks,"PrimVertexCand_mumuTwoTracks[nPrimVertexCand]/I"); 
 
   thetree->Branch("LowPt_pt",LowPt_pt,"LowPt_pt[nMuonCand]/D");
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
@@ -947,8 +947,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     // and no other tracks
     PrimVertexCand_mumuTwoTracks[nPrimVertexCand] = 0;
     if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && 
-       (fabs(MuonCand_vtxz[0] - PrimVertexCand_z[nPrimVertexCand]) < 0.1) &&
-       (fabs(MuonCand_vtxz[1] - PrimVertexCand_z[nPrimVertexCand]) < 0.1))
+       (fabs(MuonCand_vtxz[MuonPairCand[0]] - PrimVertexCand_z[nPrimVertexCand]) < 0.1) &&
+       (fabs(MuonCand_vtxz[MuonPairCand[1]] - PrimVertexCand_z[nPrimVertexCand]) < 0.1))
       {
 	PrimVertexCand_mumuTwoTracks[nPrimVertexCand] = 1;
 	mumuprimvtxx = PrimVertexCand_x[nPrimVertexCand];
