@@ -134,18 +134,17 @@ gROOT->SetStyle("Plain");
 #define pi 3.14159265359
 
 //definition des fichiers + Tree
-//  TFile *f0 = new TFile("../cand_2tracks_3pt04pb.root"); // 
   TFile *f0 = new TFile("cand_2tracks.root"); // 
   TTree *t0 = f0->Get("ntp1");
-  TFile *f1 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/ElEl_MuMu_lowpT.root"); //
+  TFile *f1 = new TFile("El-El.root"); //
   TTree *t1 = f1->Get("ntp1");
-  TFile *f2 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/InelEl_MuMu_lowpT.root"); //
+  TFile *f2 = new TFile("Inel-El.root"); //
   TTree *t2 = f2->Get("ntp1");
-  TFile *f3 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/InelInel_MuMu_lowpT.root"); //
+  TFile *f3 = new TFile("Inel-Inel.root"); //
   TTree *t3 = f3->Get("ntp1");
-  TFile *f4 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Upsilon_MuMu_lowpT.root"); //
+  TFile *f4 = new TFile("Upsilon.root"); //
   TTree *t4 = f4->Get("ntp1");
-  TFile *f5 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Jpsi_MuMu_lowpT.root"); //
+  TFile *f5 = new TFile("Jpsi.root"); //
   TTree *t5 = f5->Get("ntp1");
 
   TFile *f6 = new TFile("cand_2tracks.root"); //
@@ -692,34 +691,34 @@ gROOT->SetStyle("Plain");
   t6->SetBranchAddress("PrimVertexCand_tracks",var_vtxTrack6);
 
 
-  t1->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX1);
-  t2->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX2);
-  t1->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY1);
-  t2->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY2);
-  t1->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ1);
-  t2->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ2);
-  t0->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX0);
-  t0->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY0);
-  t0->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ0);
-  t0->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid0);
-  t1->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid1);
-  t2->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid2);
-  t3->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX3);
-  t3->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY3);
-  t3->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ3);
-  t3->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid3);
-  t4->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX4);
-  t4->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY4);
-  t4->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ4);
-  t4->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid4);
-  t5->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX5);
-  t5->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY5);
-  t5->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ5);
-  t5->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid5);
-  t6->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX6);
-  t6->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY6);
-  t6->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ6);
-  t6->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid6);
+  t1->SetBranchAddress("MuMu_Kalmanvtxx",var_MuMuvtxX1);
+  t2->SetBranchAddress("MuMu_Kalmanvtxx",var_MuMuvtxX2);
+  t1->SetBranchAddress("MuMu_Kalmanvtxy",var_MuMuvtxY1);
+  t2->SetBranchAddress("MuMu_Kalmanvtxy",var_MuMuvtxY2);
+  t1->SetBranchAddress("MuMu_Kalmanvtxz",var_MuMuvtxZ1);
+  t2->SetBranchAddress("MuMu_Kalmanvtxz",var_MuMuvtxZ2);
+  t0->SetBranchAddress("MuMu_Kalmantxx",var_MuMuvtxX0);
+  t0->SetBranchAddress("MuMu_Kalmanvtxy",var_MuMuvtxY0);
+  t0->SetBranchAddress("MuMu_Kalmanvtxz",var_MuMuvtxZ0);
+  t0->SetBranchAddress("MuMu_Kalmanvtxisvalid",var_MuMuvtxValid0);
+  t1->SetBranchAddress("MuMu_Kalmanvtxisvalid",var_MuMuvtxValid1);
+  t2->SetBranchAddress("MuMu_Kalmanvtxisvalid",var_MuMuvtxValid2);
+  t3->SetBranchAddress("MuMu_Kalmanvtxx",var_MuMuvtxX3);
+  t3->SetBranchAddress("MuMu_Kalmanvtxy",var_MuMuvtxY3);
+  t3->SetBranchAddress("MuMu_Kalmanvtxz",var_MuMuvtxZ3);
+  t3->SetBranchAddress("MuMu_Kalmanvtxisvalid",var_MuMuvtxValid3);
+  t4->SetBranchAddress("MuMu_Kalmanvtxx",var_MuMuvtxX4);
+  t4->SetBranchAddress("MuMu_Kalmanvtxy",var_MuMuvtxY4);
+  t4->SetBranchAddress("MuMu_Kalmanvtxz",var_MuMuvtxZ4);
+  t4->SetBranchAddress("MuMu_Kalmanvtxisvalid",var_MuMuvtxValid4);
+  t5->SetBranchAddress("MuMu_Kalmanvtxx",var_MuMuvtxX5);
+  t5->SetBranchAddress("MuMu_Kalmanvtxy",var_MuMuvtxY5);
+  t5->SetBranchAddress("MuMu_Kalmanvtxz",var_MuMuvtxZ5);
+  t5->SetBranchAddress("MuMu_Kalmanvtxisvalid",var_MuMuvtxValid5);
+  t6->SetBranchAddress("MuMu_Kalmanvtxx",var_MuMuvtxX6);
+  t6->SetBranchAddress("MuMu_Kalmanvtxy",var_MuMuvtxY6);
+  t6->SetBranchAddress("MuMu_Kalmanvtxz",var_MuMuvtxZ6);
+  t6->SetBranchAddress("MuMu_Kalmanvtxisvalid",var_MuMuvtxValid6);
 
   t1->SetBranchAddress("nCaloCand",var_ncalo1);
   t2->SetBranchAddress("nCaloCand",var_ncalo2);
@@ -1098,8 +1097,8 @@ gROOT->SetStyle("Plain");
 
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
-		 && PassesZDCVeto(var_zdcEmMinus0[0],var_zdcEmPlus0[0],var_zdcHadMinus0[0],var_zdcHadPlus0[0]))
-	{ 
+//		 && PassesZDCVeto(var_zdcEmMinus0[0],var_zdcEmPlus0[0],var_zdcHadMinus0[0],var_zdcHadPlus0[0]))
+	){ 
           filter0Events++;
 	cout<<"candidate  Run "<<var_run0[0]<<"  LS "<<var_ls0[0]<<"\tEvt "<<var_event0[0]<<"\t mass="<<var_mass0[0]<<" GeV"<<endl;
 
@@ -1233,8 +1232,8 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
-		&& PassesZDCVeto(var_zdcEmMinus1[0],var_zdcEmPlus1[0],var_zdcHadMinus1[0],var_zdcHadPlus1[0]))
-	{ 
+//		&& PassesZDCVeto(var_zdcEmMinus1[0],var_zdcEmPlus1[0],var_zdcHadMinus1[0],var_zdcHadPlus1[0]))
+	){ 
           filter1Events+=fac_lumi1*effcorrection1;
 
 	  hEB1->Fill(nEB,fac_lumi1*effcorrection1);
@@ -1372,8 +1371,8 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
 
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
-		&& PassesZDCVeto(var_zdcEmMinus2[0],var_zdcEmPlus2[0],var_zdcHadMinus2[0],var_zdcHadPlus2[0]))
-	{ 
+//		&& PassesZDCVeto(var_zdcEmMinus2[0],var_zdcEmPlus2[0],var_zdcHadMinus2[0],var_zdcHadPlus2[0]))
+	){ 
           filter2Events+=fac_lumi2*effcorrection2;
 
 	  hEB2->Fill(nEB,fac_lumi2*effcorrection2);
@@ -1512,8 +1511,8 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
-		&& PassesZDCVeto(var_zdcEmMinus3[0],var_zdcEmPlus3[0],var_zdcHadMinus3[0],var_zdcHadPlus3[0]))	
-	{ 
+//		&& PassesZDCVeto(var_zdcEmMinus3[0],var_zdcEmPlus3[0],var_zdcHadMinus3[0],var_zdcHadPlus3[0]))	
+	){ 
           filter3Events+=fac_lumi3*effcorrection3;
 
 	  hEB3->Fill(nEB,fac_lumi3*effcorrection3); 
@@ -1653,8 +1652,8 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
-		&& PassesZDCVeto(var_zdcEmMinus4[0],var_zdcEmPlus4[0],var_zdcHadMinus4[0],var_zdcHadPlus4[0]))
-	{ 
+//		&& PassesZDCVeto(var_zdcEmMinus4[0],var_zdcEmPlus4[0],var_zdcHadMinus4[0],var_zdcHadPlus4[0]))
+	){ 
           filter4Events+=fac_lumi4*effcorrection4;
 
 	  hEB4->Fill(nEB,fac_lumi4*effcorrection4);
@@ -1792,8 +1791,8 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
 
         if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
-		&& PassesZDCVeto(var_zdcEmMinus5[0],var_zdcEmPlus5[0],var_zdcHadMinus5[0],var_zdcHadPlus5[0]))
-	{
+//		&& PassesZDCVeto(var_zdcEmMinus5[0],var_zdcEmPlus5[0],var_zdcHadMinus5[0],var_zdcHadPlus5[0]))
+	){
           filter5Events+=fac_lumi5*effcorrection5;
 
           hEB5->Fill(nEB,fac_lumi5*effcorrection5);
