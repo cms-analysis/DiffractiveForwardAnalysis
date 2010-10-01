@@ -136,27 +136,20 @@ gROOT->SetStyle("Plain");
 //definition des fichiers + Tree
 //  TFile *f0 = new TFile("../cand_2tracks_3pt04pb.root"); // 
   TFile *f0 = new TFile("cand_2tracks.root"); // 
-  TFile *f0 = new TFile("../cand_2tracks_3pt04pb.root"); // 
-//  TFile *f0 = new TFile("cand_2tracks.root"); // 
   TTree *t0 = f0->Get("ntp1");
-  TFile *f1 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/newEff_ElEl_MuMu_lowpT.root"); //
+  TFile *f1 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/ElEl_MuMu_lowpT.root"); //
   TTree *t1 = f1->Get("ntp1");
-  TFile *f2 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/newEff_InelEl_MuMu_lowpT.root"); //
+  TFile *f2 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/InelEl_MuMu_lowpT.root"); //
   TTree *t2 = f2->Get("ntp1");
-  TFile *f3 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/newEff_InelInel_MuMu_lowpT.root"); //
+  TFile *f3 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/InelInel_MuMu_lowpT.root"); //
   TTree *t3 = f3->Get("ntp1");
-  TFile *f4 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/newEff_Upsilon_MuMu_lowpT.root"); //
+  TFile *f4 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Upsilon_MuMu_lowpT.root"); //
   TTree *t4 = f4->Get("ntp1");
-  TFile *f5 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/newEff_Jpsi_MuMu_lowpT.root"); //
+  TFile *f5 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Jpsi_MuMu_lowpT.root"); //
   TTree *t5 = f5->Get("ntp1");
 
-  TFile *f6 = new TFile("bkg-2tracks.root"); //
+  TFile *f6 = new TFile("cand_2tracks.root"); //
   TTree *t6 = f6->Get("ntp1");
-//  TFile *f5 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/newEff_Jpsi_MuMu_lowpT.root"); //
-//  TTree *t5 = f5->Get("ntp1");
-
-//  TFile *f6 = new TFile("Studies/bkg-2tracks.root"); //
-//  TTree *t6 = f6->Get("ntp1");
 //  TFile *f5 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Jpsi_MuMu_lowpT.root"); //
 //  TTree *t5 = f5->Get("ntp1");
 
@@ -464,20 +457,6 @@ gROOT->SetStyle("Plain");
   const float integrated_lumi = 2872.246*0.5; // in nb-1	
 //  const float integrated_lumi = 2872.246;
 
-  const float doublemuopenfractionallumi = 1.0;
-  const float doublemuopentightfractionallumi = 0.0;
-  const float HBThresh = 1.25; 
-  const float HEThresh = 1.80; 
-  const float EEThresh = 2.40; 
-  const float EBThresh = 0.6; 
-  const float HFPlusThresh = 4.5; 
-  const float HFMinusThresh = 4.0; 
-  const float ZDChadThresh = 120.0; 
-  const float ZDCemThresh = 16.0;                
-  const float dRcone = 0.3;
-
-//  const float integrated_lumi = 2872.246;
-
   const float doublemuopenfractionallumi = 0.0927;
   const float doublemuopentightfractionallumi = 0.9073;
   const float HBThresh = 1.25; 
@@ -574,468 +553,468 @@ gROOT->SetStyle("Plain");
   Double_t var_eff1[10],var_eff2[10],var_eff3[10],var_eff4[10],var_eff5[10];
 
 
-  t1->SetBranchAddress("HLT_DoubleMu0",hlt_d1);
-  t2->SetBranchAddress("HLT_DoubleMu0",hlt_d2);
-  t0->SetBranchAddress("HLT_DoubleMu0",hlt_d0);
-  t3->SetBranchAddress("HLT_DoubleMu0",hlt_d3);
-  t4->SetBranchAddress("HLT_DoubleMu0",hlt_d4);
-  t5->SetBranchAddress("HLT_DoubleMu0",hlt_d5);
-  t6->SetBranchAddress("HLT_DoubleMu0",hlt_d6);
+  t1->SetBranc->Address("HLT_DoubleMu0",hlt_d1);
+  t2->SetBranc->Address("HLT_DoubleMu0",hlt_d2);
+  t0->SetBranc->Address("HLT_DoubleMu0",hlt_d0);
+  t3->SetBranc->Address("HLT_DoubleMu0",hlt_d3);
+  t4->SetBranc->Address("HLT_DoubleMu0",hlt_d4);
+  t5->SetBranc->Address("HLT_DoubleMu0",hlt_d5);
+  t6->SetBranc->Address("HLT_DoubleMu0",hlt_d6);
 
-  t0->SetBranchAddress("L1TechnicalTriggers",techBit0);
-  t1->SetBranchAddress("L1TechnicalTriggers",techBit1);
-  t2->SetBranchAddress("L1TechnicalTriggers",techBit2);
-  t3->SetBranchAddress("L1TechnicalTriggers",techBit3);
-  t4->SetBranchAddress("L1TechnicalTriggers",techBit4);
-  t5->SetBranchAddress("L1TechnicalTriggers",techBit5);
+  t0->SetBranc->Address("L1TechnicalTriggers",techBit0);
+  t1->SetBranc->Address("L1TechnicalTriggers",techBit1);
+  t2->SetBranc->Address("L1TechnicalTriggers",techBit2);
+  t3->SetBranc->Address("L1TechnicalTriggers",techBit3);
+  t4->SetBranc->Address("L1TechnicalTriggers",techBit4);
+  t5->SetBranc->Address("L1TechnicalTriggers",techBit5);
 
-  t1->SetBranchAddress("MuonCand_tmlsOptLowPtloosemuonid",var_idA1);
-  t2->SetBranchAddress("MuonCand_tmlsOptLowPtloosemuonid",var_idA2);
-  t1->SetBranchAddress("MuonCand_tmlsAngloosemuonid",var_idB1);
-  t2->SetBranchAddress("MuonCand_tmlsAngloosemuonid",var_idB2);
-  t1->SetBranchAddress("MuonCand_tmlsAngtightmuonid",var_idC1);
-  t2->SetBranchAddress("MuonCand_tmlsAngtightmuonid",var_idC2);
-  t1->SetBranchAddress("MuonCand_tmosAngloosemuonid",var_idD1);
-  t2->SetBranchAddress("MuonCand_tmosAngloosemuonid",var_idD2);
-  t1->SetBranchAddress("MuonCand_tmosAngtightmuonid",var_idE1);
-  t2->SetBranchAddress("MuonCand_tmosAngtightmuonid",var_idE2);
-  t0->SetBranchAddress("MuonCand_tmlsOptLowPtloosemuonid",var_idA0);
-  t0->SetBranchAddress("MuonCand_tmlsAngloosemuonid",var_idB0);
-  t0->SetBranchAddress("MuonCand_tmlsAngtightmuonid",var_idC0);
-  t0->SetBranchAddress("MuonCand_tmosAngloosemuonid",var_idD0);
-  t0->SetBranchAddress("MuonCand_tmosAngtightmuonid",var_idE0);
-  t3->SetBranchAddress("MuonCand_tmlsOptLowPtloosemuonid",var_idA3);
-  t3->SetBranchAddress("MuonCand_tmlsAngloosemuonid",var_idB3);
-  t3->SetBranchAddress("MuonCand_tmlsAngtightmuonid",var_idC3);
-  t3->SetBranchAddress("MuonCand_tmosAngloosemuonid",var_idD3);
-  t3->SetBranchAddress("MuonCand_tmosAngtightmuonid",var_idE3);
-  t4->SetBranchAddress("MuonCand_tmlsOptLowPtloosemuonid",var_idA4);
-  t4->SetBranchAddress("MuonCand_tmlsAngloosemuonid",var_idB4);
-  t4->SetBranchAddress("MuonCand_tmlsAngtightmuonid",var_idC4);
-  t4->SetBranchAddress("MuonCand_tmosAngloosemuonid",var_idD4);
-  t4->SetBranchAddress("MuonCand_tmosAngtightmuonid",var_idE4);
-  t5->SetBranchAddress("MuonCand_tmlsOptLowPtloosemuonid",var_idA5);
-  t5->SetBranchAddress("MuonCand_tmlsAngloosemuonid",var_idB5);
-  t5->SetBranchAddress("MuonCand_tmlsAngtightmuonid",var_idC5);
-  t5->SetBranchAddress("MuonCand_tmosAngloosemuonid",var_idD5);
-  t5->SetBranchAddress("MuonCand_tmosAngtightmuonid",var_idE5);
-  t6->SetBranchAddress("MuonCand_tmlsOptLowPtloosemuonid",var_idA6);
-  t6->SetBranchAddress("MuonCand_tmlsAngloosemuonid",var_idB6);
-  t6->SetBranchAddress("MuonCand_tmlsAngtightmuonid",var_idC6);
-  t6->SetBranchAddress("MuonCand_tmosAngloosemuonid",var_idD6);
-  t6->SetBranchAddress("MuonCand_tmosAngtightmuonid",var_idE6);
-
-
-  t1->SetBranchAddress("nTrackCand",var_nTrack1);
-  t1->SetBranchAddress("nQualityTrackCand",var_nTrackQual1);
-  t1->SetBranchAddress("TrackCand_pt",var_TrackPt1);
-  t1->SetBranchAddress("TrackCand_vtxdxyz",var_TrackD1);
-  t1->SetBranchAddress("TrackCand_purity",var_TrackQuality1);
-  t0->SetBranchAddress("nTrackCand",var_nTrack0);
-  t0->SetBranchAddress("nQualityTrackCand",var_nTrackQual0);
-  t0->SetBranchAddress("TrackCand_pt",var_TrackPt0);
-  t0->SetBranchAddress("TrackCand_vtxdxyz",var_TrackD0);
-  t0->SetBranchAddress("TrackCand_purity",var_TrackQuality0);
-  t2->SetBranchAddress("nTrackCand",var_nTrack2);
-  t2->SetBranchAddress("nQualityTrackCand",var_nTrackQual2);
-  t2->SetBranchAddress("TrackCand_pt",var_TrackPt2);
-  t2->SetBranchAddress("TrackCand_vtxdxyz",var_TrackD2);
-  t2->SetBranchAddress("TrackCand_purity",var_TrackQuality2);
-  t3->SetBranchAddress("nTrackCand",var_nTrack3);
-  t3->SetBranchAddress("nQualityTrackCand",var_nTrackQual3);
-  t3->SetBranchAddress("TrackCand_pt",var_TrackPt3);
-  t3->SetBranchAddress("TrackCand_vtxdxyz",var_TrackD3);
-  t3->SetBranchAddress("TrackCand_purity",var_TrackQuality3);
-  t4->SetBranchAddress("nTrackCand",var_nTrack4);
-  t4->SetBranchAddress("nQualityTrackCand",var_nTrackQual4);
-  t4->SetBranchAddress("TrackCand_pt",var_TrackPt4);
-  t4->SetBranchAddress("TrackCand_vtxdxyz",var_TrackD4);
-  t4->SetBranchAddress("TrackCand_purity",var_TrackQuality4);
-  t5->SetBranchAddress("nTrackCand",var_nTrack5);
-  t5->SetBranchAddress("nQualityTrackCand",var_nTrackQual5);
-  t5->SetBranchAddress("TrackCand_pt",var_TrackPt5);
-  t5->SetBranchAddress("TrackCand_vtxdxyz",var_TrackD5);
-  t5->SetBranchAddress("TrackCand_purity",var_TrackQuality5);
-  t6->SetBranchAddress("nTrackCand",var_nTrack6);
-  t6->SetBranchAddress("nQualityTrackCand",var_nTrackQual6);
-  t6->SetBranchAddress("TrackCand_pt",var_TrackPt6);
-  t6->SetBranchAddress("TrackCand_vtxdxyz",var_TrackD6);
-  t6->SetBranchAddress("TrackCand_purity",var_TrackQuality6);
-
-  t1->SetBranchAddress("nPrimVertexCand",var_nvtx1);
-  t2->SetBranchAddress("nPrimVertexCand",var_nvtx2);
-  t1->SetBranchAddress("PrimVertexCand_z",var_vtxZ1);
-  t2->SetBranchAddress("PrimVertexCand_z",var_vtxZ2);
-  t1->SetBranchAddress("PrimVertexCand_x",var_vtxX1);
-  t2->SetBranchAddress("PrimVertexCand_x",var_vtxX2);
-  t1->SetBranchAddress("PrimVertexCand_y",var_vtxY1);
-  t2->SetBranchAddress("PrimVertexCand_y",var_vtxY2);
-  t1->SetBranchAddress("PrimVertexCand_chi2",var_vertexChi2_1);
-  t1->SetBranchAddress("PrimVertexCand_ndof",var_vertexNdf1);
-  t2->SetBranchAddress("PrimVertexCand_chi2",var_vertexChi2_2);
-  t2->SetBranchAddress("PrimVertexCand_ndof",var_vertexNdf2);
-  t0->SetBranchAddress("nPrimVertexCand",var_nvtx0);
-  t0->SetBranchAddress("PrimVertexCand_z",var_vtxZ0);
-  t0->SetBranchAddress("PrimVertexCand_x",var_vtxX0);
-  t0->SetBranchAddress("PrimVertexCand_y",var_vtxY0);
-  t0->SetBranchAddress("PrimVertexCand_chi2",var_vertexChi2_0);
-  t0->SetBranchAddress("PrimVertexCand_ndof",var_vertexNdf0);
-  t0->SetBranchAddress("PrimVertexCand_tracks",var_vtxTrack0);
-  t1->SetBranchAddress("PrimVertexCand_tracks",var_vtxTrack1);
-  t2->SetBranchAddress("PrimVertexCand_tracks",var_vtxTrack2);
-  t3->SetBranchAddress("nPrimVertexCand",var_nvtx3);
-  t3->SetBranchAddress("PrimVertexCand_z",var_vtxZ3);
-  t3->SetBranchAddress("PrimVertexCand_x",var_vtxX3);
-  t3->SetBranchAddress("PrimVertexCand_y",var_vtxY3);
-  t3->SetBranchAddress("PrimVertexCand_chi2",var_vertexChi2_3);
-  t3->SetBranchAddress("PrimVertexCand_ndof",var_vertexNdf3);
-  t3->SetBranchAddress("PrimVertexCand_tracks",var_vtxTrack3);
-  t4->SetBranchAddress("nPrimVertexCand",var_nvtx4);
-  t4->SetBranchAddress("PrimVertexCand_z",var_vtxZ4);
-  t4->SetBranchAddress("PrimVertexCand_x",var_vtxX4);
-  t4->SetBranchAddress("PrimVertexCand_y",var_vtxY4);
-  t4->SetBranchAddress("PrimVertexCand_chi2",var_vertexChi2_4);
-  t4->SetBranchAddress("PrimVertexCand_ndof",var_vertexNdf4);
-  t4->SetBranchAddress("PrimVertexCand_tracks",var_vtxTrack4);
-  t5->SetBranchAddress("nPrimVertexCand",var_nvtx5);
-  t5->SetBranchAddress("PrimVertexCand_z",var_vtxZ5);
-  t5->SetBranchAddress("PrimVertexCand_x",var_vtxX5);
-  t5->SetBranchAddress("PrimVertexCand_y",var_vtxY5);
-  t5->SetBranchAddress("PrimVertexCand_chi2",var_vertexChi2_5);
-  t5->SetBranchAddress("PrimVertexCand_ndof",var_vertexNdf5);
-  t5->SetBranchAddress("PrimVertexCand_tracks",var_vtxTrack5);
-  t6->SetBranchAddress("nPrimVertexCand",var_nvtx6);
-  t6->SetBranchAddress("PrimVertexCand_z",var_vtxZ6);
-  t6->SetBranchAddress("PrimVertexCand_x",var_vtxX6);
-  t6->SetBranchAddress("PrimVertexCand_y",var_vtxY6);
-  t6->SetBranchAddress("PrimVertexCand_chi2",var_vertexChi2_6);
-  t6->SetBranchAddress("PrimVertexCand_ndof",var_vertexNdf6);
-  t6->SetBranchAddress("PrimVertexCand_tracks",var_vtxTrack6);
+  t1->SetBranc->Address("MuonCand_tmlsOptLowPtloosemuonid",var_idA1);
+  t2->SetBranc->Address("MuonCand_tmlsOptLowPtloosemuonid",var_idA2);
+  t1->SetBranc->Address("MuonCand_tmlsAngloosemuonid",var_idB1);
+  t2->SetBranc->Address("MuonCand_tmlsAngloosemuonid",var_idB2);
+  t1->SetBranc->Address("MuonCand_tmlsAngtightmuonid",var_idC1);
+  t2->SetBranc->Address("MuonCand_tmlsAngtightmuonid",var_idC2);
+  t1->SetBranc->Address("MuonCand_tmosAngloosemuonid",var_idD1);
+  t2->SetBranc->Address("MuonCand_tmosAngloosemuonid",var_idD2);
+  t1->SetBranc->Address("MuonCand_tmosAngtightmuonid",var_idE1);
+  t2->SetBranc->Address("MuonCand_tmosAngtightmuonid",var_idE2);
+  t0->SetBranc->Address("MuonCand_tmlsOptLowPtloosemuonid",var_idA0);
+  t0->SetBranc->Address("MuonCand_tmlsAngloosemuonid",var_idB0);
+  t0->SetBranc->Address("MuonCand_tmlsAngtightmuonid",var_idC0);
+  t0->SetBranc->Address("MuonCand_tmosAngloosemuonid",var_idD0);
+  t0->SetBranc->Address("MuonCand_tmosAngtightmuonid",var_idE0);
+  t3->SetBranc->Address("MuonCand_tmlsOptLowPtloosemuonid",var_idA3);
+  t3->SetBranc->Address("MuonCand_tmlsAngloosemuonid",var_idB3);
+  t3->SetBranc->Address("MuonCand_tmlsAngtightmuonid",var_idC3);
+  t3->SetBranc->Address("MuonCand_tmosAngloosemuonid",var_idD3);
+  t3->SetBranc->Address("MuonCand_tmosAngtightmuonid",var_idE3);
+  t4->SetBranc->Address("MuonCand_tmlsOptLowPtloosemuonid",var_idA4);
+  t4->SetBranc->Address("MuonCand_tmlsAngloosemuonid",var_idB4);
+  t4->SetBranc->Address("MuonCand_tmlsAngtightmuonid",var_idC4);
+  t4->SetBranc->Address("MuonCand_tmosAngloosemuonid",var_idD4);
+  t4->SetBranc->Address("MuonCand_tmosAngtightmuonid",var_idE4);
+  t5->SetBranc->Address("MuonCand_tmlsOptLowPtloosemuonid",var_idA5);
+  t5->SetBranc->Address("MuonCand_tmlsAngloosemuonid",var_idB5);
+  t5->SetBranc->Address("MuonCand_tmlsAngtightmuonid",var_idC5);
+  t5->SetBranc->Address("MuonCand_tmosAngloosemuonid",var_idD5);
+  t5->SetBranc->Address("MuonCand_tmosAngtightmuonid",var_idE5);
+  t6->SetBranc->Address("MuonCand_tmlsOptLowPtloosemuonid",var_idA6);
+  t6->SetBranc->Address("MuonCand_tmlsAngloosemuonid",var_idB6);
+  t6->SetBranc->Address("MuonCand_tmlsAngtightmuonid",var_idC6);
+  t6->SetBranc->Address("MuonCand_tmosAngloosemuonid",var_idD6);
+  t6->SetBranc->Address("MuonCand_tmosAngtightmuonid",var_idE6);
 
 
-  t1->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX1);
-  t2->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX2);
-  t1->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY1);
-  t2->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY2);
-  t1->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ1);
-  t2->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ2);
-  t0->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX0);
-  t0->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY0);
-  t0->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ0);
-  t0->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid0);
-  t1->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid1);
-  t2->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid2);
-  t3->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX3);
-  t3->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY3);
-  t3->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ3);
-  t3->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid3);
-  t4->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX4);
-  t4->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY4);
-  t4->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ4);
-  t4->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid4);
-  t5->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX5);
-  t5->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY5);
-  t5->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ5);
-  t5->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid5);
-  t6->SetBranchAddress("MuMu_vtxx",var_MuMuvtxX6);
-  t6->SetBranchAddress("MuMu_vtxy",var_MuMuvtxY6);
-  t6->SetBranchAddress("MuMu_vtxz",var_MuMuvtxZ6);
-  t6->SetBranchAddress("MuMu_vtxisvalid",var_MuMuvtxValid6);
+  t1->SetBranc->Address("nTrackCand",var_nTrack1);
+  t1->SetBranc->Address("nQualityTrackCand",var_nTrackQual1);
+  t1->SetBranc->Address("TrackCand_pt",var_TrackPt1);
+  t1->SetBranc->Address("TrackCand_vtxdxyz",var_TrackD1);
+  t1->SetBranc->Address("TrackCand_purity",var_TrackQuality1);
+  t0->SetBranc->Address("nTrackCand",var_nTrack0);
+  t0->SetBranc->Address("nQualityTrackCand",var_nTrackQual0);
+  t0->SetBranc->Address("TrackCand_pt",var_TrackPt0);
+  t0->SetBranc->Address("TrackCand_vtxdxyz",var_TrackD0);
+  t0->SetBranc->Address("TrackCand_purity",var_TrackQuality0);
+  t2->SetBranc->Address("nTrackCand",var_nTrack2);
+  t2->SetBranc->Address("nQualityTrackCand",var_nTrackQual2);
+  t2->SetBranc->Address("TrackCand_pt",var_TrackPt2);
+  t2->SetBranc->Address("TrackCand_vtxdxyz",var_TrackD2);
+  t2->SetBranc->Address("TrackCand_purity",var_TrackQuality2);
+  t3->SetBranc->Address("nTrackCand",var_nTrack3);
+  t3->SetBranc->Address("nQualityTrackCand",var_nTrackQual3);
+  t3->SetBranc->Address("TrackCand_pt",var_TrackPt3);
+  t3->SetBranc->Address("TrackCand_vtxdxyz",var_TrackD3);
+  t3->SetBranc->Address("TrackCand_purity",var_TrackQuality3);
+  t4->SetBranc->Address("nTrackCand",var_nTrack4);
+  t4->SetBranc->Address("nQualityTrackCand",var_nTrackQual4);
+  t4->SetBranc->Address("TrackCand_pt",var_TrackPt4);
+  t4->SetBranc->Address("TrackCand_vtxdxyz",var_TrackD4);
+  t4->SetBranc->Address("TrackCand_purity",var_TrackQuality4);
+  t5->SetBranc->Address("nTrackCand",var_nTrack5);
+  t5->SetBranc->Address("nQualityTrackCand",var_nTrackQual5);
+  t5->SetBranc->Address("TrackCand_pt",var_TrackPt5);
+  t5->SetBranc->Address("TrackCand_vtxdxyz",var_TrackD5);
+  t5->SetBranc->Address("TrackCand_purity",var_TrackQuality5);
+  t6->SetBranc->Address("nTrackCand",var_nTrack6);
+  t6->SetBranc->Address("nQualityTrackCand",var_nTrackQual6);
+  t6->SetBranc->Address("TrackCand_pt",var_TrackPt6);
+  t6->SetBranc->Address("TrackCand_vtxdxyz",var_TrackD6);
+  t6->SetBranc->Address("TrackCand_purity",var_TrackQuality6);
 
-  t1->SetBranchAddress("nCaloCand",var_ncalo1);
-  t2->SetBranchAddress("nCaloCand",var_ncalo2);
-  t1->SetBranchAddress("CaloTower_ID",var_caloId1);
-  t2->SetBranchAddress("CaloTower_ID",var_caloId2);
-  t1->SetBranchAddress("CaloTower_e",var_caloEn1);
-  t2->SetBranchAddress("CaloTower_e",var_caloEn2);
-  t1->SetBranchAddress("CaloTower_t",var_caloTime1);
-  t2->SetBranchAddress("CaloTower_t",var_caloTime2);
-  t1->SetBranchAddress("CaloTower_dr",var_calodR1);
-  t2->SetBranchAddress("CaloTower_dr",var_calodR2);
-  t1->SetBranchAddress("CaloTower_eta",var_caloEta1);
-  t1->SetBranchAddress("CaloTower_phi",var_caloPhi1);
-  t2->SetBranchAddress("CaloTower_eta",var_caloEta2);
-  t2->SetBranchAddress("CaloTower_phi",var_caloPhi2);
-  t1->SetBranchAddress("Etmiss",var_etmiss1);
-  t2->SetBranchAddress("Etmiss",var_etmiss2);
-  t1->SetBranchAddress("nExtraCaloTowersE5",var_tower1);
-  t2->SetBranchAddress("nExtraCaloTowersE5",var_tower2);
-  t0->SetBranchAddress("nCaloCand",var_ncalo0);
-  t0->SetBranchAddress("CaloTower_ID",var_caloId0);
-  t0->SetBranchAddress("CaloTower_e",var_caloEn0);
-  t0->SetBranchAddress("CaloTower_t",var_caloTime0);
-  t0->SetBranchAddress("CaloTower_dr",var_calodR0);
-  t0->SetBranchAddress("CaloTower_eta",var_caloEta0);
-  t0->SetBranchAddress("CaloTower_phi",var_caloPhi0);
-  t0->SetBranchAddress("Etmiss",var_etmiss0);
-  t0->SetBranchAddress("nExtraCaloTowersE5",var_tower0);
-  t3->SetBranchAddress("nCaloCand",var_ncalo3);
-  t3->SetBranchAddress("CaloTower_ID",var_caloId3);
-  t3->SetBranchAddress("CaloTower_e",var_caloEn3);
-  t3->SetBranchAddress("CaloTower_t",var_caloTime3);
-  t3->SetBranchAddress("CaloTower_dr",var_calodR3);
-  t3->SetBranchAddress("CaloTower_eta",var_caloEta3);
-  t3->SetBranchAddress("CaloTower_phi",var_caloPhi3);
-  t3->SetBranchAddress("Etmiss",var_etmiss3);
-  t3->SetBranchAddress("nExtraCaloTowersE5",var_tower3);
-  t4->SetBranchAddress("nCaloCand",var_ncalo4);
-  t4->SetBranchAddress("CaloTower_ID",var_caloId4);
-  t4->SetBranchAddress("CaloTower_e",var_caloEn4);
-  t4->SetBranchAddress("CaloTower_t",var_caloTime4);
-  t4->SetBranchAddress("CaloTower_dr",var_calodR4);
-  t4->SetBranchAddress("CaloTower_eta",var_caloEta4);
-  t4->SetBranchAddress("CaloTower_phi",var_caloPhi4);
-  t4->SetBranchAddress("Etmiss",var_etmiss4);
-  t4->SetBranchAddress("nExtraCaloTowersE5",var_tower4);
-  t5->SetBranchAddress("nCaloCand",var_ncalo5);
-  t5->SetBranchAddress("CaloTower_ID",var_caloId5);
-  t5->SetBranchAddress("CaloTower_e",var_caloEn5);
-  t5->SetBranchAddress("CaloTower_t",var_caloTime5);
-  t5->SetBranchAddress("CaloTower_dr",var_calodR5);
-  t5->SetBranchAddress("CaloTower_eta",var_caloEta5);
-  t5->SetBranchAddress("CaloTower_phi",var_caloPhi5);
-  t5->SetBranchAddress("Etmiss",var_etmiss5);
-  t5->SetBranchAddress("nExtraCaloTowersE5",var_tower5);
-  t6->SetBranchAddress("nCaloCand",var_ncalo6);
-  t6->SetBranchAddress("CaloTower_ID",var_caloId6);
-  t6->SetBranchAddress("CaloTower_e",var_caloEn6);
-  t6->SetBranchAddress("CaloTower_t",var_caloTime6);
-  t6->SetBranchAddress("CaloTower_dr",var_calodR6);
-  t6->SetBranchAddress("CaloTower_eta",var_caloEta6);
-  t6->SetBranchAddress("CaloTower_phi",var_caloPhi6);
-  t6->SetBranchAddress("Etmiss",var_etmiss6);
-  t6->SetBranchAddress("nExtraCaloTowersE5",var_tower6);
+  t1->SetBranc->Address("nPrimVertexCand",var_nvtx1);
+  t2->SetBranc->Address("nPrimVertexCand",var_nvtx2);
+  t1->SetBranc->Address("PrimVertexCand_z",var_vtxZ1);
+  t2->SetBranc->Address("PrimVertexCand_z",var_vtxZ2);
+  t1->SetBranc->Address("PrimVertexCand_x",var_vtxX1);
+  t2->SetBranc->Address("PrimVertexCand_x",var_vtxX2);
+  t1->SetBranc->Address("PrimVertexCand_y",var_vtxY1);
+  t2->SetBranc->Address("PrimVertexCand_y",var_vtxY2);
+  t1->SetBranc->Address("PrimVertexCand_chi2",var_vertexChi2_1);
+  t1->SetBranc->Address("PrimVertexCand_ndof",var_vertexNdf1);
+  t2->SetBranc->Address("PrimVertexCand_chi2",var_vertexChi2_2);
+  t2->SetBranc->Address("PrimVertexCand_ndof",var_vertexNdf2);
+  t0->SetBranc->Address("nPrimVertexCand",var_nvtx0);
+  t0->SetBranc->Address("PrimVertexCand_z",var_vtxZ0);
+  t0->SetBranc->Address("PrimVertexCand_x",var_vtxX0);
+  t0->SetBranc->Address("PrimVertexCand_y",var_vtxY0);
+  t0->SetBranc->Address("PrimVertexCand_chi2",var_vertexChi2_0);
+  t0->SetBranc->Address("PrimVertexCand_ndof",var_vertexNdf0);
+  t0->SetBranc->Address("PrimVertexCand_tracks",var_vtxTrack0);
+  t1->SetBranc->Address("PrimVertexCand_tracks",var_vtxTrack1);
+  t2->SetBranc->Address("PrimVertexCand_tracks",var_vtxTrack2);
+  t3->SetBranc->Address("nPrimVertexCand",var_nvtx3);
+  t3->SetBranc->Address("PrimVertexCand_z",var_vtxZ3);
+  t3->SetBranc->Address("PrimVertexCand_x",var_vtxX3);
+  t3->SetBranc->Address("PrimVertexCand_y",var_vtxY3);
+  t3->SetBranc->Address("PrimVertexCand_chi2",var_vertexChi2_3);
+  t3->SetBranc->Address("PrimVertexCand_ndof",var_vertexNdf3);
+  t3->SetBranc->Address("PrimVertexCand_tracks",var_vtxTrack3);
+  t4->SetBranc->Address("nPrimVertexCand",var_nvtx4);
+  t4->SetBranc->Address("PrimVertexCand_z",var_vtxZ4);
+  t4->SetBranc->Address("PrimVertexCand_x",var_vtxX4);
+  t4->SetBranc->Address("PrimVertexCand_y",var_vtxY4);
+  t4->SetBranc->Address("PrimVertexCand_chi2",var_vertexChi2_4);
+  t4->SetBranc->Address("PrimVertexCand_ndof",var_vertexNdf4);
+  t4->SetBranc->Address("PrimVertexCand_tracks",var_vtxTrack4);
+  t5->SetBranc->Address("nPrimVertexCand",var_nvtx5);
+  t5->SetBranc->Address("PrimVertexCand_z",var_vtxZ5);
+  t5->SetBranc->Address("PrimVertexCand_x",var_vtxX5);
+  t5->SetBranc->Address("PrimVertexCand_y",var_vtxY5);
+  t5->SetBranc->Address("PrimVertexCand_chi2",var_vertexChi2_5);
+  t5->SetBranc->Address("PrimVertexCand_ndof",var_vertexNdf5);
+  t5->SetBranc->Address("PrimVertexCand_tracks",var_vtxTrack5);
+  t6->SetBranc->Address("nPrimVertexCand",var_nvtx6);
+  t6->SetBranc->Address("PrimVertexCand_z",var_vtxZ6);
+  t6->SetBranc->Address("PrimVertexCand_x",var_vtxX6);
+  t6->SetBranc->Address("PrimVertexCand_y",var_vtxY6);
+  t6->SetBranc->Address("PrimVertexCand_chi2",var_vertexChi2_6);
+  t6->SetBranc->Address("PrimVertexCand_ndof",var_vertexNdf6);
+  t6->SetBranc->Address("PrimVertexCand_tracks",var_vtxTrack6);
 
 
-  t0->SetBranchAddress("BX",var_bx0);
-  t0->SetBranchAddress("Run",var_run0);
-  t6->SetBranchAddress("Run",var_run6);
-  t0->SetBranchAddress("LumiSection",var_ls0);
-  t0->SetBranchAddress("EventNum",var_event0);
+  t1->SetBranc->Address("MuMu_vtxx",var_MuMuvtxX1);
+  t2->SetBranc->Address("MuMu_vtxx",var_MuMuvtxX2);
+  t1->SetBranc->Address("MuMu_vtxy",var_MuMuvtxY1);
+  t2->SetBranc->Address("MuMu_vtxy",var_MuMuvtxY2);
+  t1->SetBranc->Address("MuMu_vtxz",var_MuMuvtxZ1);
+  t2->SetBranc->Address("MuMu_vtxz",var_MuMuvtxZ2);
+  t0->SetBranc->Address("MuMu_vtxx",var_MuMuvtxX0);
+  t0->SetBranc->Address("MuMu_vtxy",var_MuMuvtxY0);
+  t0->SetBranc->Address("MuMu_vtxz",var_MuMuvtxZ0);
+  t0->SetBranc->Address("MuMu_vtxisvalid",var_MuMuvtxValid0);
+  t1->SetBranc->Address("MuMu_vtxisvalid",var_MuMuvtxValid1);
+  t2->SetBranc->Address("MuMu_vtxisvalid",var_MuMuvtxValid2);
+  t3->SetBranc->Address("MuMu_vtxx",var_MuMuvtxX3);
+  t3->SetBranc->Address("MuMu_vtxy",var_MuMuvtxY3);
+  t3->SetBranc->Address("MuMu_vtxz",var_MuMuvtxZ3);
+  t3->SetBranc->Address("MuMu_vtxisvalid",var_MuMuvtxValid3);
+  t4->SetBranc->Address("MuMu_vtxx",var_MuMuvtxX4);
+  t4->SetBranc->Address("MuMu_vtxy",var_MuMuvtxY4);
+  t4->SetBranc->Address("MuMu_vtxz",var_MuMuvtxZ4);
+  t4->SetBranc->Address("MuMu_vtxisvalid",var_MuMuvtxValid4);
+  t5->SetBranc->Address("MuMu_vtxx",var_MuMuvtxX5);
+  t5->SetBranc->Address("MuMu_vtxy",var_MuMuvtxY5);
+  t5->SetBranc->Address("MuMu_vtxz",var_MuMuvtxZ5);
+  t5->SetBranc->Address("MuMu_vtxisvalid",var_MuMuvtxValid5);
+  t6->SetBranc->Address("MuMu_vtxx",var_MuMuvtxX6);
+  t6->SetBranc->Address("MuMu_vtxy",var_MuMuvtxY6);
+  t6->SetBranc->Address("MuMu_vtxz",var_MuMuvtxZ6);
+  t6->SetBranc->Address("MuMu_vtxisvalid",var_MuMuvtxValid6);
 
-  t1->SetBranchAddress("MuMu_mass",var_mass1);
-  t1->SetBranchAddress("MuMu_dpt",var_dpt1);
-  t1->SetBranchAddress("MuMu_dphi",var_dphi1);
-  t0->SetBranchAddress("MuMu_mass",var_mass0);
-  t0->SetBranchAddress("MuMu_dpt",var_dpt0);
-  t0->SetBranchAddress("MuMu_dphi",var_dphi0);
-  t2->SetBranchAddress("MuMu_mass",var_mass2);
-  t2->SetBranchAddress("MuMu_dpt",var_dpt2);
-  t2->SetBranchAddress("MuMu_dphi",var_dphi2);
-  t3->SetBranchAddress("MuMu_mass",var_mass3);
-  t3->SetBranchAddress("MuMu_dpt",var_dpt3);
-  t3->SetBranchAddress("MuMu_dphi",var_dphi3);
-  t4->SetBranchAddress("MuMu_mass",var_mass4);
-  t4->SetBranchAddress("MuMu_dpt",var_dpt4);
-  t4->SetBranchAddress("MuMu_dphi",var_dphi4);
-  t5->SetBranchAddress("MuMu_mass",var_mass5);
-  t5->SetBranchAddress("MuMu_dpt",var_dpt5);
-  t5->SetBranchAddress("MuMu_dphi",var_dphi5);
-  t6->SetBranchAddress("MuMu_mass",var_mass6);
-  t6->SetBranchAddress("MuMu_dpt",var_dpt6);
-  t6->SetBranchAddress("MuMu_dphi",var_dphi6);
-
-  t1->SetBranchAddress("MuonCand_isglobal",var_global1);
-  t2->SetBranchAddress("MuonCand_isglobal",var_global2);
-  t1->SetBranchAddress("MuonCand_istracker",var_tracker1);
-  t2->SetBranchAddress("MuonCand_istracker",var_tracker2);
-  t1->SetBranchAddress("MuonCand_isstandalone",var_standalone1);
-  t2->SetBranchAddress("MuonCand_isstandalone",var_standalone2);
-  t1->SetBranchAddress("MuonCand_validtrackhits",var_nhitsTrack1);
-  t2->SetBranchAddress("MuonCand_validtrackhits",var_nhitsTrack2);
-  t0->SetBranchAddress("MuonCand_isglobal",var_global0);
-  t0->SetBranchAddress("MuonCand_istracker",var_tracker0);
-  t0->SetBranchAddress("MuonCand_isstandalone",var_standalone0);
-  t0->SetBranchAddress("MuonCand_validtrackhits",var_nhitsTrack0);
-  t3->SetBranchAddress("MuonCand_isglobal",var_global3);
-  t3->SetBranchAddress("MuonCand_istracker",var_tracker3);
-  t3->SetBranchAddress("MuonCand_isstandalone",var_standalone3);
-  t3->SetBranchAddress("MuonCand_validtrackhits",var_nhitsTrack3);
-  t4->SetBranchAddress("MuonCand_isglobal",var_global4);
-  t4->SetBranchAddress("MuonCand_istracker",var_tracker4);
-  t4->SetBranchAddress("MuonCand_isstandalone",var_standalone4);
-  t4->SetBranchAddress("MuonCand_validtrackhits",var_nhitsTrack4);
-  t5->SetBranchAddress("MuonCand_isglobal",var_global5);
-  t5->SetBranchAddress("MuonCand_istracker",var_tracker5);
-  t5->SetBranchAddress("MuonCand_isstandalone",var_standalone5);
-  t5->SetBranchAddress("MuonCand_validtrackhits",var_nhitsTrack5);
-  t6->SetBranchAddress("MuonCand_isglobal",var_global6);
-  t6->SetBranchAddress("MuonCand_istracker",var_tracker6);
-  t6->SetBranchAddress("MuonCand_isstandalone",var_standalone6);
-  t6->SetBranchAddress("MuonCand_validtrackhits",var_nhitsTrack6);
-
-
-  t1->SetBranchAddress("MuonCand_pt",var_pt1);
-  t2->SetBranchAddress("MuonCand_pt",var_pt2);
-  t1->SetBranchAddress("MuonCand_pz",var_pz1);
-  t2->SetBranchAddress("MuonCand_pz",var_pz2);
-  t1->SetBranchAddress("MuonCand_phi",var_phi1);
-  t2->SetBranchAddress("MuonCand_phi",var_phi2);
-  t1->SetBranchAddress("MuonCand_eta",var_eta1);
-  t2->SetBranchAddress("MuonCand_eta",var_eta2);
-  t1->SetBranchAddress("MuonCand_p",var_p1);
-  t1->SetBranchAddress("MuonCand_px",var_px1);
-  t1->SetBranchAddress("MuonCand_py",var_py1);
-  t1->SetBranchAddress("MuonCand_pz",var_pz1);
-  t2->SetBranchAddress("MuonCand_p",var_p2);
-  t2->SetBranchAddress("MuonCand_px",var_px2);
-  t2->SetBranchAddress("MuonCand_py",var_py2);
-  t2->SetBranchAddress("MuonCand_pz",var_pz2);
-  t0->SetBranchAddress("MuonCand_pt",var_pt0);
-  t0->SetBranchAddress("MuonCand_pz",var_pz0);
-  t0->SetBranchAddress("MuonCand_phi",var_phi0);
-  t0->SetBranchAddress("MuonCand_eta",var_eta0);
-  t0->SetBranchAddress("MuonCand_p",var_p0);
-  t0->SetBranchAddress("MuonCand_px",var_px0);
-  t0->SetBranchAddress("MuonCand_py",var_py0);
-  t0->SetBranchAddress("MuonCand_pz",var_pz0);
-  t3->SetBranchAddress("MuonCand_pt",var_pt3);
-  t3->SetBranchAddress("MuonCand_pz",var_pz3);
-  t3->SetBranchAddress("MuonCand_phi",var_phi3);
-  t3->SetBranchAddress("MuonCand_eta",var_eta3);
-  t3->SetBranchAddress("MuonCand_p",var_p3);
-  t3->SetBranchAddress("MuonCand_px",var_px3);
-  t3->SetBranchAddress("MuonCand_py",var_py3);
-  t3->SetBranchAddress("MuonCand_pz",var_pz3);
-  t4->SetBranchAddress("MuonCand_pt",var_pt4);
-  t4->SetBranchAddress("MuonCand_pz",var_pz4);
-  t4->SetBranchAddress("MuonCand_phi",var_phi4);
-  t4->SetBranchAddress("MuonCand_eta",var_eta4);
-  t4->SetBranchAddress("MuonCand_p",var_p4);
-  t4->SetBranchAddress("MuonCand_px",var_px4);
-  t4->SetBranchAddress("MuonCand_py",var_py4);
-  t4->SetBranchAddress("MuonCand_pz",var_pz4);
-  t5->SetBranchAddress("MuonCand_pt",var_pt5);
-  t5->SetBranchAddress("MuonCand_pz",var_pz5);
-  t5->SetBranchAddress("MuonCand_phi",var_phi5);
-  t5->SetBranchAddress("MuonCand_eta",var_eta5);
-  t5->SetBranchAddress("MuonCand_p",var_p5);
-  t5->SetBranchAddress("MuonCand_px",var_px5);
-  t5->SetBranchAddress("MuonCand_py",var_py5);
-  t5->SetBranchAddress("MuonCand_pz",var_pz5);
-  t6->SetBranchAddress("MuonCand_pt",var_pt6);
-  t6->SetBranchAddress("MuonCand_pz",var_pz6);
-  t6->SetBranchAddress("MuonCand_phi",var_phi6);
-  t6->SetBranchAddress("MuonCand_eta",var_eta6);
-  t6->SetBranchAddress("MuonCand_p",var_p6);
-  t6->SetBranchAddress("MuonCand_px",var_px6);
-  t6->SetBranchAddress("MuonCand_py",var_py6);
-  t6->SetBranchAddress("MuonCand_pz",var_pz6);
-
-  t0->SetBranchAddress("MuonPairCand",var_Pair0);
-  t1->SetBranchAddress("MuonPairCand",var_Pair1);
-  t2->SetBranchAddress("MuonPairCand",var_Pair2);
-  t3->SetBranchAddress("MuonPairCand",var_Pair3);
-  t4->SetBranchAddress("MuonPairCand",var_Pair4);
-  t5->SetBranchAddress("MuonPairCand",var_Pair5);
-  t6->SetBranchAddress("MuonPairCand",var_Pair6);
-
-  t1->SetBranchAddress("MuonCand_efficiency",var_eff1);
-  t2->SetBranchAddress("MuonCand_efficiency",var_eff2);
-  t3->SetBranchAddress("MuonCand_efficiency",var_eff3);
-  t4->SetBranchAddress("MuonCand_efficiency",var_eff4);
-  t5->SetBranchAddress("MuonCand_efficiency",var_eff5);
+  t1->SetBranc->Address("nCaloCand",var_ncalo1);
+  t2->SetBranc->Address("nCaloCand",var_ncalo2);
+  t1->SetBranc->Address("CaloTower_ID",var_caloId1);
+  t2->SetBranc->Address("CaloTower_ID",var_caloId2);
+  t1->SetBranc->Address("CaloTower_e",var_caloEn1);
+  t2->SetBranc->Address("CaloTower_e",var_caloEn2);
+  t1->SetBranc->Address("CaloTower_t",var_caloTime1);
+  t2->SetBranc->Address("CaloTower_t",var_caloTime2);
+  t1->SetBranc->Address("CaloTower_dr",var_calodR1);
+  t2->SetBranc->Address("CaloTower_dr",var_calodR2);
+  t1->SetBranc->Address("CaloTower_eta",var_caloEta1);
+  t1->SetBranc->Address("CaloTower_phi",var_caloPhi1);
+  t2->SetBranc->Address("CaloTower_eta",var_caloEta2);
+  t2->SetBranc->Address("CaloTower_phi",var_caloPhi2);
+  t1->SetBranc->Address("Etmiss",var_etmiss1);
+  t2->SetBranc->Address("Etmiss",var_etmiss2);
+  t1->SetBranc->Address("nExtraCaloTowersE5",var_tower1);
+  t2->SetBranc->Address("nExtraCaloTowersE5",var_tower2);
+  t0->SetBranc->Address("nCaloCand",var_ncalo0);
+  t0->SetBranc->Address("CaloTower_ID",var_caloId0);
+  t0->SetBranc->Address("CaloTower_e",var_caloEn0);
+  t0->SetBranc->Address("CaloTower_t",var_caloTime0);
+  t0->SetBranc->Address("CaloTower_dr",var_calodR0);
+  t0->SetBranc->Address("CaloTower_eta",var_caloEta0);
+  t0->SetBranc->Address("CaloTower_phi",var_caloPhi0);
+  t0->SetBranc->Address("Etmiss",var_etmiss0);
+  t0->SetBranc->Address("nExtraCaloTowersE5",var_tower0);
+  t3->SetBranc->Address("nCaloCand",var_ncalo3);
+  t3->SetBranc->Address("CaloTower_ID",var_caloId3);
+  t3->SetBranc->Address("CaloTower_e",var_caloEn3);
+  t3->SetBranc->Address("CaloTower_t",var_caloTime3);
+  t3->SetBranc->Address("CaloTower_dr",var_calodR3);
+  t3->SetBranc->Address("CaloTower_eta",var_caloEta3);
+  t3->SetBranc->Address("CaloTower_phi",var_caloPhi3);
+  t3->SetBranc->Address("Etmiss",var_etmiss3);
+  t3->SetBranc->Address("nExtraCaloTowersE5",var_tower3);
+  t4->SetBranc->Address("nCaloCand",var_ncalo4);
+  t4->SetBranc->Address("CaloTower_ID",var_caloId4);
+  t4->SetBranc->Address("CaloTower_e",var_caloEn4);
+  t4->SetBranc->Address("CaloTower_t",var_caloTime4);
+  t4->SetBranc->Address("CaloTower_dr",var_calodR4);
+  t4->SetBranc->Address("CaloTower_eta",var_caloEta4);
+  t4->SetBranc->Address("CaloTower_phi",var_caloPhi4);
+  t4->SetBranc->Address("Etmiss",var_etmiss4);
+  t4->SetBranc->Address("nExtraCaloTowersE5",var_tower4);
+  t5->SetBranc->Address("nCaloCand",var_ncalo5);
+  t5->SetBranc->Address("CaloTower_ID",var_caloId5);
+  t5->SetBranc->Address("CaloTower_e",var_caloEn5);
+  t5->SetBranc->Address("CaloTower_t",var_caloTime5);
+  t5->SetBranc->Address("CaloTower_dr",var_calodR5);
+  t5->SetBranc->Address("CaloTower_eta",var_caloEta5);
+  t5->SetBranc->Address("CaloTower_phi",var_caloPhi5);
+  t5->SetBranc->Address("Etmiss",var_etmiss5);
+  t5->SetBranc->Address("nExtraCaloTowersE5",var_tower5);
+  t6->SetBranc->Address("nCaloCand",var_ncalo6);
+  t6->SetBranc->Address("CaloTower_ID",var_caloId6);
+  t6->SetBranc->Address("CaloTower_e",var_caloEn6);
+  t6->SetBranc->Address("CaloTower_t",var_caloTime6);
+  t6->SetBranc->Address("CaloTower_dr",var_calodR6);
+  t6->SetBranc->Address("CaloTower_eta",var_caloEta6);
+  t6->SetBranc->Address("CaloTower_phi",var_caloPhi6);
+  t6->SetBranc->Address("Etmiss",var_etmiss6);
+  t6->SetBranc->Address("nExtraCaloTowersE5",var_tower6);
 
 
-  t0->SetBranchAddress("nZDChitCand",var_nZDC0);
-  t1->SetBranchAddress("nZDChitCand",var_nZDC1);
-  t2->SetBranchAddress("nZDChitCand",var_nZDC2);
-  t3->SetBranchAddress("nZDChitCand",var_nZDC3);
-  t4->SetBranchAddress("nZDChitCand",var_nZDC4);
-  t5->SetBranchAddress("nZDChitCand",var_nZDC5);
-  t6->SetBranchAddress("nZDChitCand",var_nZDC6);
-  t0->SetBranchAddress("ZDCsumEMminus",var_zdcEmMinus0);
-  t1->SetBranchAddress("ZDCsumEMminus",var_zdcEmMinus1);
-  t2->SetBranchAddress("ZDCsumEMminus",var_zdcEmMinus2);
-  t3->SetBranchAddress("ZDCsumEMminus",var_zdcEmMinus3);
-  t4->SetBranchAddress("ZDCsumEMminus",var_zdcEmMinus4);
-  t5->SetBranchAddress("ZDCsumEMminus",var_zdcEmMinus5);
-  t6->SetBranchAddress("ZDCsumEMminus",var_zdcEmMinus6);
-  t0->SetBranchAddress("ZDCsumHADminus",var_zdcHadMinus0);
-  t1->SetBranchAddress("ZDCsumHADminus",var_zdcHadMinus1);
-  t2->SetBranchAddress("ZDCsumHADminus",var_zdcHadMinus2);
-  t3->SetBranchAddress("ZDCsumHADminus",var_zdcHadMinus3);
-  t4->SetBranchAddress("ZDCsumHADminus",var_zdcHadMinus4);
-  t5->SetBranchAddress("ZDCsumHADminus",var_zdcHadMinus5);
-  t6->SetBranchAddress("ZDCsumHADminus",var_zdcHadMinus6);
-  t0->SetBranchAddress("ZDCsumEMplus",var_zdcEmPlus0);
-  t1->SetBranchAddress("ZDCsumEMplus",var_zdcEmPlus1);
-  t2->SetBranchAddress("ZDCsumEMplus",var_zdcEmPlus2);
-  t3->SetBranchAddress("ZDCsumEMplus",var_zdcEmPlus3);
-  t4->SetBranchAddress("ZDCsumEMplus",var_zdcEmPlus4);
-  t5->SetBranchAddress("ZDCsumEMplus",var_zdcEmPlus5);
-  t6->SetBranchAddress("ZDCsumEMplus",var_zdcEmPlus6);
-  t0->SetBranchAddress("ZDCsumHADplus",var_zdcHadPlus0);
-  t1->SetBranchAddress("ZDCsumHADplus",var_zdcHadPlus1);
-  t2->SetBranchAddress("ZDCsumHADplus",var_zdcHadPlus2);
-  t3->SetBranchAddress("ZDCsumHADplus",var_zdcHadPlus3);
-  t4->SetBranchAddress("ZDCsumHADplus",var_zdcHadPlus4);
-  t5->SetBranchAddress("ZDCsumHADplus",var_zdcHadPlus5);
-  t6->SetBranchAddress("ZDCsumHADplus",var_zdcHadPlus6);
-  t0->SetBranchAddress("ZDChit_time",var_zdcTime0);
-  t1->SetBranchAddress("ZDChit_time",var_zdcTime1);
-  t2->SetBranchAddress("ZDChit_time",var_zdcTime2);
-  t3->SetBranchAddress("ZDChit_time",var_zdcTime3);
-  t4->SetBranchAddress("ZDChit_time",var_zdcTime4);
-  t5->SetBranchAddress("ZDChit_time",var_zdcTime5);
-  t6->SetBranchAddress("ZDChit_time",var_zdcTime6);
-  t0->SetBranchAddress("ZDChit_energy",var_zdcE0);
-  t1->SetBranchAddress("ZDChit_energy",var_zdcE1);
-  t2->SetBranchAddress("ZDChit_energy",var_zdcE2);
-  t3->SetBranchAddress("ZDChit_energy",var_zdcE3);
-  t4->SetBranchAddress("ZDChit_energy",var_zdcE4);
-  t5->SetBranchAddress("ZDChit_energy",var_zdcE5);
-  t6->SetBranchAddress("ZDChit_energy",var_zdcE6);
-  t0->SetBranchAddress("ZDChit_section",var_zdcsection0);
-  t1->SetBranchAddress("ZDChit_section",var_zdcsection1);
-  t2->SetBranchAddress("ZDChit_section",var_zdcsection2);
-  t3->SetBranchAddress("ZDChit_section",var_zdcsection3);
-  t4->SetBranchAddress("ZDChit_section",var_zdcsection4);
-  t5->SetBranchAddress("ZDChit_section",var_zdcsection5);
-  t6->SetBranchAddress("ZDChit_section",var_zdcsection6);
+  t0->SetBranc->Address("BX",var_bx0);
+  t0->SetBranc->Address("Run",var_run0);
+  t6->SetBranc->Address("Run",var_run6);
+  t0->SetBranc->Address("LumiSection",var_ls0);
+  t0->SetBranc->Address("EventNum",var_event0);
 
-  t0->SetBranchAddress("nCastorTowerCand",var_nCastor0);
-  t1->SetBranchAddress("nCastorTowerCand",var_nCastor1);
-  t2->SetBranchAddress("nCastorTowerCand",var_nCastor2);
-  t3->SetBranchAddress("nCastorTowerCand",var_nCastor3);
-  t4->SetBranchAddress("nCastorTowerCand",var_nCastor4);
-  t5->SetBranchAddress("nCastorTowerCand",var_nCastor5);
-  t6->SetBranchAddress("nCastorTowerCand",var_nCastor6);
-  t0->SetBranchAddress("CastorTower_e",var_CastorE0);
-  t1->SetBranchAddress("CastorTower_e",var_CastorE1);
-  t2->SetBranchAddress("CastorTower_e",var_CastorE2);
-  t3->SetBranchAddress("CastorTower_e",var_CastorE3);
-  t4->SetBranchAddress("CastorTower_e",var_CastorE4);
-  t5->SetBranchAddress("CastorTower_e",var_CastorE5);
-  t6->SetBranchAddress("CastorTower_e",var_CastorE6);
-  t0->SetBranchAddress("CastorTower_eta",var_CastorEta0);
-  t1->SetBranchAddress("CastorTower_eta",var_CastorEta1);
-  t2->SetBranchAddress("CastorTower_eta",var_CastorEta2);
-  t3->SetBranchAddress("CastorTower_eta",var_CastorEta3);
-  t4->SetBranchAddress("CastorTower_eta",var_CastorEta4);
-  t5->SetBranchAddress("CastorTower_eta",var_CastorEta5);
-  t6->SetBranchAddress("CastorTower_eta",var_CastorEta6);
-  t0->SetBranchAddress("CastorTower_phi",var_CastorPhi0);
-  t1->SetBranchAddress("CastorTower_phi",var_CastorPhi1);
-  t2->SetBranchAddress("CastorTower_phi",var_CastorPhi2);
-  t3->SetBranchAddress("CastorTower_phi",var_CastorPhi3);
-  t4->SetBranchAddress("CastorTower_phi",var_CastorPhi4);
-  t5->SetBranchAddress("CastorTower_phi",var_CastorPhi5);
-  t6->SetBranchAddress("CastorTower_phi",var_CastorPhi6);
-  t0->SetBranchAddress("CASTORsumRecHitsE",var_CastorRecHit0);
-  t1->SetBranchAddress("CASTORsumRecHitsE",var_CastorRecHit1);
-  t2->SetBranchAddress("CASTORsumRecHitsE",var_CastorRecHit2);
-  t3->SetBranchAddress("CASTORsumRecHitsE",var_CastorRecHit3);
-  t4->SetBranchAddress("CASTORsumRecHitsE",var_CastorRecHit4);
-  t5->SetBranchAddress("CASTORsumRecHitsE",var_CastorRecHit5);
-  t6->SetBranchAddress("CASTORsumRecHitsE",var_CastorRecHit6);
+  t1->SetBranc->Address("MuMu_mass",var_mass1);
+  t1->SetBranc->Address("MuMu_dpt",var_dpt1);
+  t1->SetBranc->Address("MuMu_dphi",var_dphi1);
+  t0->SetBranc->Address("MuMu_mass",var_mass0);
+  t0->SetBranc->Address("MuMu_dpt",var_dpt0);
+  t0->SetBranc->Address("MuMu_dphi",var_dphi0);
+  t2->SetBranc->Address("MuMu_mass",var_mass2);
+  t2->SetBranc->Address("MuMu_dpt",var_dpt2);
+  t2->SetBranc->Address("MuMu_dphi",var_dphi2);
+  t3->SetBranc->Address("MuMu_mass",var_mass3);
+  t3->SetBranc->Address("MuMu_dpt",var_dpt3);
+  t3->SetBranc->Address("MuMu_dphi",var_dphi3);
+  t4->SetBranc->Address("MuMu_mass",var_mass4);
+  t4->SetBranc->Address("MuMu_dpt",var_dpt4);
+  t4->SetBranc->Address("MuMu_dphi",var_dphi4);
+  t5->SetBranc->Address("MuMu_mass",var_mass5);
+  t5->SetBranc->Address("MuMu_dpt",var_dpt5);
+  t5->SetBranc->Address("MuMu_dphi",var_dphi5);
+  t6->SetBranc->Address("MuMu_mass",var_mass6);
+  t6->SetBranc->Address("MuMu_dpt",var_dpt6);
+  t6->SetBranc->Address("MuMu_dphi",var_dphi6);
 
-  t0->SetBranchAddress("L1TechnicalTriggers",techBit0);
-  t1->SetBranchAddress("L1TechnicalTriggers",techBit1);
-  t2->SetBranchAddress("L1TechnicalTriggers",techBit2);
-  t3->SetBranchAddress("L1TechnicalTriggers",techBit3);
-  t4->SetBranchAddress("L1TechnicalTriggers",techBit4);
-  t5->SetBranchAddress("L1TechnicalTriggers",techBit5);
+  t1->SetBranc->Address("MuonCand_isglobal",var_global1);
+  t2->SetBranc->Address("MuonCand_isglobal",var_global2);
+  t1->SetBranc->Address("MuonCand_istracker",var_tracker1);
+  t2->SetBranc->Address("MuonCand_istracker",var_tracker2);
+  t1->SetBranc->Address("MuonCand_isstandalone",var_standalone1);
+  t2->SetBranc->Address("MuonCand_isstandalone",var_standalone2);
+  t1->SetBranc->Address("MuonCand_validtrackhits",var_nhitsTrack1);
+  t2->SetBranc->Address("MuonCand_validtrackhits",var_nhitsTrack2);
+  t0->SetBranc->Address("MuonCand_isglobal",var_global0);
+  t0->SetBranc->Address("MuonCand_istracker",var_tracker0);
+  t0->SetBranc->Address("MuonCand_isstandalone",var_standalone0);
+  t0->SetBranc->Address("MuonCand_validtrackhits",var_nhitsTrack0);
+  t3->SetBranc->Address("MuonCand_isglobal",var_global3);
+  t3->SetBranc->Address("MuonCand_istracker",var_tracker3);
+  t3->SetBranc->Address("MuonCand_isstandalone",var_standalone3);
+  t3->SetBranc->Address("MuonCand_validtrackhits",var_nhitsTrack3);
+  t4->SetBranc->Address("MuonCand_isglobal",var_global4);
+  t4->SetBranc->Address("MuonCand_istracker",var_tracker4);
+  t4->SetBranc->Address("MuonCand_isstandalone",var_standalone4);
+  t4->SetBranc->Address("MuonCand_validtrackhits",var_nhitsTrack4);
+  t5->SetBranc->Address("MuonCand_isglobal",var_global5);
+  t5->SetBranc->Address("MuonCand_istracker",var_tracker5);
+  t5->SetBranc->Address("MuonCand_isstandalone",var_standalone5);
+  t5->SetBranc->Address("MuonCand_validtrackhits",var_nhitsTrack5);
+  t6->SetBranc->Address("MuonCand_isglobal",var_global6);
+  t6->SetBranc->Address("MuonCand_istracker",var_tracker6);
+  t6->SetBranc->Address("MuonCand_isstandalone",var_standalone6);
+  t6->SetBranc->Address("MuonCand_validtrackhits",var_nhitsTrack6);
+
+
+  t1->SetBranc->Address("MuonCand_pt",var_pt1);
+  t2->SetBranc->Address("MuonCand_pt",var_pt2);
+  t1->SetBranc->Address("MuonCand_pz",var_pz1);
+  t2->SetBranc->Address("MuonCand_pz",var_pz2);
+  t1->SetBranc->Address("MuonCand_phi",var_phi1);
+  t2->SetBranc->Address("MuonCand_phi",var_phi2);
+  t1->SetBranc->Address("MuonCand_eta",var_eta1);
+  t2->SetBranc->Address("MuonCand_eta",var_eta2);
+  t1->SetBranc->Address("MuonCand_p",var_p1);
+  t1->SetBranc->Address("MuonCand_px",var_px1);
+  t1->SetBranc->Address("MuonCand_py",var_py1);
+  t1->SetBranc->Address("MuonCand_pz",var_pz1);
+  t2->SetBranc->Address("MuonCand_p",var_p2);
+  t2->SetBranc->Address("MuonCand_px",var_px2);
+  t2->SetBranc->Address("MuonCand_py",var_py2);
+  t2->SetBranc->Address("MuonCand_pz",var_pz2);
+  t0->SetBranc->Address("MuonCand_pt",var_pt0);
+  t0->SetBranc->Address("MuonCand_pz",var_pz0);
+  t0->SetBranc->Address("MuonCand_phi",var_phi0);
+  t0->SetBranc->Address("MuonCand_eta",var_eta0);
+  t0->SetBranc->Address("MuonCand_p",var_p0);
+  t0->SetBranc->Address("MuonCand_px",var_px0);
+  t0->SetBranc->Address("MuonCand_py",var_py0);
+  t0->SetBranc->Address("MuonCand_pz",var_pz0);
+  t3->SetBranc->Address("MuonCand_pt",var_pt3);
+  t3->SetBranc->Address("MuonCand_pz",var_pz3);
+  t3->SetBranc->Address("MuonCand_phi",var_phi3);
+  t3->SetBranc->Address("MuonCand_eta",var_eta3);
+  t3->SetBranc->Address("MuonCand_p",var_p3);
+  t3->SetBranc->Address("MuonCand_px",var_px3);
+  t3->SetBranc->Address("MuonCand_py",var_py3);
+  t3->SetBranc->Address("MuonCand_pz",var_pz3);
+  t4->SetBranc->Address("MuonCand_pt",var_pt4);
+  t4->SetBranc->Address("MuonCand_pz",var_pz4);
+  t4->SetBranc->Address("MuonCand_phi",var_phi4);
+  t4->SetBranc->Address("MuonCand_eta",var_eta4);
+  t4->SetBranc->Address("MuonCand_p",var_p4);
+  t4->SetBranc->Address("MuonCand_px",var_px4);
+  t4->SetBranc->Address("MuonCand_py",var_py4);
+  t4->SetBranc->Address("MuonCand_pz",var_pz4);
+  t5->SetBranc->Address("MuonCand_pt",var_pt5);
+  t5->SetBranc->Address("MuonCand_pz",var_pz5);
+  t5->SetBranc->Address("MuonCand_phi",var_phi5);
+  t5->SetBranc->Address("MuonCand_eta",var_eta5);
+  t5->SetBranc->Address("MuonCand_p",var_p5);
+  t5->SetBranc->Address("MuonCand_px",var_px5);
+  t5->SetBranc->Address("MuonCand_py",var_py5);
+  t5->SetBranc->Address("MuonCand_pz",var_pz5);
+  t6->SetBranc->Address("MuonCand_pt",var_pt6);
+  t6->SetBranc->Address("MuonCand_pz",var_pz6);
+  t6->SetBranc->Address("MuonCand_phi",var_phi6);
+  t6->SetBranc->Address("MuonCand_eta",var_eta6);
+  t6->SetBranc->Address("MuonCand_p",var_p6);
+  t6->SetBranc->Address("MuonCand_px",var_px6);
+  t6->SetBranc->Address("MuonCand_py",var_py6);
+  t6->SetBranc->Address("MuonCand_pz",var_pz6);
+
+  t0->SetBranc->Address("MuonPairCand",var_Pair0);
+  t1->SetBranc->Address("MuonPairCand",var_Pair1);
+  t2->SetBranc->Address("MuonPairCand",var_Pair2);
+  t3->SetBranc->Address("MuonPairCand",var_Pair3);
+  t4->SetBranc->Address("MuonPairCand",var_Pair4);
+  t5->SetBranc->Address("MuonPairCand",var_Pair5);
+  t6->SetBranc->Address("MuonPairCand",var_Pair6);
+
+  t1->SetBranc->Address("MuonCand_efficiency",var_eff1);
+  t2->SetBranc->Address("MuonCand_efficiency",var_eff2);
+  t3->SetBranc->Address("MuonCand_efficiency",var_eff3);
+  t4->SetBranc->Address("MuonCand_efficiency",var_eff4);
+  t5->SetBranc->Address("MuonCand_efficiency",var_eff5);
+
+
+  t0->SetBranc->Address("nZDChitCand",var_nZDC0);
+  t1->SetBranc->Address("nZDChitCand",var_nZDC1);
+  t2->SetBranc->Address("nZDChitCand",var_nZDC2);
+  t3->SetBranc->Address("nZDChitCand",var_nZDC3);
+  t4->SetBranc->Address("nZDChitCand",var_nZDC4);
+  t5->SetBranc->Address("nZDChitCand",var_nZDC5);
+  t6->SetBranc->Address("nZDChitCand",var_nZDC6);
+  t0->SetBranc->Address("ZDCsumEMminus",var_zdcEmMinus0);
+  t1->SetBranc->Address("ZDCsumEMminus",var_zdcEmMinus1);
+  t2->SetBranc->Address("ZDCsumEMminus",var_zdcEmMinus2);
+  t3->SetBranc->Address("ZDCsumEMminus",var_zdcEmMinus3);
+  t4->SetBranc->Address("ZDCsumEMminus",var_zdcEmMinus4);
+  t5->SetBranc->Address("ZDCsumEMminus",var_zdcEmMinus5);
+  t6->SetBranc->Address("ZDCsumEMminus",var_zdcEmMinus6);
+  t0->SetBranc->Address("ZDCsumHADminus",var_zdcHadMinus0);
+  t1->SetBranc->Address("ZDCsumHADminus",var_zdcHadMinus1);
+  t2->SetBranc->Address("ZDCsumHADminus",var_zdcHadMinus2);
+  t3->SetBranc->Address("ZDCsumHADminus",var_zdcHadMinus3);
+  t4->SetBranc->Address("ZDCsumHADminus",var_zdcHadMinus4);
+  t5->SetBranc->Address("ZDCsumHADminus",var_zdcHadMinus5);
+  t6->SetBranc->Address("ZDCsumHADminus",var_zdcHadMinus6);
+  t0->SetBranc->Address("ZDCsumEMplus",var_zdcEmPlus0);
+  t1->SetBranc->Address("ZDCsumEMplus",var_zdcEmPlus1);
+  t2->SetBranc->Address("ZDCsumEMplus",var_zdcEmPlus2);
+  t3->SetBranc->Address("ZDCsumEMplus",var_zdcEmPlus3);
+  t4->SetBranc->Address("ZDCsumEMplus",var_zdcEmPlus4);
+  t5->SetBranc->Address("ZDCsumEMplus",var_zdcEmPlus5);
+  t6->SetBranc->Address("ZDCsumEMplus",var_zdcEmPlus6);
+  t0->SetBranc->Address("ZDCsumHADplus",var_zdcHadPlus0);
+  t1->SetBranc->Address("ZDCsumHADplus",var_zdcHadPlus1);
+  t2->SetBranc->Address("ZDCsumHADplus",var_zdcHadPlus2);
+  t3->SetBranc->Address("ZDCsumHADplus",var_zdcHadPlus3);
+  t4->SetBranc->Address("ZDCsumHADplus",var_zdcHadPlus4);
+  t5->SetBranc->Address("ZDCsumHADplus",var_zdcHadPlus5);
+  t6->SetBranc->Address("ZDCsumHADplus",var_zdcHadPlus6);
+  t0->SetBranc->Address("ZDChit_time",var_zdcTime0);
+  t1->SetBranc->Address("ZDChit_time",var_zdcTime1);
+  t2->SetBranc->Address("ZDChit_time",var_zdcTime2);
+  t3->SetBranc->Address("ZDChit_time",var_zdcTime3);
+  t4->SetBranc->Address("ZDChit_time",var_zdcTime4);
+  t5->SetBranc->Address("ZDChit_time",var_zdcTime5);
+  t6->SetBranc->Address("ZDChit_time",var_zdcTime6);
+  t0->SetBranc->Address("ZDChit_energy",var_zdcE0);
+  t1->SetBranc->Address("ZDChit_energy",var_zdcE1);
+  t2->SetBranc->Address("ZDChit_energy",var_zdcE2);
+  t3->SetBranc->Address("ZDChit_energy",var_zdcE3);
+  t4->SetBranc->Address("ZDChit_energy",var_zdcE4);
+  t5->SetBranc->Address("ZDChit_energy",var_zdcE5);
+  t6->SetBranc->Address("ZDChit_energy",var_zdcE6);
+  t0->SetBranc->Address("ZDChit_section",var_zdcsection0);
+  t1->SetBranc->Address("ZDChit_section",var_zdcsection1);
+  t2->SetBranc->Address("ZDChit_section",var_zdcsection2);
+  t3->SetBranc->Address("ZDChit_section",var_zdcsection3);
+  t4->SetBranc->Address("ZDChit_section",var_zdcsection4);
+  t5->SetBranc->Address("ZDChit_section",var_zdcsection5);
+  t6->SetBranc->Address("ZDChit_section",var_zdcsection6);
+
+  t0->SetBranc->Address("nCastorTowerCand",var_nCastor0);
+  t1->SetBranc->Address("nCastorTowerCand",var_nCastor1);
+  t2->SetBranc->Address("nCastorTowerCand",var_nCastor2);
+  t3->SetBranc->Address("nCastorTowerCand",var_nCastor3);
+  t4->SetBranc->Address("nCastorTowerCand",var_nCastor4);
+  t5->SetBranc->Address("nCastorTowerCand",var_nCastor5);
+  t6->SetBranc->Address("nCastorTowerCand",var_nCastor6);
+  t0->SetBranc->Address("CastorTower_e",var_CastorE0);
+  t1->SetBranc->Address("CastorTower_e",var_CastorE1);
+  t2->SetBranc->Address("CastorTower_e",var_CastorE2);
+  t3->SetBranc->Address("CastorTower_e",var_CastorE3);
+  t4->SetBranc->Address("CastorTower_e",var_CastorE4);
+  t5->SetBranc->Address("CastorTower_e",var_CastorE5);
+  t6->SetBranc->Address("CastorTower_e",var_CastorE6);
+  t0->SetBranc->Address("CastorTower_eta",var_CastorEta0);
+  t1->SetBranc->Address("CastorTower_eta",var_CastorEta1);
+  t2->SetBranc->Address("CastorTower_eta",var_CastorEta2);
+  t3->SetBranc->Address("CastorTower_eta",var_CastorEta3);
+  t4->SetBranc->Address("CastorTower_eta",var_CastorEta4);
+  t5->SetBranc->Address("CastorTower_eta",var_CastorEta5);
+  t6->SetBranc->Address("CastorTower_eta",var_CastorEta6);
+  t0->SetBranc->Address("CastorTower_phi",var_CastorPhi0);
+  t1->SetBranc->Address("CastorTower_phi",var_CastorPhi1);
+  t2->SetBranc->Address("CastorTower_phi",var_CastorPhi2);
+  t3->SetBranc->Address("CastorTower_phi",var_CastorPhi3);
+  t4->SetBranc->Address("CastorTower_phi",var_CastorPhi4);
+  t5->SetBranc->Address("CastorTower_phi",var_CastorPhi5);
+  t6->SetBranc->Address("CastorTower_phi",var_CastorPhi6);
+  t0->SetBranc->Address("CASTORsumRecHitsE",var_CastorRecHit0);
+  t1->SetBranc->Address("CASTORsumRecHitsE",var_CastorRecHit1);
+  t2->SetBranc->Address("CASTORsumRecHitsE",var_CastorRecHit2);
+  t3->SetBranc->Address("CASTORsumRecHitsE",var_CastorRecHit3);
+  t4->SetBranc->Address("CASTORsumRecHitsE",var_CastorRecHit4);
+  t5->SetBranc->Address("CASTORsumRecHitsE",var_CastorRecHit5);
+  t6->SetBranc->Address("CASTORsumRecHitsE",var_CastorRecHit6);
+
+  t0->SetBranc->Address("L1TechnicalTriggers",techBit0);
+  t1->SetBranc->Address("L1TechnicalTriggers",techBit1);
+  t2->SetBranc->Address("L1TechnicalTriggers",techBit2);
+  t3->SetBranc->Address("L1TechnicalTriggers",techBit3);
+  t4->SetBranc->Address("L1TechnicalTriggers",techBit4);
+  t5->SetBranc->Address("L1TechnicalTriggers",techBit5);
 
   int filter0Gen(0);
   int filter0Track(0);
@@ -1121,10 +1100,6 @@ gROOT->SetStyle("Plain");
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
 		 && PassesZDCVeto(var_zdcEmMinus0[0],var_zdcEmPlus0[0],var_zdcHadMinus0[0],var_zdcHadPlus0[0]))
 	{ 
-	if(nTrackExclu<1 
-		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
-		 && PassesZDCVeto(var_zdcEmMinus0[0],var_zdcEmPlus0[0],var_zdcHadMinus0[0],var_zdcHadPlus0[0]))
-	){ 
           filter0Events++;
 	cout<<"candidate  Run "<<var_run0[0]<<"  LS "<<var_ls0[0]<<"\tEvt "<<var_event0[0]<<"\t mass="<<var_mass0[0]<<" GeV"<<endl;
 
@@ -1260,30 +1235,6 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
 		&& PassesZDCVeto(var_zdcEmMinus1[0],var_zdcEmPlus1[0],var_zdcHadMinus1[0],var_zdcHadPlus1[0]))
 	{ 
-          filter1Events+=fac_lumi1*effcorrection1;
-
-	  hEB1->Fill(nEB,fac_lumi1*effcorrection1);
-          hEE1->Fill(nEE,fac_lumi1*effcorrection1);
-          hHB1->Fill(nHB,fac_lumi1*effcorrection1);
-          hHE1->Fill(nHE,fac_lumi1*effcorrection1);
-          hHFp1->Fill(nHFp,fac_lumi1*effcorrection1);
-          hHFm1->Fill(nHFm,fac_lumi1*effcorrection1);
-	  nTrack1->Fill(nTrackExclu,fac_lumi1*effcorrection1);
-
-	  MuMuMass1->Fill(var_mass1[0],fac_lumi1*effcorrection1);
-          MuMuMassUps1->Fill(var_mass1[0],fac_lumi1*effcorrection1);
-          MuMuMassJpsi1->Fill(var_mass1[0],fac_lumi1*effcorrection1);
-          MuMudpt1->Fill(var_dpt1[0],fac_lumi1*effcorrection1);
-          MuMudphi1->Fill(var_dphi1[0]/pi,fac_lumi1*effcorrection1);
-          double symdphi1 = 1 - fabs(var_phi1[pair1]-var_phi1[pair2])/pi;    
-          MuMuSymdphi1->Fill(symdphi1,fac_lumi1); 
-
-	//          MuMudeta1->Fill(fabs(var_eta1[pair1]+var_eta1[pair2]),fac_lumi1*effcorrection1);
-          MuMuvtxXY1->Fill(sqrt(var_MuMuvtxX1[0]*var_MuMuvtxX1[0]+var_MuMuvtxY1[0]*var_MuMuvtxY1[0]),fac_lumi1*effcorrection1);
-	if(nTrackExclu<1 
-		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
-		&& PassesZDCVeto(var_zdcEmMinus1[0],var_zdcEmPlus1[0],var_zdcHadMinus1[0],var_zdcHadPlus1[0]))
-	){ 
           filter1Events+=fac_lumi1*effcorrection1;
 
 	  hEB1->Fill(nEB,fac_lumi1*effcorrection1);
@@ -1443,30 +1394,6 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
           MuMuSymdphi2->Fill(symdphi2,fac_lumi2); 
 	//          MuMudeta2->Fill(fabs(var_eta2[pair1]+var_eta2[pair2]),fac_lumi2*effcorrection2);
 	  MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX2[0]*var_MuMuvtxX2[0]+var_MuMuvtxY2[0]*var_MuMuvtxY2[0]),fac_lumi2*effcorrection2);
-	if(nTrackExclu<1 
-		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
-		&& PassesZDCVeto(var_zdcEmMinus2[0],var_zdcEmPlus2[0],var_zdcHadMinus2[0],var_zdcHadPlus2[0]))
-	){ 
-          filter2Events+=fac_lumi2*effcorrection2;
-
-	  hEB2->Fill(nEB,fac_lumi2*effcorrection2);
-          hEE2->Fill(nEE,fac_lumi2*effcorrection2);
-          hHB2->Fill(nHB,fac_lumi2*effcorrection2);
-          hHE2->Fill(nHE,fac_lumi2*effcorrection2);
-          hHFp2->Fill(nHFp,fac_lumi2*effcorrection2);
-          hHFm2->Fill(nHFm,fac_lumi2*effcorrection2); 
-//	  nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi2*effcorrection2);
-	  nTrack2->Fill(nTrackExclu,fac_lumi2*effcorrection2);
-
-	  MuMuMass2->Fill(var_mass2[0],fac_lumi2*effcorrection2); 
-          MuMuMassUps2->Fill(var_mass2[0],fac_lumi2*effcorrection2);
-          MuMuMassJpsi2->Fill(var_mass2[0],fac_lumi2*effcorrection2);
-          MuMudpt2->Fill(var_dpt2[0],fac_lumi2*effcorrection2); 
-          MuMudphi2->Fill(var_dphi2[0]/pi,fac_lumi2*effcorrection2); 
-          double symdphi2 = 1 - fabs(var_phi2[pair1]-var_phi2[pair2])/pi;    
-          MuMuSymdphi2->Fill(symdphi2,fac_lumi2); 
-	//          MuMudeta2->Fill(fabs(var_eta2[pair1]+var_eta2[pair2]),fac_lumi2*effcorrection2);
-	  MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX2[0]*var_MuMuvtxX2[0]+var_MuMuvtxY2[0]*var_MuMuvtxY2[0]),fac_lumi2*effcorrection2);
 
           TLorentzVector mu21, mu22, dimuon2;    
           mu21.SetPtEtaPhiM(var_pt2[pair1],var_eta2[pair1],var_phi2[pair1],0.1057);      
@@ -1587,34 +1514,6 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
 		&& PassesZDCVeto(var_zdcEmMinus3[0],var_zdcEmPlus3[0],var_zdcHadMinus3[0],var_zdcHadPlus3[0]))	
 	{ 
-          filter3Events+=fac_lumi3*effcorrection3;
-
-	  hEB3->Fill(nEB,fac_lumi3*effcorrection3); 
-          hEE3->Fill(nEE,fac_lumi3*effcorrection3);
-          hHB3->Fill(nHB,fac_lumi3*effcorrection3); 
-          hHE3->Fill(nHE,fac_lumi3*effcorrection3);
-          hHFp3->Fill(nHFp,fac_lumi3*effcorrection3);
-          hHFm3->Fill(nHFm,fac_lumi3*effcorrection3);
-	  nTrack3->Fill(nTrackExclu,fac_lumi3*effcorrection3);
-
-	  MuMuMass3->Fill(var_mass3[0],fac_lumi3*effcorrection3);
-          MuMuMassUps3->Fill(var_mass3[0],fac_lumi3*effcorrection3);
-          MuMuMassJpsi3->Fill(var_mass3[0],fac_lumi3*effcorrection3);
-          MuMudpt3->Fill(var_dpt3[0],fac_lumi3*effcorrection3);
-          MuMudphi3->Fill(var_dphi3[0]/pi,fac_lumi3*effcorrection3);
-          double symdphi3 = 1 - fabs(var_phi3[pair1]-var_phi3[pair2])/pi;    
-          MuMuSymdphi3->Fill(symdphi3,fac_lumi3); 
-	//          MuMudeta3->Fill(fabs(var_eta3[pair1]+var_eta3[pair2]),fac_lumi3*effcorrection3);
-	  MuMuvtxXY3->Fill(sqrt(var_MuMuvtxX3[0]*var_MuMuvtxX3[0]+var_MuMuvtxY3[0]*var_MuMuvtxY3[0]),fac_lumi3*effcorrection3);
-
-	  ZDCemminus3->Fill(var_zdcEmMinus3[0],fac_lumi3*effcorrection3);
-	  ZDCemplus3->Fill(var_zdcEmPlus3[0],fac_lumi3*effcorrection3);
-	  ZDChadminus3->Fill(var_zdcHadMinus3[0],fac_lumi3*effcorrection3);
-	  ZDChadplus3->Fill(var_zdcHadPlus3[0],fac_lumi3*effcorrection3);
-	if(nTrackExclu<1 
-		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
-		&& PassesZDCVeto(var_zdcEmMinus3[0],var_zdcEmPlus3[0],var_zdcHadMinus3[0],var_zdcHadPlus3[0]))	
-	){ 
           filter3Events+=fac_lumi3*effcorrection3;
 
 	  hEB3->Fill(nEB,fac_lumi3*effcorrection3); 
@@ -1781,35 +1680,6 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 	  ZDChadminus4->Fill(var_zdcHadMinus4[0],fac_lumi4*effcorrection4);
           ZDCemminus5->Fill(var_zdcEmMinus4[0],fac_lumi4*effcorrection4); 
           ZDChadminus5->Fill(var_zdcHadMinus4[0],fac_lumi4*effcorrection4);
-	if(nTrackExclu<1 
-		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
-		&& PassesZDCVeto(var_zdcEmMinus4[0],var_zdcEmPlus4[0],var_zdcHadMinus4[0],var_zdcHadPlus4[0]))
-	){ 
-          filter4Events+=fac_lumi4*effcorrection4;
-
-	  hEB4->Fill(nEB,fac_lumi4*effcorrection4);
-          hEE4->Fill(nEE,fac_lumi4*effcorrection4);
-          hHB4->Fill(nHB,fac_lumi4*effcorrection4);
-          hHE4->Fill(nHE,fac_lumi4*effcorrection4);
-          hHFp4->Fill(nHFp,fac_lumi4*effcorrection4);
-          hHFm4->Fill(nHFm,fac_lumi4*effcorrection4);
-//	  nTower4->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi4*effcorrection4);
-	  nTrack4->Fill(nTrackExclu,fac_lumi4*effcorrection4);
-
-	  MuMuMass4->Fill(var_mass4[0],fac_lumi4*effcorrection4);
-          MuMuMassUps4->Fill(var_mass4[0],fac_lumi4*effcorrection4);
-          MuMuMassJpsi4->Fill(var_mass4[0],fac_lumi4*effcorrection4);
-          MuMudpt4->Fill(var_dpt4[0],fac_lumi4*effcorrection4);
-          MuMudphi4->Fill(var_dphi4[0]/pi,fac_lumi4*effcorrection4);
-          double symdphi4 = 1 - fabs(var_phi4[pair1]-var_phi4[pair2])/pi;    
-          MuMuSymdphi4->Fill(symdphi4,fac_lumi4); 
-	//          MuMudeta4->Fill(fabs(var_eta4[pair1]+var_eta4[pair2]),fac_lumi4*effcorrection4);
-	  MuMuvtxXY4->Fill(sqrt(var_MuMuvtxX4[0]*var_MuMuvtxX4[0]+var_MuMuvtxY4[0]*var_MuMuvtxY4[0]),fac_lumi4*effcorrection4);
-
-	  ZDCemminus4->Fill(var_zdcEmMinus4[0],fac_lumi4*effcorrection4); 
-	  ZDChadminus4->Fill(var_zdcHadMinus4[0],fac_lumi4*effcorrection4);
-          ZDCemminus5->Fill(var_zdcEmMinus4[0],fac_lumi4*effcorrection4); 
-          ZDChadminus5->Fill(var_zdcHadMinus4[0],fac_lumi4*effcorrection4);
 
           TLorentzVector mu41, mu42, dimuon4;  
           mu41.SetPtEtaPhiM(var_pt4[pair1],var_eta4[pair1],var_phi4[pair1],0.1057);    
@@ -1944,30 +1814,6 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
           MuMuSymdphi5->Fill(symdphi5,fac_lumi5); 
 	//          MuMudeta5->Fill(fabs(var_eta5[pair1]+var_eta5[pair2]),fac_lumi5*effcorrection5);
 	  MuMuvtxXY5->Fill(sqrt(var_MuMuvtxX5[0]*var_MuMuvtxX5[0]+var_MuMuvtxY5[0]*var_MuMuvtxY5[0]),fac_lumi5*effcorrection5);
-        if(nTrackExclu<1 
-		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
-		&& PassesZDCVeto(var_zdcEmMinus5[0],var_zdcEmPlus5[0],var_zdcHadMinus5[0],var_zdcHadPlus5[0]))
-	){
-          filter5Events+=fac_lumi5*effcorrection5;
-
-          hEB5->Fill(nEB,fac_lumi5*effcorrection5);
-          hEE5->Fill(nEE,fac_lumi5*effcorrection5);
-          hHB5->Fill(nHB,fac_lumi5*effcorrection5);
-          hHE5->Fill(nHE,fac_lumi5*effcorrection5);
-          hHFp5->Fill(nHFp,fac_lumi5*effcorrection5);
-          hHFm5->Fill(nHFm,fac_lumi5*effcorrection5);
-//          nTower5->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumi5*effcorrection5);
-          nTrack5->Fill(nTrackExclu,fac_lumi5*effcorrection5);
-
-          MuMuMass5->Fill(var_mass5[0],fac_lumi5*effcorrection5);
-          MuMuMassUps5->Fill(var_mass5[0],fac_lumi5*effcorrection5);
-          MuMuMassJpsi5->Fill(var_mass5[0],fac_lumi5*effcorrection5);
-          MuMudpt5->Fill(var_dpt5[0],fac_lumi5*effcorrection5);
-          MuMudphi5->Fill(var_dphi5[0]/pi,fac_lumi5*effcorrection5);
-          double symdphi5 = 1 - fabs(var_phi5[pair1]-var_phi5[pair2])/pi;    
-          MuMuSymdphi5->Fill(symdphi5,fac_lumi5); 
-	//          MuMudeta5->Fill(fabs(var_eta5[pair1]+var_eta5[pair2]),fac_lumi5*effcorrection5);
-	  MuMuvtxXY5->Fill(sqrt(var_MuMuvtxX5[0]*var_MuMuvtxX5[0]+var_MuMuvtxY5[0]*var_MuMuvtxY5[0]),fac_lumi5*effcorrection5);
 
           TLorentzVector mu51, mu52, dimuon5;   
           mu51.SetPtEtaPhiM(var_pt5[pair1],var_eta5[pair1],var_phi5[pair1],0.1057);     
@@ -2080,10 +1926,6 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
 		&& PassesZDCVeto(var_zdcEmMinus6[0],var_zdcEmPlus6[0],var_zdcHadMinus6[0],var_zdcHadPlus6[0]))
 	{
-        if(nTrackExclu<1 
-		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
-		&& PassesZDCVeto(var_zdcEmMinus6[0],var_zdcEmPlus6[0],var_zdcHadMinus6[0],var_zdcHadPlus6[0]))
-	){
           filter6Events_norm+=fac_lumiBkg[bkgNum];
 	cout<<"I added "<<fac_lumiBkg[bkgNum]<<" event from bkg #"<<bkgNum<<endl;
 
@@ -2400,7 +2242,7 @@ sMuMuMassUps->GetXaxis()->SetTitle("#mu#mu mass [GeV]");
 sMuMuMassUps->GetYaxis()->SetTitle("# events / 0.05 GeV");
 MuMuMassUps0->Draw("same");
 
-Upsilon_Jpsi->cd(2);;5
+Upsilon_Jpsi->cd(2);
 MuMuMassJpsi0->Sumw2();
 MuMuMassJpsi0->SetLineWidth(2);
 MuMuMassJpsi0->SetMarkerStyle(20);
@@ -2582,7 +2424,6 @@ spTPair->Draw();
 spTPair->GetXaxis()->SetTitle("#mu#mu p_{T} [GeV]");
 spTPair->GetYaxis()->SetTitle("# events / 0.5 GeV");
 pTPair0->Draw("same");
-}
 
 Kinematic3->cd(3);
 MuMuSymdphi0->Sumw2(); 
@@ -2606,29 +2447,6 @@ sMuMuSymdphi->GetXaxis()->SetTitle("#mu#mu 1 - |#Delta #phi / #pi|");
 sMuMuSymdphi->GetYaxis()->SetTitle("# events / 0.02 "); 
 MuMuSymdphi0->Draw("same"); 
 
-Kinematic3->cd(3);
-MuMuSymdphi0->Sumw2(); 
-MuMuSymdphi0->SetLineWidth(2); 
-MuMuSymdphi0->SetMarkerStyle(20); 
-MuMuSymdphi1->SetFillColor(ci); 
-MuMuSymdphi2->SetFillColor(30); 
-MuMuSymdphi2->SetFillStyle(3001); 
-MuMuSymdphi3->SetFillColor(30); 
-MuMuSymdphi4->SetFillColor(38); 
-MuMuSymdphi5->SetFillColor(903); 
-sMuMuSymdphi->Add(MuMuSymdphi3); 
-sMuMuSymdphi->Add(MuMuSymdphi2); 
-sMuMuSymdphi->Add(MuMuSymdphi1); 
-sMuMuSymdphi->Add(MuMuSymdphi4); 
-sMuMuSymdphi->Add(MuMuSymdphi5); 
-if(sMuMuSymdphi.GetMaximum() > 0) sMuMuSymdphi.SetMaximum(sMuMuSymdphi.GetMaximum() * 1.5);   
-else sMuMuSymdphi.SetMaximum(MuMuSymdphi0->GetMaximum() * 2.0); 
-sMuMuSymdphi->Draw(); 
-sMuMuSymdphi->GetXaxis()->SetTitle("#mu#mu 1 - |#Delta #phi / #pi|"); 
-sMuMuSymdphi->GetYaxis()->SetTitle("# events / 0.02 "); 
-MuMuSymdphi0->Draw("same"); 
-
-}
 }
 
 if(1){
@@ -2922,4 +2740,3 @@ Tdist0->Draw("same");
 }
 	cout << "END" << endl;   
 }
-
