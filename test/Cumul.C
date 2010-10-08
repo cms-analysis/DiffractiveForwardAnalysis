@@ -1,7 +1,20 @@
+bool PassesTrigger(int triggerbit)
+{
+	bool pass = false;
+	if(triggerbit == 1)
+		pass = true;
+
+	return pass;
+}
+
+bool PassesCosmicsCut()
+{
+}
+
 bool PassesDphiCut(double deltaphioverpi)
 {
 	bool pass = false;
-  	float dphicut = 0.9;     
+  	float dphicut = -0.9;     
 
 	if(deltaphioverpi > dphicut)
 		pass = true;
@@ -12,7 +25,7 @@ bool PassesDphiCut(double deltaphioverpi)
 bool PassesDptCut(double deltapt)
 {
 	bool pass = false;
-  	float dptcut = 1.5;
+  	float dptcut = 10000000.5;
 	
 	if(deltapt < dptcut)
 		pass = true;
@@ -23,7 +36,7 @@ bool PassesDptCut(double deltapt)
 bool PassesTowerCountVeto(int nEB, int nEE, int nHB, int nHE, int nHFp, int nHFm)
 {
 	bool pass = false;
-	int ntowerthresh = 5; 
+	int ntowerthresh = 999999; //5;
 	if((nEB+nEE+nHB+nHE+nHFp+nHFm) < ntowerthresh)
 		pass = true;
 
@@ -45,10 +58,30 @@ bool FailsTrackDistanceVeto(double trackdistance, int trackquality)
 	return fail;
 }
 
+double VertexSeparation(int nvtx, int* vtxtrks, double* vtxz, int* ismumuvtx)
+{
+	double closestvtx = 9999999.;
+	if(nvtx == 1)
+		return 9999999.;
+
+	for(Int_t i = 0; i < nvtx; i++)
+	{
+		if(ismumuvtx[i] == 0)
+			continue;
+
+		for(Int_t j = 0; j < nvtx && (j!=i); j++)
+		{
+			if(fabs(vtxz[i]-vtxz[j]) < fabs(closestvtx))
+				closestvtx = vtxz[i]-vtxz[j];
+		} 
+	}
+	return closestvtx;
+}  
+
 bool PassesZDCVeto(float em1, float em2, float had1, float had2)
 {
 	bool pass = false;
-  	float ZDChadThresh = 120.0;
+  	float ZDChadThresh =  120.0;
   	float ZDCemThresh = 16.0;
 
 	// Veto
@@ -56,8 +89,8 @@ bool PassesZDCVeto(float em1, float em2, float had1, float had2)
 		pass = true;
 
 	// Anti-veto
-	//        if(((em1>ZDCemThresh) || (em2>ZDCemThresh) || (had1>ZDChadThresh) || (had2>ZDChadThresh)))
-	//		pass = true;
+//	if(((em1>ZDCemThresh) || (em2>ZDCemThresh) || (had1>ZDChadThresh) || (had2>ZDChadThresh)))
+//		pass = true;
 
 	// Anti-veto with double tags
 	//	if((((em1>ZDCemThresh) || (had1>ZDChadThresh)) && ((em2>ZDCemThresh) || (had2>ZDChadThresh))))
@@ -67,16 +100,16 @@ bool PassesZDCVeto(float em1, float em2, float had1, float had2)
 	//	if((((em1>ZDCemThresh) || (had1>ZDChadThresh)) && (em2<ZDCemThresh) && (had2<ZDChadThresh)) || 
 	//	  (((em2>ZDCemThresh) || (had2>ZDChadThresh)) && (em1<ZDCemThresh) && (had1<ZDChadThresh)))
 	//		pass = true;
-
+	pass = true; 
 	return pass;
 }
 
 bool PassesMassCut(float mass)
 {
 	bool pass = true;
-  	float lowermasscut1 = 0.0;
-  	float uppermasscut1 = 999.0;
-  	float lowermasscut2 = 0.0;
+  	float lowermasscut1 = 4.0;
+  	float uppermasscut1 = 8.5;
+  	float lowermasscut2 = 11.5;
   	float uppermasscut2 = 999.0; 
 
         if((mass < lowermasscut1) || (mass > uppermasscut2)) 
@@ -104,21 +137,17 @@ bool PassesMuonID(int trackerMuon1, int selectorMuon1, int globalMuon1, int trac
 	return pass;
 }
 
-bool PassesVertexSelection(int vtxNTrack,double vtxChi2,double vtxNdf,double distance_vertex_z,double vtxZ,double distance_vertex_x,double distance_vertex_y,int vtxValid,double min_distance_vertex_z) 
+bool PassesVertexSelection(int vtxNTrack,double vtxChi2,double vtxNdf,double distance_vertex_z,double vtxZ,int isdimuonvtx) 
 {
 	bool pass = false;
- 	float vtxseparationzthresh = 0.1; 
-  	float vtxseparationxandythresh = 0.071;  
+ 	float vtxseparationzthresh = 0.2; 
   	float PrimVertexZcut = 24.0; 
 
         if((vtxNTrack==2) 
+	   && (isdimuonvtx == 1)	
 	   && (TMath::Prob(vtxChi2,vtxNdf+0.5)>0.001) 
-	   && (distance_vertex_z < vtxseparationzthresh) 
-	   && (distance_vertex_z<min_distance_vertex_z) 
-	   && (fabs(vtxZ)<PrimVertexZcut) 
-           && (distance_vertex_x < vtxseparationxandythresh) 
-	   && (distance_vertex_y < vtxseparationxandythresh) 
-	   && (vtxValid==1))
+	   && (distance_vertex_z > vtxseparationzthresh) 
+	   && (fabs(vtxZ)<PrimVertexZcut)) 
 		pass = true; 
 
 	return pass;
@@ -131,25 +160,28 @@ gROOT->Reset();
 gStyle->SetPalette(1);
 gStyle->SetOptStat(0);
 gROOT->SetStyle("Plain");
+gStyle->SetStatStyle(0);
+gROOT->SetTitle(0);
 #define pi 3.14159265359
 
 //definition des fichiers + Tree
-  TFile *f0 = new TFile("cand_2tracks.root"); // 
+  TFile *f0 = new TFile("../cand_2tracks.root"); // 
+//  TFile *f0 = new TFile("cand_2tracks.root"); // 
   TTree *t0 = f0->Get("ntp1");
-  TFile *f1 = new TFile("El-El.root"); //
+  TFile *f1 = new TFile("../El-El.root"); //
   TTree *t1 = f1->Get("ntp1");
-  TFile *f2 = new TFile("Inel-El.root"); //
+  TFile *f2 = new TFile("../Inel-El.root"); //
   TTree *t2 = f2->Get("ntp1");
-  TFile *f3 = new TFile("Inel-Inel.root"); //
+  TFile *f3 = new TFile("../Inel-Inel.root"); //
   TTree *t3 = f3->Get("ntp1");
-  TFile *f4 = new TFile("Upsilon.root"); //
+  TFile *f4 = new TFile("../Upsilon.root"); //
   TTree *t4 = f4->Get("ntp1");
-  TFile *f5 = new TFile("Jpsi.root"); //
+  TFile *f5 = new TFile("../Jpsi.root"); //
   TTree *t5 = f5->Get("ntp1");
 
-  TFile *f6 = new TFile("cand_2tracks.root"); //
+  TFile *f6 = new TFile("bkg-2tracks.root"); //
   TTree *t6 = f6->Get("ntp1");
-//  TFile *f5 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_6_3/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Jpsi_MuMu_lowpT.root"); //
+//  TFile *f5 = new TFile("../Jpsi.root"); //
 //  TTree *t5 = f5->Get("ntp1");
 
 //  TFile *f6 = new TFile("Studies/bkg-2tracks.root"); //
@@ -238,13 +270,14 @@ gROOT->SetStyle("Plain");
 
   // 120.,0.,40.
   // 10.,0.,100.	
-  TH1F* MuMuMass0 = new TH1F("mass_data","",26.,-4.0,100.0);
-  TH1F* MuMuMass1 = new TH1F("mass_cumulElEl","",26.,-4.0,100.0);
-  TH1F* MuMuMass2 = new TH1F("mass_cumulInelEl","",26.,-4.0,100.0);
-  TH1F* MuMuMass3 = new TH1F("mass_cumulInelInel","",26.,-4.0,100.0);
-  TH1F* MuMuMass4 = new TH1F("mass_cumulUps","",26.,-4.0,100.0);
-  TH1F* MuMuMass5 = new TH1F("mass_cumulJpsi","",26.,-4.0,100.0);
-  TH1F* MuMuMass6 = new TH1F("mass_cumulInclu","",26.,-4.0,100.0);
+  // 26.,-4.0,100.0 
+  TH1F* MuMuMass0 = new TH1F("mass_data","",11.,-10.,100.0);
+  TH1F* MuMuMass1 = new TH1F("mass_cumulElEl","",11.,-10.,100.0);
+  TH1F* MuMuMass2 = new TH1F("mass_cumulInelEl","",11.,-10.,100.0);
+  TH1F* MuMuMass3 = new TH1F("mass_cumulInelInel","",11.,-10.,100.0);
+  TH1F* MuMuMass4 = new TH1F("mass_cumulUps","",11.,-10.,100.0);
+  TH1F* MuMuMass5 = new TH1F("mass_cumulJpsi","",11.,-10.,100.0);
+  TH1F* MuMuMass6 = new TH1F("mass_cumulInclu","",11.,-10.,100.0);
   THStack *sMuMuMass = new THStack("sMuMuMass","stack Mass");
 
   TH1F* MuMuMassUps0 = new TH1F("massUps_data","",10.,8.,12.);
@@ -256,13 +289,13 @@ gROOT->SetStyle("Plain");
   TH1F* MuMuMassUps6 = new TH1F("massUps_cumulInclu","",10.,8.,12.);
   THStack *sMuMuMassUps = new THStack("sMuMuMassUps","stack MassUps");
 
-  TH1F* MuMuMassJpsi0 = new TH1F("massJpsi_data","",20.,2.6,3.6);
-  TH1F* MuMuMassJpsi1 = new TH1F("massJpsi_cumulElEl","",20.,2.6,3.6);
-  TH1F* MuMuMassJpsi2 = new TH1F("massJpsi_cumulInelEl","",20.,2.6,3.6);
-  TH1F* MuMuMassJpsi3 = new TH1F("massJpsi_cumulInelInel","",20.,2.6,3.6);
-  TH1F* MuMuMassJpsi4 = new TH1F("massJpsi_cumulUps","",20.,2.6,3.6);
-  TH1F* MuMuMassJpsi5 = new TH1F("massJpsi_cumulJpsi","",20.,2.6,3.6);
-  TH1F* MuMuMassJpsi6 = new TH1F("massJpsi_cumulInclu","",20.,2.6,3.6);
+  TH1F* MuMuMassJpsi0 = new TH1F("massJpsi_data","",40.,2.0,4.0);
+  TH1F* MuMuMassJpsi1 = new TH1F("massJpsi_cumulElEl","",40.,2.0,4.0);
+  TH1F* MuMuMassJpsi2 = new TH1F("massJpsi_cumulInelEl","",40.,2.0,4.0);
+  TH1F* MuMuMassJpsi3 = new TH1F("massJpsi_cumulInelInel","",40.,2.0,4.0);
+  TH1F* MuMuMassJpsi4 = new TH1F("massJpsi_cumulUps","",40.,2.0,4.0);
+  TH1F* MuMuMassJpsi5 = new TH1F("massJpsi_cumulJpsi","",40.,2.0,4.0);
+  TH1F* MuMuMassJpsi6 = new TH1F("massJpsi_cumulInclu","",40.,2.0,4.0);
   THStack *sMuMuMassJpsi = new THStack("sMuMuMassJpsi","stack MassJpsi");
 
   // 60,-0.5,5.5
@@ -285,13 +318,13 @@ gROOT->SetStyle("Plain");
   TH1F* MuMudphi6 = new TH1F("dphi_cumulInclu","",60,-0.1,1.1);
   THStack *sMuMudphi = new THStack("sMuMudphi","stack dphi");
 
-  TH1F* MuMuSymdphi0 = new TH1F("Symdphi_data","",25,-0.1,0.1); 
-  TH1F* MuMuSymdphi1 = new TH1F("Symdphi_cumulElEl","",25,-0.1,0.1); 
-  TH1F* MuMuSymdphi2 = new TH1F("Symdphi_cumulInelEl","",25,-0.1,0.1); 
-  TH1F* MuMuSymdphi3 = new TH1F("Symdphi_cumulInelInel","",25,-0.1,0.1); 
-  TH1F* MuMuSymdphi4 = new TH1F("Symdphi_cumulUps","",25,-0.1,0.1); 
-  TH1F* MuMuSymdphi5 = new TH1F("Symdphi_cumulJpsi","",25,-0.1,0.1); 
-  TH1F* MuMuSymdphi6 = new TH1F("Symdphi_cumulInclu","",25,-0.1,0.1); 
+  TH1F* MuMuSymdphi0 = new TH1F("Symdphi_data","",20,-0.1,0.1); 
+  TH1F* MuMuSymdphi1 = new TH1F("Symdphi_cumulElEl","",20,-0.1,0.1); 
+  TH1F* MuMuSymdphi2 = new TH1F("Symdphi_cumulInelEl","",20,-0.1,0.1); 
+  TH1F* MuMuSymdphi3 = new TH1F("Symdphi_cumulInelInel","",20,-0.1,0.1); 
+  TH1F* MuMuSymdphi4 = new TH1F("Symdphi_cumulUps","",20,-0.1,0.1); 
+  TH1F* MuMuSymdphi5 = new TH1F("Symdphi_cumulJpsi","",20,-0.1,0.1); 
+  TH1F* MuMuSymdphi6 = new TH1F("Symdphi_cumulInclu","",20,-0.1,0.1); 
   THStack *sMuMuSymdphi = new THStack("sMuMuSymdphi","stack Symdphi"); 
 
 
@@ -332,13 +365,13 @@ gROOT->SetStyle("Plain");
   TH1F* etaPair6 = new TH1F("etaPair_cumulInclu","",12,-3.,3.);
   THStack *setaPair = new THStack("setaPair","stack eta Pair");
 
-  TH1F* pTPair0 = new TH1F("pTPair_data","",24,-1.,5.);
-  TH1F* pTPair1 = new TH1F("pTPair_cumulElEl","",24,-1.,5.);
-  TH1F* pTPair2 = new TH1F("pTPair_cumulInelEl","",24,-1.,5.);
-  TH1F* pTPair3 = new TH1F("pTPair_cumulInelInel","",24,-1.,5.);
-  TH1F* pTPair4 = new TH1F("pTPair_cumulUps","",24,-1.,5.);
-  TH1F* pTPair5 = new TH1F("pTPair_cumulJpsi","",24,-1.,5.);
-  TH1F* pTPair6 = new TH1F("pTPair_cumulInclu","",24,-1.,5.);
+  TH1F* pTPair0 = new TH1F("pTPair_data","",24,-2.,10.);
+  TH1F* pTPair1 = new TH1F("pTPair_cumulElEl","",24,-2.,10.);
+  TH1F* pTPair2 = new TH1F("pTPair_cumulInelEl","",24,-2.,10.);
+  TH1F* pTPair3 = new TH1F("pTPair_cumulInelInel","",24,-2.,10.);
+  TH1F* pTPair4 = new TH1F("pTPair_cumulUps","",24,-2.,10.);
+  TH1F* pTPair5 = new TH1F("pTPair_cumulJpsi","",24,-2.,10.);
+  TH1F* pTPair6 = new TH1F("pTPair_cumulInclu","",24,-2.,10.);
   THStack *spTPair = new THStack("spTPair","stack pT Pair");
 
 
@@ -453,8 +486,12 @@ gROOT->SetStyle("Plain");
   const int NUM6 = t6->GetEntries();
 
 //  const float integrated_lumi = 299.30569*0.5857; //in nb-1
-  const float integrated_lumi = 2872.246*0.5; // in nb-1	
+//  const float integrated_lumi = 2872.246*0.5; // in nb-1	
 //  const float integrated_lumi = 2872.246;
+  const float integrated_lumi = 3044.0;
+//  const float integrated_lumi = 3044.0 * 0.5;
+//  const float integrated_lumi = 4426.5;
+//  const float integrated_lumi = 4426.5 - 3044.0;
 
   const float doublemuopenfractionallumi = 0.0927;
   const float doublemuopentightfractionallumi = 0.9073;
@@ -494,6 +531,8 @@ gROOT->SetStyle("Plain");
 // Prim Vtx
   Int_t var_nvtx1[1],var_nvtx2[1], var_nvtx0[1], var_nvtx3[1], var_nvtx4[1], var_nvtx5[1], var_nvtx6[1];
   Int_t var_vtxTrack1[10],var_vtxTrack2[10], var_vtxTrack0[10],  var_vtxTrack3[10],  var_vtxTrack4[10], var_vtxTrack5[10], var_vtxTrack6[10];
+  Int_t var_vtxmumu1[10],var_vtxmumu2[10], var_vtxmumu0[10],  var_vtxmumu3[10],  var_vtxmumu4[10], var_vtxmumu5[10], var_vtxmumu6[10]; 
+
   Double_t var_vtxZ1[10],var_vtxZ2[10], var_vtxZ0[10], var_vtxZ3[10], var_vtxZ4[10], var_vtxZ5[10], var_vtxZ6[10];
   Double_t var_vtxX1[10],var_vtxX2[10], var_vtxX0[10], var_vtxX3[10], var_vtxX4[10], var_vtxX5[10], var_vtxX6[10];
   Double_t var_vtxY1[10],var_vtxY2[10], var_vtxY0[10], var_vtxY3[10], var_vtxY4[10], var_vtxY5[10], var_vtxY6[10];
@@ -551,14 +590,16 @@ gROOT->SetStyle("Plain");
 //Efficiency
   Double_t var_eff1[10],var_eff2[10],var_eff3[10],var_eff4[10],var_eff5[10];
 
+  TString hlttrigger = "HLT_L1DoubleMuOpen";	
+  TString hlttrigger2 = "HLT_L1DoubleMuOpen_Tight";
 
-  t1->SetBranchAddress("HLT_DoubleMu0",hlt_d1);
-  t2->SetBranchAddress("HLT_DoubleMu0",hlt_d2);
-  t0->SetBranchAddress("HLT_DoubleMu0",hlt_d0);
-  t3->SetBranchAddress("HLT_DoubleMu0",hlt_d3);
-  t4->SetBranchAddress("HLT_DoubleMu0",hlt_d4);
-  t5->SetBranchAddress("HLT_DoubleMu0",hlt_d5);
-  t6->SetBranchAddress("HLT_DoubleMu0",hlt_d6);
+  t1->SetBranchAddress(hlttrigger,hlt_d1);
+  t2->SetBranchAddress(hlttrigger,hlt_d2);
+  t0->SetBranchAddress(hlttrigger2,hlt_d0);
+  t3->SetBranchAddress(hlttrigger,hlt_d3);
+  t4->SetBranchAddress(hlttrigger,hlt_d4);
+  t5->SetBranchAddress(hlttrigger,hlt_d5);
+  t6->SetBranchAddress(hlttrigger,hlt_d6);
 
   t0->SetBranchAddress("L1TechnicalTriggers",techBit0);
   t1->SetBranchAddress("L1TechnicalTriggers",techBit1);
@@ -689,7 +730,13 @@ gROOT->SetStyle("Plain");
   t6->SetBranchAddress("PrimVertexCand_chi2",var_vertexChi2_6);
   t6->SetBranchAddress("PrimVertexCand_ndof",var_vertexNdf6);
   t6->SetBranchAddress("PrimVertexCand_tracks",var_vtxTrack6);
-
+  t0->SetBranchAddress("PrimVertexCand_mumuTwoTracks",var_vtxmumu0); 
+  t1->SetBranchAddress("PrimVertexCand_mumuTwoTracks",var_vtxmumu1);  
+  t2->SetBranchAddress("PrimVertexCand_mumuTwoTracks",var_vtxmumu2);  
+  t3->SetBranchAddress("PrimVertexCand_mumuTwoTracks",var_vtxmumu3);  
+  t4->SetBranchAddress("PrimVertexCand_mumuTwoTracks",var_vtxmumu4);  
+  t5->SetBranchAddress("PrimVertexCand_mumuTwoTracks",var_vtxmumu5);  
+  t6->SetBranchAddress("PrimVertexCand_mumuTwoTracks",var_vtxmumu6);   
 
   t1->SetBranchAddress("MuMu_Kalmanvtxx",var_MuMuvtxX1);
   t2->SetBranchAddress("MuMu_Kalmanvtxx",var_MuMuvtxX2);
@@ -697,7 +744,7 @@ gROOT->SetStyle("Plain");
   t2->SetBranchAddress("MuMu_Kalmanvtxy",var_MuMuvtxY2);
   t1->SetBranchAddress("MuMu_Kalmanvtxz",var_MuMuvtxZ1);
   t2->SetBranchAddress("MuMu_Kalmanvtxz",var_MuMuvtxZ2);
-  t0->SetBranchAddress("MuMu_Kalmantxx",var_MuMuvtxX0);
+  t0->SetBranchAddress("MuMu_Kalmanvtxx",var_MuMuvtxX0);
   t0->SetBranchAddress("MuMu_Kalmanvtxy",var_MuMuvtxY0);
   t0->SetBranchAddress("MuMu_Kalmanvtxz",var_MuMuvtxZ0);
   t0->SetBranchAddress("MuMu_Kalmanvtxisvalid",var_MuMuvtxValid0);
@@ -1031,21 +1078,22 @@ gROOT->SetStyle("Plain");
 	int nTrackQual=var_nTrackQual0[0]; 
 	int nCalo=var_ncalo0[0];
 	int label_vertex(99);
-	double min_distance_vertex_z(99.0);
+	double openangle(-1.);
 //	cout<<"--------------------"<<var_event0[0]<<"-----------------------"<<endl;
+
+        if(PassesTrigger(hlt_pass) == false) 
+                continue;  
 
         if(PassesMassCut(var_mass0[0]) == false)  
                 continue; 
 
 	if(nPrimVtx>=1){
+	  double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack0,var_vtxZ0,var_vtxmumu0);          
+
           for(Int_t j=0; j<nPrimVtx; j++){
-                double distance_vertex_z=(var_MuMuvtxZ0[0]-var_vtxZ0[j] < 0) ? -(var_MuMuvtxZ0[0]-var_vtxZ0[j]) : var_MuMuvtxZ0[0]-var_vtxZ0[j];
-                double distance_vertex_x=(var_MuMuvtxX0[0]-var_vtxX0[j] < 0) ? -(var_MuMuvtxX0[0]-var_vtxX0[j]) : var_MuMuvtxX0[0]-var_vtxX0[j];
-                double distance_vertex_y=(var_MuMuvtxY0[0]-var_vtxY0[j] < 0) ? -(var_MuMuvtxY0[0]-var_vtxY0[j]) : var_MuMuvtxY0[0]-var_vtxY0[j];
-//              cout<<"vtx: nTracks="<<var_vtxTrack0[j]<<"\t d="<<distance_vertex_z<<endl;
-		if(PassesVertexSelection(var_vtxTrack0[j],var_vertexChi2_0[j],var_vertexNdf0[j],distance_vertex_z,var_vtxZ0[j],distance_vertex_x,distance_vertex_y,var_MuMuvtxValid0[0],min_distance_vertex_z)
+		if(PassesVertexSelection(var_vtxTrack0[j],var_vertexChi2_0[j],var_vertexNdf0[j],distance_vertex_z,var_vtxZ0[j],var_vtxmumu0[0])
                    && (techBit0[0][0]==1))   
-			{label_vertex=j; min_distance_vertex_z=distance_vertex_z;}
+			{label_vertex=j;}
           }
         }
 
@@ -1097,10 +1145,9 @@ gROOT->SetStyle("Plain");
 
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
-//		 && PassesZDCVeto(var_zdcEmMinus0[0],var_zdcEmPlus0[0],var_zdcHadMinus0[0],var_zdcHadPlus0[0]))
+		 && PassesZDCVeto(var_zdcEmMinus0[0],var_zdcEmPlus0[0],var_zdcHadMinus0[0],var_zdcHadPlus0[0]))
 	){ 
           filter0Events++;
-	cout<<"candidate  Run "<<var_run0[0]<<"  LS "<<var_ls0[0]<<"\tEvt "<<var_event0[0]<<"\t mass="<<var_mass0[0]<<" GeV"<<endl;
 
 	  hEB0->Fill(nEB,fac_lumi0);
           hEE0->Fill(nEE,fac_lumi0);
@@ -1126,6 +1173,8 @@ gROOT->SetStyle("Plain");
 	  dimuon = mu1 + mu2;
 	  Tdist0->Fill(dimuon.Pt()*dimuon.Pt()); 
 	  MuMudeta0->Fill(mu1.Angle(mu2.Vect()),fac_lumi0);
+	  openangle = mu1.Angle(mu2.Vect());
+	  cout<<"candidate  Run "<<var_run0[0]<<"  LS "<<var_ls0[0]<<"\tEvt "<<var_event0[0]<<"\t mass="<<var_mass0[0]<<" GeV"<<" Opening angle"<<openangle<<endl; 
 
 	  ZDCemminus0->Fill(var_zdcEmMinus0[0],fac_lumi0); ZDCemplus0->Fill(var_zdcEmPlus0[0],fac_lumi0);
 	  ZDChadminus0->Fill(var_zdcHadMinus0[0],fac_lumi0); ZDChadplus0->Fill(var_zdcHadPlus0[0],fac_lumi0);
@@ -1173,20 +1222,20 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 	int nTrackQual=var_nTrackQual1[0]; 
 	int nCalo=var_ncalo1[0];
 	int label_vertex(99);
-	double min_distance_vertex_z(99.0);
 //	cout<<"--------------------"<<var_event1[0]<<"-----------------------"<<endl;
+
+	if(PassesTrigger(hlt_pass) == false)
+		continue; 
 
         if(PassesMassCut(var_mass1[0]) == false)  
 		continue; 
 
 	if(nPrimVtx>=1){
+          double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack1,var_vtxZ1,var_vtxmumu1);           
 	  for(Int_t j=0; j<nPrimVtx; j++){
-                double distance_vertex_z=(var_MuMuvtxZ1[0]-var_vtxZ1[j] < 0) ? -(var_MuMuvtxZ1[0]-var_vtxZ1[j]) : var_MuMuvtxZ1[0]-var_vtxZ1[j];
-                double distance_vertex_x=(var_MuMuvtxX1[0]-var_vtxX1[j] < 0) ? -(var_MuMuvtxX1[0]-var_vtxX1[j]) : var_MuMuvtxX1[0]-var_vtxX1[j];
-                double distance_vertex_y=(var_MuMuvtxY1[0]-var_vtxY1[j] < 0) ? -(var_MuMuvtxY1[0]-var_vtxY1[j]) : var_MuMuvtxY1[0]-var_vtxY1[j];
-                if(PassesVertexSelection(var_vtxTrack1[j],var_vertexChi2_1[j],var_vertexNdf1[j],distance_vertex_z,var_vtxZ1[j],distance_vertex_x,distance_vertex_y,var_MuMuvtxValid1[0],min_distance_vertex_z) 
+                if(PassesVertexSelection(var_vtxTrack1[j],var_vertexChi2_1[j],var_vertexNdf1[j],distance_vertex_z,var_vtxZ1[j],var_vtxmumu1[0]) 
 		   && !(techBit1[0][0]==1))   
-			{label_vertex=j; min_distance_vertex_z=distance_vertex_z;}
+			{label_vertex=j;}
 	  }
 	}
 
@@ -1232,7 +1281,7 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
-//		&& PassesZDCVeto(var_zdcEmMinus1[0],var_zdcEmPlus1[0],var_zdcHadMinus1[0],var_zdcHadPlus1[0]))
+		&& PassesZDCVeto(var_zdcEmMinus1[0],var_zdcEmPlus1[0],var_zdcHadMinus1[0],var_zdcHadPlus1[0]))
 	){ 
           filter1Events+=fac_lumi1*effcorrection1;
 
@@ -1313,20 +1362,20 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
 	int nTrackQual=var_nTrackQual2[0]; 
 	int nCalo=var_ncalo2[0];
 	int label_vertex(99);
-	double min_distance_vertex_z(99.0);
 //	cout<<"--------------------"<<var_event2[0]<<"-----------------------"<<endl;
+
+       if(PassesTrigger(hlt_pass) == false) 
+                continue;  
 
         if(PassesMassCut(var_mass2[0]) == false)   
                 continue;  
 
         if(nPrimVtx>=1){
+          double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack2,var_vtxZ2,var_vtxmumu2);           
           for(Int_t j=0; j<nPrimVtx; j++){
-                double distance_vertex_z=(var_MuMuvtxZ2[0]-var_vtxZ2[j] < 0) ? -(var_MuMuvtxZ2[0]-var_vtxZ2[j]) : var_MuMuvtxZ2[0]-var_vtxZ2[j];
-                double distance_vertex_x=(var_MuMuvtxX2[0]-var_vtxX2[j] < 0) ? -(var_MuMuvtxX2[0]-var_vtxX2[j]) : var_MuMuvtxX2[0]-var_vtxX2[j];
-                double distance_vertex_y=(var_MuMuvtxY2[0]-var_vtxY2[j] < 0) ? -(var_MuMuvtxY2[0]-var_vtxY2[j]) : var_MuMuvtxY2[0]-var_vtxY2[j];
-                if(PassesVertexSelection(var_vtxTrack2[j],var_vertexChi2_2[j],var_vertexNdf2[j],distance_vertex_z,var_vtxZ2[j],distance_vertex_x,distance_vertex_y,var_MuMuvtxValid2[0],min_distance_vertex_z) 
+                if(PassesVertexSelection(var_vtxTrack2[j],var_vertexChi2_2[j],var_vertexNdf2[j],distance_vertex_z,var_vtxZ2[j],var_vtxmumu2[0]) 
                    && !(techBit2[0][0]==1))   
-			{label_vertex=j; min_distance_vertex_z=distance_vertex_z;}
+			{label_vertex=j;}
           }
         }
 	if(label_vertex!=99
@@ -1371,7 +1420,7 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
 
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
-//		&& PassesZDCVeto(var_zdcEmMinus2[0],var_zdcEmPlus2[0],var_zdcHadMinus2[0],var_zdcHadPlus2[0]))
+		&& PassesZDCVeto(var_zdcEmMinus2[0],var_zdcEmPlus2[0],var_zdcHadMinus2[0],var_zdcHadPlus2[0]))
 	){ 
           filter2Events+=fac_lumi2*effcorrection2;
 
@@ -1452,20 +1501,20 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 	int nTrackQual=var_nTrackQual3[0]; 
 	int nCalo=var_ncalo3[0];
 	int label_vertex(99);
-	double min_distance_vertex_z(99.0);
 //	cout<<"--------------------"<<var_event1[0]<<"-----------------------"<<endl;
+
+       if(PassesTrigger(hlt_pass) == false) 
+                continue;  
 
         if(PassesMassCut(var_mass3[0]) == false)   
                 continue;  
 
         if(nPrimVtx>=1){
+          double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack3,var_vtxZ3,var_vtxmumu3);           
           for(Int_t j=0; j<nPrimVtx; j++){
-                double distance_vertex_z=(var_MuMuvtxZ3[0]-var_vtxZ3[j] < 0) ? -(var_MuMuvtxZ3[0]-var_vtxZ3[j]) : var_MuMuvtxZ3[0]-var_vtxZ3[j];
-                double distance_vertex_x=(var_MuMuvtxX3[0]-var_vtxX3[j] < 0) ? -(var_MuMuvtxX3[0]-var_vtxX3[j]) : var_MuMuvtxX3[0]-var_vtxX3[j];
-                double distance_vertex_y=(var_MuMuvtxY3[0]-var_vtxY3[j] < 0) ? -(var_MuMuvtxY3[0]-var_vtxY3[j]) : var_MuMuvtxY3[0]-var_vtxY3[j];
-                if(PassesVertexSelection(var_vtxTrack3[j],var_vertexChi2_3[j],var_vertexNdf3[j],distance_vertex_z,var_vtxZ3[j],distance_vertex_x,distance_vertex_y,var_MuMuvtxValid3[0],min_distance_vertex_z) 
+                if(PassesVertexSelection(var_vtxTrack3[j],var_vertexChi2_3[j],var_vertexNdf3[j],distance_vertex_z,var_vtxZ3[j],var_vtxmumu3[0]) 
                    && !(techBit3[0][0]==1))   
-			{label_vertex=j; min_distance_vertex_z=distance_vertex_z;}
+			{label_vertex=j;}
           }
         }
 
@@ -1511,7 +1560,7 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
-//		&& PassesZDCVeto(var_zdcEmMinus3[0],var_zdcEmPlus3[0],var_zdcHadMinus3[0],var_zdcHadPlus3[0]))	
+		&& PassesZDCVeto(var_zdcEmMinus3[0],var_zdcEmPlus3[0],var_zdcHadMinus3[0],var_zdcHadPlus3[0]))	
 	){ 
           filter3Events+=fac_lumi3*effcorrection3;
 
@@ -1593,20 +1642,20 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 	int nTrackQual=var_nTrackQual4[0]; 
 	int nCalo=var_ncalo4[0];
 	int label_vertex(99);
-	double min_distance_vertex_z(99.0);
 //	cout<<"--------------------"<<var_event4[0]<<"-----------------------"<<endl;
+
+       if(PassesTrigger(hlt_pass) == false) 
+                continue;  
 
 	if(PassesMassCut(var_mass4[0]) == false) 
 		continue;
 
         if(nPrimVtx>=1){
+          double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack4,var_vtxZ4,var_vtxmumu4);           
           for(Int_t j=0; j<nPrimVtx; j++){
-                double distance_vertex_z=(var_MuMuvtxZ4[0]-var_vtxZ4[j] < 0) ? -(var_MuMuvtxZ4[0]-var_vtxZ4[j]) : var_MuMuvtxZ4[0]-var_vtxZ4[j];
-                double distance_vertex_x=(var_MuMuvtxX4[0]-var_vtxX4[j] < 0) ? -(var_MuMuvtxX4[0]-var_vtxX4[j]) : var_MuMuvtxX4[0]-var_vtxX4[j];
-                double distance_vertex_y=(var_MuMuvtxY4[0]-var_vtxY4[j] < 0) ? -(var_MuMuvtxY4[0]-var_vtxY4[j]) : var_MuMuvtxY4[0]-var_vtxY4[j];
-                if(PassesVertexSelection(var_vtxTrack4[j],var_vertexChi2_4[j],var_vertexNdf4[j],distance_vertex_z,var_vtxZ4[j],distance_vertex_x,distance_vertex_y,var_MuMuvtxValid4[0],min_distance_vertex_z) 
+                if(PassesVertexSelection(var_vtxTrack4[j],var_vertexChi2_4[j],var_vertexNdf4[j],distance_vertex_z,var_vtxZ4[j],var_vtxmumu4[0])
                    && !(techBit4[0][0]==1))   
-			{label_vertex=j; min_distance_vertex_z=distance_vertex_z;}
+			{label_vertex=j;}
           }
         }
 
@@ -1652,7 +1701,7 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 
 	if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm) 
-//		&& PassesZDCVeto(var_zdcEmMinus4[0],var_zdcEmPlus4[0],var_zdcHadMinus4[0],var_zdcHadPlus4[0]))
+		&& PassesZDCVeto(var_zdcEmMinus4[0],var_zdcEmPlus4[0],var_zdcHadMinus4[0],var_zdcHadPlus4[0]))
 	){ 
           filter4Events+=fac_lumi4*effcorrection4;
 
@@ -1732,20 +1781,20 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
         int nTrackQual=var_nTrackQual5[0];
         int nCalo=var_ncalo5[0];
         int label_vertex(99);
-        double min_distance_vertex_z(99.0);
 //      cout<<"--------------------"<<var_event5[0]<<"-----------------------"<<endl;
+
+       if(PassesTrigger(hlt_pass) == false) 
+                continue;  
 
         if(PassesMassCut(var_mass5[0]) == false)  
                 continue; 
 
         if(nPrimVtx>=1){
+          double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack5,var_vtxZ5,var_vtxmumu5);           
           for(Int_t j=0; j<nPrimVtx; j++){
-                double distance_vertex_z=(var_MuMuvtxZ5[0]-var_vtxZ5[j] < 0) ? -(var_MuMuvtxZ5[0]-var_vtxZ5[j]) : var_MuMuvtxZ5[0]-var_vtxZ5[j];
-                double distance_vertex_x=(var_MuMuvtxX5[0]-var_vtxX5[j] < 0) ? -(var_MuMuvtxX5[0]-var_vtxX5[j]) : var_MuMuvtxX5[0]-var_vtxX5[j];
-                double distance_vertex_y=(var_MuMuvtxY5[0]-var_vtxY5[j] < 0) ? -(var_MuMuvtxY5[0]-var_vtxY5[j]) : var_MuMuvtxY5[0]-var_vtxY5[j];
-                if(PassesVertexSelection(var_vtxTrack5[j],var_vertexChi2_5[j],var_vertexNdf5[j],distance_vertex_z,var_vtxZ5[j],distance_vertex_x,distance_vertex_y,var_MuMuvtxValid5[0],min_distance_vertex_z) 
+                if(PassesVertexSelection(var_vtxTrack5[j],var_vertexChi2_5[j],var_vertexNdf5[j],distance_vertex_z,var_vtxZ5[j],var_vtxmumu5[0])
                    && !(techBit5[0][0]==1))   
-			{label_vertex=j; min_distance_vertex_z=distance_vertex_z;}
+			{label_vertex=j;}
           }
         }
 
@@ -1791,7 +1840,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
 
         if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
-//		&& PassesZDCVeto(var_zdcEmMinus5[0],var_zdcEmPlus5[0],var_zdcHadMinus5[0],var_zdcHadPlus5[0]))
+		&& PassesZDCVeto(var_zdcEmMinus5[0],var_zdcEmPlus5[0],var_zdcHadMinus5[0],var_zdcHadPlus5[0]))
 	){
           filter5Events+=fac_lumi5*effcorrection5;
 
@@ -1869,15 +1918,12 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
         int nCalo=var_ncalo6[0];
         int label_vertex(99);
 	int bkgNum=var_run6[0];
-        double min_distance_vertex_z(99.0);
 //      cout<<"--------------------"<<var_event1[0]<<"-----------------------"<<endl;
         if(nPrimVtx>=1){
+          double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack6,var_vtxZ6,var_vtxmumu6);
           for(Int_t j=0; j<nPrimVtx; j++){
-                double distance_vertex_z=(var_MuMuvtxZ6[0]-var_vtxZ6[j] < 0) ? -(var_MuMuvtxZ6[0]-var_vtxZ6[j]) : var_MuMuvtxZ6[0]-var_vtxZ6[j];
-                double distance_vertex_x=(var_MuMuvtxX6[0]-var_vtxX6[j] < 0) ? -(var_MuMuvtxX6[0]-var_vtxX6[j]) : var_MuMuvtxX6[0]-var_vtxX6[j];
-                double distance_vertex_y=(var_MuMuvtxY6[0]-var_vtxY6[j] < 0) ? -(var_MuMuvtxY6[0]-var_vtxY6[j]) : var_MuMuvtxY6[0]-var_vtxY6[j];
-                if(PassesVertexSelection(var_vtxTrack6[j],var_vertexChi2_6[j],var_vertexNdf6[j],distance_vertex_z,var_vtxZ6[j],distance_vertex_x,distance_vertex_y,var_MuMuvtxValid6[0],min_distance_vertex_z) 
-                   {label_vertex=j; min_distance_vertex_z=distance_vertex_z;}
+                if(PassesVertexSelection(var_vtxTrack6[j],var_vertexChi2_6[j],var_vertexNdf6[j],distance_vertex_z,var_vtxZ6[j],var_vtxmumu6[0])
+                   {label_vertex=j;}
           }
         }
 
@@ -1924,7 +1970,7 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
         if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
 		&& PassesZDCVeto(var_zdcEmMinus6[0],var_zdcEmPlus6[0],var_zdcHadMinus6[0],var_zdcHadPlus6[0]))
-	{
+	){
           filter6Events_norm+=fac_lumiBkg[bkgNum];
 	cout<<"I added "<<fac_lumiBkg[bkgNum]<<" event from bkg #"<<bkgNum<<endl;
 
@@ -2011,7 +2057,7 @@ sTrack->Add(nTrack2);
 sTrack->Add(nTrack1);
 sTrack->Add(nTrack4);
 sTrack->Add(nTrack5);
-sTrack.SetMaximum(sTrack.GetMaximum() * 1.5);
+sTrack.SetMaximum(sTrack->GetMaximum() * 1.5);
 sTrack->Draw();
 sTrack->GetXaxis()->SetTitle("n Extra Tracks");
 sTrack->GetYaxis()->SetTitle("# events");
@@ -2047,7 +2093,7 @@ sMuMuvtxXY->GetYaxis()->SetTitle("# events");
 MuMuvtxXY0->Draw("same");
 }
 
-if(1){
+if(0){
 //---------------------------
 TCanvas *Calo = new TCanvas("Calo","Calorimeter",800,500);
    Calo->SetFillColor(0);
@@ -2070,7 +2116,7 @@ sEB->Add(hEB2);
 sEB->Add(hEB1);
 sEB->Add(hEB4);
 sEB->Add(hEB5);
-sEB.SetMaximum(sEB.GetMaximum() * 1.5); 
+sEB.SetMaximum(sEB->GetMaximum() * 1.5); 
 sEB->Draw();
 sEB->GetXaxis()->SetTitle("n EB towers (E>0.60GeV)");
 sEB->GetYaxis()->SetTitle("# events");
@@ -2091,7 +2137,7 @@ sEE->Add(hEE2);
 sEE->Add(hEE1);
 sEE->Add(hEE4);
 sEE->Add(hEE5);
-sEE.SetMaximum(sEE.GetMaximum() * 1.5); 
+sEE.SetMaximum(sEE->GetMaximum() * 1.5); 
 sEE->Draw();
 sEE->GetXaxis()->SetTitle("n EE towers (E>2.40GeV)");
 sEE->GetYaxis()->SetTitle("# events");
@@ -2113,7 +2159,7 @@ sHB->Add(hHB2);
 sHB->Add(hHB1);
 sHB->Add(hHB4);
 sHB->Add(hHB5);
-sHB.SetMaximum(sHB.GetMaximum() * 1.5); 
+sHB.SetMaximum(sHB->GetMaximum() * 1.5); 
 sHB->Draw();
 sHB->GetXaxis()->SetTitle("n HB towers (E>1.25GeV)");
 sHB->GetYaxis()->SetTitle("# events");
@@ -2134,7 +2180,7 @@ sHE->Add(hHE2);
 sHE->Add(hHE1);
 sHE->Add(hHE4);
 sHE->Add(hHE5);
-sHE.SetMaximum(sHE.GetMaximum() * 1.5); 
+sHE.SetMaximum(sHE->GetMaximum() * 1.5); 
 sHE->Draw();
 sHE->GetXaxis()->SetTitle("n HE towers (E>1.90GeV)");
 sHE->GetYaxis()->SetTitle("# events");
@@ -2155,7 +2201,7 @@ sHFp->Add(hHFp2);
 sHFp->Add(hHFp1);
 sHFp->Add(hHFp4);
 sHFp->Add(hHFp5);
-sHFp.SetMaximum(sHFp.GetMaximum() * 1.5); 
+sHFp.SetMaximum(sHFp->GetMaximum() * 1.5); 
 sHFp->Draw();
 sHFp->GetXaxis()->SetTitle("n HF+ towers (E>4.5GeV)");
 sHFp->GetYaxis()->SetTitle("# events");
@@ -2176,7 +2222,7 @@ sHFm->Add(hHFm2);
 sHFm->Add(hHFm1);
 sHFm->Add(hHFm4);
 sHFm->Add(hHFm5);
-sHFm.SetMaximum(sHFm.GetMaximum() * 1.5); 
+sHFm.SetMaximum(sHFm->GetMaximum() * 1.5); 
 sHFm->Draw();
 //Calo->SaveAs("Calo_851nb.eps"); 
 sHFm->GetXaxis()->SetTitle("n HF- towers (E>4.0GeV)");
@@ -2203,7 +2249,7 @@ sTower->Add(nTower2);
 sTower->Add(nTower1);
 sTower->Add(nTower4);
 sTower->Add(nTower5);
-sTower.SetMaximum(sTower.GetMaximum() * 1.5); 
+sTower.SetMaximum(sTower->GetMaximum() * 1.5); 
 sTower->Draw();
 sTower->GetXaxis()->SetTitle("n towers (E>E_{Threshold})");
 sTower->GetYaxis()->SetTitle("# events");
@@ -2223,11 +2269,10 @@ Upsilon_Jpsi->Divide(2,1);
 Upsilon_Jpsi->cd(1);
 MuMuMassUps0->Sumw2();
 MuMuMassUps0->SetLineWidth(2);
-MuMuMassUps0->SetMarkerStyle(20);
-MuMuMassUps1->SetFillColor(ci);
-MuMuMassUps2->SetFillColor(30);
-MuMuMassUps2->SetFillStyle(3001);
-MuMuMassUps3->SetFillColor(30);
+MuMuMassUps0->SetMarkerStyle(20); 
+MuMuMassUps1->SetFillColor(0);MuMuMassUps1->SetLineWidth(3);MuMuMassUps1->SetLineColor(4); 
+MuMuMassUps2->SetFillColor(2); 
+MuMuMassUps3->SetFillColor(5); 
 MuMuMassUps4->SetFillColor(38);
 MuMuMassUps5->SetFillColor(903);
 sMuMuMassUps->Add(MuMuMassUps3);
@@ -2235,20 +2280,20 @@ sMuMuMassUps->Add(MuMuMassUps2);
 sMuMuMassUps->Add(MuMuMassUps1);
 sMuMuMassUps->Add(MuMuMassUps4);
 sMuMuMassUps->Add(MuMuMassUps5);
-sMuMuMassUps.SetMaximum(sMuMuMassUps.GetMaximum() * 1.5); 
+sMuMuMassUps.SetMaximum(sMuMuMassUps->GetMaximum() * 5); 
 sMuMuMassUps->Draw();
 sMuMuMassUps->GetXaxis()->SetTitle("#mu#mu mass [GeV]");
 sMuMuMassUps->GetYaxis()->SetTitle("# events / 0.05 GeV");
-MuMuMassUps0->Draw("same");
+MuMuMassUps0->Draw("esame");
 
 Upsilon_Jpsi->cd(2);
 MuMuMassJpsi0->Sumw2();
 MuMuMassJpsi0->SetLineWidth(2);
-MuMuMassJpsi0->SetMarkerStyle(20);
-MuMuMassJpsi1->SetFillColor(ci);
-MuMuMassJpsi2->SetFillColor(30);
-MuMuMassJpsi2->SetFillStyle(3001);
-MuMuMassJpsi3->SetFillColor(30);
+MuMuMassJpsi0->SetMarkerStyle(20); 
+MuMuMassJpsi1->SetFillColor(0);MuMuMassJpsi1->SetLineWidth(3);MuMuMassJpsi1->SetLineColor(4); 
+MuMuMassJpsi2->SetFillColor(2); 
+//MuMuMassJpsi2->SetFillStyle(3001); 
+MuMuMassJpsi3->SetFillColor(5); 
 MuMuMassJpsi4->SetFillColor(38);
 MuMuMassJpsi5->SetFillColor(903);
 sMuMuMassJpsi->Add(MuMuMassJpsi3);
@@ -2256,11 +2301,11 @@ sMuMuMassJpsi->Add(MuMuMassJpsi2);
 sMuMuMassJpsi->Add(MuMuMassJpsi1);
 sMuMuMassJpsi->Add(MuMuMassJpsi4);
 sMuMuMassJpsi->Add(MuMuMassJpsi5);
-sMuMuMassJpsi.SetMaximum(sMuMuMassJpsi.GetMaximum() * 1.5);  
+sMuMuMassJpsi.SetMaximum(sMuMuMassJpsi->GetMaximum() * 5);  
 sMuMuMassJpsi->Draw();
 sMuMuMassJpsi->GetXaxis()->SetTitle("#mu#mu mass [GeV]");
 sMuMuMassJpsi->GetYaxis()->SetTitle("# events / 0.025 GeV");
-MuMuMassJpsi0->Draw("same");
+MuMuMassJpsi0->Draw("esame");
 //Upsilon_Jpsi->SaveAs("Upsilon_Jpsi_851nb.eps");  
 }
 
@@ -2276,10 +2321,10 @@ Kinematic1->cd(1);
 MuMuMass0->Sumw2();
 MuMuMass0->SetLineWidth(2);
 MuMuMass0->SetMarkerStyle(20);
-MuMuMass1->SetFillColor(ci);
-MuMuMass2->SetFillColor(30);
-MuMuMass2->SetFillStyle(3001);
-MuMuMass3->SetFillColor(30);
+MuMuMass1->SetFillColor(0);MuMuMass1->SetLineWidth(3);MuMuMass1->SetLineColor(4);
+MuMuMass2->SetFillColor(2);
+//MuMuMass2->SetFillStyle(3001);
+MuMuMass3->SetFillColor(5);
 MuMuMass4->SetFillColor(38);
 MuMuMass5->SetFillColor(903);
 sMuMuMass->Add(MuMuMass3);
@@ -2287,8 +2332,10 @@ sMuMuMass->Add(MuMuMass2);
 sMuMuMass->Add(MuMuMass1);
 sMuMuMass->Add(MuMuMass4);
 sMuMuMass->Add(MuMuMass5);
-if(sMuMuMass.GetMaximum() > 0) sMuMuMass.SetMaximum(sMuMuMass.GetMaximum() * 1.5);   
-else sMuMuMass.SetMaximum(MuMuMass0->GetMaximum() * 2.0); 
+if(sMuMuMass->GetMaximum() > 0) sMuMuMass.SetMaximum(sMuMuMass->GetMaximum() * 1.5);   
+else sMuMuMass.SetMaximum(MuMuMass0->GetMaximum() * 2.0);
+//sMuMuMass.SetMinimum(0.01);
+//sMuMuMass.SetMaximum(50); 
 sMuMuMass->Draw();
 sMuMuMass->GetXaxis()->SetTitle("#mu#mu mass [GeV]");
 sMuMuMass->GetYaxis()->SetTitle("# events / 1 GeV");
@@ -2298,10 +2345,10 @@ Kinematic1->cd(2);
 MuMudeta0->Sumw2();
 MuMudeta0->SetLineWidth(2);
 MuMudeta0->SetMarkerStyle(20);
-MuMudeta1->SetFillColor(ci);
-MuMudeta2->SetFillColor(30);
-MuMudeta2->SetFillStyle(3001);
-MuMudeta3->SetFillColor(30);
+MuMudeta1->SetFillColor(0);MuMudeta1->SetLineWidth(3);MuMudeta1->SetLineColor(4);
+MuMudeta2->SetFillColor(2);
+//MuMudeta2->SetFillStyle(3001);
+MuMudeta3->SetFillColor(5);
 MuMudeta4->SetFillColor(38);
 MuMudeta5->SetFillColor(903);
 sMuMudeta->Add(MuMudeta3);
@@ -2309,7 +2356,7 @@ sMuMudeta->Add(MuMudeta2);
 sMuMudeta->Add(MuMudeta1);
 sMuMudeta->Add(MuMudeta4);
 sMuMudeta->Add(MuMudeta5);
-if(sMuMudeta.GetMaximum() > 0) sMuMudeta.SetMaximum(sMuMudeta.GetMaximum() * 2.0);    
+if(sMuMudeta->GetMaximum() > 0) sMuMudeta.SetMaximum(sMuMudeta->GetMaximum() * 2.0);    
 else sMuMudeta.SetMaximum(MuMudeta0->GetMaximum() * 2.0);  
 sMuMudeta->Draw();
 //sMuMudeta->GetXaxis()->SetTitle("#eta(#mu^{+}) + #eta(#mu^{-})");
@@ -2330,10 +2377,10 @@ Kinematic2->cd(1);
 MuMudpt0->Sumw2();
 MuMudpt0->SetLineWidth(2);
 MuMudpt0->SetMarkerStyle(20);
-MuMudpt1->SetFillColor(ci);
-MuMudpt2->SetFillColor(30);
-MuMudpt2->SetFillStyle(3001);
-MuMudpt3->SetFillColor(30);
+MuMudpt1->SetFillColor(0);MuMudpt1->SetLineColor(4);MuMudpt1->SetLineWidth(3);
+MuMudpt2->SetFillColor(2);
+//MuMudpt2->SetFillStyle(3001);
+MuMudpt3->SetFillColor(5);
 MuMudpt4->SetFillColor(38);
 MuMudpt5->SetFillColor(903);
 sMuMudpt->Add(MuMudpt3);
@@ -2341,7 +2388,7 @@ sMuMudpt->Add(MuMudpt2);
 sMuMudpt->Add(MuMudpt1);
 sMuMudpt->Add(MuMudpt4);
 sMuMudpt->Add(MuMudpt5);
-if(sMuMudpt.GetMaximum() > 0) sMuMudpt.SetMaximum(sMuMudpt.GetMaximum() * 1.5);   
+if(sMuMudpt->GetMaximum() > 0) sMuMudpt.SetMaximum(sMuMudpt->GetMaximum() * 1.5);   
 else sMuMudpt.SetMaximum(MuMudpt0->GetMaximum() * 2.0); 
 sMuMudpt->Draw();
 sMuMudpt->GetXaxis()->SetTitle("#mu#mu |#Delta p_{T}| [GeV]");
@@ -2352,10 +2399,10 @@ Kinematic2->cd(2);
 MuMudphi0->Sumw2();
 MuMudphi0->SetLineWidth(2);
 MuMudphi0->SetMarkerStyle(20);
-MuMudphi1->SetFillColor(ci);
-MuMudphi2->SetFillColor(30);
-MuMudphi2->SetFillStyle(3001);
-MuMudphi3->SetFillColor(30);
+MuMudphi1->SetFillColor(0);MuMudphi1->SetLineColor(4); MuMudphi1->SetLineWidth(3);
+MuMudphi2->SetFillColor(2);
+//MuMudphi2->SetFillStyle(3001);
+MuMudphi3->SetFillColor(5);
 MuMudphi4->SetFillColor(38);
 MuMudphi5->SetFillColor(903);
 sMuMudphi->Add(MuMudphi3);
@@ -2363,7 +2410,7 @@ sMuMudphi->Add(MuMudphi2);
 sMuMudphi->Add(MuMudphi1);
 sMuMudphi->Add(MuMudphi4);
 sMuMudphi->Add(MuMudphi5);
-if(sMuMudphi.GetMaximum() > 0) sMuMudphi.SetMaximum(sMuMudphi.GetMaximum() * 1.5);  
+if(sMuMudphi->GetMaximum() > 0) sMuMudphi.SetMaximum(sMuMudphi->GetMaximum() * 1.5);  
 else sMuMudphi.SetMaximum(MuMudphi0->GetMaximum() * 2.0);
 sMuMudphi->Draw();
 sMuMudphi->GetXaxis()->SetTitle("#mu#mu |#Delta #phi / #pi|");
@@ -2384,10 +2431,10 @@ Kinematic3->cd(1);
 etaPair0->Sumw2();
 etaPair0->SetLineWidth(2);
 etaPair0->SetMarkerStyle(20);
-etaPair1->SetFillColor(ci);
-etaPair2->SetFillColor(30);
-etaPair2->SetFillStyle(3001);
-etaPair3->SetFillColor(30);
+etaPair1->SetFillColor(0);etaPair1->SetLineColor(4);etaPair1->SetLineWidth(3); 
+etaPair2->SetFillColor(2);
+//etaPair2->SetFillStyle(3001);
+etaPair3->SetFillColor(5);
 etaPair4->SetFillColor(38);
 etaPair5->SetFillColor(903);
 setaPair->Add(etaPair3);
@@ -2395,8 +2442,8 @@ setaPair->Add(etaPair2);
 setaPair->Add(etaPair1);
 setaPair->Add(etaPair4);
 setaPair->Add(etaPair5);
-if(setaPair.GetMaximum() > 0) setaPair.SetMaximum(setaPair.GetMaximum() * 1.5);  
-else setaPair.SetMaximum(etaPair0->GetMaximum() * 2.0);
+if(setaPair->GetMaximum() > 0) setaPair.SetMaximum(setaPair->GetMaximum() * 2.5);  
+else setaPair.SetMaximum(etaPair0->GetMaximum() * 3.0);
 setaPair->Draw();
 setaPair->GetXaxis()->SetTitle("#mu#mu #eta");
 setaPair->GetYaxis()->SetTitle("# events / 0.5");
@@ -2406,10 +2453,10 @@ Kinematic3->cd(2);
 pTPair0->Sumw2();
 pTPair0->SetLineWidth(2);
 pTPair0->SetMarkerStyle(20);
-pTPair1->SetFillColor(ci);
-pTPair2->SetFillColor(30);
-pTPair2->SetFillStyle(3001);
-pTPair3->SetFillColor(30);
+pTPair1->SetFillColor(0);pTPair1->SetLineColor(4); pTPair1->SetLineWidth(3);
+pTPair2->SetFillColor(2);
+//pTPair2->SetFillStyle(3001);
+pTPair3->SetFillColor(5);
 pTPair4->SetFillColor(38);
 pTPair5->SetFillColor(903);
 spTPair->Add(pTPair3);
@@ -2417,7 +2464,7 @@ spTPair->Add(pTPair2);
 spTPair->Add(pTPair1);
 spTPair->Add(pTPair4);
 spTPair->Add(pTPair5);
-if(spTPair.GetMaximum() > 0) spTPair.SetMaximum(spTPair.GetMaximum() * 1.5);   
+if(spTPair->GetMaximum() > 0) spTPair.SetMaximum(spTPair->GetMaximum() * 1.5);   
 else spTPair.SetMaximum(spTPair->GetMaximum() * 2.0); 
 spTPair->Draw();
 spTPair->GetXaxis()->SetTitle("#mu#mu p_{T} [GeV]");
@@ -2428,10 +2475,10 @@ Kinematic3->cd(3);
 MuMuSymdphi0->Sumw2(); 
 MuMuSymdphi0->SetLineWidth(2); 
 MuMuSymdphi0->SetMarkerStyle(20); 
-MuMuSymdphi1->SetFillColor(ci); 
-MuMuSymdphi2->SetFillColor(30); 
-MuMuSymdphi2->SetFillStyle(3001); 
-MuMuSymdphi3->SetFillColor(30); 
+MuMuSymdphi1->SetFillColor(0);MuMuSymdphi1->SetLineWidth(3);MuMuSymdphi1->SetLineColor(4); 
+MuMuSymdphi2->SetFillColor(2); 
+//MuMuSymdphi2->SetFillStyle(3001); 
+MuMuSymdphi3->SetFillColor(5); 
 MuMuSymdphi4->SetFillColor(38); 
 MuMuSymdphi5->SetFillColor(903); 
 sMuMuSymdphi->Add(MuMuSymdphi3); 
@@ -2439,7 +2486,7 @@ sMuMuSymdphi->Add(MuMuSymdphi2);
 sMuMuSymdphi->Add(MuMuSymdphi1); 
 sMuMuSymdphi->Add(MuMuSymdphi4); 
 sMuMuSymdphi->Add(MuMuSymdphi5); 
-if(sMuMuSymdphi.GetMaximum() > 0) sMuMuSymdphi.SetMaximum(sMuMuSymdphi.GetMaximum() * 1.5);   
+if(sMuMuSymdphi->GetMaximum() > 0) sMuMuSymdphi.SetMaximum(sMuMuSymdphi->GetMaximum() * 1.5);   
 else sMuMuSymdphi.SetMaximum(MuMuSymdphi0->GetMaximum() * 2.0); 
 sMuMuSymdphi->Draw(); 
 sMuMuSymdphi->GetXaxis()->SetTitle("#mu#mu 1 - |#Delta #phi / #pi|"); 
@@ -2448,7 +2495,7 @@ MuMuSymdphi0->Draw("same");
 
 }
 
-if(1){
+if(0){
 TCanvas *Kinematic4 = new TCanvas("Kinematic4","Kinematic single Muon",800,500);
    Kinematic4->SetFillColor(0);
    Kinematic4->SetBorderMode(0);
@@ -2471,7 +2518,7 @@ setaSingle->Add(etaSingle2);
 setaSingle->Add(etaSingle1);
 setaSingle->Add(etaSingle4);
 setaSingle->Add(etaSingle5);
-setaSingle.SetMaximum(setaSingle.GetMaximum() * 1.5);  
+setaSingle.SetMaximum(setaSingle->GetMaximum() * 1.5);  
 setaSingle->Draw();
 setaSingle->GetXaxis()->SetTitle("#mu #eta");
 setaSingle->GetYaxis()->SetTitle("# events / 0.5");
@@ -2492,7 +2539,7 @@ sphiSingle->Add(phiSingle2);
 sphiSingle->Add(phiSingle1);
 sphiSingle->Add(phiSingle4);
 sphiSingle->Add(phiSingle5);
-sphiSingle.SetMaximum(sphiSingle.GetMaximum() * 1.5);   
+sphiSingle.SetMaximum(sphiSingle->GetMaximum() * 1.5);   
 sphiSingle->Draw();
 sphiSingle->GetXaxis()->SetTitle("#mu #phi");
 sphiSingle->GetYaxis()->SetTitle("# events / 0.5");
@@ -2513,7 +2560,7 @@ spTSingle->Add(pTSingle2);
 spTSingle->Add(pTSingle1);
 spTSingle->Add(pTSingle4);
 spTSingle->Add(pTSingle5);
-spTSingle.SetMaximum(spTSingle.GetMaximum() * 1.5);   
+spTSingle.SetMaximum(spTSingle->GetMaximum() * 1.5);   
 spTSingle->Draw();
 spTSingle->GetXaxis()->SetTitle("#mu p_{T} [GeV]");
 spTSingle->GetYaxis()->SetTitle("# events / 0.5 GeV");
@@ -2544,14 +2591,14 @@ sCastorSumE->Add(CastorSumE2);
 sCastorSumE->Add(CastorSumE1);
 sCastorSumE->Add(CastorSumE4);
 sCastorSumE->Add(CastorSumE5);
-sCastorSumE.SetMaximum(sCastorSumE.GetMaximum() * 1.5);   
+sCastorSumE.SetMaximum(sCastorSumE->GetMaximum() * 1.5);   
 sCastorSumE->Draw();
 sCastorSumE->GetXaxis()->SetTitle("Castor Sum Energy [GeV]");
 sCastorSumE->GetYaxis()->SetTitle("# events / 5 GeV");
 CastorSumE0->Draw("same");
 }
 
-if(1){
+if(0){
 TCanvas *ZDC = new TCanvas("ZDC","ZDC",800,550);
    ZDC->SetFillColor(0);
    ZDC->SetBorderMode(0);
@@ -2574,7 +2621,7 @@ sZDCemplus->Add(ZDCemplus2);
 sZDCemplus->Add(ZDCemplus1);
 sZDCemplus->Add(ZDCemplus4);
 sZDCemplus->Add(ZDCemplus5);
-sZDCemplus.SetMaximum(sZDCemplus.GetMaximum() * 1.5);   
+sZDCemplus.SetMaximum(sZDCemplus->GetMaximum() * 1.5);   
 sZDCemplus->Draw();
 sZDCemplus->GetXaxis()->SetTitle("ZDC + em [GeV]");
 sZDCemplus->GetYaxis()->SetTitle("# events / 20 GeV");
@@ -2595,7 +2642,7 @@ sZDCemminus->Add(ZDCemminus2);
 sZDCemminus->Add(ZDCemminus1);
 sZDCemminus->Add(ZDCemminus4);
 sZDCemminus->Add(ZDCemminus5);
-sZDCemminus.SetMaximum(sZDCemminus.GetMaximum() * 1.5);    
+sZDCemminus.SetMaximum(sZDCemminus->GetMaximum() * 1.5);    
 sZDCemminus->Draw();
 sZDCemminus->GetXaxis()->SetTitle("ZDC - em [GeV]");
 sZDCemminus->GetYaxis()->SetTitle("# events / 20 GeV");
@@ -2616,7 +2663,7 @@ sZDChadplus->Add(ZDChadplus2);
 sZDChadplus->Add(ZDChadplus1);
 sZDChadplus->Add(ZDChadplus4);
 sZDChadplus->Add(ZDChadplus5);
-sZDChadplus.SetMaximum(sZDChadplus.GetMaximum() * 1.5);    
+sZDChadplus.SetMaximum(sZDChadplus->GetMaximum() * 1.5);    
 sZDChadplus->Draw();
 sZDChadplus->GetXaxis()->SetTitle("ZDC + had [GeV]");
 sZDChadplus->GetYaxis()->SetTitle("# events / 20 GeV");
@@ -2637,7 +2684,7 @@ sZDChadminus->Add(ZDChadminus2);
 sZDChadminus->Add(ZDChadminus1);
 sZDChadminus->Add(ZDChadminus4);
 sZDChadminus->Add(ZDChadminus5);
-sZDCemminus.SetMaximum(sZDCemminus.GetMaximum() * 1.5);    
+sZDCemminus.SetMaximum(sZDCemminus->GetMaximum() * 1.5);    
 sZDChadminus->Draw();
 sZDChadminus->GetXaxis()->SetTitle("ZDC - had [GeV]");
 sZDChadminus->GetYaxis()->SetTitle("# events / 20 GeV");
@@ -2658,7 +2705,7 @@ sZDCtime->Add(ZDCtime2);
 sZDCtime->Add(ZDCtime1);
 sZDCtime->Add(ZDCtime4);
 sZDCtime->Add(ZDCtime5);
-sZDCtime.SetMaximum(sZDCtime.GetMaximum() * 1.5);    
+sZDCtime.SetMaximum(sZDCtime->GetMaximum() * 1.5);    
 sZDCtime->Draw();
 sZDCtime->GetXaxis()->SetTitle("ZDC hit time [???]");
 sZDCtime->GetYaxis()->SetTitle("# events / 1 ???");
@@ -2679,7 +2726,7 @@ sZDCenergyEM->Add(ZDCenergyEM2);
 sZDCenergyEM->Add(ZDCenergyEM1);
 sZDCenergyEM->Add(ZDCenergyEM4);
 sZDCenergyEM->Add(ZDCenergyEM5);
-sZDCenergyEM.SetMaximum(sZDCenergyEM.GetMaximum() * 1.5);    
+sZDCenergyEM.SetMaximum(sZDCenergyEM->GetMaximum() * 1.5);    
 sZDCenergyEM->Draw();
 sZDCenergyEM->GetXaxis()->SetTitle("ZDC hit EM energy [GeV ??]");
 sZDCenergyEM->GetYaxis()->SetTitle("# events / 30 GeV ???");
@@ -2700,14 +2747,14 @@ sZDCenergyHAD->Add(ZDCenergyHAD2);
 sZDCenergyHAD->Add(ZDCenergyHAD1);
 sZDCenergyHAD->Add(ZDCenergyHAD4);
 sZDCenergyHAD->Add(ZDCenergyHAD5);
-sZDCenergyHAD.SetMaximum(sZDCenergyHAD.GetMaximum() * 1.5);    
+sZDCenergyHAD.SetMaximum(sZDCenergyHAD->GetMaximum() * 1.5);    
 sZDCenergyHAD->Draw();
 sZDCenergyHAD->GetXaxis()->SetTitle("ZDC hit HAD energy [GeV ??]");
 sZDCenergyHAD->GetYaxis()->SetTitle("# events / 300 GeV ???");
 ZDCenergyHAD0->Draw("same");
 }
 
-if(1){
+if(0){
 TCanvas *Tdist = new TCanvas("Tdist","Tdist",800,550); 
    Tdist->SetFillColor(0); 
    Tdist->SetBorderMode(0); 
@@ -2735,7 +2782,8 @@ sTdist->GetXaxis()->SetTitle("#mu#mu p_{T}^{2} [GeV]");
 sTdist->GetYaxis()->SetTitle("# events / 5 GeV"); 
 Tdist0->Draw("same"); 
 //Tdist->SaveAs("Tdist_851nb.eps");
-
 }
+
 	cout << "END" << endl;   
 }
+
