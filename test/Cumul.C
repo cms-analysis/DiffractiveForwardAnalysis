@@ -123,8 +123,8 @@ double VertexSeparation(int nvtx, int* vtxtrks, double* vtxz, int* ismumuvtx)
 bool PassesZDCVeto(float em1, float em2, float had1, float had2)
 {
 	bool pass = false;
-  	float ZDChadThresh =  120.0;
-  	float ZDCemThresh = 16.0;
+  	float ZDChadThresh =  9999999.; //120.0;
+  	float ZDCemThresh = 9999999.; // 16.0;
 
 	// Veto
 	if(((em1<ZDCemThresh) && (em2<ZDCemThresh) && (had1<ZDChadThresh) && (had2<ZDChadThresh)))
@@ -142,7 +142,7 @@ bool PassesZDCVeto(float em1, float em2, float had1, float had2)
 	//	if((((em1>ZDCemThresh) || (had1>ZDChadThresh)) && (em2<ZDCemThresh) && (had2<ZDChadThresh)) || 
 	//	  (((em2>ZDCemThresh) || (had2>ZDChadThresh)) && (em1<ZDCemThresh) && (had1<ZDChadThresh)))
 	//		pass = true;
-	pass = true; 
+
 	return pass;
 }
 
