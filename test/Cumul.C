@@ -1,3 +1,45 @@
+void DrawOneHistogram(THStack *mcstackhist, 
+		      TH1F *datahist, 
+		      TH1F *mchist1,
+		      TH1F *mchist2,
+		      TH1F *mchist3,
+		      TH1F *mchist4,
+		      TH1F *mchist5,			
+		      TString xaxislabel, 
+		      TString yaxislabel,
+		      TString plottitle)
+{
+	TCanvas *Canvas1 = new TCanvas("Canvas1","Canvas MuMu",800,500); 
+   	Canvas1->SetFillColor(0); 
+   	Canvas1->SetBorderMode(0); 
+   	Canvas1->SetBorderSize(2); 
+   	Canvas1->SetFrameBorderMode(0); 
+	mcstackhist->SetTitle(0); 
+ 
+	datahist->Sumw2(); 
+	datahist->SetStats(0);
+	datahist->SetLineWidth(2); 
+	datahist->SetMarkerStyle(20); 
+	mchist1->SetFillColor(0);mchist1->SetLineWidth(3);mchist1->SetLineColor(4); 
+	mchist2->SetFillColor(2); 
+	mchist3->SetFillColor(5); 
+	mchist4->SetFillColor(38); 
+	mchist5->SetFillColor(903); 
+	mcstackhist->Add(mchist3); 
+	mcstackhist->Add(mchist2); 
+	mcstackhist->Add(mchist1); 
+	mcstackhist->Add(mchist4); 
+	mcstackhist->Add(mchist5); 
+	if(mcstackhist->GetMaximum() > 0) mcstackhist.SetMaximum(mcstackhist->GetMaximum() * 1.5);    
+	else mcstackhist.SetMaximum(datahist->GetMaximum() * 2.0); 
+	mcstackhist->Draw(); 
+	mcstackhist->GetXaxis()->SetTitle(xaxislabel); 
+	mcstackhist->GetYaxis()->SetTitle(yaxislabel); 
+	datahist->Draw("same"); 
+	Canvas1->SaveAs(plottitle);
+	
+}
+
 bool PassesTrigger(int triggerbit)
 {
 	bool pass = false;
@@ -25,7 +67,7 @@ bool PassesDphiCut(double deltaphioverpi)
 bool PassesDptCut(double deltapt)
 {
 	bool pass = false;
-  	float dptcut = 10000000.5;
+  	float dptcut = 1000000000.5;
 	
 	if(deltapt < dptcut)
 		pass = true;
@@ -2031,6 +2073,18 @@ cout<<"  # Dimuon events = "<<filter6Events_norm<<endl;
 
 ci = TColor::GetColor("#ffff99");
 
+DrawOneHistogram(sMuMuMass,MuMuMass0,MuMuMass1,MuMuMass2,MuMuMass3,MuMuMass4,MuMuMass5,"#mu#mu mass [GeV]","Events/10 GeV","MuMuMass_3pt04pb_vertexsel_nodphidptcut.pdf");
+DrawOneHistogram(sMuMudeta,MuMudeta0,MuMudeta1,MuMudeta2,MuMudeta3,MuMudeta4,MuMudeta5,"#mu#mu 3D opening angle","Events/0.1","MuMu3dangle_3pt04pb_vertexsel_nodphidptcut.pdf"); 
+DrawOneHistogram(sMuMudpt,MuMudpt0,MuMudpt1,MuMudpt2,MuMudpt3,MuMudpt4,MuMudpt5,"#mu#mu |#Delta p_{T}| [GeV]","Events/0.1 GeV","MuMudpt_3pt04pb_vertexsel_nodphidptcut.pdf"); 
+DrawOneHistogram(sMuMudphi,MuMudphi0,MuMudphi1,MuMudphi2,MuMudphi3,MuMudphi4,MuMudphi5,"#mu#mu |#Delta #phi / #pi|","Events/0.02","MuMudphi_3pt04pb_vertexsel_nodphidptcut.pdf"); 
+DrawOneHistogram(sMuMuSymdphi,MuMuSymdphi0,MuMuSymdphi1,MuMuSymdphi2,MuMuSymdphi3,MuMuSymdphi4,MuMuSymdphi5,"#mu#mu |1 - #Delta #phi| / #pi","Events/0.02","MuMuSymdphi_3pt04pb_vertexsel_nodphidptcut.pdf");  
+DrawOneHistogram(setaPair,etaPair0,etaPair1,etaPair2,etaPair3,etaPair4,etaPair5,"#mu#mu #eta","Events/0.5","etaPair_3pt04pb_vertexsel_nodphidptcut.pdf");  
+DrawOneHistogram(spTPair,pTPair0,pTPair1,pTPair2,pTPair3,pTPair4,pTPair5,"#mu#mu p_{T} [GeV]","Events/0.5 GeV","pTPair_3pt04pb_vertexsel_nodphidptcut.pdf");   
+DrawOneHistogram(setaSingle,etaSingle0,etaSingle1,etaSingle2,etaSingle3,etaSingle4,etaSingle5,"#mu #eta","Events/0.5","etaSingle_3pt04pb_vertexsel_nodphidptcut.pdf");   
+DrawOneHistogram(spTSingle,pTSingle0,pTSingle1,pTSingle2,pTSingle3,pTSingle4,pTSingle5,"#mu p_{T} [GeV]","Events/0.5 GeV","pTSingle_3pt04pb_vertexsel_nodphidptcut.pdf");  
+DrawOneHistogram(sphiSingle,phiSingle0,phiSingle1,phiSingle2,phiSingle3,phiSingle4,phiSingle5,"#mu #phi","Events/0.5","phiSingle_3pt04pb_vertexsel_nodphidptcut.pdf");    
+
+
 // Save into histo
 //Draw
 if(0){
@@ -2258,7 +2312,7 @@ nTower0->Draw("same");
 //Calo2->SaveAs("Calo2_851nb.eps");  
 }
 
-if(1){
+if(0){
 TCanvas *Upsilon_Jpsi = new TCanvas("Upsilon_Jpsi","Upsilon J/psi",800,500);
    Upsilon_Jpsi->SetFillColor(0);
    Upsilon_Jpsi->SetBorderMode(0);
@@ -2309,7 +2363,7 @@ MuMuMassJpsi0->Draw("esame");
 //Upsilon_Jpsi->SaveAs("Upsilon_Jpsi_851nb.eps");  
 }
 
-if(1){
+if(0){
 TCanvas *Kinematic1 = new TCanvas("Kinematic1","Kinematic MuMu",800,500);
    Kinematic1->SetFillColor(0);
    Kinematic1->SetBorderMode(0);
@@ -2365,7 +2419,7 @@ sMuMudeta->GetYaxis()->SetTitle("# events / 0.5 ");
 MuMudeta0->Draw("same");
 }
 
-if(1){
+if(0){
 TCanvas *Kinematic2 = new TCanvas("Kinematic2","Kinematic MuMu",800,500);
    Kinematic2->SetFillColor(0);
    Kinematic2->SetBorderMode(0);
@@ -2419,7 +2473,7 @@ MuMudphi0->Draw("same");
 //Kinematic1->SaveAs("Kinematic1_851nb.eps");
 }
 
-if(1){
+if(0){
 TCanvas *Kinematic3 = new TCanvas("Kinematic3","Kinematic MuMu",800,500);
    Kinematic3->SetFillColor(0);
    Kinematic3->SetBorderMode(0);
