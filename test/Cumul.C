@@ -116,6 +116,15 @@ double VertexSeparation(int nvtx, int* vtxtrks, double* vtxz, int* ismumuvtx)
 			if(fabs(vtxz[i]-vtxz[j]) < fabs(closestvtx))
 				closestvtx = vtxz[i]-vtxz[j];
 		} 
+//--important in case MuMu vertex is the first one, one needs to loop within [1,nvtx[
+		if(i==0){
+                   for(Int_t j = 0; j < nvtx && (j!=i); j++)
+                   {
+                           if(fabs(vtxz[i]-vtxz[j]) < fabs(closestvtx))
+                                   closestvtx = vtxz[i]-vtxz[j];
+                   }
+		}
+ 
 	}
 	return closestvtx;
 }  
@@ -1133,7 +1142,7 @@ gROOT->SetTitle(0);
 	  double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack0,var_vtxZ0,var_vtxmumu0);          
 
           for(Int_t j=0; j<nPrimVtx; j++){
-		if(PassesVertexSelection(var_vtxTrack0[j],var_vertexChi2_0[j],var_vertexNdf0[j],distance_vertex_z,var_vtxZ0[j],var_vtxmumu0[0])
+		if(PassesVertexSelection(var_vtxTrack0[j],var_vertexChi2_0[j],var_vertexNdf0[j],distance_vertex_z,var_vtxZ0[j],var_vtxmumu0[j])
                    && (techBit0[0][0]==1))   
 			{label_vertex=j;}
           }
@@ -1275,7 +1284,7 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 	if(nPrimVtx>=1){
           double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack1,var_vtxZ1,var_vtxmumu1);           
 	  for(Int_t j=0; j<nPrimVtx; j++){
-                if(PassesVertexSelection(var_vtxTrack1[j],var_vertexChi2_1[j],var_vertexNdf1[j],distance_vertex_z,var_vtxZ1[j],var_vtxmumu1[0]) 
+                if(PassesVertexSelection(var_vtxTrack1[j],var_vertexChi2_1[j],var_vertexNdf1[j],distance_vertex_z,var_vtxZ1[j],var_vtxmumu1[j]) 
 		   && !(techBit1[0][0]==1))   
 			{label_vertex=j;}
 	  }
@@ -1415,7 +1424,7 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
         if(nPrimVtx>=1){
           double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack2,var_vtxZ2,var_vtxmumu2);           
           for(Int_t j=0; j<nPrimVtx; j++){
-                if(PassesVertexSelection(var_vtxTrack2[j],var_vertexChi2_2[j],var_vertexNdf2[j],distance_vertex_z,var_vtxZ2[j],var_vtxmumu2[0]) 
+                if(PassesVertexSelection(var_vtxTrack2[j],var_vertexChi2_2[j],var_vertexNdf2[j],distance_vertex_z,var_vtxZ2[j],var_vtxmumu2[j]) 
                    && !(techBit2[0][0]==1))   
 			{label_vertex=j;}
           }
@@ -1554,7 +1563,7 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
         if(nPrimVtx>=1){
           double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack3,var_vtxZ3,var_vtxmumu3);           
           for(Int_t j=0; j<nPrimVtx; j++){
-                if(PassesVertexSelection(var_vtxTrack3[j],var_vertexChi2_3[j],var_vertexNdf3[j],distance_vertex_z,var_vtxZ3[j],var_vtxmumu3[0]) 
+                if(PassesVertexSelection(var_vtxTrack3[j],var_vertexChi2_3[j],var_vertexNdf3[j],distance_vertex_z,var_vtxZ3[j],var_vtxmumu3[j]) 
                    && !(techBit3[0][0]==1))   
 			{label_vertex=j;}
           }
@@ -1695,7 +1704,7 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
         if(nPrimVtx>=1){
           double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack4,var_vtxZ4,var_vtxmumu4);           
           for(Int_t j=0; j<nPrimVtx; j++){
-                if(PassesVertexSelection(var_vtxTrack4[j],var_vertexChi2_4[j],var_vertexNdf4[j],distance_vertex_z,var_vtxZ4[j],var_vtxmumu4[0])
+                if(PassesVertexSelection(var_vtxTrack4[j],var_vertexChi2_4[j],var_vertexNdf4[j],distance_vertex_z,var_vtxZ4[j],var_vtxmumu4[j])
                    && !(techBit4[0][0]==1))   
 			{label_vertex=j;}
           }
@@ -1834,7 +1843,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
         if(nPrimVtx>=1){
           double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack5,var_vtxZ5,var_vtxmumu5);           
           for(Int_t j=0; j<nPrimVtx; j++){
-                if(PassesVertexSelection(var_vtxTrack5[j],var_vertexChi2_5[j],var_vertexNdf5[j],distance_vertex_z,var_vtxZ5[j],var_vtxmumu5[0])
+                if(PassesVertexSelection(var_vtxTrack5[j],var_vertexChi2_5[j],var_vertexNdf5[j],distance_vertex_z,var_vtxZ5[j],var_vtxmumu5[j])
                    && !(techBit5[0][0]==1))   
 			{label_vertex=j;}
           }
@@ -1964,7 +1973,7 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
         if(nPrimVtx>=1){
           double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack6,var_vtxZ6,var_vtxmumu6);
           for(Int_t j=0; j<nPrimVtx; j++){
-                if(PassesVertexSelection(var_vtxTrack6[j],var_vertexChi2_6[j],var_vertexNdf6[j],distance_vertex_z,var_vtxZ6[j],var_vtxmumu6[0])
+                if(PassesVertexSelection(var_vtxTrack6[j],var_vertexChi2_6[j],var_vertexNdf6[j],distance_vertex_z,var_vtxZ6[j],var_vtxmumu6[j])
                    {label_vertex=j;}
           }
         }
