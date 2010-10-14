@@ -197,7 +197,7 @@ bool PassesVertexSelection(int vtxNTrack,double vtxChi2,double vtxNdf,double dis
         if((vtxNTrack==2) 
 	   && (isdimuonvtx == 1)	
 	   && (TMath::Prob(vtxChi2,vtxNdf+0.5)>0.001) 
-	   && (distance_vertex_z > vtxseparationzthresh) 
+	   && (fabs(distance_vertex_z) > vtxseparationzthresh) 
 	   && (fabs(vtxZ)<PrimVertexZcut)) 
 		pass = true; 
 
