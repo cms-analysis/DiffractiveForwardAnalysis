@@ -118,7 +118,7 @@ double VertexSeparation(int nvtx, int* vtxtrks, double* vtxz, int* ismumuvtx)
 		} 
 //--important in case MuMu vertex is the first one, one needs to loop within [1,nvtx[
 		if(i==0){
-                   for(Int_t j = 0; j < nvtx && (j!=i); j++)
+                   for(Int_t j = 1; j < nvtx && (j!=i); j++)
                    {
                            if(fabs(vtxz[i]-vtxz[j]) < fabs(closestvtx))
                                    closestvtx = vtxz[i]-vtxz[j];
