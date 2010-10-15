@@ -849,6 +849,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   bool found_pair(false);
   bool found_mumuvertex(false);
   MuonPairCand[0]=0; MuonPairCand[1]=1;
+  
   if(nMuonCand == 2)
     {
       if((MuonCand_charge[0]*MuonCand_charge[1]<0) || (keepsamesign == true)) found_pair=true;
@@ -945,20 +946,31 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
     // Now check if a primary vertex is consistent with having exactly 2 muons 
     // and no other tracks
+
+    int track_match_muon=0;
     PrimVertexCand_mumuTwoTracks[nPrimVertexCand] = 0;
-    if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && 
-       (fabs(MuonCand_vtxz[MuonPairCand[0]] - PrimVertexCand_z[nPrimVertexCand]) < 0.1) &&
-       (fabs(MuonCand_vtxz[MuonPairCand[1]] - PrimVertexCand_z[nPrimVertexCand]) < 0.1))
+    if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && found_pair) 
       {
+        for (reco::Vertex::trackRef_iterator vertex_curTrack = vertex_i->tracks_begin(); vertex_curTrack!=vertex_i->tracks_end(); vertex_curTrack++) {
+		if( (fabs((*vertex_curTrack)->pt()-MuonCand_pt[MuonPairCand[0]])<1.e-6   || fabs((*vertex_curTrack)->pt()-MuonCand_pt[MuonPairCand[1]])<1.e-6) &&
+		    (fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuonPairCand[0]])<1.e-6 || fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuonPairCand[1]])<1.e-6) &&
+                    (fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuonPairCand[0]])<1.e-6 || fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuonPairCand[1]])<1.e-6)
+		) track_match_muon++;
+	}
+    }
+    
+    if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && found_pair && track_match_muon==2)
+    {
 	PrimVertexCand_mumuTwoTracks[nPrimVertexCand] = 1;
 	mumuprimvtxx = PrimVertexCand_x[nPrimVertexCand];
 	mumuprimvtxy = PrimVertexCand_y[nPrimVertexCand]; 
         mumuprimvtxz = PrimVertexCand_z[nPrimVertexCand]; 
 	found_mumuvertex = true;
-      }
 
+    }
     nPrimVertexCand++;
   }
+
 
   // Get the CASTOR towers collection from the event 
   edm::Handle<reco::CastorTowerCollection> recoCastorTowers;  
@@ -1502,9 +1514,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     } 
 
   // Check for di-objects with valid vertex
-  if(nMuonCand < 2 || !(found_pair)) passed = false;
-  if(!(found_mumuvertex)) passed = false;
-  if(ClosestHighPurityExtraTrack_vtxdxyz < minmumuvtxd) passed = false;
+  if(nMuonCand < 2 || !(found_pair)) {passed = false;}
+  if(!(found_mumuvertex)) {passed = false;}
+  if(ClosestHighPurityExtraTrack_vtxdxyz < minmumuvtxd) {passed = false;}
 
   // "Exclusivity" cuts
   if(passed == true){
@@ -1568,13 +1580,13 @@ GammaGammaMuMu::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 	       << " TriggerName " << triggerName_ 
 	       << " not available in (new) config!" << endl;
 	  cout << "Available TriggerNames are: " << endl;
-	  hltConfig_.dump("Triggers");
+//	  hltConfig_.dump("Triggers");
 	}
       }
-      hltConfig_.dump("Streams");
-      hltConfig_.dump("Datasets");
-      hltConfig_.dump("PrescaleTable");
-      hltConfig_.dump("ProcessPSet");
+//      hltConfig_.dump("Streams");
+//      hltConfig_.dump("Datasets");
+//      hltConfig_.dump("PrescaleTable");
+//      hltConfig_.dump("ProcessPSet");
     }
   } else {
     cout << "GammaGammaMuMu::beginRun:"
