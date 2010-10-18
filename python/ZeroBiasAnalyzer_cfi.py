@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-zerobiasanalysis = cms.EDFilter("ZeroBiasAnalyzer",
+zerobiasanalysis = cms.EDAnalyzer("ZeroBiasAnalyzer",
     outfilename = cms.untracked.string('zerobias_zdcthresh.root'),
     CaloTowerLabel = cms.InputTag("towerMaker"),
     CastorTowerLabel = cms.InputTag("CastorTowerReco"),
