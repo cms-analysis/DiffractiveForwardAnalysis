@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.83 2010/09/03 12:21:02 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.85 2010/10/15 09:57:34 schul Exp $
 //
 //
 
@@ -46,6 +46,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
+#include "DataFormats/Luminosity/interface/LumiDetails.h"
 
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -427,6 +428,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("Run",&Run,"Run/I");
   thetree->Branch("LumiSection",&LumiSection,"LumiSection/I");
   thetree->Branch("BX",&BX,"BX/I");
+  thetree->Branch("AvgInsDelLumi",&AvgInsDelLumi,"AvgInsDelLumi/D");
   thetree->Branch("EventNum",&EventNum,"EventNum/I");
   thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I"); 
 
@@ -539,13 +541,17 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   LumiSection = event.luminosityBlock();
   EventNum = event.id().event();
 
-  //  edm::Handle<LumiSummary> lumisummary; 
-  //  LuminosityBlock const& lumiBlock = event.getLuminosityBlock();
-  //  lumiBlock.getByLabel("lumiProducer",lumisummary);
-  //  cout << lsummary.avgInsDelLumi() << endl;
-  //  edm::Handle<LumiDetails> lumiDetails;
-  //  lumiBlock.getByLabel("lumiProducer", lumiDetails);
-
+  const edm::LuminosityBlock& iLumi = event.getLuminosityBlock();
+  // get LumiSummary
+  edm::Handle<LumiSummary> lumiSummary;
+  iLumi.getByLabel("lumiProducer", lumiSummary);
+  //  edm::Handle<LumiDetails> lumiDetails; 
+  //  iLumi.getByLabel("lumiProducer", lumiDetails);
+  if(lumiSummary->isValid())
+    AvgInsDelLumi = lumiSummary->avgInsDelLumi();
+  else
+    AvgInsDelLumi = -999.;
+  
   // L1 technical triggers 
   edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRR; 
   edm::Handle<L1GlobalTriggerObjectMapRecord> L1GTOMRec; 
@@ -818,12 +824,12 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	      
 	      double muoneff = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
 						 MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
-	      double myefflowererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
-						       MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
-						       muonefficiencylowererror);
-	      double myeffuppererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
-						       MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
-						       muonefficiencyuppererror);
+	      //	      double myefflowererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
+	      //						       MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
+	      //						       muonefficiencylowererror);
+	      //	      double myeffuppererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
+	      //						       MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
+	      //						       muonefficiencyuppererror);
 	  
 	      if(muoneff > -1 && (effname.find("_Data_") != std::string::npos))
 		{

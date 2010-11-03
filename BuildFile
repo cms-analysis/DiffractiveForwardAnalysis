@@ -10,6 +10,7 @@
 <use name=DataFormats/ParticleFlowCandidate>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/HcalRecHit>
+<use name=DataFormats/Luminosity>
 <use name=Geometry/HcalTowerAlgo>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/Records>

@@ -73,7 +73,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int Run;
   int LumiSection;
   int EventNum;
-
+  double AvgInsDelLumi;
+ 
   int L1TechnicalTriggers[128]; 
 
   int nEvt;
