@@ -10,7 +10,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-                                '/store/data/Commissioning10/ZeroBias/RECO/v9/000/133/877/0E2C8C6E-B34F-DF11-8ADA-001D09F25208.root'
+                                '/store/data/Run2010B/MinimumBias/RECO/PromptReco-v2/000/148/952/FC01E3BC-8AE1-DF11-8874-0030487CD7CA.root'
                                 )
                             )
 
@@ -45,7 +45,7 @@ process.hltFilter.HLTPaths = ['HLT_ZeroBias']
 
 # Put it all together
 process.p = cms.Path(
-#    process.hltFilter
+    process.hltFilter +
     process.zerobiasanalysis
     )
 

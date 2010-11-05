@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.85 2010/10/15 09:57:34 schul Exp $
+// $Id: GammaGammaMuMu.cc,v 1.86 2010/11/03 10:37:24 jjhollar Exp $
 //
 //
 
@@ -428,7 +428,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("Run",&Run,"Run/I");
   thetree->Branch("LumiSection",&LumiSection,"LumiSection/I");
   thetree->Branch("BX",&BX,"BX/I");
-  thetree->Branch("AvgInsDelLumi",&AvgInsDelLumi,"AvgInsDelLumi/D");
+  thetree->Branch("AvgInstDelLumi",&AvgInstDelLumi,"AvgInstDelLumi/D");
+  thetree->Branch("BunchInstLumi",&BunchInstLumi,"BunchInstLumi[3]/D");
   thetree->Branch("EventNum",&EventNum,"EventNum/I");
   thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I"); 
 
@@ -545,13 +546,29 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   // get LumiSummary
   edm::Handle<LumiSummary> lumiSummary;
   iLumi.getByLabel("lumiProducer", lumiSummary);
-  //  edm::Handle<LumiDetails> lumiDetails; 
-  //  iLumi.getByLabel("lumiProducer", lumiDetails);
+  edm::Handle<LumiDetails> lumiDetails; 
+  iLumi.getByLabel("lumiProducer", lumiDetails);
   if(lumiSummary->isValid())
-    AvgInsDelLumi = lumiSummary->avgInsDelLumi();
+    AvgInstDelLumi = lumiSummary->avgInsDelLumi();
   else
-    AvgInsDelLumi = -999.;
-  
+    AvgInstDelLumi = -999.;
+
+  if(lumiDetails->isValid())
+    {
+      std::vector<std::string> lumiAlgNames = lumiDetails->algoNames();
+      for(unsigned int k = 0; k < lumiAlgNames.size(); ++k)
+	{
+	  BunchInstLumi[k] = lumiDetails->lumiValue(lumiAlgNames[k],BX); 
+	}
+    }
+  else
+    {
+      BunchInstLumi[0] = -999.;
+      BunchInstLumi[1] = -999.;
+      BunchInstLumi[2] = -999.;
+    }
+
+
   // L1 technical triggers 
   edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRR; 
   edm::Handle<L1GlobalTriggerObjectMapRecord> L1GTOMRec; 
