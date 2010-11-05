@@ -6,10 +6,14 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/EDFilter.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>  
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h> 
+#include <FWCore/ParameterSet/interface/ParameterDescriptionNode.h> 
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/Utilities/interface/InputTag.h" 
 
 #include "DataFormats/Common/interface/TriggerResults.h" 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"  
 #include "FWCore/Common/interface/TriggerNames.h" 
 
 #include <TFile.h>
@@ -122,6 +126,8 @@ class ZeroBiasAnalyzer : public edm::EDAnalyzer {
   int BX;
   int Run;
   int LumiSection;
+  int EventNum; 
+  double AvgInsDelLumi; 
 
   int L1TechnicalTriggers[128];
 

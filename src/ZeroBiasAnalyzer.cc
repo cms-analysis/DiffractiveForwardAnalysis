@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ZeroBiasAnalyzer.cc,v 1.6 2010/08/23 12:07:19 jjhollar Exp $
+// $Id: ZeroBiasAnalyzer.cc,v 1.7 2010/09/02 06:51:35 jjhollar Exp $
 //
 //
 
@@ -38,6 +38,9 @@
 
 #include "DataFormats/CastorReco/interface/CastorTower.h"  
 #include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
+
+#include "DataFormats/Luminosity/interface/LumiSummary.h" 
+#include "DataFormats/Luminosity/interface/LumiDetails.h" 
 
 #include "FWCore/Framework/interface/ESHandle.h" 
 //#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
@@ -143,6 +146,8 @@ ZeroBiasAnalyzer::ZeroBiasAnalyzer(const edm::ParameterSet& pset)
   thetree->Branch("Run",&Run,"Run/I");
   thetree->Branch("LumiSection",&LumiSection,"LumiSection/I");
   thetree->Branch("BX",&BX,"BX/I");
+  thetree->Branch("EventNum",&EventNum,"EventNum/I"); 
+  thetree->Branch("AvgInsDelLumi",&AvgInsDelLumi,"AvgInsDelLumi/D"); 
 
   thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I");
 
@@ -313,6 +318,18 @@ ZeroBiasAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iSetup
   BX = event.bunchCrossing();
   Run = event.id().run();
   LumiSection = event.luminosityBlock();
+  EventNum = event.id().event(); 
+
+  const edm::LuminosityBlock& iLumi = event.getLuminosityBlock(); 
+  // get LumiSummary 
+  edm::Handle<LumiSummary> lumiSummary; 
+  iLumi.getByLabel("lumiProducer", lumiSummary); 
+  //  edm::Handle<LumiDetails> lumiDetails;  
+  //  iLumi.getByLabel("lumiProducer", lumiDetails); 
+  if(lumiSummary->isValid()) 
+    AvgInsDelLumi = lumiSummary->avgInsDelLumi(); 
+  else 
+    AvgInsDelLumi = -999.; 
 
   // L1 technical triggers
   edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
