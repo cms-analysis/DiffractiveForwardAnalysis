@@ -52,6 +52,8 @@ class ZeroBiasAnalyzer : public edm::EDAnalyzer {
   double TrackCand_purity[500];
   int TrackCand_nhits[500];
   double TrackCand_z[500];
+  double TrackCand_x[500]; 
+  double TrackCand_y[500]; 
   double TrackCand_px[500];
   double TrackCand_py[500];
   double TrackCand_pz[500];

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ZeroBiasAnalyzer.cc,v 1.8 2010/11/05 08:41:51 jjhollar Exp $
+// $Id: ZeroBiasAnalyzer.cc,v 1.9 2010/11/05 14:36:16 jjhollar Exp $
 //
 //
 
@@ -167,6 +167,8 @@ ZeroBiasAnalyzer::ZeroBiasAnalyzer(const edm::ParameterSet& pset)
   thetree->Branch("TrackCand_ndof",TrackCand_ndof,"TrackCand_ndof[nTrackCand]/D");
   thetree->Branch("TrackCand_purity",TrackCand_purity,"TrackCand_purity[nTrackCand]/D");
   thetree->Branch("TrackCand_nhits",TrackCand_nhits,"TrackCand_nhits[nTrackCand]/I");
+  thetree->Branch("TrackCand_x",TrackCand_x,"TrackCand_x[nTrackCand]/D"); 
+  thetree->Branch("TrackCand_y",TrackCand_y,"TrackCand_y[nTrackCand]/D"); 
   thetree->Branch("TrackCand_z",TrackCand_z,"TrackCand_z[nTrackCand]/D");
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
@@ -406,6 +408,8 @@ ZeroBiasAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iSetup
 	  TrackCand_charge[nTrackCand]=track->charge(); 
 	  TrackCand_chi2[nTrackCand]=track->chi2();
 	  TrackCand_ndof[nTrackCand]=track->ndof();
+          TrackCand_x[nTrackCand]=track->vertex().x(); 
+          TrackCand_y[nTrackCand]=track->vertex().y(); 
 	  TrackCand_z[nTrackCand]=track->vertex().z();
           TrackCand_purity[nTrackCand]=track->quality(TrackBase::highPurity);
           TrackCand_nhits[nTrackCand]=track->numberOfValidHits();
