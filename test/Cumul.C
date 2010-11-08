@@ -141,7 +141,7 @@ bool PassesTowerCountVeto(int nEB, int nEE, int nHB, int nHE, int nHFp, int nHFm
 bool FailsTrackDistanceVeto(double trackdistance, int trackquality)
 {
 	bool fail = false;
-	float vtxtrackcountingcut = 0.5; 
+	float vtxtrackcountingcut = 0.2; 
 
 	if(trackdistance < vtxtrackcountingcut)
 		fail = true;
@@ -203,10 +203,10 @@ bool PassesZDCVeto(float em1, float em2, float had1, float had2)
 	return pass;
 }
 
-bool PassesMassCut(float mass)
+bool PassesMassCut(float mass, float ptPlus, float ptMinus)
 {
 	bool pass = true;
-  	float lowermasscut1 = 4.0;
+  	float lowermasscut1 = 11.5;
   	float uppermasscut1 = 8.5;
   	float lowermasscut2 = 11.5;
   	float uppermasscut2 = 999.0; 
@@ -214,6 +214,9 @@ bool PassesMassCut(float mass)
         if((mass < lowermasscut1) || (mass > uppermasscut2)) 
 		pass = false;
         if((mass > uppermasscut1) && (mass < lowermasscut2))  
+		pass = false;
+
+	if(ptPlus<5 || ptMinus<5)
 		pass = false;
 
 	return pass;
@@ -600,6 +603,15 @@ gROOT->SetTitle(0);
   TH1F* CastorSumE5 = new TH1F("castorE_cumulJpsi","",140.,-500.,10300.);
   TH1F* CastorSumE6 = new TH1F("castorE_cumulInclu","",140.,-500.,10300.);
   THStack* sCastorSumE = new THStack("sCastorSumE","stack Castor energy");
+
+  TH1F* VtxT0 = new TH1F("vtx_data","",300,0.,0.6);
+  TH1F* VtxT1 = new TH1F("vtx_cumulElEl","",300,0.,0.6);
+  TH1F* VtxT2 = new TH1F("vtx_cumulInelEl","",300,0.,0.6);
+  TH1F* VtxT3 = new TH1F("vtx_cumulInelInel","",300,0.,0.6);
+  TH1F* VtxT4 = new TH1F("vtx_cumulUps","",300,0.,0.6);
+  TH1F* VtxT5 = new TH1F("vtx_cumulJpsi","",300,0.,0.6);
+  TH1F* VtxT6 = new TH1F("vtx_cumulInclu","",300,0.,0.6);
+  THStack* sVtxT = new THStack("sVtxT","stack vtx Transverse");
 
 
 // definitions des # d'entrées
@@ -1220,7 +1232,7 @@ gROOT->SetTitle(0);
         if(PassesTrigger(hlt_pass,var_run0[0]) == false) 
                 continue;  
 
-        if(PassesMassCut(var_mass0[0]) == false)  
+        if(PassesMassCut(var_mass0[0],var_pt0[pair1],var_pt0[pair2]) == false)  
                 continue; 
 
 	if(nPrimVtx>=1){
@@ -1323,6 +1335,9 @@ gROOT->SetTitle(0);
 
 	  CastorSumE0->Fill(var_CastorRecHit0[0],fac_lumi0);
 
+	  double vertexT=sqrt(pow(var_vtxX0[label_vertex],2)+pow(var_vtxY0[label_vertex],2));
+	  VtxT0->Fill(vertexT,fac_lumi0);
+
           double eta_pair=0.5*TMath::Log((double)((var_p0[pair1]+var_p0[pair2]+var_pz0[pair1]+var_pz0[pair2])/(var_p0[pair1]+var_p0[pair2]-var_pz0[pair1]-var_pz0[pair2])));
           double rap_pair=0.5*TMath::Log((double)((sqrt(var_p0[pair1]*var_p0[pair1]+0.1057*0.1057)+sqrt(var_p0[pair2]*var_p0[pair2]+0.1057*0.1057)+var_pz0[pair1]+var_pz0[pair2])/(sqrt(var_p0[pair1]*var_p0[pair1]+0.1057*0.1057)+sqrt(var_p0[pair2]*var_p0[pair2]+0.1057*0.1057)-var_pz0[pair1]-var_pz0[pair2])));
 	  double pt_pair =sqrt((var_px0[pair1]+var_px0[pair2])*(var_px0[pair1]+var_px0[pair2])+(var_py0[pair1]+var_py0[pair2])*(var_py0[pair1]+var_py0[pair2]));
@@ -1363,7 +1378,7 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 	if(PassesTrigger(hlt_pass,1) == false)
 		continue; 
 
-        if(PassesMassCut(var_mass1[0]) == false)  
+        if(PassesMassCut(var_mass1[0],var_pt1[pair1],var_pt1[pair2]) == false)  
 		continue; 
 
 	if(nPrimVtx>=1){
@@ -1465,6 +1480,9 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 
 	  CastorSumE1->Fill(var_CastorRecHit1[0],fac_lumi1*effcorrection1);
 
+          double vertexT=sqrt(pow(var_vtxX1[label_vertex],2)+pow(var_vtxY1[label_vertex],2))-0.3633;
+          VtxT1->Fill(vertexT,fac_lumi1*effcorrection1);
+
           double eta_pair=0.5*TMath::Log((double)((var_p1[pair1]+var_p1[pair2]+var_pz1[pair1]+var_pz1[pair2])/(var_p1[pair1]+var_p1[pair2]-var_pz1[pair1]-var_pz1[pair2])));
           double rap_pair=0.5*TMath::Log((double)((sqrt(var_p1[pair1]*var_p1[pair1]+0.1057*0.1057)+sqrt(var_p1[pair2]*var_p1[pair2]+0.1057*0.1057)+var_pz1[pair1]+var_pz1[pair2])/(sqrt(var_p1[pair1]*var_p1[pair1]+0.1057*0.1057)+sqrt(var_p1[pair2]*var_p1[pair2]+0.1057*0.1057)-var_pz1[pair1]-var_pz1[pair2])));
           double pt_pair =sqrt((var_px1[pair1]+var_px1[pair2])*(var_px1[pair1]+var_px1[pair2])+(var_py1[pair1]+var_py1[pair2])*(var_py1[pair1]+var_py1[pair2]));
@@ -1504,7 +1522,7 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
        if(PassesTrigger(hlt_pass,1) == false) 
                 continue;  
 
-        if(PassesMassCut(var_mass2[0]) == false)   
+        if(PassesMassCut(var_mass2[0],var_pt2[pair1],var_pt2[pair2]) == false)   
                 continue;  
 
         if(nPrimVtx>=1){
@@ -1605,6 +1623,9 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
 
 	  CastorSumE2->Fill(var_CastorRecHit2[0],fac_lumi2*effcorrection2);
 
+          double vertexT=sqrt(pow(var_vtxX2[label_vertex],2)+pow(var_vtxY2[label_vertex],2))-0.3633;
+          VtxT2->Fill(vertexT,fac_lumi2*effcorrection2);
+
           double eta_pair=0.5*TMath::Log((double)((var_p2[pair1]+var_p2[pair2]+var_pz2[pair1]+var_pz2[pair2])/(var_p2[pair1]+var_p2[pair2]-var_pz2[pair1]-var_pz2[pair2])));
           double rap_pair=0.5*TMath::Log((double)((sqrt(var_p2[pair1]*var_p2[pair1]+0.1057*0.1057)+sqrt(var_p2[pair2]*var_p2[pair2]+0.1057*0.1057)+var_pz2[pair1]+var_pz2[pair2])/(sqrt(var_p2[pair1]*var_p2[pair1]+0.1057*0.1057)+sqrt(var_p2[pair2]*var_p2[pair2]+0.1057*0.1057)-var_pz2[pair1]-var_pz2[pair2])));
           double pt_pair =sqrt((var_px2[pair1]+var_px2[pair2])*(var_px2[pair1]+var_px2[pair2])+(var_py2[pair1]+var_py2[pair2])*(var_py2[pair1]+var_py2[pair2]));
@@ -1644,7 +1665,7 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
        if(PassesTrigger(hlt_pass,1) == false) 
                 continue;  
 
-        if(PassesMassCut(var_mass3[0]) == false)   
+        if(PassesMassCut(var_mass3[0],var_pt3[pair1],var_pt3[pair2]) == false)   
                 continue;  
 
         if(nPrimVtx>=1){
@@ -1745,6 +1766,9 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 
 	  CastorSumE3->Fill(var_CastorRecHit3[0],fac_lumi3*effcorrection3);
 
+          double vertexT=sqrt(pow(var_vtxX3[label_vertex],2)+pow(var_vtxY3[label_vertex],2))-0.3633;
+          VtxT3->Fill(vertexT,fac_lumi3*effcorrection3);
+
           double eta_pair=0.5*TMath::Log((double)((var_p3[pair1]+var_p3[pair2]+var_pz3[pair1]+var_pz3[pair2])/(var_p3[pair1]+var_p3[pair2]-var_pz3[pair1]-var_pz3[pair2])));
           double rap_pair=0.5*TMath::Log((double)((sqrt(var_p3[pair1]*var_p3[pair1]+0.1057*0.1057)+sqrt(var_p3[pair2]*var_p3[pair2]+0.1057*0.1057)+var_pz3[pair1]+var_pz3[pair2])/(sqrt(var_p3[pair1]*var_p3[pair1]+0.1057*0.1057)+sqrt(var_p3[pair2]*var_p3[pair2]+0.1057*0.1057)-var_pz3[pair1]-var_pz3[pair2])));
           double pt_pair =sqrt((var_px3[pair1]+var_px3[pair2])*(var_px3[pair1]+var_px3[pair2])+(var_py3[pair1]+var_py3[pair2])*(var_py3[pair1]+var_py3[pair2]));
@@ -1785,7 +1809,7 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
        if(PassesTrigger(hlt_pass,1) == false) 
                 continue;  
 
-	if(PassesMassCut(var_mass4[0]) == false) 
+	if(PassesMassCut(var_mass4[0],var_pt4[pair1],var_pt4[pair2]) == false) 
 		continue;
 
         if(nPrimVtx>=1){
@@ -1884,13 +1908,18 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 	  for(Int_t l=0; l<var_nZDC4[0]; l++){
 	     if(var_zdcsection4[l]==1 && var_zdcE4[l]>ZDCemThresh){ 
                 ZDCtime4->Fill(var_zdcTime4[l],fac_lumi4*effcorrection4);
+                ZDCenergyEM4->Fill(var_zdcE4[l],fac_lumi4*effcorrection4);
 	     }
 	     if(var_zdcsection4[l]==2 && var_zdcE4[l]>ZDChadThresh){
 		ZDCtime4->Fill(var_zdcTime4[l],fac_lumi4*effcorrection4);
+                ZDCenergyHAD4->Fill(var_zdcE4[l],fac_lumi4*effcorrection4);
 	     }
 	  }
 
 	  CastorSumE4->Fill(var_CastorRecHit4[0],fac_lumi4*effcorrection4);
+
+          double vertexT=sqrt(pow(var_vtxX4[label_vertex],2)+pow(var_vtxY4[label_vertex],2))-0.3633;
+          VtxT4->Fill(vertexT,fac_lumi4*effcorrection4);
 
           double eta_pair=0.5*TMath::Log((double)((var_p4[pair1]+var_p4[pair2]+var_pz4[pair1]+var_pz4[pair2])/(var_p4[pair1]+var_p4[pair2]-var_pz4[pair1]-var_pz4[pair2])));
           double rap_pair=0.5*TMath::Log((double)((sqrt(var_p4[pair1]*var_p4[pair1]+0.1057*0.1057)+sqrt(var_p4[pair2]*var_p4[pair2]+0.1057*0.1057)+var_pz4[pair1]+var_pz4[pair2])/(sqrt(var_p4[pair1]*var_p4[pair1]+0.1057*0.1057)+sqrt(var_p4[pair2]*var_p4[pair2]+0.1057*0.1057)-var_pz4[pair1]-var_pz4[pair2])));
@@ -1932,7 +1961,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
        if(PassesTrigger(hlt_pass,1) == false) 
                 continue;  
 
-        if(PassesMassCut(var_mass5[0]) == false)  
+        if(PassesMassCut(var_mass5[0],var_pt5[pair1],var_pt5[pair2]) == false)  
                 continue; 
 
         if(nPrimVtx>=1){
@@ -2029,6 +2058,9 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
 
           CastorSumE5->Fill(var_CastorRecHit5[0],fac_lumi5*effcorrection5);
 
+          double vertexT=sqrt(pow(var_vtxX5[label_vertex],2)+pow(var_vtxY5[label_vertex],2))-0.3633;
+          VtxT5->Fill(vertexT,fac_lumi5*effcorrection5);
+
           double eta_pair=0.5*TMath::Log((double)((var_p5[pair1]+var_p5[pair2]+var_pz5[pair1]+var_pz5[pair2])/(var_p5[pair1]+var_p5[pair2]-var_pz5[pair1]-var_pz5[pair2])));
 	  double rap_pair=0.5*TMath::Log((double)((sqrt(var_p5[pair1]*var_p5[pair1]+0.1057*0.1057)+sqrt(var_p5[pair2]*var_p5[pair2]+0.1057*0.1057)+var_pz5[pair1]+var_pz5[pair2])/(sqrt(var_p5[pair1]*var_p5[pair1]+0.1057*0.1057)+sqrt(var_p5[pair2]*var_p5[pair2]+0.1057*0.1057)-var_pz5[pair1]-var_pz5[pair2])));
           double pt_pair =sqrt((var_px5[pair1]+var_px5[pair2])*(var_px5[pair1]+var_px5[pair2])+(var_py5[pair1]+var_py5[pair2])*(var_py5[pair1]+var_py5[pair2]));
@@ -2067,6 +2099,13 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
 	int bkgNum=var_run6[0];
         double effcorrection6 = (var_eff6[pair1]*var_eff6[pair2]*doublemuopenfractionallumi+doublemuopentightfractionallumi);
 //      cout<<"--------------------"<<var_event1[0]<<"-----------------------"<<endl;
+
+       if(PassesTrigger(hlt_pass,1) == false)
+                continue;
+
+        if(PassesMassCut(var_mass6[0],var_pt6[pair1],var_pt6[pair2]) == false)
+                continue;
+
         if(nPrimVtx>=1){
           double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack6,var_vtxZ6,var_vtxmumu6);
           for(Int_t j=0; j<nPrimVtx; j++){
@@ -2160,6 +2199,10 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
           }
 
           CastorSumE6->Fill(var_CastorRecHit6[0],fac_lumiBkg[bkgNum]*effcorrection6);
+
+          double vertexT=sqrt(pow(var_vtxX6[label_vertex],2)+pow(var_vtxY6[label_vertex],2))-0.3633;
+          VtxT6->Fill(vertexT,fac_lumiBkg[bkgNum]*effcorrection6);
+
           double eta_pair=0.5*TMath::Log((double)((var_p6[pair1]+var_p6[pair2]+var_pz6[pair1]+var_pz6[pair2])/(var_p6[pair1]+var_p6[pair2]-var_pz6[pair1]-var_pz6[pair2])));
           double rap_pair=0.5*TMath::Log((double)((sqrt(var_p6[pair1]*var_p6[pair1]+0.1057*0.1057)+sqrt(var_p6[pair2]*var_p6[pair2]+0.1057*0.1057)+var_pz6[pair1]+var_pz6[pair2])/(sqrt(var_p6[pair1]*var_p6[pair1]+0.1057*0.1057)+sqrt(var_p6[pair2]*var_p6[pair2]+0.1057*0.1057)-var_pz6[pair1]-var_pz6[pair2])));
           double pt_pair =sqrt((var_px6[pair1]+var_px6[pair2])*(var_px6[pair1]+var_px6[pair2])+(var_py6[pair1]+var_py6[pair2])*(var_py6[pair1]+var_py6[pair2]));
@@ -2196,8 +2239,9 @@ DrawOneHistogramBis(spTSingleM,pTSingleM0,pTSingleM1,pTSingleM2,pTSingleM3,pTSin
 DrawOneHistogramBis(sphiSingleP,phiSingleP0,phiSingleP1,phiSingleP2,phiSingleP3,phiSingleP4,phiSingleP5,phiSingleP6,"#phi(#mu^{+})","Events/0.5","phiSingleP_34pb-1_trackExclu5mm.png");    
 DrawOneHistogramBis(sphiSingleM,phiSingleM0,phiSingleM1,phiSingleM2,phiSingleM3,phiSingleM4,phiSingleM5,phiSingleM6,"#phi(#mu^{-})","Events/0.5","phiSingleM_34pb-1_trackExclu5mm.png");
 //DrawOneHistogram(sMuMuMassUps,MuMuMassUps0,MuMuMassUps1,MuMuMassUps2,MuMuMassUps3,MuMuMassUps4,MuMuMassUps5,"#mu#mu mass","Events/0.1 GeV","MuMuMassUps_34pb-1_trackExclu5mm.png");
-DrawOneHistogramBis(sMuMuMassJpsi,MuMuMassJpsi0,MuMuMassJpsi1,MuMuMassJpsi2,MuMuMassJpsi3,MuMuMassJpsi4,MuMuMassJpsi5,MuMuMassJpsi6,"#mu#mu mass","Events/0.4","MuMuMassJpsi_34pb-1_trackExclu5mm.png");
+//DrawOneHistogramBis(sMuMuMassJpsi,MuMuMassJpsi0,MuMuMassJpsi1,MuMuMassJpsi2,MuMuMassJpsi3,MuMuMassJpsi4,MuMuMassJpsi5,MuMuMassJpsi6,"#mu#mu mass","Events/0.4","MuMuMassJpsi_34pb-1_trackExclu5mm.png");
 //DrawOneHistogram(sTrack,nTrack0,nTrack1,nTrack2,nTrack3,nTrack4,nTrack5,"# track (|d|<5mm)","Events/0.1 GeV","nTrack_34pb-1_trackExclu5mm.png");
+DrawOneHistogramBis(sVtxT,VtxT0,VtxT1,VtxT2,VtxT3,VtxT4,VtxT5,VtxT6,"#mu#mu transverse vtx [cm]","Events/0.1 cm","VtxT_34pb-1_trackExclu5mm.root");
 
 
 // Save into histo
