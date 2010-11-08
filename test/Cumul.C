@@ -14,15 +14,17 @@ void DrawOneHistogram(THStack *mcstackhist,
    	Canvas1->SetBorderMode(0); 
    	Canvas1->SetBorderSize(2); 
    	Canvas1->SetFrameBorderMode(0); 
-	mcstackhist->SetTitle(0); 
+	mcstackhist->SetTitle(0);
+
+        ci = TColor::GetColor("#ffff99");
  
 	datahist->Sumw2(); 
 	datahist->SetStats(0);
 	datahist->SetLineWidth(2); 
 	datahist->SetMarkerStyle(20); 
-	mchist1->SetFillColor(0);mchist1->SetLineWidth(3);mchist1->SetLineColor(4); 
-	mchist2->SetFillColor(2); 
-	mchist3->SetFillColor(5); 
+	mchist1->SetFillColor(ci);mchist1->SetLineWidth(1);/*mchist1->SetLineColor(4);*/ 
+	mchist2->SetFillColor(30);  mchist2->SetFillStyle(3001);
+	mchist3->SetFillColor(30); 
 	mchist4->SetFillColor(38); 
 	mchist5->SetFillColor(903); 
 	mcstackhist->Add(mchist3); 
@@ -40,11 +42,63 @@ void DrawOneHistogram(THStack *mcstackhist,
 	
 }
 
-bool PassesTrigger(int triggerbit)
+
+void DrawOneHistogramBis(THStack *mcstackhist,
+                      TH1F *datahist,
+                      TH1F *mchist1,
+                      TH1F *mchist2,
+                      TH1F *mchist3,
+                      TH1F *mchist4,
+                      TH1F *mchist5,
+                      TH1F *mchist6,
+                      TString xaxislabel,
+                      TString yaxislabel,
+                      TString plottitle)
+{
+        TCanvas *Canvas1 = new TCanvas("Canvas1","Canvas MuMu",800,500);
+        Canvas1->SetFillColor(0);
+        Canvas1->SetBorderMode(0);
+        Canvas1->SetBorderSize(2);
+        Canvas1->SetFrameBorderMode(0);
+        mcstackhist->SetTitle(0);
+
+        ci = TColor::GetColor("#ffff99");
+
+        datahist->Sumw2();
+        datahist->SetStats(0);
+        datahist->SetLineWidth(2);
+        datahist->SetMarkerStyle(20);
+        mchist1->SetFillColor(ci);mchist1->SetLineWidth(1);/*mchist1->SetLineColor(4);*/
+        mchist2->SetFillColor(30);  mchist2->SetFillStyle(3001);
+        mchist3->SetFillColor(30);
+        mchist4->SetFillColor(38);
+        mchist5->SetFillColor(903);
+        mchist6->SetFillColor(2);
+        mcstackhist->Add(mchist6);
+        mcstackhist->Add(mchist3);
+        mcstackhist->Add(mchist2);
+        mcstackhist->Add(mchist1);
+        mcstackhist->Add(mchist4);
+        mcstackhist->Add(mchist5);
+        if(mcstackhist->GetMaximum() > 0) mcstackhist.SetMaximum(mcstackhist->GetMaximum() * 1.5);
+        else mcstackhist.SetMaximum(datahist->GetMaximum() * 2.0);
+        mcstackhist->Draw();
+        mcstackhist->GetXaxis()->SetTitle(xaxislabel);
+        mcstackhist->GetYaxis()->SetTitle(yaxislabel);
+        datahist->Draw("same");
+        Canvas1->SaveAs(plottitle);
+
+}
+
+
+
+bool PassesTrigger(int triggerbit, int runNumber)
 {
 	bool pass = false;
 	if(triggerbit == 1)
 		pass = true;
+/*	if(runNumber>=147146)
+                pass = true;*/
 
 	return pass;
 }
@@ -56,29 +110,27 @@ bool PassesCosmicsCut()
 bool PassesDphiCut(double deltaphioverpi)
 {
 	bool pass = false;
-  	float dphicut = -0.9;     
+  	float dphicut = 0.9;     
 
 	if(deltaphioverpi > dphicut)
 		pass = true;
-
 	return pass;
 }
 
 bool PassesDptCut(double deltapt)
 {
 	bool pass = false;
-  	float dptcut = 1000000000.5;
+  	float dptcut = 1.0;
 	
 	if(deltapt < dptcut)
 		pass = true;
-
 	return pass;
 }
 
 bool PassesTowerCountVeto(int nEB, int nEE, int nHB, int nHE, int nHFp, int nHFm)
 {
 	bool pass = false;
-	int ntowerthresh = 999999; //5;
+	int ntowerthresh = 99999; //5;
 	if((nEB+nEE+nHB+nHE+nHFp+nHFm) < ntowerthresh)
 		pass = true;
 
@@ -105,26 +157,22 @@ double VertexSeparation(int nvtx, int* vtxtrks, double* vtxz, int* ismumuvtx)
 	double closestvtx = 9999999.;
 	if(nvtx == 1)
 		return 9999999.;
-
 	for(Int_t i = 0; i < nvtx; i++)
 	{
 		if(ismumuvtx[i] == 0)
 			continue;
-
 		for(Int_t j = 0; j < nvtx && (j!=i); j++)
 		{
 			if(fabs(vtxz[i]-vtxz[j]) < fabs(closestvtx))
 				closestvtx = vtxz[i]-vtxz[j];
 		} 
-//--important in case MuMu vertex is the first one, one needs to loop within [1,nvtx[
 		if(i==0){
-                   for(Int_t j = 1; j < nvtx && (j!=i); j++)
-                   {
-                           if(fabs(vtxz[i]-vtxz[j]) < fabs(closestvtx))
-                                   closestvtx = vtxz[i]-vtxz[j];
-                   }
+	                for(Int_t j = 1; j < nvtx && (j!=i); j++)
+	                {
+	                        if(fabs(vtxz[i]-vtxz[j]) < fabs(closestvtx))
+	                                closestvtx = vtxz[i]-vtxz[j];
+	                }
 		}
- 
 	}
 	return closestvtx;
 }  
@@ -132,8 +180,8 @@ double VertexSeparation(int nvtx, int* vtxtrks, double* vtxz, int* ismumuvtx)
 bool PassesZDCVeto(float em1, float em2, float had1, float had2)
 {
 	bool pass = false;
-  	float ZDChadThresh =  9999999.; //120.0;
-  	float ZDCemThresh = 9999999.; // 16.0;
+  	float ZDChadThresh =  999999999120.; //120.0;
+  	float ZDCemThresh =   999999999916.; // 16.0;
 
 	// Veto
 	if(((em1<ZDCemThresh) && (em2<ZDCemThresh) && (had1<ZDChadThresh) && (had2<ZDChadThresh)))
@@ -193,14 +241,12 @@ bool PassesVertexSelection(int vtxNTrack,double vtxChi2,double vtxNdf,double dis
 	bool pass = false;
  	float vtxseparationzthresh = 0.2; 
   	float PrimVertexZcut = 24.0; 
-
         if((vtxNTrack==2) 
 	   && (isdimuonvtx == 1)	
 	   && (TMath::Prob(vtxChi2,vtxNdf+0.5)>0.001) 
 	   && (fabs(distance_vertex_z) > vtxseparationzthresh) 
 	   && (fabs(vtxZ)<PrimVertexZcut)) 
 		pass = true; 
-
 	return pass;
 }
 
@@ -216,21 +262,21 @@ gROOT->SetTitle(0);
 #define pi 3.14159265359
 
 //definition des fichiers + Tree
-  TFile *f0 = new TFile("../cand_2tracks.root"); // 
+  TFile *f0 = new TFile("cand_2tracks.root"); // 
 //  TFile *f0 = new TFile("cand_2tracks.root"); // 
   TTree *t0 = f0->Get("ntp1");
-  TFile *f1 = new TFile("../El-El.root"); //
+  TFile *f1 = new TFile("El-El_highPt.root"); //
   TTree *t1 = f1->Get("ntp1");
-  TFile *f2 = new TFile("../Inel-El.root"); //
+  TFile *f2 = new TFile("Inel-El_highPt.root"); //
   TTree *t2 = f2->Get("ntp1");
-  TFile *f3 = new TFile("../Inel-Inel.root"); //
+  TFile *f3 = new TFile("Inel-Inel_highPt.root"); //
   TTree *t3 = f3->Get("ntp1");
-  TFile *f4 = new TFile("../Upsilon.root"); //
+  TFile *f4 = new TFile("Upsilon.root"); //
   TTree *t4 = f4->Get("ntp1");
-  TFile *f5 = new TFile("../Jpsi.root"); //
+  TFile *f5 = new TFile("Jpsi.root"); //
   TTree *t5 = f5->Get("ntp1");
 
-  TFile *f6 = new TFile("bkg-2tracks.root"); //
+  TFile *f6 = new TFile("DY_M2to10_10to120_20.root"); //
   TTree *t6 = f6->Get("ntp1");
 //  TFile *f5 = new TFile("../Jpsi.root"); //
 //  TTree *t5 = f5->Get("ntp1");
@@ -310,34 +356,34 @@ gROOT->SetTitle(0);
   THStack *sHFm = new THStack("sHFm","stack Hfm");
   THStack *sTower = new THStack("sTower","stack nTower");
 
-  TH1F* nTrack0 = new TH1F("ntrack_data","",14,-3.5,3.50.);
-  TH1F* nTrack1 = new TH1F("ntrack_cumulElEl","",14,-3.5,3.50.);
-  TH1F* nTrack2 = new TH1F("ntrack_cumulInelEl","",14,-3.5,3.50.);
-  TH1F* nTrack3 = new TH1F("ntrack_cumulInelInel","",14,-3.5,3.50.);
-  TH1F* nTrack4 = new TH1F("ntrack_cumulUps","",14,-3.5,3.50.);
-  TH1F* nTrack5 = new TH1F("ntrack_cumulJpsi","",14,-3.5,3.50.);
-  TH1F* nTrack6 = new TH1F("ntrack_cumulInclu","",14,-3.5,3.50.);
+  TH1F* nTrack0 = new TH1F("ntrack_data","",15,-1.,14.);
+  TH1F* nTrack1 = new TH1F("ntrack_cumulElEl","",15,-1.,14.);
+  TH1F* nTrack2 = new TH1F("ntrack_cumulInelEl","",15,-1.,14.);
+  TH1F* nTrack3 = new TH1F("ntrack_cumulInelInel","",15,-1.,14.);
+  TH1F* nTrack4 = new TH1F("ntrack_cumulUps","",15,-1.,14.);
+  TH1F* nTrack5 = new TH1F("ntrack_cumulJpsi","",15,-1.,14.);
+  TH1F* nTrack6 = new TH1F("ntrack_cumulInclu","",15,-1.,14.);
   THStack *sTrack = new THStack("sTrack","stack Tracks");
 
   // 120.,0.,40.
   // 10.,0.,100.	
   // 26.,-4.0,100.0 
-  TH1F* MuMuMass0 = new TH1F("mass_data","",11.,-10.,100.0);
-  TH1F* MuMuMass1 = new TH1F("mass_cumulElEl","",11.,-10.,100.0);
-  TH1F* MuMuMass2 = new TH1F("mass_cumulInelEl","",11.,-10.,100.0);
-  TH1F* MuMuMass3 = new TH1F("mass_cumulInelInel","",11.,-10.,100.0);
-  TH1F* MuMuMass4 = new TH1F("mass_cumulUps","",11.,-10.,100.0);
-  TH1F* MuMuMass5 = new TH1F("mass_cumulJpsi","",11.,-10.,100.0);
-  TH1F* MuMuMass6 = new TH1F("mass_cumulInclu","",11.,-10.,100.0);
+  TH1F* MuMuMass0 = new TH1F("mass_data","",90.,-1.,89.);
+  TH1F* MuMuMass1 = new TH1F("mass_cumulElEl","",90.,-1.,89.);
+  TH1F* MuMuMass2 = new TH1F("mass_cumulInelEl","",90.,-1.,89.);
+  TH1F* MuMuMass3 = new TH1F("mass_cumulInelInel","",90.,-1.,89.);
+  TH1F* MuMuMass4 = new TH1F("mass_cumulUps","",90.,-1.,89.);
+  TH1F* MuMuMass5 = new TH1F("mass_cumulJpsi","",90.,-1.,89.);
+  TH1F* MuMuMass6 = new TH1F("mass_cumulInclu","",90.,-1.,89.);
   THStack *sMuMuMass = new THStack("sMuMuMass","stack Mass");
 
-  TH1F* MuMuMassUps0 = new TH1F("massUps_data","",10.,8.,12.);
-  TH1F* MuMuMassUps1 = new TH1F("massUps_cumulElEl","",10.,8.,12.);
-  TH1F* MuMuMassUps2 = new TH1F("massUps_cumulInelEl","",10.,8.,12.);
-  TH1F* MuMuMassUps3 = new TH1F("massUps_cumulInelInel","",10.,8.,12.);
-  TH1F* MuMuMassUps4 = new TH1F("massUps_cumulUps","",10.,8.,12.);
-  TH1F* MuMuMassUps5 = new TH1F("massUps_cumulJpsi","",10.,8.,12.);
-  TH1F* MuMuMassUps6 = new TH1F("massUps_cumulInclu","",10.,8.,12.);
+  TH1F* MuMuMassUps0 = new TH1F("massUps_data","",40.,8.,12.);
+  TH1F* MuMuMassUps1 = new TH1F("massUps_cumulElEl","",40.,8.,12.);
+  TH1F* MuMuMassUps2 = new TH1F("massUps_cumulInelEl","",40.,8.,12.);
+  TH1F* MuMuMassUps3 = new TH1F("massUps_cumulInelInel","",40.,8.,12.);
+  TH1F* MuMuMassUps4 = new TH1F("massUps_cumulUps","",40.,8.,12.);
+  TH1F* MuMuMassUps5 = new TH1F("massUps_cumulJpsi","",40.,8.,12.);
+  TH1F* MuMuMassUps6 = new TH1F("massUps_cumulInclu","",40.,8.,12.);
   THStack *sMuMuMassUps = new THStack("sMuMuMassUps","stack MassUps");
 
   TH1F* MuMuMassJpsi0 = new TH1F("massJpsi_data","",40.,2.0,4.0);
@@ -349,24 +395,24 @@ gROOT->SetTitle(0);
   TH1F* MuMuMassJpsi6 = new TH1F("massJpsi_cumulInclu","",40.,2.0,4.0);
   THStack *sMuMuMassJpsi = new THStack("sMuMuMassJpsi","stack MassJpsi");
 
-  // 60,-0.5,5.5
-  TH1F* MuMudpt0 = new TH1F("dpt_data","",60,-0.5,5.5);
-  TH1F* MuMudpt1 = new TH1F("dpt_cumulElEl","",60,-0.5,5.5);
-  TH1F* MuMudpt2 = new TH1F("dpt_cumulInelEl","",60,-0.5,5.5);
-  TH1F* MuMudpt3 = new TH1F("dpt_cumulInelInel","",60,-0.5,5.5);
-  TH1F* MuMudpt4 = new TH1F("dpt_cumulUps","",60,-0.5,5.5);
-  TH1F* MuMudpt5 = new TH1F("dpt_cumulJpsi","",60,-0.5,5.5);
-  TH1F* MuMudpt6 = new TH1F("dpt_cumulInclu","",60,-0.5,5.5);
+  // 20,-0.5,1.5
+  TH1F* MuMudpt0 = new TH1F("dpt_data","",20,-0.5,1.5);
+  TH1F* MuMudpt1 = new TH1F("dpt_cumulElEl","",20,-0.5,1.5);
+  TH1F* MuMudpt2 = new TH1F("dpt_cumulInelEl","",20,-0.5,1.5);
+  TH1F* MuMudpt3 = new TH1F("dpt_cumulInelInel","",20,-0.5,1.5);
+  TH1F* MuMudpt4 = new TH1F("dpt_cumulUps","",20,-0.5,1.5);
+  TH1F* MuMudpt5 = new TH1F("dpt_cumulJpsi","",20,-0.5,1.5);
+  TH1F* MuMudpt6 = new TH1F("dpt_cumulInclu","",20,-0.5,1.5);
   THStack *sMuMudpt = new THStack("sMuMudpt","stack dpt");
 
   // 60,-0.1,1.1
-  TH1F* MuMudphi0 = new TH1F("dphi_data","",60,-0.1,1.1);
-  TH1F* MuMudphi1 = new TH1F("dphi_cumulElEl","",60,-0.1,1.1);
-  TH1F* MuMudphi2 = new TH1F("dphi_cumulInelEl","",60,-0.1,1.1);
-  TH1F* MuMudphi3 = new TH1F("dphi_cumulInelInel","",60,-0.1,1.1);
-  TH1F* MuMudphi4 = new TH1F("dphi_cumulUps","",60,-0.1,1.1);
-  TH1F* MuMudphi5 = new TH1F("dphi_cumulJpsi","",60,-0.1,1.1);
-  TH1F* MuMudphi6 = new TH1F("dphi_cumulInclu","",60,-0.1,1.1);
+  TH1F* MuMudphi0 = new TH1F("dphi_data","",30,0.8,1.1);
+  TH1F* MuMudphi1 = new TH1F("dphi_cumulElEl","",30,0.8,1.1);
+  TH1F* MuMudphi2 = new TH1F("dphi_cumulInelEl","",30,0.8,1.1);
+  TH1F* MuMudphi3 = new TH1F("dphi_cumulInelInel","",30,0.8,1.1);
+  TH1F* MuMudphi4 = new TH1F("dphi_cumulUps","",30,0.8,1.1);
+  TH1F* MuMudphi5 = new TH1F("dphi_cumulJpsi","",30,0.8,1.1);
+  TH1F* MuMudphi6 = new TH1F("dphi_cumulInclu","",30,0.8,1.1);
   THStack *sMuMudphi = new THStack("sMuMudphi","stack dphi");
 
   TH1F* MuMuSymdphi0 = new TH1F("Symdphi_data","",20,-0.1,0.1); 
@@ -407,51 +453,80 @@ gROOT->SetTitle(0);
   TH1F* Tdist6 = new TH1F("tDist_cumulInclu","",10,-0.2,1.8); 
   THStack *sTdist = new THStack("sTdist","stack Tdist");
 
-  TH1F* etaPair0 = new TH1F("etaPair_data","",12,-3.,3.);
-  TH1F* etaPair1 = new TH1F("etaPair_cumulElEl","",12,-3.,3.);
-  TH1F* etaPair2 = new TH1F("etaPair_cumulInelEl","",12,-3.,3.);
-  TH1F* etaPair3 = new TH1F("etaPair_cumulInelInel","",12,-3.,3.);
-  TH1F* etaPair4 = new TH1F("etaPair_cumulUps","",12,-3.,3.);
-  TH1F* etaPair5 = new TH1F("etaPair_cumulJpsi","",12,-3.,3.);
-  TH1F* etaPair6 = new TH1F("etaPair_cumulInclu","",12,-3.,3.);
+  TH1F* etaPair0 = new TH1F("etaPair_data","",24,-3.,3.);
+  TH1F* etaPair1 = new TH1F("etaPair_cumulElEl","",24,-3.,3.);
+  TH1F* etaPair2 = new TH1F("etaPair_cumulInelEl","",24,-3.,3.);
+  TH1F* etaPair3 = new TH1F("etaPair_cumulInelInel","",24,-3.,3.);
+  TH1F* etaPair4 = new TH1F("etaPair_cumulUps","",24,-3.,3.);
+  TH1F* etaPair5 = new TH1F("etaPair_cumulJpsi","",24,-3.,3.);
+  TH1F* etaPair6 = new TH1F("etaPair_cumulInclu","",24,-3.,3.);
   THStack *setaPair = new THStack("setaPair","stack eta Pair");
 
-  TH1F* pTPair0 = new TH1F("pTPair_data","",24,-2.,10.);
-  TH1F* pTPair1 = new TH1F("pTPair_cumulElEl","",24,-2.,10.);
-  TH1F* pTPair2 = new TH1F("pTPair_cumulInelEl","",24,-2.,10.);
-  TH1F* pTPair3 = new TH1F("pTPair_cumulInelInel","",24,-2.,10.);
-  TH1F* pTPair4 = new TH1F("pTPair_cumulUps","",24,-2.,10.);
-  TH1F* pTPair5 = new TH1F("pTPair_cumulJpsi","",24,-2.,10.);
-  TH1F* pTPair6 = new TH1F("pTPair_cumulInclu","",24,-2.,10.);
+  TH1F* pTPair0 = new TH1F("pTPair_data","",20,-1.,4.);
+  TH1F* pTPair1 = new TH1F("pTPair_cumulElEl","",20,-1.,4.);
+  TH1F* pTPair2 = new TH1F("pTPair_cumulInelEl","",20,-1.,4.);
+  TH1F* pTPair3 = new TH1F("pTPair_cumulInelInel","",20,-1.,4.);
+  TH1F* pTPair4 = new TH1F("pTPair_cumulUps","",20,-1.,4.);
+  TH1F* pTPair5 = new TH1F("pTPair_cumulJpsi","",20,-1.,4.);
+  TH1F* pTPair6 = new TH1F("pTPair_cumulInclu","",20,-1.,4.);
   THStack *spTPair = new THStack("spTPair","stack pT Pair");
 
 
-  TH1F* phiSingle0 = new TH1F("phiSingle_data","",14,-3.5,3.5);
-  TH1F* phiSingle1 = new TH1F("phiSingle_cumulElEl","",14,-3.5,3.5);
-  TH1F* phiSingle2 = new TH1F("phiSingle_cumulInelEl","",14,-3.5,3.5);
-  TH1F* phiSingle3 = new TH1F("phiSingle_cumulInelInel","",14,-3.5,3.5);
-  TH1F* phiSingle4 = new TH1F("phiSingle_cumulUps","",14,-3.5,3.5);
-  TH1F* phiSingle5 = new TH1F("phiSingle_cumulJpsi","",14,-3.5,3.5);
-  TH1F* phiSingle6 = new TH1F("phiSingle_cumulInclu","",14,-3.5,3.5);
-  THStack *sphiSingle = new THStack("sphiSingle","stack eta Single");
+  TH1F* phiSingleP0 = new TH1F("phiSingleP_data","",14,-3.5,3.5);
+  TH1F* phiSingleP1 = new TH1F("phiSingleP_cumulElEl","",14,-3.5,3.5);
+  TH1F* phiSingleP2 = new TH1F("phiSingleP_cumulInelEl","",14,-3.5,3.5);
+  TH1F* phiSingleP3 = new TH1F("phiSingleP_cumulInelInel","",14,-3.5,3.5);
+  TH1F* phiSingleP4 = new TH1F("phiSingleP_cumulUps","",14,-3.5,3.5);
+  TH1F* phiSingleP5 = new TH1F("phiSingleP_cumulJpsi","",14,-3.5,3.5);
+  TH1F* phiSingleP6 = new TH1F("phiSingleP_cumulInclu","",14,-3.5,3.5);
+  THStack *sphiSingleP = new THStack("sphiSingleP","stack eta Single +");
 
-  TH1F* etaSingle0 = new TH1F("etaSingle_data","",12,-3.,3.);
-  TH1F* etaSingle1 = new TH1F("etaSingle_cumulElEl","",12,-3.,3.);
-  TH1F* etaSingle2 = new TH1F("etaSingle_cumulInelEl","",12,-3.,3.);
-  TH1F* etaSingle3 = new TH1F("etaSingle_cumulInelInel","",12,-3.,3.);
-  TH1F* etaSingle4 = new TH1F("etaSingle_cumulUps","",12,-3.,3.);
-  TH1F* etaSingle5 = new TH1F("etaSingle_cumulJpsi","",12,-3.,3.);
-  TH1F* etaSingle6 = new TH1F("etaSingle_cumulInclu","",12,-3.,3.);
-  THStack *setaSingle = new THStack("setaSingle","stack eta Single");
+  TH1F* phiSingleM0 = new TH1F("phiSingleM_data","",14,-3.5,3.5);
+  TH1F* phiSingleM1 = new TH1F("phiSingleM_cumulElEl","",14,-3.5,3.5);
+  TH1F* phiSingleM2 = new TH1F("phiSingleM_cumulInelEl","",14,-3.5,3.5);
+  TH1F* phiSingleM3 = new TH1F("phiSingleM_cumulInelInel","",14,-3.5,3.5);
+  TH1F* phiSingleM4 = new TH1F("phiSingleM_cumulUps","",14,-3.5,3.5);
+  TH1F* phiSingleM5 = new TH1F("phiSingleM_cumulJpsi","",14,-3.5,3.5);
+  TH1F* phiSingleM6 = new TH1F("phiSingleM_cumulInclu","",14,-3.5,3.5);
+  THStack *sphiSingleM = new THStack("sphiSingleM","stack eta Single -");
 
-  TH1F* pTSingle0 = new TH1F("pTSingle_data","",48,-1.,23.);
-  TH1F* pTSingle1 = new TH1F("pTSingle_cumulElEl","",48,-1.,23.);
-  TH1F* pTSingle2 = new TH1F("pTSingle_cumulInelEl","",48,-1.,23.);
-  TH1F* pTSingle3 = new TH1F("pTSingle_cumulInelInel","",48,-1.,23.);
-  TH1F* pTSingle4 = new TH1F("pTSingle_cumulUps","",48,-1.,23.);
-  TH1F* pTSingle5 = new TH1F("pTSingle_cumulJpsi","",48,-1.,23.);
-  TH1F* pTSingle6 = new TH1F("pTSingle_cumulInclu","",48,-1.,23.);
-  THStack *spTSingle = new THStack("spTSingle","stack pT muon");
+
+  TH1F* etaSingleP0 = new TH1F("etaSingleP_data","",24,-3.,3.);
+  TH1F* etaSingleP1 = new TH1F("etaSingleP_cumulElEl","",24,-3.,3.);
+  TH1F* etaSingleP2 = new TH1F("etaSingleP_cumulInelEl","",24,-3.,3.);
+  TH1F* etaSingleP3 = new TH1F("etaSingleP_cumulInelInel","",24,-3.,3.);
+  TH1F* etaSingleP4 = new TH1F("etaSingleP_cumulUps","",24,-3.,3.);
+  TH1F* etaSingleP5 = new TH1F("etaSingleP_cumulJpsi","",24,-3.,3.);
+  TH1F* etaSingleP6 = new TH1F("etaSingleP_cumulInclu","",24,-3.,3.);
+  THStack *setaSingleP = new THStack("setaSingleP","stack eta SingleP");
+
+  TH1F* etaSingleM0 = new TH1F("etaSingleM_data","",24,-3.,3.);
+  TH1F* etaSingleM1 = new TH1F("etaSingleM_cumulElEl","",24,-3.,3.);
+  TH1F* etaSingleM2 = new TH1F("etaSingleM_cumulInelEl","",24,-3.,3.);
+  TH1F* etaSingleM3 = new TH1F("etaSingleM_cumulInelInel","",24,-3.,3.);
+  TH1F* etaSingleM4 = new TH1F("etaSingleM_cumulUps","",24,-3.,3.);
+  TH1F* etaSingleM5 = new TH1F("etaSingleM_cumulJpsi","",24,-3.,3.);
+  TH1F* etaSingleM6 = new TH1F("etaSingleM_cumulInclu","",24,-3.,3.);
+  THStack *setaSingleM = new THStack("setaSingleM","stack eta SingleM");
+
+
+  TH1F* pTSingleP0 = new TH1F("pTSingleP_data","",24,-1.,23.);
+  TH1F* pTSingleP1 = new TH1F("pTSingleP_cumulElEl","",24,-1.,23.);
+  TH1F* pTSingleP2 = new TH1F("pTSingleP_cumulInelEl","",24,-1.,23.);
+  TH1F* pTSingleP3 = new TH1F("pTSingleP_cumulInelInel","",24,-1.,23.);
+  TH1F* pTSingleP4 = new TH1F("pTSingleP_cumulUps","",24,-1.,23.);
+  TH1F* pTSingleP5 = new TH1F("pTSingleP_cumulJpsi","",24,-1.,23.);
+  TH1F* pTSingleP6 = new TH1F("pTSingleP_cumulInclu","",24,-1.,23.);
+  THStack *spTSingleP = new THStack("spTSingleP","stack pT muon +");
+
+  TH1F* pTSingleM0 = new TH1F("pTSingleM_data","",24,-1.,23.);
+  TH1F* pTSingleM1 = new TH1F("pTSingleM_cumulElEl","",24,-1.,23.);
+  TH1F* pTSingleM2 = new TH1F("pTSingleM_cumulInelEl","",24,-1.,23.);
+  TH1F* pTSingleM3 = new TH1F("pTSingleM_cumulInelInel","",24,-1.,23.);
+  TH1F* pTSingleM4 = new TH1F("pTSingleM_cumulUps","",24,-1.,23.);
+  TH1F* pTSingleM5 = new TH1F("pTSingleM_cumulJpsi","",24,-1.,23.);
+  TH1F* pTSingleM6 = new TH1F("pTSingleM_cumulInclu","",24,-1.,23.);
+  THStack *spTSingleM = new THStack("spTSingleM","stack pT muon -");
 
 
   TH1F* ZDCemplus0 = new TH1F("zdcEm+_data","",72.,-100.,3500.);
@@ -539,13 +614,13 @@ gROOT->SetTitle(0);
 //  const float integrated_lumi = 299.30569*0.5857; //in nb-1
 //  const float integrated_lumi = 2872.246*0.5; // in nb-1	
 //  const float integrated_lumi = 2872.246;
-  const float integrated_lumi = 3044.0;
+  const float integrated_lumi = 34686.819159;
 //  const float integrated_lumi = 3044.0 * 0.5;
 //  const float integrated_lumi = 4426.5;
 //  const float integrated_lumi = 4426.5 - 3044.0;
 
-  const float doublemuopenfractionallumi = 0.0927;
-  const float doublemuopentightfractionallumi = 0.9073;
+  const float doublemuopenfractionallumi = 1.0;
+  const float doublemuopentightfractionallumi = 0.0;
   const float HBThresh = 1.25; 
   const float HEThresh = 1.80; 
   const float EEThresh = 2.40; 
@@ -557,18 +632,18 @@ gROOT->SetTitle(0);
   const float dRcone = 0.3;
 
   const float fac_lumi0 = 1.0;
-  const float fac_lumi1 = 1.3028e-5*integrated_lumi;			//  1.0820e-6*integrated_lumi;
-  const float fac_lumi2 = 4.312e-6*integrated_lumi;			//  3.05250e-6*integrated_lumi;
-  const float fac_lumi3 = 4.442e-6*integrated_lumi;			//  4.740e-6*integrated_lumi;
+  const float fac_lumi1 = 1.0850e-6*integrated_lumi;			//  1.0820e-6*integrated_lumi;
+  const float fac_lumi2 = 3.0525e-6*integrated_lumi;			//  3.05250e-6*integrated_lumi;
+  const float fac_lumi3 = 4.7400e-6*integrated_lumi;			//  4.740e-6*integrated_lumi;
   const float fac_lumi4 = 1.350e-6*integrated_lumi;			//  1.350e-6*integrated_lumi;
   const float fac_lumi5 = 3.02430e-4*integrated_lumi;
 
-  const float fac_lumiBkg[19] = {0.,1.,2.,3.,4.,5.,1.1997e-4*integrated_lumi,2.628e-6*integrated_lumi,8.,7.488e-5*integrated_lumi,6.511e-6*integrated_lumi,2.0178e-5*integrated_lumi,3.0238e-5*integrated_lumi,2.3588e-5*integrated_lumi,7.3410e-6*integrated_lumi,6.9481e-6*integrated_lumi,3.8306e-5*integrated_lumi,9.72934e-4*integrated_lumi,1.63742e-4*integrated_lumi};
-  for(Int_t i=0; i<=18; i++){
-	cout<<"fac("<<i<<")="<<fac_lumiBkg[i]<<endl;
-  }
+  const float fac_lumiBkg[21]={0.,1.,6.7736e-5*integrated_lumi,3.,4.,5.,6.,7.,8.,9.,1.194e-6*integrated_lumi,11.,12.,13.,14.,15.,16.,17.,18.,19.,5.68e-7*integrated_lumi};
+//  for(Int_t i=0; i<=20; i++){
+//	cout<<"fac("<<i<<")="<<fac_lumiBkg[i]<<endl;
+//  }
 //definition des variables
-  Int_t hlt_d1[1], hlt_d2[1], hlt_d0[1], hlt_d3[1], hlt_d4[1], hlt_d5[1],  hlt_d6[1];
+  Int_t hlt_d1[1], hlt_d2[1], hlt_d0[1], hlt_d3[1], hlt_d4[1], hlt_d5[1],  hlt_d6[1], hlt_d0bis[1];
   Int_t techBit1[1][128], techBit2[1][128], techBit0[1][128], techBit3[1][128], techBit4[1][128], techBit5[1][128];
 // MuonID
   Int_t var_idA1[10], var_idA2[10], var_idA0[10],var_idA3[10],var_idA4[10],var_idA5[10],var_idA6[10],var_idB1[10], var_idB2[10], var_idB0[10],var_idB3[10],var_idB4[10],var_idB5[10],var_idB6[10],var_idC1[10], var_idC2[10],var_idC0[10],var_idC3[10],var_idC4[10],var_idC5[10],var_idC6[10],var_idD1[10], var_idD2[10], var_idD0[10], var_idD3[10],var_idD4[10],var_idD5[10],var_idD6[10],var_idE1[10], var_idE2[10], var_idE0[10] , var_idE3[10], var_idE4[10], var_idE5[10], var_idE6[10];
@@ -622,6 +697,7 @@ gROOT->SetTitle(0);
   Double_t var_px0[10],var_px1[10],var_px2[10],var_px3[10],var_px4[10],var_px5[10],var_px6[10];
   Double_t var_py0[10],var_py1[10],var_py2[10],var_py3[10],var_py4[10],var_py5[10],var_py6[10];
   Double_t var_pz0[10],var_pz1[10],var_pz2[10],var_pz3[10],var_pz4[10],var_pz5[10],var_pz6[10];
+  Int_t var_charge0[10],var_charge1[10],var_charge2[10],var_charge3[10],var_charge4[10],var_charge5[10],var_charge6[10];
 
 // ZDC
   Int_t var_nZDC1[1], var_nZDC2[1], var_nZDC0[1], var_nZDC3[1], var_nZDC4[1], var_nZDC5[1],var_nZDC6[1];
@@ -639,18 +715,20 @@ gROOT->SetTitle(0);
   Double_t var_CastorRecHit1[1], var_CastorRecHit2[1], var_CastorRecHit0[1], var_CastorRecHit3[1], var_CastorRecHit4[1], var_CastorRecHit5[1], var_CastorRecHit6[1];
 
 //Efficiency
-  Double_t var_eff1[10],var_eff2[10],var_eff3[10],var_eff4[10],var_eff5[10];
+  Double_t var_eff1[10],var_eff2[10],var_eff3[10],var_eff4[10],var_eff5[10],var_eff6[10];
 
+  TString hlttrigger0 = "HLT_DoubleMu0";
   TString hlttrigger = "HLT_L1DoubleMuOpen";	
   TString hlttrigger2 = "HLT_L1DoubleMuOpen_Tight";
+  TString hlttrigger3 = "HLT_DoubleMu3";
 
-  t1->SetBranchAddress(hlttrigger,hlt_d1);
-  t2->SetBranchAddress(hlttrigger,hlt_d2);
-  t0->SetBranchAddress(hlttrigger2,hlt_d0);
-  t3->SetBranchAddress(hlttrigger,hlt_d3);
-  t4->SetBranchAddress(hlttrigger,hlt_d4);
-  t5->SetBranchAddress(hlttrigger,hlt_d5);
-  t6->SetBranchAddress(hlttrigger,hlt_d6);
+  t1->SetBranchAddress(hlttrigger3,hlt_d1);
+  t2->SetBranchAddress(hlttrigger3,hlt_d2);
+  t0->SetBranchAddress(hlttrigger3,hlt_d0);
+  t3->SetBranchAddress(hlttrigger3,hlt_d3);
+  t4->SetBranchAddress(hlttrigger3,hlt_d4);
+  t5->SetBranchAddress(hlttrigger3,hlt_d5);
+  t6->SetBranchAddress(hlttrigger3,hlt_d6);
 
   t0->SetBranchAddress("L1TechnicalTriggers",techBit0);
   t1->SetBranchAddress("L1TechnicalTriggers",techBit1);
@@ -939,6 +1017,13 @@ gROOT->SetTitle(0);
   t6->SetBranchAddress("MuonCand_istracker",var_tracker6);
   t6->SetBranchAddress("MuonCand_isstandalone",var_standalone6);
   t6->SetBranchAddress("MuonCand_validtrackhits",var_nhitsTrack6);
+  t0->SetBranchAddress("MuonCand_charge",var_charge0);
+  t1->SetBranchAddress("MuonCand_charge",var_charge1);
+  t2->SetBranchAddress("MuonCand_charge",var_charge2);
+  t3->SetBranchAddress("MuonCand_charge",var_charge3);
+  t4->SetBranchAddress("MuonCand_charge",var_charge4);
+  t5->SetBranchAddress("MuonCand_charge",var_charge5);
+  t6->SetBranchAddress("MuonCand_charge",var_charge6);
 
 
   t1->SetBranchAddress("MuonCand_pt",var_pt1);
@@ -1011,7 +1096,7 @@ gROOT->SetTitle(0);
   t3->SetBranchAddress("MuonCand_efficiency",var_eff3);
   t4->SetBranchAddress("MuonCand_efficiency",var_eff4);
   t5->SetBranchAddress("MuonCand_efficiency",var_eff5);
-
+  t6->SetBranchAddress("MuonCand_efficiency",var_eff6);
 
   t0->SetBranchAddress("nZDChitCand",var_nZDC0);
   t1->SetBranchAddress("nZDChitCand",var_nZDC1);
@@ -1132,7 +1217,7 @@ gROOT->SetTitle(0);
 	double openangle(-1.);
 //	cout<<"--------------------"<<var_event0[0]<<"-----------------------"<<endl;
 
-        if(PassesTrigger(hlt_pass) == false) 
+        if(PassesTrigger(hlt_pass,var_run0[0]) == false) 
                 continue;  
 
         if(PassesMassCut(var_mass0[0]) == false)  
@@ -1147,9 +1232,7 @@ gROOT->SetTitle(0);
 			{label_vertex=j;}
           }
         }
-
 	if(label_vertex!=99
-           /*& muID1==1 && muID2==1*/
            && PassesMuonID(var_tracker0[pair1], muAng1, var_global0[pair1], var_tracker0[pair2], muAng2, var_global0[pair2], var_nhitsTrack0[pair1], var_nhitsTrack0[pair2])
  	   && PassesDptCut(var_dpt0[0]) 
 	   && PassesDphiCut(var_dphi0[0]/pi)
@@ -1195,9 +1278,9 @@ gROOT->SetTitle(0);
 	}
 
 	if(nTrackExclu<1 
-		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
-		 && PassesZDCVeto(var_zdcEmMinus0[0],var_zdcEmPlus0[0],var_zdcHadMinus0[0],var_zdcHadPlus0[0]))
-	){ 
+		&&  PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
+		&&  PassesZDCVeto(var_zdcEmMinus0[0],var_zdcEmPlus0[0],var_zdcHadMinus0[0],var_zdcHadPlus0[0]))
+	{ 
           filter0Events++;
 
 	  hEB0->Fill(nEB,fac_lumi0);
@@ -1225,7 +1308,7 @@ gROOT->SetTitle(0);
 	  Tdist0->Fill(dimuon.Pt()*dimuon.Pt()); 
 	  MuMudeta0->Fill(mu1.Angle(mu2.Vect()),fac_lumi0);
 	  openangle = mu1.Angle(mu2.Vect());
-	  cout<<"candidate  Run "<<var_run0[0]<<"  LS "<<var_ls0[0]<<"\tEvt "<<var_event0[0]<<"\t mass="<<var_mass0[0]<<" GeV"<<" Opening angle"<<openangle<<endl; 
+	  cout<<"candidate  Run "<<var_run0[0]<<"  LS "<<var_ls0[0]<<"\tEvt "<<var_event0[0]<<"\t mass="<<var_mass0[0]<<" GeV"<<" Opening angle="<<openangle<<endl; 
 
 	  ZDCemminus0->Fill(var_zdcEmMinus0[0],fac_lumi0); ZDCemplus0->Fill(var_zdcEmPlus0[0],fac_lumi0);
 	  ZDChadminus0->Fill(var_zdcHadMinus0[0],fac_lumi0); ZDChadplus0->Fill(var_zdcHadPlus0[0],fac_lumi0);
@@ -1246,9 +1329,11 @@ gROOT->SetTitle(0);
           etaPair0->Fill(rap_pair,fac_lumi0);
 	  pTPair0->Fill(pt_pair,fac_lumi0);
 
-	  phiSingle0->Fill(var_phi0[pair1],fac_lumi0);           phiSingle0->Fill(var_phi0[pair2],fac_lumi0);
-          etaSingle0->Fill(var_eta0[pair1],fac_lumi0);           etaSingle0->Fill(var_eta0[pair2],fac_lumi0);
-           pTSingle0->Fill(var_pt0[pair1],fac_lumi0);             pTSingle0->Fill(var_pt0[pair2],fac_lumi0);
+	  if(var_charge0[pair1]>0) {phiSingleP0->Fill(var_phi0[pair1],fac_lumi0);etaSingleP0->Fill(var_eta0[pair1],fac_lumi0);pTSingleP0->Fill(var_pt0[pair1],fac_lumi0);}   
+	  else {phiSingleM0->Fill(var_phi0[pair1],fac_lumi0);etaSingleM0->Fill(var_eta0[pair1],fac_lumi0);pTSingleM0->Fill(var_pt0[pair1],fac_lumi0);}
+
+	  if(var_charge0[pair2]>0) {phiSingleP0->Fill(var_phi0[pair2],fac_lumi0);etaSingleP0->Fill(var_eta0[pair2],fac_lumi0);pTSingleP0->Fill(var_pt0[pair2],fac_lumi0);}   
+	  else {phiSingleM0->Fill(var_phi0[pair2],fac_lumi0);etaSingleM0->Fill(var_eta0[pair2],fac_lumi0);pTSingleM0->Fill(var_pt0[pair2],fac_lumi0);}
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -1273,9 +1358,9 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 	int nTrackQual=var_nTrackQual1[0]; 
 	int nCalo=var_ncalo1[0];
 	int label_vertex(99);
-//	cout<<"--------------------"<<var_event1[0]<<"-----------------------"<<endl;
+//	cout<<"--------------------"<<i<<"-----------------------"<<endl;
 
-	if(PassesTrigger(hlt_pass) == false)
+	if(PassesTrigger(hlt_pass,1) == false)
 		continue; 
 
         if(PassesMassCut(var_mass1[0]) == false)  
@@ -1350,7 +1435,7 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
           MuMudpt1->Fill(var_dpt1[0],fac_lumi1*effcorrection1);
           MuMudphi1->Fill(var_dphi1[0]/pi,fac_lumi1*effcorrection1);
           double symdphi1 = 1 - fabs(var_phi1[pair1]-var_phi1[pair2])/pi;    
-          MuMuSymdphi1->Fill(symdphi1,fac_lumi1); 
+          MuMuSymdphi1->Fill(symdphi1,fac_lumi1*effcorrection1); 
 
 	//          MuMudeta1->Fill(fabs(var_eta1[pair1]+var_eta1[pair2]),fac_lumi1*effcorrection1);
           MuMuvtxXY1->Fill(sqrt(var_MuMuvtxX1[0]*var_MuMuvtxX1[0]+var_MuMuvtxY1[0]*var_MuMuvtxY1[0]),fac_lumi1*effcorrection1);
@@ -1386,9 +1471,10 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
           etaPair1->Fill(rap_pair,fac_lumi1*effcorrection1);
           pTPair1->Fill(pt_pair,fac_lumi1*effcorrection1);
 
-          phiSingle1->Fill(var_phi1[pair1],fac_lumi1*effcorrection1);           phiSingle1->Fill(var_phi1[pair2],fac_lumi1*effcorrection1);
-          etaSingle1->Fill(var_eta1[pair1],fac_lumi1*effcorrection1);           etaSingle1->Fill(var_eta1[pair2],fac_lumi1*effcorrection1);
-           pTSingle1->Fill(var_pt1[pair1],fac_lumi1*effcorrection1);             pTSingle1->Fill(var_pt1[pair2],fac_lumi1*effcorrection1);
+          if(var_charge1[pair1]>0) {phiSingleP1->Fill(var_phi1[pair1],fac_lumi1*effcorrection1);etaSingleP1->Fill(var_eta1[pair1],fac_lumi1*effcorrection1);pTSingleP1->Fill(var_pt1[pair1],fac_lumi1*effcorrection1);}   
+	  else {phiSingleM1->Fill(var_phi1[pair1],fac_lumi1*effcorrection1);etaSingleM1->Fill(var_eta1[pair1],fac_lumi1*effcorrection1);pTSingleM1->Fill(var_pt1[pair1],fac_lumi1*effcorrection1);}
+          if(var_charge1[pair2]>0) {phiSingleP1->Fill(var_phi1[pair2],fac_lumi1*effcorrection1);etaSingleP1->Fill(var_eta1[pair2],fac_lumi1*effcorrection1);pTSingleP1->Fill(var_pt1[pair2],fac_lumi1*effcorrection1);}   
+	  else {phiSingleM1->Fill(var_phi1[pair2],fac_lumi1*effcorrection1);etaSingleM1->Fill(var_eta1[pair2],fac_lumi1*effcorrection1);pTSingleM1->Fill(var_pt1[pair2],fac_lumi1*effcorrection1);}
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -1415,7 +1501,7 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
 	int label_vertex(99);
 //	cout<<"--------------------"<<var_event2[0]<<"-----------------------"<<endl;
 
-       if(PassesTrigger(hlt_pass) == false) 
+       if(PassesTrigger(hlt_pass,1) == false) 
                 continue;  
 
         if(PassesMassCut(var_mass2[0]) == false)   
@@ -1490,7 +1576,7 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
           MuMudpt2->Fill(var_dpt2[0],fac_lumi2*effcorrection2); 
           MuMudphi2->Fill(var_dphi2[0]/pi,fac_lumi2*effcorrection2); 
           double symdphi2 = 1 - fabs(var_phi2[pair1]-var_phi2[pair2])/pi;    
-          MuMuSymdphi2->Fill(symdphi2,fac_lumi2); 
+          MuMuSymdphi2->Fill(symdphi2,fac_lumi2*effcorrection2); 
 	//          MuMudeta2->Fill(fabs(var_eta2[pair1]+var_eta2[pair2]),fac_lumi2*effcorrection2);
 	  MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX2[0]*var_MuMuvtxX2[0]+var_MuMuvtxY2[0]*var_MuMuvtxY2[0]),fac_lumi2*effcorrection2);
 
@@ -1525,9 +1611,10 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
           etaPair2->Fill(rap_pair,fac_lumi2*effcorrection2);
           pTPair2->Fill(pt_pair,fac_lumi2*effcorrection2);
 
-          phiSingle2->Fill(var_phi2[pair1],fac_lumi2*effcorrection2);           phiSingle2->Fill(var_phi2[pair2],fac_lumi2*effcorrection2);
-          etaSingle2->Fill(var_eta2[pair1],fac_lumi2*effcorrection2);           etaSingle2->Fill(var_eta2[pair2],fac_lumi2*effcorrection2);
-           pTSingle2->Fill(var_pt2[pair1],fac_lumi2*effcorrection2);             pTSingle2->Fill(var_pt2[pair2],fac_lumi2*effcorrection2);
+          if(var_charge2[pair1]>0) {phiSingleP2->Fill(var_phi2[pair1],fac_lumi2*effcorrection2);etaSingleP2->Fill(var_eta2[pair1],fac_lumi2*effcorrection2);pTSingleP2->Fill(var_pt2[pair1],fac_lumi2*effcorrection2);}
+          else {phiSingleM2->Fill(var_phi2[pair1],fac_lumi2*effcorrection2);etaSingleM2->Fill(var_eta2[pair1],fac_lumi2*effcorrection2);pTSingleM2->Fill(var_pt2[pair1],fac_lumi2*effcorrection2);}
+          if(var_charge2[pair2]>0) {phiSingleP2->Fill(var_phi2[pair2],fac_lumi2*effcorrection2);etaSingleP2->Fill(var_eta2[pair2],fac_lumi2*effcorrection2);pTSingleP2->Fill(var_pt2[pair2],fac_lumi2*effcorrection2);}
+          else {phiSingleM2->Fill(var_phi2[pair2],fac_lumi2*effcorrection2);etaSingleM2->Fill(var_eta2[pair2],fac_lumi2*effcorrection2);pTSingleM2->Fill(var_pt2[pair2],fac_lumi2*effcorrection2);}
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -1554,7 +1641,7 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 	int label_vertex(99);
 //	cout<<"--------------------"<<var_event1[0]<<"-----------------------"<<endl;
 
-       if(PassesTrigger(hlt_pass) == false) 
+       if(PassesTrigger(hlt_pass,1) == false) 
                 continue;  
 
         if(PassesMassCut(var_mass3[0]) == false)   
@@ -1629,7 +1716,7 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
           MuMudpt3->Fill(var_dpt3[0],fac_lumi3*effcorrection3);
           MuMudphi3->Fill(var_dphi3[0]/pi,fac_lumi3*effcorrection3);
           double symdphi3 = 1 - fabs(var_phi3[pair1]-var_phi3[pair2])/pi;    
-          MuMuSymdphi3->Fill(symdphi3,fac_lumi3); 
+          MuMuSymdphi3->Fill(symdphi3,fac_lumi3*effcorrection3); 
 	//          MuMudeta3->Fill(fabs(var_eta3[pair1]+var_eta3[pair2]),fac_lumi3*effcorrection3);
 	  MuMuvtxXY3->Fill(sqrt(var_MuMuvtxX3[0]*var_MuMuvtxX3[0]+var_MuMuvtxY3[0]*var_MuMuvtxY3[0]),fac_lumi3*effcorrection3);
 
@@ -1664,10 +1751,10 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
           etaPair3->Fill(rap_pair,fac_lumi3*effcorrection3);
           pTPair3->Fill(pt_pair,fac_lumi3*effcorrection3);
 
-          phiSingle3->Fill(var_phi3[pair1],fac_lumi3*effcorrection3);           phiSingle3->Fill(var_phi3[pair2],fac_lumi3*effcorrection3);
-          etaSingle3->Fill(var_eta3[pair1],fac_lumi3*effcorrection3);           etaSingle3->Fill(var_eta3[pair2],fac_lumi3*effcorrection3);
-           pTSingle3->Fill(var_pt3[pair1],fac_lumi3*effcorrection3);             pTSingle3->Fill(var_pt3[pair2],fac_lumi3*effcorrection3);
-
+          if(var_charge3[pair1]>0) {phiSingleP3->Fill(var_phi3[pair1],fac_lumi3*effcorrection3);etaSingleP3->Fill(var_eta3[pair1],fac_lumi3*effcorrection3);pTSingleP3->Fill(var_pt3[pair1],fac_lumi3*effcorrection3);}
+          else {phiSingleM3->Fill(var_phi3[pair1],fac_lumi3*effcorrection3);etaSingleM3->Fill(var_eta3[pair1],fac_lumi3*effcorrection3);pTSingleM3->Fill(var_pt3[pair1],fac_lumi3*effcorrection3);}
+          if(var_charge3[pair2]>0) {phiSingleP3->Fill(var_phi3[pair2],fac_lumi3*effcorrection3);etaSingleP3->Fill(var_eta3[pair2],fac_lumi3*effcorrection3);pTSingleP3->Fill(var_pt3[pair2],fac_lumi3*effcorrection3);}
+          else {phiSingleM3->Fill(var_phi3[pair2],fac_lumi3*effcorrection3);etaSingleM3->Fill(var_eta3[pair2],fac_lumi3*effcorrection3);pTSingleM3->Fill(var_pt3[pair2],fac_lumi3*effcorrection3);}
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -1695,7 +1782,7 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 	int label_vertex(99);
 //	cout<<"--------------------"<<var_event4[0]<<"-----------------------"<<endl;
 
-       if(PassesTrigger(hlt_pass) == false) 
+       if(PassesTrigger(hlt_pass,1) == false) 
                 continue;  
 
 	if(PassesMassCut(var_mass4[0]) == false) 
@@ -1767,18 +1854,25 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 
 	  MuMuMass4->Fill(var_mass4[0],fac_lumi4*effcorrection4);
           MuMuMassUps4->Fill(var_mass4[0],fac_lumi4*effcorrection4);
+/*
+      double massSq = pow(var_p4[pair1]+var_p4[pair2],2);
+      massSq-=pow(var_px4[pair1]*1.21+var_px4[pair2]*1.21,2);
+      massSq-=pow(var_py4[pair1]*1.21+var_py4[pair2]*1.21,2);
+      massSq-=pow(var_pz4[pair1]+var_pz4[pair2],2);
+      MuMuMassUps4->Fill(sqrt(massSq),fac_lumi4*effcorrection4);
+*/
           MuMuMassJpsi4->Fill(var_mass4[0],fac_lumi4*effcorrection4);
           MuMudpt4->Fill(var_dpt4[0],fac_lumi4*effcorrection4);
           MuMudphi4->Fill(var_dphi4[0]/pi,fac_lumi4*effcorrection4);
           double symdphi4 = 1 - fabs(var_phi4[pair1]-var_phi4[pair2])/pi;    
-          MuMuSymdphi4->Fill(symdphi4,fac_lumi4); 
+          MuMuSymdphi4->Fill(symdphi4,fac_lumi4*effcorrection4); 
 	//          MuMudeta4->Fill(fabs(var_eta4[pair1]+var_eta4[pair2]),fac_lumi4*effcorrection4);
 	  MuMuvtxXY4->Fill(sqrt(var_MuMuvtxX4[0]*var_MuMuvtxX4[0]+var_MuMuvtxY4[0]*var_MuMuvtxY4[0]),fac_lumi4*effcorrection4);
 
 	  ZDCemminus4->Fill(var_zdcEmMinus4[0],fac_lumi4*effcorrection4); 
 	  ZDChadminus4->Fill(var_zdcHadMinus4[0],fac_lumi4*effcorrection4);
-          ZDCemminus5->Fill(var_zdcEmMinus4[0],fac_lumi4*effcorrection4); 
-          ZDChadminus5->Fill(var_zdcHadMinus4[0],fac_lumi4*effcorrection4);
+          ZDCemminus4->Fill(var_zdcEmMinus4[0],fac_lumi4*effcorrection4); 
+          ZDChadminus4->Fill(var_zdcHadMinus4[0],fac_lumi4*effcorrection4);
 
           TLorentzVector mu41, mu42, dimuon4;  
           mu41.SetPtEtaPhiM(var_pt4[pair1],var_eta4[pair1],var_phi4[pair1],0.1057);    
@@ -1804,9 +1898,10 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
           etaPair4->Fill(rap_pair,fac_lumi4*effcorrection4);
           pTPair4->Fill(pt_pair,fac_lumi4*effcorrection4);
 
-          phiSingle4->Fill(var_phi4[pair1],fac_lumi4*effcorrection4);           phiSingle4->Fill(var_phi4[pair2],fac_lumi4*effcorrection4);
-          etaSingle4->Fill(var_eta4[pair1],fac_lumi4*effcorrection4);           etaSingle4->Fill(var_eta4[pair2],fac_lumi4*effcorrection4);
-           pTSingle4->Fill(var_pt4[pair1],fac_lumi4*effcorrection4);             pTSingle4->Fill(var_pt4[pair2],fac_lumi4*effcorrection4);
+          if(var_charge4[pair1]>0) {phiSingleP4->Fill(var_phi4[pair1],fac_lumi4*effcorrection4);etaSingleP4->Fill(var_eta4[pair1],fac_lumi4*effcorrection4);pTSingleP4->Fill(var_pt4[pair1],fac_lumi4*effcorrection4);}
+          else {phiSingleM4->Fill(var_phi4[pair1],fac_lumi4*effcorrection4);etaSingleM4->Fill(var_eta4[pair1],fac_lumi4*effcorrection4);pTSingleM4->Fill(var_pt4[pair1],fac_lumi4*effcorrection4);}
+          if(var_charge4[pair2]>0) {phiSingleP4->Fill(var_phi4[pair2],fac_lumi4*effcorrection4);etaSingleP4->Fill(var_eta4[pair2],fac_lumi4*effcorrection4);pTSingleP4->Fill(var_pt4[pair2],fac_lumi4*effcorrection4);}
+          else {phiSingleM4->Fill(var_phi4[pair2],fac_lumi4*effcorrection4);etaSingleM4->Fill(var_eta4[pair2],fac_lumi4*effcorrection4);pTSingleM4->Fill(var_pt4[pair2],fac_lumi4*effcorrection4);}
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -1834,7 +1929,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
         int label_vertex(99);
 //      cout<<"--------------------"<<var_event5[0]<<"-----------------------"<<endl;
 
-       if(PassesTrigger(hlt_pass) == false) 
+       if(PassesTrigger(hlt_pass,1) == false) 
                 continue;  
 
         if(PassesMassCut(var_mass5[0]) == false)  
@@ -1910,7 +2005,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
           MuMudpt5->Fill(var_dpt5[0],fac_lumi5*effcorrection5);
           MuMudphi5->Fill(var_dphi5[0]/pi,fac_lumi5*effcorrection5);
           double symdphi5 = 1 - fabs(var_phi5[pair1]-var_phi5[pair2])/pi;    
-          MuMuSymdphi5->Fill(symdphi5,fac_lumi5); 
+          MuMuSymdphi5->Fill(symdphi5,fac_lumi5*effcorrection5); 
 	//          MuMudeta5->Fill(fabs(var_eta5[pair1]+var_eta5[pair2]),fac_lumi5*effcorrection5);
 	  MuMuvtxXY5->Fill(sqrt(var_MuMuvtxX5[0]*var_MuMuvtxX5[0]+var_MuMuvtxY5[0]*var_MuMuvtxY5[0]),fac_lumi5*effcorrection5);
 
@@ -1940,9 +2035,10 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
           etaPair5->Fill(rap_pair,fac_lumi5*effcorrection5);
           pTPair5->Fill(pt_pair,fac_lumi5*effcorrection5);
 
-          phiSingle5->Fill(var_phi5[pair1],fac_lumi5*effcorrection5);           phiSingle5->Fill(var_phi5[pair2],fac_lumi5*effcorrection5);
-          etaSingle5->Fill(var_eta5[pair1],fac_lumi5*effcorrection5);           etaSingle5->Fill(var_eta5[pair2],fac_lumi5*effcorrection5);
-           pTSingle5->Fill(var_pt5[pair1],fac_lumi5*effcorrection5);             pTSingle5->Fill(var_pt5[pair2],fac_lumi5*effcorrection5);
+          if(var_charge5[pair1]>0) {phiSingleP5->Fill(var_phi5[pair1],fac_lumi5*effcorrection5);etaSingleP5->Fill(var_eta5[pair1],fac_lumi5*effcorrection5);pTSingleP5->Fill(var_pt5[pair1],fac_lumi5*effcorrection5);}
+          else {phiSingleM5->Fill(var_phi5[pair1],fac_lumi5*effcorrection5);etaSingleM5->Fill(var_eta5[pair1],fac_lumi5*effcorrection5);pTSingleM5->Fill(var_pt5[pair1],fac_lumi5*effcorrection5);}
+          if(var_charge5[pair2]>0) {phiSingleP5->Fill(var_phi5[pair2],fac_lumi5*effcorrection5);etaSingleP5->Fill(var_eta5[pair2],fac_lumi5*effcorrection5);pTSingleP5->Fill(var_pt5[pair2],fac_lumi5*effcorrection5);}
+          else {phiSingleM5->Fill(var_phi5[pair2],fac_lumi5*effcorrection5);etaSingleM5->Fill(var_eta5[pair2],fac_lumi5*effcorrection5);pTSingleM5->Fill(var_pt5[pair2],fac_lumi5*effcorrection5);}
 
 
           } // if nTrack&nCalo if relevant
@@ -1951,7 +2047,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
 cout<<"Jpsi :"<<endl;
 cout<<"  # Dimuon events = "<<filter5Events<<endl;
 
-/*
+
   int filter6Gen(0);
   int filter6Track(0);
   double filter6Events_norm(0);
@@ -1969,15 +2065,15 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
         int nCalo=var_ncalo6[0];
         int label_vertex(99);
 	int bkgNum=var_run6[0];
+        double effcorrection6 = (var_eff6[pair1]*var_eff6[pair2]*doublemuopenfractionallumi+doublemuopentightfractionallumi);
 //      cout<<"--------------------"<<var_event1[0]<<"-----------------------"<<endl;
         if(nPrimVtx>=1){
           double distance_vertex_z = VertexSeparation(nPrimVtx,var_vtxTrack6,var_vtxZ6,var_vtxmumu6);
           for(Int_t j=0; j<nPrimVtx; j++){
-                if(PassesVertexSelection(var_vtxTrack6[j],var_vertexChi2_6[j],var_vertexNdf6[j],distance_vertex_z,var_vtxZ6[j],var_vtxmumu6[j])
+                if(PassesVertexSelection(var_vtxTrack6[j],var_vertexChi2_6[j],var_vertexNdf6[j],distance_vertex_z,var_vtxZ6[j],var_vtxmumu6[j]))
                    {label_vertex=j;}
           }
         }
-
         if(label_vertex!=99
            && PassesMuonID(var_tracker6[pair1], muAng1, var_global6[pair1], var_tracker6[pair2], muAng2, var_global6[pair2], var_nhitsTrack6[pair1], var_nhitsTrack6[pair2])      
 	   && PassesDptCut(var_dpt6[0])  
@@ -2015,83 +2111,93 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
 
 	if(nTrackExclu<1 && PassesZDCVeto(var_zdcEmMinus6[0],var_zdcEmPlus6[0],var_zdcHadMinus6[0],var_zdcHadPlus6[0]))
 	{
-		nTower2->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]);
+		nTower6->Fill(nEB+nEE+nHB+nHE+nHFp+nHFm,fac_lumiBkg[bkgNum]*effcorrection6);
 	}
 
         if(nTrackExclu<1 
 		&& PassesTowerCountVeto(nEB,nEE,nHB,nHE,nHFp,nHFm)
-		&& PassesZDCVeto(var_zdcEmMinus6[0],var_zdcEmPlus6[0],var_zdcHadMinus6[0],var_zdcHadPlus6[0]))
+		&& PassesZDCVeto(var_zdcEmMinus6[0],var_zdcEmPlus6[0],var_zdcHadMinus6[0],var_zdcHadPlus6[0])
 	){
-          filter6Events_norm+=fac_lumiBkg[bkgNum];
-	cout<<"I added "<<fac_lumiBkg[bkgNum]<<" event from bkg #"<<bkgNum<<endl;
+          filter6Events_norm+=fac_lumiBkg[bkgNum]*effcorrection6;
 
-          hEB2->Fill(nEB,fac_lumiBkg[bkgNum]); 
-          hEE2->Fill(nEE,fac_lumiBkg[bkgNum]); 
-          hHB2->Fill(nHB,fac_lumiBkg[bkgNum]);
-          hHE2->Fill(nHE,fac_lumiBkg[bkgNum]);
-          hHFp2->Fill(nHFp,fac_lumiBkg[bkgNum]);
-          hHFm2->Fill(nHFm,fac_lumiBkg[bkgNum]);
-          nTrack2->Fill(nTrackExclu,fac_lumiBkg[bkgNum]);
+          hEB6->Fill(nEB,fac_lumiBkg[bkgNum]*effcorrection6); 
+          hEE6->Fill(nEE,fac_lumiBkg[bkgNum]*effcorrection6); 
+          hHB6->Fill(nHB,fac_lumiBkg[bkgNum]*effcorrection6);
+          hHE6->Fill(nHE,fac_lumiBkg[bkgNum]*effcorrection6);
+          hHFp6->Fill(nHFp,fac_lumiBkg[bkgNum]*effcorrection6);
+          hHFm6->Fill(nHFm,fac_lumiBkg[bkgNum]*effcorrection6);
+          nTrack6->Fill(nTrackExclu,fac_lumiBkg[bkgNum]*effcorrection6);
 
-          MuMuMass2->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);
-          MuMuMassUps2->Fill(var_mass6[0],fac_lumiBkg[bkgNum]);
-          MuMuMassJpsi2->Fill(var_mass6[0],fac_lumiBkg[bkgNum]); 
-          MuMudpt2->Fill(var_dpt6[0],fac_lumiBkg[bkgNum]);
-          MuMudphi2->Fill(var_dphi6[0]/pi,fac_lumiBkg[bkgNum]);
-          MuMudeta2->Fill(fabs(var_eta6[pair1]+var_eta6[pair2]),fac_lumiBkg[bkgNum]);
-          MuMuvtxXY2->Fill(sqrt(var_MuMuvtxX6[0]*var_MuMuvtxX6[0]+var_MuMuvtxY6[0]*var_MuMuvtxY6[0]),fac_lumiBkg[bkgNum]);
+          MuMuMass6->Fill(var_mass6[0],fac_lumiBkg[bkgNum]*effcorrection6);
+          MuMuMassUps6->Fill(var_mass6[0],fac_lumiBkg[bkgNum]*effcorrection6);
+          MuMuMassJpsi6->Fill(var_mass6[0],fac_lumiBkg[bkgNum]*effcorrection6); 
+          MuMudpt6->Fill(var_dpt6[0],fac_lumiBkg[bkgNum]*effcorrection6);
+          MuMudphi6->Fill(var_dphi6[0]/pi,fac_lumiBkg[bkgNum]*effcorrection6);
+          double symdphi6 = 1 - fabs(var_phi6[pair1]-var_phi6[pair2])/pi;
+          MuMuSymdphi6->Fill(symdphi6,fac_lumiBkg[bkgNum]*effcorrection6);
+          MuMudeta6->Fill(fabs(var_eta6[pair1]+var_eta6[pair2]),fac_lumiBkg[bkgNum]*effcorrection6);
+          MuMuvtxXY6->Fill(sqrt(var_MuMuvtxX6[0]*var_MuMuvtxX6[0]+var_MuMuvtxY6[0]*var_MuMuvtxY6[0]),fac_lumiBkg[bkgNum]*effcorrection6);
 
           TLorentzVector mu61, mu62, dimuon6;   
           mu61.SetPtEtaPhiM(var_pt6[pair1],var_eta6[pair1],var_phi6[pair1],0.1057);     
           mu62.SetPtEtaPhiM(var_pt6[pair2],var_eta6[pair2],var_phi6[pair2],0.1057);      
           dimuon6 = mu61 + mu62;   
-          Tdist2->Fill(dimuon6.Pt()*dimuon6.Pt(),fac_lumiBkg[bkgNum]);    
+          Tdist6->Fill(dimuon6.Pt()*dimuon6.Pt(),fac_lumiBkg[bkgNum]*effcorrection6);    
 
-          ZDCemminus2->Fill(var_zdcEmMinus6[0],fac_lumiBkg[bkgNum]);
-          ZDCemplus2->Fill(var_zdcEmPlus6[0],fac_lumiBkg[bkgNum]);
-          ZDChadminus2->Fill(var_zdcHadMinus6[0],fac_lumiBkg[bkgNum]);
-          ZDChadplus2->Fill(var_zdcHadPlus6[0],fac_lumiBkg[bkgNum]);
+          ZDCemminus6->Fill(var_zdcEmMinus6[0],fac_lumiBkg[bkgNum]*effcorrection6);
+          ZDCemplus6->Fill(var_zdcEmPlus6[0],fac_lumiBkg[bkgNum]*effcorrection6);
+          ZDChadminus6->Fill(var_zdcHadMinus6[0],fac_lumiBkg[bkgNum]*effcorrection6);
+          ZDChadplus6->Fill(var_zdcHadPlus6[0],fac_lumiBkg[bkgNum]*effcorrection6);
           for(Int_t l=0; l<var_nZDC6[0]; l++){
              if(var_zdcsection6[l]==1 && var_zdcE6[l]>ZDCemThresh){
-                ZDCtime2->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);
-                ZDCenergyEM2->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);
+                ZDCtime6->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]*effcorrection6);
+                ZDCenergyEM6->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]*effcorrection6);
              }
              if(var_zdcsection6[l]==2 && var_zdcE6[l]>ZDChadThresh){
-                ZDCtime2->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]);
-                ZDCenergyHAD2->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]);
+                ZDCtime6->Fill(var_zdcTime6[l],fac_lumiBkg[bkgNum]*effcorrection6);
+                ZDCenergyHAD6->Fill(var_zdcE6[l],fac_lumiBkg[bkgNum]*effcorrection6);
              }
           }
 
-          CastorSumE2->Fill(var_CastorRecHit6[0],fac_lumiBkg[bkgNum]);
+          CastorSumE6->Fill(var_CastorRecHit6[0],fac_lumiBkg[bkgNum]*effcorrection6);
           double eta_pair=0.5*TMath::Log((double)((var_p6[pair1]+var_p6[pair2]+var_pz6[pair1]+var_pz6[pair2])/(var_p6[pair1]+var_p6[pair2]-var_pz6[pair1]-var_pz6[pair2])));
+          double rap_pair=0.5*TMath::Log((double)((sqrt(var_p6[pair1]*var_p6[pair1]+0.1057*0.1057)+sqrt(var_p6[pair2]*var_p6[pair2]+0.1057*0.1057)+var_pz6[pair1]+var_pz6[pair2])/(sqrt(var_p6[pair1]*var_p6[pair1]+0.1057*0.1057)+sqrt(var_p6[pair2]*var_p6[pair2]+0.1057*0.1057)-var_pz6[pair1]-var_pz6[pair2])));
           double pt_pair =sqrt((var_px6[pair1]+var_px6[pair2])*(var_px6[pair1]+var_px6[pair2])+(var_py6[pair1]+var_py6[pair2])*(var_py6[pair1]+var_py6[pair2]));
-          etaPair6->Fill(eta_pair,fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);
-          pTPair6->Fill(pt_pair,fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);
-          phiSingle6->Fill(var_phi6[pair1],fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);           phiSingle6->Fill(var_phi6[pair2],fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);
-          etaSingle6->Fill(var_eta6[pair1],fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);           etaSingle6->Fill(var_eta6[pair2],fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);
-           pTSingle6->Fill(var_pt6[pair1],fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);             pTSingle6->Fill(var_pt6[pair2],fac_lumi6*var_eff6[pair1]*var_eff6[pair2]);
+          etaPair6->Fill(rap_pair,fac_lumiBkg[bkgNum]*effcorrection6);
+          pTPair6->Fill(pt_pair,fac_lumiBkg[bkgNum]*effcorrection6);
 
+          if(var_charge6[pair1]>0) {phiSingleP6->Fill(var_phi6[pair1],fac_lumiBkg[bkgNum]*effcorrection6);etaSingleP6->Fill(var_eta6[pair1],fac_lumiBkg[bkgNum]*effcorrection6);pTSingleP6->Fill(var_pt6[pair1],fac_lumiBkg[bkgNum]*effcorrection6);}
+          else {phiSingleM6->Fill(var_phi6[pair1],fac_lumiBkg[bkgNum]*effcorrection6);etaSingleM6->Fill(var_eta6[pair1],fac_lumiBkg[bkgNum]*effcorrection6);pTSingleM6->Fill(var_pt6[pair1],fac_lumiBkg[bkgNum]*effcorrection6);}
+          if(var_charge6[pair2]>0) {phiSingleP6->Fill(var_phi6[pair2],fac_lumiBkg[bkgNum]*effcorrection6);etaSingleP6->Fill(var_eta6[pair2],fac_lumiBkg[bkgNum]*effcorrection6);pTSingleP6->Fill(var_pt6[pair2],fac_lumiBkg[bkgNum]*effcorrection6);}
+          else {phiSingleM6->Fill(var_phi6[pair2],fac_lumiBkg[bkgNum]*effcorrection6);etaSingleM6->Fill(var_eta6[pair2],fac_lumiBkg[bkgNum]*effcorrection6);pTSingleM6->Fill(var_pt6[pair2],fac_lumiBkg[bkgNum]*effcorrection6);}
 
           } // if nTrack&nCalo if relevant
+
         }
   }
 cout<<"Inclusive :"<<endl;
 cout<<"  # Dimuon events = "<<filter6Events_norm<<endl;
-*/
+
 
 
 ci = TColor::GetColor("#ffff99");
 
-DrawOneHistogram(sMuMuMass,MuMuMass0,MuMuMass1,MuMuMass2,MuMuMass3,MuMuMass4,MuMuMass5,"#mu#mu mass [GeV]","Events/10 GeV","MuMuMass_3pt04pb_vertexsel_nodphidptcut.pdf");
-DrawOneHistogram(sMuMudeta,MuMudeta0,MuMudeta1,MuMudeta2,MuMudeta3,MuMudeta4,MuMudeta5,"#mu#mu 3D opening angle","Events/0.1","MuMu3dangle_3pt04pb_vertexsel_nodphidptcut.pdf"); 
-DrawOneHistogram(sMuMudpt,MuMudpt0,MuMudpt1,MuMudpt2,MuMudpt3,MuMudpt4,MuMudpt5,"#mu#mu |#Delta p_{T}| [GeV]","Events/0.1 GeV","MuMudpt_3pt04pb_vertexsel_nodphidptcut.pdf"); 
-DrawOneHistogram(sMuMudphi,MuMudphi0,MuMudphi1,MuMudphi2,MuMudphi3,MuMudphi4,MuMudphi5,"#mu#mu |#Delta #phi / #pi|","Events/0.02","MuMudphi_3pt04pb_vertexsel_nodphidptcut.pdf"); 
-DrawOneHistogram(sMuMuSymdphi,MuMuSymdphi0,MuMuSymdphi1,MuMuSymdphi2,MuMuSymdphi3,MuMuSymdphi4,MuMuSymdphi5,"#mu#mu |1 - #Delta #phi| / #pi","Events/0.02","MuMuSymdphi_3pt04pb_vertexsel_nodphidptcut.pdf");  
-DrawOneHistogram(setaPair,etaPair0,etaPair1,etaPair2,etaPair3,etaPair4,etaPair5,"#mu#mu #eta","Events/0.5","etaPair_3pt04pb_vertexsel_nodphidptcut.pdf");  
-DrawOneHistogram(spTPair,pTPair0,pTPair1,pTPair2,pTPair3,pTPair4,pTPair5,"#mu#mu p_{T} [GeV]","Events/0.5 GeV","pTPair_3pt04pb_vertexsel_nodphidptcut.pdf");   
-DrawOneHistogram(setaSingle,etaSingle0,etaSingle1,etaSingle2,etaSingle3,etaSingle4,etaSingle5,"#mu #eta","Events/0.5","etaSingle_3pt04pb_vertexsel_nodphidptcut.pdf");   
-DrawOneHistogram(spTSingle,pTSingle0,pTSingle1,pTSingle2,pTSingle3,pTSingle4,pTSingle5,"#mu p_{T} [GeV]","Events/0.5 GeV","pTSingle_3pt04pb_vertexsel_nodphidptcut.pdf");  
-DrawOneHistogram(sphiSingle,phiSingle0,phiSingle1,phiSingle2,phiSingle3,phiSingle4,phiSingle5,"#mu #phi","Events/0.5","phiSingle_3pt04pb_vertexsel_nodphidptcut.pdf");    
+DrawOneHistogramBis(sMuMuMass,MuMuMass0,MuMuMass1,MuMuMass2,MuMuMass3,MuMuMass4,MuMuMass5,MuMuMass6,"#mu#mu mass [GeV]","Events/0.5 GeV","MuMuMass_34pb-1_trackExclu5mm.png");
+DrawOneHistogramBis(sMuMudeta,MuMudeta0,MuMudeta1,MuMudeta2,MuMudeta3,MuMudeta4,MuMudeta5,MuMudeta6,"#mu#mu 3D opening angle","Events/0.1","MuMu3dangle_34pb-1_trackExclu5mm.png"); 
+DrawOneHistogramBis(sMuMudpt,MuMudpt0,MuMudpt1,MuMudpt2,MuMudpt3,MuMudpt4,MuMudpt5,MuMudpt6,"#mu#mu |#Delta p_{T}| [GeV]","Events/0.1 GeV","MuMudpt_34pb-1_trackExclu5mm.png"); 
+DrawOneHistogramBis(sMuMudphi,MuMudphi0,MuMudphi1,MuMudphi2,MuMudphi3,MuMudphi4,MuMudphi5,MuMudphi6,"#mu#mu |#Delta #phi / #pi|","Events/0.01","MuMudphi_34pb-1_trackExclu5mm.png"); 
+DrawOneHistogramBis(sMuMuSymdphi,MuMuSymdphi0,MuMuSymdphi1,MuMuSymdphi2,MuMuSymdphi3,MuMuSymdphi4,MuMuSymdphi5,MuMuSymdphi6,"1 - |#phi(#mu^{-})-#phi(#mu^{+})| / #pi","Events/0.01","MuMuSymdphi_34pb-1_trackExclu5mm.png");  
+DrawOneHistogramBis(setaPair,etaPair0,etaPair1,etaPair2,etaPair3,etaPair4,etaPair5,etaPair6,"#eta(#mu#mu)","Events/0.5","etaPair_34pb-1_trackExclu5mm.png");  
+DrawOneHistogramBis(spTPair,pTPair0,pTPair1,pTPair2,pTPair3,pTPair4,pTPair5,pTPair6,"p_{T}(#mu#mu) [GeV]","Events/0.5 GeV","pTPair_34pb-1_trackExclu5mm.png");   
+DrawOneHistogramBis(setaSingleP,etaSingleP0,etaSingleP1,etaSingleP2,etaSingleP3,etaSingleP4,etaSingleP5,etaSingleP6,"#eta(#mu^{+})","Events/0.5","etaSingleP_34pb-1_trackExclu5mm.png");  
+DrawOneHistogramBis(setaSingleM,etaSingleM0,etaSingleM1,etaSingleM2,etaSingleM3,etaSingleM4,etaSingleM5,etaSingleM6,"#eta(#mu^{-})","Events/0.5","etaSingleM_34pb-1_trackExclu5mm.png"); 
+DrawOneHistogramBis(spTSingleP,pTSingleP0,pTSingleP1,pTSingleP2,pTSingleP3,pTSingleP4,pTSingleP5,pTSingleP6,"p_{T}(#mu^{+}) [GeV]","Events/0.5 GeV","pTSingleP_34pb-1_trackExclu5mm.png");  
+DrawOneHistogramBis(spTSingleM,pTSingleM0,pTSingleM1,pTSingleM2,pTSingleM3,pTSingleM4,pTSingleM5,pTSingleM6,"p_{T}(#mu^{-}) [GeV]","Events/0.5 GeV","pTSingleM_34pb-1_trackExclu5mm.png");
+DrawOneHistogramBis(sphiSingleP,phiSingleP0,phiSingleP1,phiSingleP2,phiSingleP3,phiSingleP4,phiSingleP5,phiSingleP6,"#phi(#mu^{+})","Events/0.5","phiSingleP_34pb-1_trackExclu5mm.png");    
+DrawOneHistogramBis(sphiSingleM,phiSingleM0,phiSingleM1,phiSingleM2,phiSingleM3,phiSingleM4,phiSingleM5,phiSingleM6,"#phi(#mu^{-})","Events/0.5","phiSingleM_34pb-1_trackExclu5mm.png");
+//DrawOneHistogram(sMuMuMassUps,MuMuMassUps0,MuMuMassUps1,MuMuMassUps2,MuMuMassUps3,MuMuMassUps4,MuMuMassUps5,"#mu#mu mass","Events/0.1 GeV","MuMuMassUps_34pb-1_trackExclu5mm.png");
+DrawOneHistogramBis(sMuMuMassJpsi,MuMuMassJpsi0,MuMuMassJpsi1,MuMuMassJpsi2,MuMuMassJpsi3,MuMuMassJpsi4,MuMuMassJpsi5,MuMuMassJpsi6,"#mu#mu mass","Events/0.4","MuMuMassJpsi_34pb-1_trackExclu5mm.png");
+//DrawOneHistogram(sTrack,nTrack0,nTrack1,nTrack2,nTrack3,nTrack4,nTrack5,"# track (|d|<5mm)","Events/0.1 GeV","nTrack_34pb-1_trackExclu5mm.png");
 
 
 // Save into histo
