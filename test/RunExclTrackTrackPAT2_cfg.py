@@ -10,7 +10,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-                                '/store/data/Run2010A/ZeroBias/RECO/May27thReReco_v1/0174/FE0369EF-956A-DF11-ADD6-00E0817917F5.root'
+                                'rfio:/castor/cern.ch/user/j/jjhollar/ExclPiPi/STARLIGHT_ExclusiveRhoToPiPi_RAW2DIGI_L1Reco_RECO_VALIDATION.root'
     )
                             )
 
@@ -20,7 +20,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 # Load configuration stuff
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('GR09_R_35X_V2::All')
+process.GlobalTag.globaltag = cms.string('GR_R_38X_V9::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 

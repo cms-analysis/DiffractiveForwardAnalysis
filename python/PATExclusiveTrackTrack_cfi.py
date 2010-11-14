@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-excltrktrkanalysis = cms.EDFilter("ExclusiveTrackTrack",
+excltrktrkanalysis = cms.EDAnalyzer("ExclusiveTrackTrack",
     outfilename = cms.untracked.string('tracktrack.pat.root'),
     CaloTowerLabel = cms.InputTag("towerMaker"),
     CastorTowerLabel = cms.InputTag("CastorTowerReco"),
