@@ -148,8 +148,9 @@ void DileptonFitter()
   setTDRStyle();
   //  using namespace RooFit;
 
-  TString flatfile = "fitfilesplusb.txt";
-  
+  //  TString flatfile = "fitfilesplusb.txt";
+  TString flatfile = "upsilondata.txt";
+
   RooRealVar* mMuMu = new RooRealVar("mMuMu","Dimuon mass",8.0,12.0,"GeV");
   RooRealVar* mMuMuFull = new RooRealVar("mMuMuFull","Dimuon mass",6.0,50.0,"GeV");
   
@@ -158,12 +159,16 @@ void DileptonFitter()
 
   RooRealVar* ups1smdimucoef1 = new RooRealVar("Upsilon(1S) mass","Upsilon(1S) mass",9.6,9.0,10.0);
   RooRealVar* ups1smdimucoef2 = new RooRealVar("Upsilon(1S) width","Upsilon(1S) width",1.0,0.0,3.0);
-  RooRealVar* ups2smdimucoef1 = new RooRealVar("Upsilon(2S) mass","Upsilin(2S) mass",10.0,9.7,10.3);
-  RooRealVar* ups2smdimucoef2 = new RooRealVar("Upsilon(2S) width","Upsilon(2S) width",1.0,0.0,3.0);
-  RooRealVar* ups3smdimucoef1 = new RooRealVar("Upsilon(3S) mass","Upsilon(3S) mass",10.4,10.2,10.7);
-  RooRealVar* ups3smdimucoef2 = new RooRealVar("Upsilon(3S) width","Upsilon(3S) width",1.0,0.0,3.0);
+  //  RooRealVar* ups2smdimucoef1 = new RooRealVar("Upsilon(2S) mass","Upsilin(2S) mass",10.0,9.7,10.3);
+  //  RooRealVar* ups2smdimucoef2 = new RooRealVar("Upsilon(2S) width","Upsilon(2S) width",1.0,0.0,3.0);
+  //  RooRealVar* ups3smdimucoef1 = new RooRealVar("Upsilon(3S) mass","Upsilon(3S) mass",10.4,10.2,10.7);
+  //  RooRealVar* ups3smdimucoef2 = new RooRealVar("Upsilon(3S) width","Upsilon(3S) width",1.0,0.0,3.0);
+  RooRealVar* ups2smdimucoef1 = new RooRealVar("Upsilon(2S) mass","Upsilin(2S) mass",10.0207);
+  RooRealVar* ups2smdimucoef2 = new RooRealVar("Upsilon(2S) width","Upsilon(2S) width",0.0914582);
+  RooRealVar* ups3smdimucoef1 = new RooRealVar("Upsilon(3S) mass","Upsilon(3S) mass",10.3498);
+  RooRealVar* ups3smdimucoef2 = new RooRealVar("Upsilon(3S) width","Upsilon(3S) width",0.117446);
 
-
+  //  RooRealVar* nmm = new RooRealVar("N(two-photon events)","number of signal events",0);
   RooRealVar* nmm = new RooRealVar("N(two-photon events)","number of signal events",1000.0,0.0,20000.0); 
   RooRealVar* nu1s = new RooRealVar("N(Upsilon(1S))","number of Upsilon 1S",50.0,0.0,20000.0); 
   RooRealVar* nu2s = new RooRealVar("N(Upsilon(2S))","number of Upsilon 2S",100.0,0.0,20000.0);
@@ -180,10 +185,11 @@ void DileptonFitter()
   datatmp = RooDataSet::read(flatfile,RooArgList(*mMuMu));
   datatmpfull = RooDataSet::read(flatfile,RooArgList(*mMuMuFull));
 
-  RooFitResult* fitres = 0;
+  //  RooFitResult* fitres = 0;
   //  fitres = totshape->fitTo(*datatmp,"er","","8,12");
-  fitres = totshape->fitTo(*datatmp,"er");
-  fitres->Print();
+  //  fitres = totshape->fitTo(*datatmp,"er");
+  //  fitres->Print();
+  RooFitResult *fitres = totshape->fitTo(*datatmp,RooFit::FitOptions("MHTER")); 
 
   TCanvas *c = new TCanvas("Dilepton signal","Dilepton signal",800,400);
   //  c->Divide(2,1);
@@ -191,14 +197,15 @@ void DileptonFitter()
   RooPlot* xframe = mMuMu->frame() ;
   //  RooPlot* yframe = mMuMuFull->frame();
   //  c->cd(1);
-  datatmp->plotOn(xframe);
+  xframe->SetMaximum(40);
+  datatmp->plotOn(xframe,RooFit::Binning(30));
   //  totshape->plotOn(xframe);
   //  mm-plotOn(xframe,LineColor(kRed),LineStyle(kDashed));
   //  mm->plotOn(xframe);
-  totshape->plotOn(xframe,Components(*ups1),LineColor(kRed),LineStyle(kDashed));
-  totshape->plotOn(xframe,Components(*ups2),LineColor(kRed),LineStyle(kDashed));
-  totshape->plotOn(xframe,Components(*ups3),LineColor(kRed),LineStyle(kDashed));
-  totshape->plotOn(xframe,Components(*mm),LineColor(kBlue),LineStyle(kDashed));
+  totshape->plotOn(xframe,RooFit::Components(*ups1),RooFit::LineColor(kRed),RooFit::LineStyle(kDashed));
+  totshape->plotOn(xframe,RooFit::Components(*ups2),RooFit::LineColor(kRed),RooFit::LineStyle(kDashed));
+  totshape->plotOn(xframe,RooFit::Components(*ups3),RooFit::LineColor(kRed),RooFit::LineStyle(kDashed));
+  totshape->plotOn(xframe,RooFit::Components(*mm),RooFit::LineColor(kBlue),RooFit::LineStyle(kDashed));
   totshape->plotOn(xframe);
   totshape->paramOn(xframe);
 

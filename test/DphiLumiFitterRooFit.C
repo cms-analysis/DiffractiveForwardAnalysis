@@ -154,39 +154,36 @@ void DphiLumiFitterRooFit()
 {
   setTDRStyle();
 
-  //  TString flatfile = "lumifitfilesig.21X.txt";
-  TString flatfile = "lumifitfilesplusb.21X.txt";
-  //  TString flatfile = "lumifitfilebkg.21X.txt";
-  //  TString flatfile = "lumifitfileantizdcbkg.21X.txt";
+  //  TString flatfile = "inelastic.txt";
+  //  TString flatfile = "el-el.txt";
+  //  TString flatfile = "lumifitdata_34pb.txt";
+  TString flatfile = "lumifitdata_34pb_pt3gev.txt";
 
   /* Variables to read from the input file: dpT, dphi, and an integer saying which type of event this is (for plotting) */
-  RooRealVar* dpt = new RooRealVar("#Delta p_{T} (#mu #mu)","#Delta p_{T}",-1.5,1.5,"GeV");
-  RooRealVar* dphi = new RooRealVar("#Delta #phi (#mu #mu)","#Delta #phi (#mu #mu) / #pi",-0.05,0.05,"");
+  RooRealVar* dpt = new RooRealVar("#Delta p_{T} (#mu #mu)","#Delta p_{T}",-0.5,0.5,"GeV");
+  RooRealVar* dphi = new RooRealVar("#Delta #phi (#mu #mu)","1 - |#Delta #phi (#mu #mu)| / #pi",-0.1,0.1,"");
 
-  RooRealVar* eventtype = new RooRealVar("eventtype","Event class",0,4,"class");
+  RooRealVar* eventtype = new RooRealVar("eventtype","Event class",0,5,"class");
   RooRealVar* signaltype = new RooRealVar("signaltype","Elastic signal class",1,1,"class");
   RooRealVar* bkgtype = new RooRealVar("bkgtype","Background class",2,4,"class");
+  RooRealVar* datatype = new RooRealVar("datatype","Data",5,5,"class");
 
   /* Construct the signal PDF as 2 Gaussians with mean zero and floating widths */
   RooRealVar* elmdimucoef1 = new RooRealVar("dphi peak","dphi peak",0.0);
-  RooRealVar* elmdimucoef2 = new RooRealVar("#Delta #phi width 1","dphi width",0.005,0.0002,0.5);
-  RooRealVar* elmdimucoef3 = new RooRealVar("#Delta #phi width 2","dphi width2",0.026,0.005,0.5);
-  //  RooGaussian* elmm = new RooGaussian("elastics1","elastics1", *dphi,*elmdimucoef1,*elmdimucoef2);
-  //  RooGaussian* elmm2 = new RooGaussian("elastics2","elastics2",*dphi,*elmdimucoef1,*elmdimucoef3);
+  RooRealVar* elmdimucoef2 = new RooRealVar("#Delta #phi width 1","dphi width",0.00480892);
+  //  RooRealVar* elmdimucoef2 = new RooRealVar("#Delta #phi width 1","dphi width",0.005,0.0002,0.5);
   RooBreitWigner* elmm = new RooBreitWigner("elastics1","elastics1", *dphi,*elmdimucoef1,*elmdimucoef2);
-  RooBreitWigner* elmm2 = new RooBreitWigner("elastics2","elastics2",*dphi,*elmdimucoef1,*elmdimucoef3);
   RooRealVar* nemm = new RooRealVar("N(elastic #gamma #gamma #rightarrow #mu #mu)","number of signal",700.0,0.0,20000.0);
   //  RooRealVar* nemm = new RooRealVar("N(elastic #gamma #gamma #rightarrow #mu #mu)","number of signal",0);
-  RooAddPdf *totsig = new RooAddPdf("totsig","total signal PDF",RooArgList(*elmm,*elmm2),RooArgList(*nemm,*nemm));
+  //  RooAddPdf *totsig = new RooAddPdf("totsig","total signal PDF",RooArgList(*elmm,*elmm2),RooArgList(*nemm,*nemm));
+  RooAddPdf *totsig = new RooAddPdf("totsig","total signal PDF",RooArgList(*elmm),RooArgList(*nemm));
 
   /* Construct the background PDF as 1 Gaussian with mean zero and floating width*/
   RooRealVar* inelmdimucoef1 = new RooRealVar("Two-photon p0","Two-photon p0",0.0);
-  RooRealVar* inelmdimucoef2 = new RooRealVar("background #Delta #phi width ","inelastic dphi width",0.053);
-  //  RooRealVar* inelmdimucoef2 = new RooRealVar("background #Delta #phi width ","inelastic dphi width",0.1,0.01,0.5);
-  RooRealVar* inelmdimucoef3 = new RooRealVar("background #Delta #phi slope ","inelastic dphi slope",0.1,-5.0,5.0);
-  RooRealVar* ninmm = new RooRealVar("N(background)","number of bkg",100.0,50.0,20000.0);
+  RooRealVar* inelmdimucoef2 = new RooRealVar("background #Delta #phi width ","inelastic dphi width",0.0558694);
+  //  RooRealVar* inelmdimucoef2 = new RooRealVar("background #Delta #phi width ","inelastic dphi width",0.053,0.01,0.1);
+  RooRealVar* ninmm = new RooRealVar("N(p-dissociation)","number of bkg",100.0,50.0,20000.0);
   //  RooRealVar* ninmm = new RooRealVar("N(background)","number of bkg",0.0);
-  //  RooGaussian *inelmm = new RooGaussian("inelastics","inelastics",*dphi,*inelmdimucoef1,*inelmdimucoef2);
   RooBreitWigner *inelmm = new RooBreitWigner("inelastics","inelastics",*dphi,*inelmdimucoef1,*inelmdimucoef2);
 
   /* Alternative - use polynomial shape for the background */
@@ -197,7 +194,7 @@ void DphiLumiFitterRooFit()
 
   /* Now read the dataset from the text file */
   RooDataSet *datatmp = 0;
-  datatmp = RooDataSet::read(flatfile,RooArgList(*dpt,*dphi,*eventtype));
+  datatmp = RooDataSet::read(flatfile,RooArgList(*dphi,*dpt,*eventtype));
   Int_t nentries = datatmp->numEntries();
 
   /* Now record the true number of elastic signal events being fit */
@@ -209,16 +206,19 @@ void DphiLumiFitterRooFit()
   databkg = RooDataSet::read(flatfile,RooArgList(*dpt,*dphi,*bkgtype));
 
   /* Now do the fit with the "er" option (unbinned extended maximum likelihood fit)!*/
-  RooFitResult* fitres = 0;
-  fitres = totshape->fitTo(*datatmp,"er");
-  fitres->Print();
+  //  RooFitResult* fitres = 0;
+  //  fitres = totshape->fitTo(*datatmp,"er");
+  RooFitResult *fitres = totshape->fitTo(*datatmp,RooFit::FitOptions("MHTER"));
+  //  fitres->Print();
 
   /* Now draw the data points and PDFs for signal, background, and total */
   TCanvas *c = new TCanvas("Dilepton signal","Dilepton signal",800,400);
   c->cd();
   RooPlot* xframe = dphi->frame() ;
   xframe->SetTitle(0);
-  datatmp->plotOn(xframe);
+  xframe->SetMaximum(50.0);
+  //  datatmp->plotOn(xframe,RooFit::Binning(100));
+  datatmp->plotOn(xframe,RooFit::Binning(100));
 
   totshape->plotOn(xframe,RooFit::Components(*totsig),RooFit::LineColor(kRed),RooFit::LineStyle(kDashed));
   totshape->plotOn(xframe,RooFit::Components(*inelmm),RooFit::LineColor(kBlue),RooFit::LineStyle(kDashed));
@@ -238,16 +238,18 @@ void DphiLumiFitterRooFit()
    */
   if(1) 
     {
-      RooMCStudy *toymc = new RooMCStudy(*totshape,*totshape,*dphi,"","er");
-      toymc->generateAndFit(100);
+      RooMCStudy *toymc = new RooMCStudy(*totshape,RooArgSet(*dphi),RooFit::Binned(kTRUE),RooFit::FitModel(*totshape),RooFit::Silence(),RooFit::Extended(),RooFit::FitOptions(RooFit::Extended()));
+
+      //      RooMCStudy *toymc = new RooMCStudy(*totshape,*totshape,*dphi,"","er");
+      toymc->generateAndFit(1000);
       
       TCanvas *c2 = new TCanvas("c2","c2");
       c2->Divide(3,1);
       c2->cd(1);
-      RooPlot* pullframe = toymc->plotPull(*nemm,-3.0,3.0,25,kTRUE);
+      RooPlot* pullframe = toymc->plotPull(*nemm,-5.0,5.0,100,kTRUE);
       pullframe->Draw();
       c2->cd(2);
-      RooPlot* nsigframe = nemm->frame(0,1000);
+      RooPlot* nsigframe = nemm->frame(0,200);
       toymc->plotParamOn(nsigframe);
       nsigframe->Draw();
       c2->cd(3);
