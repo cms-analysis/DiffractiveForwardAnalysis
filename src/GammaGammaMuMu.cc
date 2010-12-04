@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.86 2010/11/03 10:37:24 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.87 2010/11/05 14:36:16 jjhollar Exp $
 //
 //
 
@@ -972,6 +972,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
     int track_match_muon=0;
     PrimVertexCand_mumuTwoTracks[nPrimVertexCand] = 0;
+
+    // Uncomment for keeping background events
+    //    if((PrimVertexCand_tracks[nPrimVertexCand] >= 2) && found_pair)
     if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && found_pair) 
       {
         for (reco::Vertex::trackRef_iterator vertex_curTrack = vertex_i->tracks_begin(); vertex_curTrack!=vertex_i->tracks_end(); vertex_curTrack++) {
@@ -982,6 +985,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	}
     }
     
+    // Uncomment for keeping background events
+    //    if((PrimVertexCand_tracks[nPrimVertexCand] >= 2) && found_pair && track_match_muon>=2)
     if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && found_pair && track_match_muon==2)
     {
 	PrimVertexCand_mumuTwoTracks[nPrimVertexCand] = 1;
@@ -1538,8 +1543,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   // Check for di-objects with valid vertex
   if(nMuonCand < 2 || !(found_pair)) {passed = false;}
+
+  // Comment for keeping background events
   if(!(found_mumuvertex)) {passed = false;}
-  if(ClosestHighPurityExtraTrack_vtxdxyz < minmumuvtxd) {passed = false;}
+  //  if(ClosestHighPurityExtraTrack_vtxdxyz < minmumuvtxd) {passed = false;}
 
   // "Exclusivity" cuts
   if(passed == true){
