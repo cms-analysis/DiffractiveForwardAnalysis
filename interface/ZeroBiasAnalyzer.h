@@ -14,6 +14,7 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h" 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"  
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h" 
 #include "FWCore/Common/interface/TriggerNames.h" 
 
 #include <TFile.h>
@@ -29,6 +30,7 @@ class ZeroBiasAnalyzer : public edm::EDAnalyzer {
   
  private:
   virtual void beginJob();
+  virtual void beginRun(edm::Run const &, edm::EventSetup const&); 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -39,6 +41,7 @@ class ZeroBiasAnalyzer : public edm::EDAnalyzer {
   edm::InputTag recCastorTowerLabel;
   edm::InputTag recZDCRecHitsLabel;
   edm::InputTag recCastorRecHitsLabel;
+  std::string hltMenuLabel; 
 
   std::string rootfilename;
 
@@ -131,8 +134,14 @@ class ZeroBiasAnalyzer : public edm::EDAnalyzer {
   int EventNum; 
   double AvgInstDelLumi; 
   double BunchInstLumi[3];
+  HLTConfigProvider hltConfig_;   
 
   int L1TechnicalTriggers[128];
+  int L1TechnicalTriggerPrescales[128];
+  int HLT_ZeroBias;
+  int HLT_ZeroBias_Prescl;
+
+  L1GtUtils m_l1GtUtils; 
 
   edm::TriggerNames trigNames ;
 };

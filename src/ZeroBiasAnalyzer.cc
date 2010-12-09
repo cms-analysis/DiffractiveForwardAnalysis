@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ZeroBiasAnalyzer.cc,v 1.9 2010/11/05 14:36:16 jjhollar Exp $
+// $Id: ZeroBiasAnalyzer.cc,v 1.10 2010/11/05 15:09:25 jjhollar Exp $
 //
 //
 
@@ -69,6 +69,9 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h" 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h" 
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h" 
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h" 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
@@ -132,6 +135,7 @@ ZeroBiasAnalyzer::ZeroBiasAnalyzer(const edm::ParameterSet& pset)
   recCastorTowerLabel = pset.getParameter<edm::InputTag>("CastorTowerLabel");
   recCastorRecHitsLabel = pset.getParameter<edm::InputTag>("CastorRecHitsLabel");
   recZDCRecHitsLabel = pset.getParameter<edm::InputTag>("ZDCRecHitsLabel");
+  hltMenuLabel       = pset.getParameter<std::string>("HLTMenuLabel"); 
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
 
@@ -151,6 +155,9 @@ ZeroBiasAnalyzer::ZeroBiasAnalyzer(const edm::ParameterSet& pset)
   thetree->Branch("BunchInstLumi",&BunchInstLumi,"BunchInstLumi[3]/D"); 
 
   thetree->Branch("L1TechnicalTriggers",L1TechnicalTriggers,"L1TechnicalTriggers[128]/I");
+  thetree->Branch("L1TechnicalTriggerPrescales",L1TechnicalTriggerPrescales,"L1TechnicalTriggerPrescales[128]/I");
+  thetree->Branch("HLT_ZeroBias_Prescl",&HLT_ZeroBias_Prescl,"HLT_ZeroBias_Prescl/I");  
+  thetree->Branch("HLT_ZeroBias",&HLT_ZeroBias,"HLT_ZeroBias/I");   
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
   thetree->Branch("nQualityTrackCand",&nQualityTrackCand,"nQualityTrackCand/I");
@@ -355,7 +362,30 @@ ZeroBiasAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iSetup
   else
     cout << "\tLumi Details invalid!!!" << endl;
 
+  // Get the trigger information from the event 
+  edm::Handle<edm::TriggerResults> hltResults ;  
+  event.getByLabel(InputTag("TriggerResults","",hltMenuLabel),hltResults) ;  
+  //  trigNames.init(*hltResults) ; 
+  const edm::TriggerNames & trigNames = event.triggerNames(*hltResults); 
+ 
+  for (unsigned int i=0; i<trigNames.size(); i++)   
+    {  
+      if ( trigNames.triggerNames().at(i) == "HLT_ZeroBias" )        
+	HLT_ZeroBias_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_ZeroBias");
+      if ( hltResults->accept(i) )   
+	{HLT_ZeroBias = 1;} 
+      else 
+	HLT_ZeroBias = 0; 
+    }   
+
+
   // L1 technical triggers
+  m_l1GtUtils.retrieveL1EventSetup(iSetup); 
+  edm::ESHandle<L1GtTriggerMenu> menuRcd; 
+  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ; 
+  const L1GtTriggerMenu* menu = menuRcd.product(); 
+  int iErrorCode = -1; 
+
   edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
   edm::Handle<L1GlobalTriggerObjectMapRecord> L1GTOMRec;
   event.getByLabel(InputTag("gtDigis::RECO"), L1GTRR);
@@ -367,6 +397,16 @@ ZeroBiasAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iSetup
     for (unsigned int iBit = 0; iBit < numberTechnicalTriggerBits; ++iBit) {
       int techTrigger = (int) technicalTriggerWordBeforeMask.at(iBit);
       L1TechnicalTriggers[iBit] = techTrigger;
+    }
+
+    int bitcount = 0;
+
+    for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end(); ++techTrig) { 
+      std::string l1triggername = (techTrig->second).algoName(); 
+      int l1techPrescl = m_l1GtUtils.prescaleFactor(event, l1triggername, iErrorCode); 
+ 
+      L1TechnicalTriggerPrescales[bitcount] = l1techPrescl;
+      bitcount++;
     }
   }
 
@@ -653,6 +693,41 @@ void
 ZeroBiasAnalyzer::beginJob()
 {
 }
+
+void 
+ZeroBiasAnalyzer::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup) 
+{ 
+  using namespace std; 
+  using namespace edm; 
+ 
+  bool changed(true); 
+  if (hltConfig_.init(iRun,iSetup,hltMenuLabel,changed)) { 
+    if (changed) { 
+      // check if trigger name in (new) config 
+      std::string   triggerName_ = "HLT_DoubleMu0"; 
+      if (triggerName_!="@") { // "@" means: analyze all triggers in config 
+        const unsigned int n(hltConfig_.size()); 
+        const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName_)); 
+        if (triggerIndex>=n) { 
+          cout << "ZeroBiasAnalyzer::analyze:" 
+               << " TriggerName " << triggerName_  
+               << " not available in (new) config!" << endl; 
+          cout << "Available TriggerNames are: " << endl; 
+	  //        hltConfig_.dump("Triggers"); 
+        } 
+      } 
+      //      hltConfig_.dump("Streams"); 
+      //      hltConfig_.dump("Datasets"); 
+      //      hltConfig_.dump("PrescaleTable"); 
+      //      hltConfig_.dump("ProcessPSet"); 
+    } 
+  } else { 
+    cout << "ZeroBiasAnalyzer::beginRun:" 
+         << " config extraction failure with process name " 
+         << hltMenuLabel << endl; 
+  } 
+} 
+
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

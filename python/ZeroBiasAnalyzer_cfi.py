@@ -6,7 +6,8 @@ zerobiasanalysis = cms.EDAnalyzer("ZeroBiasAnalyzer",
     CastorTowerLabel = cms.InputTag("CastorTowerReco"),
     CastorRecHitsLabel = cms.InputTag("castorreco"),
     ZDCRecHitsLabel = cms.InputTag("zdcreco"),                                  
-    RecoTrackLabel = cms.InputTag("generalTracks")
+    RecoTrackLabel = cms.InputTag("generalTracks"),
+    HLTMenuLabel = cms.string("HLT")
 )
 
 
