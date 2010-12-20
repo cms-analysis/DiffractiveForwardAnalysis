@@ -39,6 +39,7 @@ class ExclusiveTrackTrack : public edm::EDAnalyzer {
   double drisocalo;
   std::string rootfilename;
   bool fillallmc;
+  bool requiretwotracks;
 
   TFile *thefile;
   TTree *thetree;

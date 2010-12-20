@@ -8,7 +8,8 @@ excltrktrkanalysis = cms.EDAnalyzer("ExclusiveTrackTrack",
     ZDCRecHitsLabel = cms.InputTag("zdcreco"),                                  
     RecoTrackLabel = cms.InputTag("generalTracks"),
     CaloTowerdR = cms.double(0.3),
-    FillAllMCParticles = cms.bool(False)                                   
+    FillAllMCParticles = cms.bool(False),
+    RequireTwoTracks = cms.bool(True)
 )
 
 

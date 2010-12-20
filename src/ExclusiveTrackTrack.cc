@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: ExclusiveTrackTrack.cc,v 1.13 2010/09/02 06:51:35 jjhollar Exp $
+// $Id: ExclusiveTrackTrack.cc,v 1.14 2010/09/12 13:55:03 jjhollar Exp $
 //
 //
 
@@ -135,6 +135,7 @@ ExclusiveTrackTrack::ExclusiveTrackTrack(const edm::ParameterSet& pset)
   recZDCRecHitsLabel = pset.getParameter<edm::InputTag>("ZDCRecHitsLabel");
   drisocalo          = pset.getParameter<double>("CaloTowerdR");
   fillallmc          = pset.getParameter<bool>("FillAllMCParticles"); 
+  requiretwotracks   = pset.getParameter<bool>("RequireTwoTracks");
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
 
@@ -482,7 +483,7 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
   event.getByLabel("dedxHarmonic2", dEdxTrackHandle);
   const edm::ValueMap<reco::DeDxData> dEdxTrack = *dEdxTrackHandle.product();
 
-  if(tracks->size() == 2)
+  if((tracks->size() == 2) || (requiretwotracks == false))
     {
       for ( track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++track )
 	{
@@ -513,7 +514,7 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
 
       // Calculate invariant mass and delta-phi
       //      if(TrackCand_charge[0]*TrackCand_charge[1]<0)
-      if(1)
+      if(nTrackCand == 2)
 	{
 	  TLorentzVector pi1, pi2, rho;
 	  pi1.SetXYZM(TrackCand_px[0], TrackCand_py[0], TrackCand_pz[0], 0.1396);
@@ -579,7 +580,7 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
   double totalecalo = -1.0; 
 
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
-  if(nTrackCand == 2)
+     if((nTrackCand == 2) || (requiretwotracks == false))
     {
       for (calo = towers->begin(); calo != towers->end(); ++calo )
 	{
@@ -805,9 +806,9 @@ ExclusiveTrackTrack::analyze(const edm::Event& event, const edm::EventSetup& iSe
       SumCastorFwd_e = totalecastorfwd;
       SumCastorBwd_e = totalecastorbwd;
     }
-
-  // Check for di-objects
-  if(nTrackCand != 2)
+     
+     // Check for di-objects
+  if((nTrackCand != 2) && (requiretwotracks == true))
     passed = false;
   else
     {
