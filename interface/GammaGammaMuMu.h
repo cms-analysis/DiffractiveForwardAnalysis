@@ -44,6 +44,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   MuonPerformanceReadback *effreader; 
   std::vector<std::string> algonames; 
   bool readmcEffCorrections; 
+  bool readmcEffCorrectionsByCharge;
 
   edm::InputTag recTrackLabel;
   edm::InputTag recVertexLabel;

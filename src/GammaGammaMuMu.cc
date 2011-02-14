@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.87 2010/11/05 14:36:16 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.88 2010/12/04 17:29:07 jjhollar Exp $
 //
 //
 
@@ -168,6 +168,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   minmumuvtxd        = pset.getParameter<double>("MinMuMuVertexSeparation"); 
 
   readmcEffCorrections = pset.getParameter<bool>("ReadMCEffCorrections");
+  readmcEffCorrectionsByCharge = pset.getParameter<bool>("ReadMCEffCorrectionsByCharge"); 
   algonames          =  pset.getParameter< std::vector<std::string> >("AlgoNames"); 
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
@@ -850,11 +851,31 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  
 	      if(muoneff > -1 && (effname.find("_Data_") != std::string::npos))
 		{
-		  totalmuoneff *= muoneff;
+		  if(readmcEffCorrectionsByCharge == false)
+		    {
+		      totalmuoneff *= muoneff; 
+		    }
+		  else
+		    {
+		      if((MuonCand_charge[nMuonCand] > 0) && ((effname.find("_CaloP_") != std::string::npos) || (effname.find("_EXCLP_") != std::string::npos)))
+			totalmuoneff *= muoneff;
+		      if((MuonCand_charge[nMuonCand] < 0) && ((effname.find("_CaloM_") != std::string::npos) || (effname.find("_EXCLM_") != std::string::npos))) 
+			totalmuoneff *= muoneff; 
+		    }
 		}
 	      if(muoneff > -1 && (effname.find("_MC_") != std::string::npos))
 		{
-		  totalmuonmceff *= muoneff;
+		  if(readmcEffCorrectionsByCharge == false) 
+		    {
+		      totalmuonmceff *= muoneff; 
+		    }
+		  else
+		    {
+		      if((MuonCand_charge[nMuonCand] > 0) && ((effname.find("_CaloP_") != std::string::npos) || (effname.find("_EXCLP_") != std::string::npos))) 
+			totalmuonmceff *= muoneff; 
+		      else if((MuonCand_charge[nMuonCand] < 0) && ((effname.find("_CaloM_") != std::string::npos) || (effname.find("_EXCLM_") != std::string::npos)))  
+			totalmuonmceff *= muoneff;  
+		    }
 		}
 	    }
 	  else
