@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.89 2011/02/14 15:00:41 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.90 2011/02/15 10:24:14 jjhollar Exp $
 //
 //
 
@@ -865,9 +865,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		    }
 		  else
 		    {
-		      if((MuonCand_charge[nMuonCand] > 0) && ((effname.find("_CaloP_") != std::string::npos) || (effname.find("_EXCLP_") != std::string::npos)))
+		      if((MuonCand_charge[nMuonCand] > 0) && ((effname.find("_ProbeP_") != std::string::npos)))
 			totalmuoneff *= muoneff;
-		      if((MuonCand_charge[nMuonCand] < 0) && ((effname.find("_CaloM_") != std::string::npos) || (effname.find("_EXCLM_") != std::string::npos))) 
+		      if((MuonCand_charge[nMuonCand] < 0) && ((effname.find("_ProbeM_") != std::string::npos))) 
 			totalmuoneff *= muoneff; 
 		    }
 		}
@@ -879,9 +879,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		    }
 		  else
 		    {
-		      if((MuonCand_charge[nMuonCand] > 0) && ((effname.find("_CaloP_") != std::string::npos) || (effname.find("_EXCLP_") != std::string::npos))) 
+		      if((MuonCand_charge[nMuonCand] > 0) && ((effname.find("_ProbeP_") != std::string::npos))) 
 			totalmuonmceff *= muoneff; 
-		      else if((MuonCand_charge[nMuonCand] < 0) && ((effname.find("_CaloM_") != std::string::npos) || (effname.find("_EXCLM_") != std::string::npos)))  
+		      else if((MuonCand_charge[nMuonCand] < 0) && ((effname.find("_ProbeM_") != std::string::npos)))  
 			totalmuonmceff *= muoneff;  
 		    }
 		}
@@ -1609,6 +1609,9 @@ GammaGammaMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
   iDesc.add<std::string>("HLTMenuLabel", ("HLT8E29"))->setComment("HLT AOD trigger summary label");
   iDesc.add< vector<std::string> >("AlgoNames")->setComment("Tag-and-probe algorithm names");
   iDesc.add<bool>("ReadMCEffCorrections", false)->setComment("Flag to read Tag-&-Probe eff. corrections when running on MC"); 
+  iDesc.add<bool>("ReadMCEffCorrectionsByCharge", false)->setComment("Flag to read Tag-&-Probe eff. corrections vs. Charge when running on MC");
+  iDesc.add<bool>("ReadmcEffCorrectionsBySignedEta", false)->setComment("Flag to read Tag-&-Probe eff. corrections vs. signed eta when running on MC");
+
   iDesc.add<double>("MinMuMuVertexSeparation",0.1)->setComment("Minimum distance in cm between the dimuon vertex and any other track");
 
   descriptions.add("ParameterDescriptionsForGammaGammaMuMu", iDesc);
