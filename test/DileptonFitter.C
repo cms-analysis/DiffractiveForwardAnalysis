@@ -148,8 +148,8 @@ void DileptonFitter()
   setTDRStyle();
   //  using namespace RooFit;
 
-  //  TString flatfile = "fitfilesplusb.txt";
   TString flatfile = "upsilondata.txt";
+  //  TString flatfile = "upsilonmc.txt";
 
   RooRealVar* mMuMu = new RooRealVar("mMuMu","Dimuon mass",8.0,12.0,"GeV");
   RooRealVar* mMuMuFull = new RooRealVar("mMuMuFull","Dimuon mass",6.0,50.0,"GeV");
@@ -197,8 +197,9 @@ void DileptonFitter()
   RooPlot* xframe = mMuMu->frame() ;
   //  RooPlot* yframe = mMuMuFull->frame();
   //  c->cd(1);
-  xframe->SetMaximum(40);
+  xframe->SetMaximum(15);
   datatmp->plotOn(xframe,RooFit::Binning(30));
+  //  datatmp->plotOn(xframe,RooFit::Binning(100)); 
   //  totshape->plotOn(xframe);
   //  mm-plotOn(xframe,LineColor(kRed),LineStyle(kDashed));
   //  mm->plotOn(xframe);

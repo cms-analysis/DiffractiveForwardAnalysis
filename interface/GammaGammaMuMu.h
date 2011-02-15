@@ -45,6 +45,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   std::vector<std::string> algonames; 
   bool readmcEffCorrections; 
   bool readmcEffCorrectionsByCharge;
+  bool readmcEffCorrectionsBySignedEta;
 
   edm::InputTag recTrackLabel;
   edm::InputTag recVertexLabel;

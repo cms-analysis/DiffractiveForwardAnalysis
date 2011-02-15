@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.88 2010/12/04 17:29:07 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.89 2011/02/14 15:00:41 jjhollar Exp $
 //
 //
 
@@ -169,6 +169,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
 
   readmcEffCorrections = pset.getParameter<bool>("ReadMCEffCorrections");
   readmcEffCorrectionsByCharge = pset.getParameter<bool>("ReadMCEffCorrectionsByCharge"); 
+  readmcEffCorrectionsBySignedEta = pset.getParameter<bool>("ReadmcEffCorrectionsBySignedEta");
   algonames          =  pset.getParameter< std::vector<std::string> >("AlgoNames"); 
 
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
@@ -840,8 +841,15 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	      const MuonPerformance &muonefficiencyuppererror = effreader->getPerformanceRecord(effnameuppererror, iSetup);  
 	      const MuonPerformance &muonefficiencylowererror = effreader->getPerformanceRecord(effnamelowererror, iSetup);  
 	      
-	      double muoneff = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
-						 MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
+	      double muoneff = 0.0;
+	      if(readmcEffCorrectionsBySignedEta == false)
+		muoneff = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
+					    MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
+	      else
+                muoneff = effreader->getEff(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand],  
+                                            MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency);  
+	      
+
 	      //	      double myefflowererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
 	      //						       MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
 	      //						       muonefficiencylowererror);

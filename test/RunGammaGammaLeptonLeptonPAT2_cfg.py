@@ -71,6 +71,8 @@ process.muonFilter=cms.EDFilter("CandViewCountFilter",
 
 # Trigger
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.HLTFilter_cfi")
+process.hltFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
+process.hltFilter.HLTPaths = ['HLT_L1MuOpen_AntiBPTX']
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring("drop *")
