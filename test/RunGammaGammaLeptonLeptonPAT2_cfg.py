@@ -14,23 +14,23 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # DB efficiency stuff - uncomment if running on MC
 ##process.load("CondCore.DBCommon.CondDBCommon_cfi")
-##process.CondDBCommon.connect = 'sqlite_file:MuonPhysicsPerformance7TeV.db'
-##process.load("MuonAnalysis.TagAndProbe.MuonPerformanceESSource_cfi")
-##process.load("MuonAnalysis.TagAndProbe.MuonPerformanceESProducer_cfi")
+##process.CondDBCommon.connect = 'sqlite_file:ExclJPsiZMuonChargePhysicsPerformance7TeVRun2010B.db'
+##process.load("MuonAnalysis.TagAndProbe.ExclMuonPerformaceMergeESSource_cfi")
+##process.load("MuonAnalysis.TagAndProbe.ExclMuonPerformaceMergeESProducer_cfi")
 # End of DB stuff
 
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/EEE64447-9F9B-DF11-A573-001617C3B69C.root',
-                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/E04E9705-8A9B-DF11-8EDB-003048D37560.root',
-                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/CA804E38-8E9B-DF11-A825-001D09F252DA.root',
-                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/C4A1CB31-9D9B-DF11-805E-003048F1BF66.root',
-                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/BA38B11B-C39B-DF11-B826-001D09F25208.root',
-                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/8AD5A5DC-969B-DF11-A088-001D09F2441B.root',
-                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/60D7391C-9B9B-DF11-A1E6-001D09F231C9.root',
-                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/445A9EF8-989B-DF11-BC84-0030487CD7C0.root',
-                            '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/00BE9355-909B-DF11-A111-001617C3B69C.root'
+                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/EEE64447-9F9B-DF11-A573-001617C3B69C.root',
+                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/E04E9705-8A9B-DF11-8EDB-003048D37560.root',
+                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/CA804E38-8E9B-DF11-A825-001D09F252DA.root',
+                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/C4A1CB31-9D9B-DF11-805E-003048F1BF66.root',
+                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/BA38B11B-C39B-DF11-B826-001D09F25208.root',
+                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/8AD5A5DC-969B-DF11-A088-001D09F2441B.root',
+                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/60D7391C-9B9B-DF11-A1E6-001D09F231C9.root',
+                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/445A9EF8-989B-DF11-BC84-0030487CD7C0.root',
+                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/00BE9355-909B-DF11-A111-001617C3B69C.root'
                                 )
                             )
 
@@ -72,7 +72,7 @@ process.muonFilter=cms.EDFilter("CandViewCountFilter",
 # Trigger
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.HLTFilter_cfi")
 process.hltFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-process.hltFilter.HLTPaths = ['HLT_L1MuOpen_AntiBPTX']
+process.hltFilter.HLTPaths = ['HLT_DoubleMu3']
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring("drop *")
