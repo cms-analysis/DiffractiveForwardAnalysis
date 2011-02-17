@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.90 2011/02/15 10:24:14 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.91 2011/02/15 14:32:27 jjhollar Exp $
 //
 //
 
@@ -865,9 +865,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		    }
 		  else
 		    {
-		      if((MuonCand_charge[nMuonCand] > 0) && ((effname.find("_ProbeP_") != std::string::npos)))
+		      if((MuonCand_charge[nMuonCand] > 0) && ((effname.find("_TrackProbeP_") != std::string::npos)))
 			totalmuoneff *= muoneff;
-		      if((MuonCand_charge[nMuonCand] < 0) && ((effname.find("_ProbeM_") != std::string::npos))) 
+		      if((MuonCand_charge[nMuonCand] < 0) && ((effname.find("_TrackProbeM_") != std::string::npos))) 
 			totalmuoneff *= muoneff; 
 		    }
 		}
@@ -879,9 +879,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		    }
 		  else
 		    {
-		      if((MuonCand_charge[nMuonCand] > 0) && ((effname.find("_ProbeP_") != std::string::npos))) 
+		      if((MuonCand_charge[nMuonCand] > 0) && ((effname.find("_TrackProbeP_") != std::string::npos))) 
 			totalmuonmceff *= muoneff; 
-		      else if((MuonCand_charge[nMuonCand] < 0) && ((effname.find("_ProbeM_") != std::string::npos)))  
+		      else if((MuonCand_charge[nMuonCand] < 0) && ((effname.find("_TrackProbeM_") != std::string::npos)))  
 			totalmuonmceff *= muoneff;  
 		    }
 		}
