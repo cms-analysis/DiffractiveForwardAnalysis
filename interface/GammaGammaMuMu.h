@@ -105,6 +105,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int MuonCand_tmlsAngtightmuonid[10]; 
   int MuonCand_tmosAngloosemuonid[10]; 
   int MuonCand_tmosAngtightmuonid[10]; 
+  int MuonCand_gmPromptTight[10];
   int MuonCand_isglobal[10];
   int MuonCand_istracker[10];
   int MuonCand_isstandalone[10];
@@ -122,8 +123,12 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuonCand_timeinerr[10]; 	 
   int MuonCand_validtrackhits[10];
   int MuonCand_validhits[10];
+  int MuonCand_validpixelhits[10];
+  int MuonCand_validmuonhits[10];
+  int MuonCand_matches[10];
   double MuonCand_normchi2[10];
   double MuonCand_normtrackchi2[10];
+  double MuonCand_dB[10];
 
   int MuonPairCand[2];
 

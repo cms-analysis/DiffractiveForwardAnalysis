@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.91 2011/02/15 14:32:27 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.92 2011/02/17 19:53:54 schul Exp $
 //
 //
 
@@ -235,6 +235,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_tmosAngloosemuonid",MuonCand_tmosAngloosemuonid,"MuonCand_tmosAngloosemuonid[nMuonCand]/I");  
   thetree->Branch("MuonCand_tmosAngtightmuonid",MuonCand_tmosAngtightmuonid,"MuonCand_tmosAngtightmuonid[nMuonCand]/I");
   thetree->Branch("MuonCand_arbmuid",MuonCand_arbmuid,"MuonCand_arbmuid[nMuonCand]/I");
+  thetree->Branch("MuonCand_gmPromptTight", MuonCand_gmPromptTight, "MuonCand_gmPromptTight[nMuonCand]/I");
   thetree->Branch("MuonCand_isglobal",MuonCand_isglobal,"MuonCand_isglobal[nMuonCand]/I");
   thetree->Branch("MuonCand_istracker",MuonCand_istracker,"MuonCand_istracker[nMuonCand]/I"); 
   thetree->Branch("MuonCand_isstandalone",MuonCand_isstandalone,"MuonCand_isstandalone[nMuonCand]/I"); 
@@ -253,8 +254,12 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_efficiency", MuonCand_efficiency, "MuonCand_efficiency[nMuonCand]/D");        
   thetree->Branch("MuonCand_validtrackhits", MuonCand_validtrackhits, "MuonCand_validtrackhits[nMuonCand]/I");        
   thetree->Branch("MuonCand_validhits", MuonCand_validhits, "MuonCand_validhits[nMuonCand]/I");        
+  thetree->Branch("MuonCand_validpixelhits", MuonCand_validpixelhits, "MuonCand_validpixelhits[nMuonCand]/I");
+  thetree->Branch("MuonCand_validmuonhits", MuonCand_validmuonhits, "MuonCand_validmuonhits[nMuonCand]/I");
+  thetree->Branch("MuonCand_matches", MuonCand_matches, "MuonCand_matches[nMuonCand]/I"); 
   thetree->Branch("MuonCand_normchi2", MuonCand_normchi2, "MuonCand_normchi2[nMuonCand]/D");        
   thetree->Branch("MuonCand_normtrackchi2", MuonCand_normtrackchi2, "MuonCand_normtrackchi2[nMuonCand]/D");         
+  thetree->Branch("MuonCand_dB", MuonCand_dB, "MuonCand_dB[nMuonCand]/D");
   thetree->Branch("MuonPairCand",MuonPairCand,"MuonPairCand[2]/I");
 
   thetree->Branch("nHLTMu3MuonCand",&nHLTMu3MuonCand,"nHLTMu3MuonCand/I"); 
@@ -784,6 +789,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       MuonCand_tmosAngloosemuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMOneStationAngLoose);  
       MuonCand_tmosAngtightmuonid[nMuonCand]=muon::isGoodMuon(*muon, muon::TMOneStationAngTight);  
       MuonCand_arbmuid[nMuonCand]=muon::isGoodMuon(*muon, muon::AllArbitrated);
+      MuonCand_gmPromptTight[nMuonCand]=muon::isGoodMuon(*muon, muon::GlobalMuonPromptTight);
       MuonCand_isglobal[nMuonCand]=muon->isGlobalMuon();
       MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
       MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon();
@@ -819,14 +825,21 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_validtrackhits[nMuonCand]=muon->innerTrack()->numberOfValidHits();  
 	  MuonCand_validhits[nMuonCand]=muon->numberOfValidHits(); 
 	  MuonCand_normtrackchi2[nMuonCand]=muon->innerTrack()->normalizedChi2();  
-	  
+	  MuonCand_validpixelhits[nMuonCand] = muon->innerTrack()->hitPattern().numberOfValidPixelHits();	  
+	  MuonCand_matches[nMuonCand] = muon->numberOfMatches();
+	  MuonCand_dB[nMuonCand] = muon->dB();
+
 	  if(muon->isGlobalMuon())
-	    MuonCand_normchi2[nMuonCand]=muon->normChi2(); 
+	    {
+	      MuonCand_normchi2[nMuonCand]=muon->normChi2(); 
+	      MuonCand_validmuonhits[nMuonCand] = muon->outerTrack()->hitPattern().numberOfValidMuonHits(); 
+	    }
 	}
       
       std::string algoname;
       double totalmuoneff = 1.0;
       double totalmuonmceff = 1.0;
+
 
       // October exercise - testing efficiencies!
       for(unsigned int i = 0; i < algonames.size(); ++i)  
@@ -846,9 +859,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		muoneff = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
 					    MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency); 
 	      else
-                muoneff = effreader->getEff(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand],  
-                                            MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency);  
-	      
+		{
+		  muoneff = effreader->getEff(MuonCand_pt[nMuonCand], MuonCand_eta[nMuonCand],  
+					      MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand], muonefficiency);  
+		}
 
 	      //	      double myefflowererr = effreader->getEff(MuonCand_pt[nMuonCand], fabs(MuonCand_eta[nMuonCand]), 
 	      //						       MuonCand_phi[nMuonCand], MuonCand_charge[nMuonCand],
@@ -885,6 +899,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 			totalmuonmceff *= muoneff;  
 		    }
 		}
+
 	    }
 	  else
 	    {
@@ -926,11 +941,14 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	}
     }
     if(found_pair){
-      double mass = pow(MuonCand_p[MuonPairCand[0]]+MuonCand_p[MuonPairCand[1]],2);
-      mass-=pow(MuonCand_px[MuonPairCand[0]]+MuonCand_px[MuonPairCand[1]],2);
-      mass-=pow(MuonCand_py[MuonPairCand[0]]+MuonCand_py[MuonPairCand[1]],2);
-      mass-=pow(MuonCand_pz[MuonPairCand[0]]+MuonCand_pz[MuonPairCand[1]],2);
-      MuMu_mass = sqrt(mass);
+      TLorentzVector recomuvec1; 
+      TLorentzVector recomuvec2; 
+      TLorentzVector recomumuvec; 
+ 
+      recomuvec1.SetXYZM(MuonCand_px[0],MuonCand_py[0],MuonCand_pz[0],0.1057); 
+      recomuvec2.SetXYZM(MuonCand_px[1],MuonCand_py[1],MuonCand_pz[1],0.1057);  
+      recomumuvec = recomuvec1 + recomuvec2; 
+      MuMu_mass = recomumuvec.M();
 
       MuMu_dpt = fabs(MuonCand_pt[MuonPairCand[0]]-MuonCand_pt[MuonPairCand[1]]);
 
