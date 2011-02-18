@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.92 2011/02/17 19:53:54 schul Exp $
+// $Id: GammaGammaMuMu.cc,v 1.93 2011/02/18 14:58:01 jjhollar Exp $
 //
 //
 
@@ -945,8 +945,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       TLorentzVector recomuvec2; 
       TLorentzVector recomumuvec; 
  
-      recomuvec1.SetXYZM(MuonCand_px[0],MuonCand_py[0],MuonCand_pz[0],0.1057); 
-      recomuvec2.SetXYZM(MuonCand_px[1],MuonCand_py[1],MuonCand_pz[1],0.1057);  
+      recomuvec1.SetXYZM(MuonCand_px[MuonPairCand[0]],MuonCand_py[MuonPairCand[0]],MuonCand_pz[MuonPairCand[0]],0.1057); 
+      recomuvec2.SetXYZM(MuonCand_px[MuonPairCand[1]],MuonCand_py[MuonPairCand[1]],MuonCand_pz[MuonPairCand[1]],0.1057);  
       recomumuvec = recomuvec1 + recomuvec2; 
       MuMu_mass = recomumuvec.M();
 
