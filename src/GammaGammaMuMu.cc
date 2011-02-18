@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.93 2011/02/18 14:58:01 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.94 2011/02/18 15:20:20 schul Exp $
 //
 //
 
@@ -368,6 +368,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("TrackCand_charge",TrackCand_charge,"TrackCand_charge[nTrackCand]/D"); 
   thetree->Branch("TrackCand_purity",TrackCand_purity,"TrackCand_purity[nTrackCand]/D");
   thetree->Branch("TrackCand_nhits",TrackCand_nhits,"TrackCand_nhits[nTrackCand]/I");
+  thetree->Branch("TrackCand_chi2",TrackCand_chi2,"TrackCand_chi2[nTrackCand]/D");
+  thetree->Branch("TrackCand_ndof",TrackCand_ndof,"TrackCand_ndof[nTrackCand]/D");
 
   thetree->Branch("TrackCand_vtxZ",TrackCand_vtxZ,"TrackCand_vtxZ[nTrackCand]/D");
   thetree->Branch("TrackCand_vtxT",TrackCand_vtxT,"TrackCand_vtxT[nTrackCand]/D");
@@ -1539,6 +1541,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           TrackCand_phi[nTrackCand]=track->phi(); 
           TrackCand_charge[nTrackCand]=track->charge();
 	  TrackCand_nhits[nTrackCand]=track->numberOfValidHits();
+	  TrackCand_chi2[nTrackCand]=track->chi2();
+	  TrackCand_ndof[nTrackCand]=track->ndof();
 	  TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - mumuprimvtxx)*(track->vertex().x() - mumuprimvtxx)) + 
 					     ((track->vertex().y() - mumuprimvtxy)*(track->vertex().y() - mumuprimvtxy)) +
 					     ((track->vertex().z() - mumuprimvtxz)*(track->vertex().z() - mumuprimvtxz)));
