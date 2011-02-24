@@ -1,3 +1,5 @@
+#include <TMatrixD.h>
+
 void setTDRStyle() {
   TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
 
@@ -380,22 +382,26 @@ bool PassesKinematicCuts(float mass, float ptPlus, float ptMinus, float etaPlus,
 	return pass;
 }
 
-bool PassesMuonID(int trackerMuon1, int selectorMuon1, int globalMuon1, int trackerMuon2, int selectorMuon2, int globalMuon2, int nHitsMuon1, int nHitsMuon2)
+bool PassesMuonID(int trackerMuon1, int selectorMuon1, int globalMuon1, int trackerMuon2, int selectorMuon2, int globalMuon2, int nHitsTrack1, int nHitsTrack2, int nHitsPixel1, int nHitsPixel2, int nHitsMuon1, int nHitsMuon2, int nMatches1, int nMatches2, double Chi2Muon1, double Chi2Muon2)
 {
-	bool pass = false;
-	int nhitsthresh = 10;
+        bool pass = false;
 
-	bool muhit1pass = (nHitsMuon1 > nhitsthresh);
-	bool muhit2pass = (nHitsMuon2 > nhitsthresh);
-	bool muID1pass = (trackerMuon1 && selectorMuon1) || globalMuon1;
-	bool muID2pass = (trackerMuon2 && selectorMuon2) || globalMuon2;  
+        bool tkhit1pass = (nHitsTrack1 > 10) && (nHitsPixel1 >= 1);
+        bool tkhit2pass = (nHitsTrack2 > 10) && (nHitsPixel2 >= 1);
+        bool muhit1pass = (nHitsMuon1 >= 1) && (nMatches1 >=2);  //two levels of muon stations matching
+        bool muhit2pass = (nHitsMuon2 >= 1) && (nMatches2 >=2);
+        bool muchi1pass = (Chi2Muon1 < 10);
+        bool muchi2pass = (Chi2Muon2 < 10);
+        bool muID1pass = (trackerMuon1 && selectorMuon1) || (trackerMuon1 && globalMuon1);
+        bool muID2pass = (trackerMuon2 && selectorMuon2) || (trackerMuon2 && globalMuon2);    
 
-	if(muhit1pass && muhit2pass && muID1pass && muID2pass)
-	{
-		pass = true;
-	}
-	return pass;
+        if(tkhit1pass && tkhit2pass && muhit1pass && muhit2pass && muID1pass && muID2pass && muchi1pass && muchi2pass)
+        {
+                pass = true;
+        }
+        return pass;
 }
+
 
 bool PassesVertexSelection(int vtxNTrack,double vtxChi2,double vtxNdf,double distance_vertex_z,double vtxZ,int isdimuonvtx) 
 {
@@ -413,6 +419,7 @@ bool PassesVertexSelection(int vtxNTrack,double vtxChi2,double vtxNdf,double dis
 
 void Cumul_weight()
 {
+
 setTDRStyle();
 /*gROOT->Reset();
 gStyle->SetPalette(1);
@@ -423,15 +430,15 @@ gROOT->SetTitle(0);*/
 #define pi 3.14159265359
 
 //definition des fichiers + Tree
-  TFile *f0 = new TFile("cand_2tracks.root"); // 
+  TFile *f0 = new TFile("candNov4.root"); // 
   TTree *t0 = f0->Get("ntp1");
-  TFile *f1 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_8_5/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/El-El.root"); //
+  TFile *f1 = new TFile("/home/fynu/schul/scratch/Crab_Feb2010/CMSSW_3_8_6/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/MC/El-El.root"); //
 //  TFile *f1 = new TFile("El-El_highPt.root");
   TTree *t1 = f1->Get("ntp1");
-  TFile *f2 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_8_5/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Inel-El.root"); //
+  TFile *f2 = new TFile("/home/fynu/schul/scratch/Crab_Feb2010/CMSSW_3_8_6/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/MC/InelEl.root"); //
 //  TFile *f2 = new TFile("HighStat_Inel-El_highPt.root");
   TTree *t2 = f2->Get("ntp1");
-  TFile *f3 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_8_5/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Inel-Inel.root"); //
+  TFile *f3 = new TFile("/home/fynu/schul/scratch/Crab_Feb2010/CMSSW_3_8_6/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/MC/InelInel.root"); //
 //  TFile *f3 = new TFile("HighStat_Inel-Inel_highPt.root");
   TTree *t3 = f3->Get("ntp1");
   TFile *f4 = new TFile("Upsilon.root"); //
@@ -439,7 +446,7 @@ gROOT->SetTitle(0);*/
   TFile *f5 = new TFile("Jpsi.root"); //
   TTree *t5 = f5->Get("ntp1");
 
-  TFile *f6 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_8_5/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/DY_tp385.root"); //
+  TFile *f6 = new TFile("DY_tp385.root"); //
 //  TFile *f6 = new TFile("/storage/data/cms/store/user/schul/384_novQCD/QCD2MU_merge.root");
   TTree *t6 = f6->Get("ntp1");
 //  TFile *f5 = new TFile("../Jpsi.root"); //
@@ -890,7 +897,7 @@ gROOT->SetTitle(0);*/
 //  const float integrated_lumi = 299.30569*0.5857; //in nb-1
 //  const float integrated_lumi = 2872.246*0.5; // in nb-1	
 //  const float integrated_lumi = 2872.246;
-  const float integrated_lumi = 35437.511542*0.892/**0.77094*/;
+  const float integrated_lumi = 39980*0.892;//35437.511542*0.892;
 //  const float integrated_lumi = 3044.0 * 0.5;
 //  const float integrated_lumi = 4426.5;
 //  const float integrated_lumi = 4426.5 - 3044.0;
@@ -974,6 +981,11 @@ gROOT->SetTitle(0);*/
   Double_t var_py0[10],var_py1[10],var_py2[10],var_py3[10],var_py4[10],var_py5[10],var_py6[10];
   Double_t var_pz0[10],var_pz1[10],var_pz2[10],var_pz3[10],var_pz4[10],var_pz5[10],var_pz6[10];
   Int_t var_charge0[10],var_charge1[10],var_charge2[10],var_charge3[10],var_charge4[10],var_charge5[10],var_charge6[10];
+  Double_t var_normChi0[10], var_normChi1[10],var_normChi2[10],var_normChi3[10],var_normChi4[10],var_normChi5[10],var_normChi6[10];
+  Int_t var_matches0[10], var_matches1[10], var_matches2[10], var_matches3[10], var_matches4[10], var_matches5[10], var_matches6[10];
+  Int_t var_nhitsMuon0[10], var_nhitsMuon1[10], var_nhitsMuon2[10], var_nhitsMuon3[10], var_nhitsMuon4[10], var_nhitsMuon5[10], var_nhitsMuon6[10];
+  Int_t var_nhitsPixel0[10], var_nhitsPixel1[10],var_nhitsPixel2[10],var_nhitsPixel3[10],var_nhitsPixel4[10],var_nhitsPixel5[10],var_nhitsPixel6[10];
+
 
 // ZDC
   Int_t var_nZDC1[1], var_nZDC2[1], var_nZDC0[1], var_nZDC3[1], var_nZDC4[1], var_nZDC5[1],var_nZDC6[1];
@@ -1304,7 +1316,34 @@ gROOT->SetTitle(0);*/
   t4->SetBranchAddress("MuonCand_charge",var_charge4);
   t5->SetBranchAddress("MuonCand_charge",var_charge5);
   t6->SetBranchAddress("MuonCand_charge",var_charge6);
-
+  t0->SetBranchAddress("MuonCand_normchi2",var_normChi0);
+  t1->SetBranchAddress("MuonCand_normchi2",var_normChi1);
+  t2->SetBranchAddress("MuonCand_normchi2",var_normChi2);
+  t3->SetBranchAddress("MuonCand_normchi2",var_normChi3);
+  t4->SetBranchAddress("MuonCand_normchi2",var_normChi4);
+  t5->SetBranchAddress("MuonCand_normchi2",var_normChi5);
+  t6->SetBranchAddress("MuonCand_normchi2",var_normChi6);
+  t0->SetBranchAddress("MuonCand_matches",var_matches0);
+  t0->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon0);
+  t0->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel0);
+  t1->SetBranchAddress("MuonCand_matches",var_matches1);
+  t1->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon1);
+  t1->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel1);
+  t2->SetBranchAddress("MuonCand_matches",var_matches2);
+  t2->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon2);
+  t2->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel2);
+  t3->SetBranchAddress("MuonCand_matches",var_matches3);
+  t3->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon3);
+  t3->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel3);
+  t4->SetBranchAddress("MuonCand_matches",var_matches4);
+  t4->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon4);
+  t4->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel4);
+  t5->SetBranchAddress("MuonCand_matches",var_matches5);
+  t5->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon5);
+  t5->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel5);
+  t6->SetBranchAddress("MuonCand_matches",var_matches6);
+  t6->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon6);
+  t6->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel6);
 
   t1->SetBranchAddress("MuonCand_pt",var_pt1);
   t2->SetBranchAddress("MuonCand_pt",var_pt2);
@@ -1525,12 +1564,66 @@ gROOT->SetTitle(0);*/
         double py_pair =(var_py0[pair1]+var_py0[pair2]);
         double px_pair =(var_px0[pair1]+var_px0[pair2]);
 
+//----------------
+        double Emuon1 = sqrt(pow(0.1057,2) + pow(var_p0[pair1],2));
+        double Emuon2 = sqrt(pow(0.1057,2) + pow(var_p0[pair2],2));
+	TMatrixD tmpboost(4,4);
+	double alpha_ = 0.;
+	double phi_ = 0.000100;  if(var_run0[0]==148822 || var_run0[0]==148829) {phi_=0.000170;}
+	tmpboost(0,0) = 1./cos(phi_);
+	tmpboost(0,1) = - cos(alpha_)*sin(phi_);
+	tmpboost(0,2) = - tan(phi_)*sin(phi_);
+	tmpboost(0,3) = - sin(alpha_)*sin(phi_);
+	tmpboost(1,0) = - cos(alpha_)*tan(phi_);
+	tmpboost(1,1) = 1.;
+	tmpboost(1,2) = cos(alpha_)*tan(phi_);
+	tmpboost(1,3) = 0.;
+	tmpboost(2,0) = 0.;
+	tmpboost(2,1) = - cos(alpha_)*sin(phi_);
+	tmpboost(2,2) = cos(phi_);
+	tmpboost(2,3) = - sin(alpha_)*sin(phi_);
+	tmpboost(3,0) = - sin(alpha_)*tan(phi_);
+	tmpboost(3,1) = 0.;
+	tmpboost(3,2) = sin(alpha_)*tan(phi_);
+	tmpboost(3,3) = 1.;
+
+//	tmpboost.Invert(); <<--- invert for crossing-angle generation into MC
+	boost_ = new TMatrixD(tmpboost);
+
+        TMatrixD p4_mu1(4,1);
+	p4_mu1(0,0)=Emuon1;
+        p4_mu1(1,0)=var_px0[pair1];
+        p4_mu1(2,0)=var_pz0[pair1];
+        p4_mu1(3,0)=var_py0[pair1];
+        TMatrixD p4_mu2(4,1);
+        p4_mu2(0,0)=Emuon2;
+        p4_mu2(1,0)=var_px0[pair2];
+        p4_mu2(2,0)=var_pz0[pair2];
+        p4_mu2(3,0)=var_py0[pair2];
+
+	TMatrixD tmplorentz(*boost_);
+
+	TMatrixD p4lab_mu1(4,1);
+	p4lab_mu1 = tmplorentz * p4_mu1;
+        TMatrixD p4lab_mu2(4,1);
+        p4lab_mu2 = tmplorentz * p4_mu2;
+
+//	cout<<"mu 1: px="<<var_px0[pair1]<<"->"<<p4lab_mu1(1,0)<<"\t py="<<var_py0[pair1]<<"->"<<p4lab_mu1(3,0)<<"\t pz="<<var_pz0[pair1]<<"->"<<p4lab_mu1(2,0)<<"\t E="<<Emuon1<<"->"<<p4lab_mu1(0,0)<<endl;
+//      cout<<"mu 2: px="<<var_px0[pair2]<<"->"<<p4lab_mu2(1,0)<<"\t py="<<var_py0[pair2]<<"->"<<p4lab_mu2(3,0)<<"\t pz="<<var_pz0[pair2]<<"->"<<p4lab_mu2(2,0)<<"\t E="<<Emuon2<<"->"<<p4lab_mu2(0,0)<<endl;
+        double phimuon1_prim=TMath::ACos(p4lab_mu1(1,0)/sqrt(pow(p4lab_mu1(1,0),2)+pow(p4lab_mu1(3,0),2)))*(p4lab_mu1(3,0)/fabs(p4lab_mu1(3,0)));
+        double phimuon2_prim=TMath::ACos(p4lab_mu2(1,0)/sqrt(pow(p4lab_mu2(1,0),2)+pow(p4lab_mu2(3,0),2)))*(p4lab_mu2(3,0)/fabs(p4lab_mu2(3,0)));
+        double corrected_dphi=fabs(phimuon1_prim-phimuon2_prim);
+        if (corrected_dphi>pi) corrected_dphi=2*pi-corrected_dphi;
+
+//	cout<<"dphi/pi: "<<var_dphi0[0]/pi<<" --> "<<corrected_dphi/pi<<endl;
+//----------------
+
 	if(label_vertex!=99
 	   && sqrt(pow(var_vtxX0[label_vertex],2)+pow(var_vtxY0[label_vertex],2))< 0.15
            && sqrt(pow(var_vtxX0[label_vertex],2)+pow(var_vtxY0[label_vertex],2))> 0.05
-           && PassesMuonID(var_tracker0[pair1], muAng1, var_global0[pair1], var_tracker0[pair2], muAng2, var_global0[pair2], var_nhitsTrack0[pair1], var_nhitsTrack0[pair2])
+           && PassesMuonID(var_tracker0[pair1], muAng1, var_global0[pair1], var_tracker0[pair2], muAng2, var_global0[pair2], var_nhitsTrack0[pair1], var_nhitsTrack0[pair2], var_nhitsPixel0[pair1], var_nhitsPixel0[pair2], var_nhitsMuon0[pair1], var_nhitsMuon0[pair2], var_matches0[pair1], var_matches0[pair2], var_normChi0[pair1], var_normChi0[pair2])
  	   && PassesDptCut(var_dpt0[0]) 
-	   && PassesDphiCut(var_dphi0[0]/pi)
+	   && PassesDphiCut(var_dphi0[0]/pi/*corrected_dphi/pi*/)
 //	   && pt_pair>10
 		) {
 	    int nTrackExclu(0);
@@ -1578,23 +1671,6 @@ gROOT->SetTitle(0);*/
 		&&  PassesZDCVeto(var_zdcEmMinus0[0],var_zdcEmPlus0[0],var_zdcHadMinus0[0],var_zdcHadPlus0[0]))
 	{ 
           filter0Events++;
-//----------------
-	  double Emuon1 = sqrt(pow(0.1057,2) + pow(var_p0[pair1],2));
-          double Emuon2 = sqrt(pow(0.1057,2) + pow(var_p0[pair2],2));
-	  double TotalP = sqrt(pow(var_px0[pair1]+var_px0[pair2],2) + pow(var_py0[pair1]+var_py0[pair2],2) + pow(var_pz0[pair1]+var_pz0[pair2],2));
-	  double Egamma1 = 0.5 * (Emuon1 + Emuon2 + TotalP);
-          double Egamma2 = 0.5 * (Emuon1 + Emuon2 - TotalP);
-	  double crossingAng = 0.000100;  if(var_run0[0]==148822 || var_run0[0]==148829) {crossingAng=0.000170;}
-	  double kick = (Egamma1+Egamma2)*sin(crossingAng);
-	  double beta= (kick)/((double) Emuon1+Emuon2);
-	  double Emuon1_prim=Emuon1-beta*var_px0[pair1];
-	  double pXmuon1_prim=-beta*Emuon1+var_px0[pair1];
-          double Emuon2_prim=Emuon2-beta*var_px0[pair2];
-          double pXmuon2_prim=-beta*Emuon2+var_px0[pair2];
-	  double phimuon1_prim=TMath::ACos(pXmuon1_prim/sqrt(pow(pXmuon1_prim,2)+pow(var_py0[pair1],2)))*(var_py0[pair1]/fabs(var_py0[pair1]));
-          double phimuon2_prim=TMath::ACos(pXmuon2_prim/sqrt(pow(pXmuon2_prim,2)+pow(var_py0[pair2],2)))*(var_py0[pair2]/fabs(var_py0[pair2]));
-	cout<<"dphi = "<<var_dphi0[0]<<"  --> "<<fabs(phimuon1_prim-phimuon2_prim)<<endl;
-//----------------
 	  hEB0->Fill(nEB,fac_lumi0);
           hEE0->Fill(nEE,fac_lumi0);
           hHB0->Fill(nHB,fac_lumi0);
@@ -1622,7 +1698,7 @@ gROOT->SetTitle(0);*/
 	  MuMu3DAng0->Fill((mu1.Angle(mu2.Vect()))/pi,fac_lumi0);
 	  openangle = mu1.Angle(mu2.Vect());
 	  cout<<"candidate  Run "<<var_run0[0]<<"  LS "<<var_ls0[0]<<"\tEvt "<<var_event0[0]<<"\t mass="<<var_mass0[0]<<" GeV"<<"\t Opening angle="<<openangle<<endl;
-	if(pt_pair > 3) cout<<"px="<<var_px0[pair1]<<","<<var_px0[pair2]<<"   py="<<var_py0[pair1]<<","<<var_py0[pair2]<<"  eta="<<var_eta0[pair1]<<","<<var_eta0[pair2]<<"  phi="<<var_phi0[pair1]<<", "<<var_phi0[pair2]<<"  vtxT="<<sqrt(var_MuMuvtxX0[label_vertex]*var_MuMuvtxX0[label_vertex]+var_MuMuvtxY0[label_vertex]*var_MuMuvtxY0[label_vertex])<<",  Z="<<var_MuMuvtxZ0[label_vertex]<<endl;
+//	cout<<"pt1="<<var_pt0[pair1]<<" pt2="<<var_pt0[pair2]<<"   eta1="<<var_eta0[pair1]<<" eta2="<<var_eta0[pair2]<<endl;
 	  ZDCemminus0->Fill(var_zdcEmMinus0[0],fac_lumi0); ZDCemplus0->Fill(var_zdcEmPlus0[0],fac_lumi0);
 	  ZDChadminus0->Fill(var_zdcHadMinus0[0],fac_lumi0); ZDChadplus0->Fill(var_zdcHadPlus0[0],fac_lumi0);
 	  for(Int_t l=0; l<var_nZDC0[0]; l++){
@@ -1706,7 +1782,7 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 	   && sqrt(pow(var_vtxX1[label_vertex],2)+pow(var_vtxY1[label_vertex],2))<0.514
            && sqrt(pow(var_vtxX1[label_vertex],2)+pow(var_vtxY1[label_vertex],2))>0.414
 //         && sqrt(pow(var_vtxX1[label_vertex],2)+pow(var_vtxY1[label_vertex],2))>0.564
-	   && PassesMuonID(var_tracker1[pair1], muAng1, var_global1[pair1], var_tracker1[pair2], muAng2, var_global1[pair2], var_nhitsTrack1[pair1], var_nhitsTrack1[pair2]) 
+           && PassesMuonID(var_tracker1[pair1], muAng1, var_global1[pair1], var_tracker1[pair2], muAng2, var_global1[pair2], var_nhitsTrack1[pair1], var_nhitsTrack1[pair2], var_nhitsPixel1[pair1], var_nhitsPixel1[pair2], var_nhitsMuon1[pair1], var_nhitsMuon1[pair2], var_matches1[pair1], var_matches1[pair2], var_normChi1[pair1], var_normChi1[pair2])
            && PassesDptCut(var_dpt1[0])  
            && PassesDphiCut(var_dphi1[0]/pi) 
 //	   && pt_pair > 10
@@ -1868,7 +1944,7 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
            && sqrt(pow(var_vtxX2[label_vertex],2)+pow(var_vtxY2[label_vertex],2))>0.414
 //           && sqrt(pow(var_vtxX2[label_vertex],2)+pow(var_vtxY2[label_vertex],2))>0.564
 
-           && PassesMuonID(var_tracker2[pair1], muAng1, var_global2[pair1], var_tracker2[pair2], muAng2, var_global2[pair2], var_nhitsTrack2[pair1], var_nhitsTrack2[pair2])  
+           && PassesMuonID(var_tracker2[pair1], muAng1, var_global2[pair1], var_tracker2[pair2], muAng2, var_global2[pair2], var_nhitsTrack2[pair1], var_nhitsTrack2[pair2], var_nhitsPixel2[pair1], var_nhitsPixel2[pair2], var_nhitsMuon2[pair1], var_nhitsMuon2[pair2], var_matches2[pair1], var_matches2[pair2], var_normChi2[pair1], var_normChi2[pair2])
            && PassesDptCut(var_dpt2[0])   
            && PassesDphiCut(var_dphi2[0]/pi) 
 //	   && pt_pair>10 
@@ -2040,7 +2116,7 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
            && sqrt(pow(var_vtxX3[label_vertex],2)+pow(var_vtxY3[label_vertex],2))<0.514
            && sqrt(pow(var_vtxX3[label_vertex],2)+pow(var_vtxY3[label_vertex],2))>0.414
 //           && sqrt(pow(var_vtxX3[label_vertex],2)+pow(var_vtxY3[label_vertex],2))>0.564
-           && PassesMuonID(var_tracker3[pair1], muAng1, var_global3[pair1], var_tracker3[pair2], muAng2, var_global3[pair2], var_nhitsTrack3[pair1], var_nhitsTrack3[pair2])   
+           && PassesMuonID(var_tracker3[pair1], muAng1, var_global3[pair1], var_tracker3[pair2], muAng2, var_global3[pair2], var_nhitsTrack3[pair1], var_nhitsTrack3[pair2], var_nhitsPixel3[pair1], var_nhitsPixel3[pair2], var_nhitsMuon3[pair1], var_nhitsMuon3[pair2], var_matches3[pair1], var_matches3[pair2], var_normChi3[pair1], var_normChi3[pair2]) 
 	   && PassesDptCut(var_dpt3[0])   
            && PassesDphiCut(var_dphi3[0]/pi)  
 //           && pt_pair>10
@@ -2195,7 +2271,7 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 	if(label_vertex!=99
            && sqrt(pow(var_vtxX4[label_vertex],2)+pow(var_vtxY4[label_vertex],2))<0.514
            && sqrt(pow(var_vtxX4[label_vertex],2)+pow(var_vtxY4[label_vertex],2))>0.414
-           && PassesMuonID(var_tracker4[pair1], muAng1, var_global4[pair1], var_tracker4[pair2], muAng2, var_global4[pair2], var_nhitsTrack4[pair1], var_nhitsTrack4[pair2])    
+           && PassesMuonID(var_tracker4[pair1], muAng1, var_global4[pair1], var_tracker4[pair2], muAng2, var_global4[pair2], var_nhitsTrack4[pair1], var_nhitsTrack4[pair2], var_nhitsPixel4[pair1], var_nhitsPixel4[pair2], var_nhitsMuon4[pair1], var_nhitsMuon4[pair2], var_matches4[pair1], var_matches4[pair2], var_normChi4[pair1], var_normChi4[pair2])
            && PassesDptCut(var_dpt4[0])   
            && PassesDphiCut(var_dphi4[0]/pi)  
 //           && pt_pair>10
@@ -2347,7 +2423,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
         if(label_vertex!=99
            && sqrt(pow(var_vtxX5[label_vertex],2)+pow(var_vtxY5[label_vertex],2))<0.514
            && sqrt(pow(var_vtxX5[label_vertex],2)+pow(var_vtxY5[label_vertex],2))>0.414
-           && PassesMuonID(var_tracker5[pair1], muAng1, var_global5[pair1], var_tracker5[pair2], muAng2, var_global5[pair2], var_nhitsTrack5[pair1], var_nhitsTrack5[pair2])     
+           && PassesMuonID(var_tracker5[pair1], muAng1, var_global5[pair1], var_tracker5[pair2], muAng2, var_global5[pair2], var_nhitsTrack5[pair1], var_nhitsTrack5[pair2], var_nhitsPixel5[pair1], var_nhitsPixel5[pair2], var_nhitsMuon5[pair1], var_nhitsMuon5[pair2], var_matches5[pair1], var_matches5[pair2], var_normChi5[pair1], var_normChi5[pair2])
            && PassesDptCut(var_dpt5[0])   
            && PassesDphiCut(var_dphi5[0]/pi)  
 //           && pt_pair>10
@@ -2453,7 +2529,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
 cout<<"Jpsi :"<<endl;
 cout<<"  # Dimuon events = "<<filter5Events<<endl;
 
-
+/*
   int filter6Gen(0);
   int filter6Track(0);
   double filter6Events_norm(0);
@@ -2500,7 +2576,7 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
            && sqrt(pow(var_vtxX6[label_vertex],2)+pow(var_vtxY6[label_vertex],2))<0.514
            && sqrt(pow(var_vtxX6[label_vertex],2)+pow(var_vtxY6[label_vertex],2))>0.414
 //           && sqrt(pow(var_vtxX6[label_vertex],2)+pow(var_vtxY6[label_vertex],2))>0.564
-           && PassesMuonID(var_tracker6[pair1], muAng1, var_global6[pair1], var_tracker6[pair2], muAng2, var_global6[pair2], var_nhitsTrack6[pair1], var_nhitsTrack6[pair2])      
+           && PassesMuonID(var_tracker6[pair1], muAng1, var_global6[pair1], var_tracker6[pair2], muAng2, var_global6[pair2], var_nhitsTrack6[pair1], var_nhitsTrack6[pair2], var_nhitsPixel6[pair1], var_nhitsPixel6[pair2], var_nhitsMuon6[pair1], var_nhitsMuon6[pair2], var_matches6[pair1], var_matches6[pair2], var_normChi6[pair1], var_normChi6[pair2]) 
 	   && PassesDptCut(var_dpt6[0])  
            && PassesDphiCut(var_dphi6[0]/pi) 
 //           && pt_pair>10
@@ -2560,7 +2636,7 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
           MuMuMassUps6->Fill(var_mass6[0],fac_lumiBkg[bkgNum]*effcorrection6);
           MuMuMassJpsi6->Fill(var_mass6[0],fac_lumiBkg[bkgNum]*effcorrection6); 
 
-          /*if(var_dpt6[0]>=1 || 1-(var_dphi6[0]/pi)>=0.05)*/ MuMudpt6->Fill(var_dpt6[0],fac_lumiBkg[bkgNum]*effcorrection6);
+          MuMudpt6->Fill(var_dpt6[0],fac_lumiBkg[bkgNum]*effcorrection6);
           MuMudphi6->Fill(1-(var_dphi6[0]/pi),fac_lumiBkg[bkgNum]*effcorrection6);
           double symdphi6 = 1 - fabs(var_phi6[pair1]-var_phi6[pair2])/pi;
           MuMuSymdphi6->Fill(symdphi6,fac_lumiBkg[bkgNum]*effcorrection6);
@@ -2604,10 +2680,10 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
           pYPair6->Fill(py_pair,fac_lumiBkg[bkgNum]*effcorrection6);
           pT2Pair6->Fill(pt_pair*pt_pair,fac_lumiBkg[bkgNum]*effcorrection6);
 
-          if(var_charge6[pair1]>0) {phiSingleP6->Fill(var_phi6[pair1]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair1]/*effcorrection6*/);etaSingleP6->Fill(var_eta6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]/*effcorrection6*/);pTSingleP6->Fill(var_pt6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]/*effcorrection6*/); pxSingleP6->Fill(var_px6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]/*effcorrection6*/);pySingleP6->Fill(var_py6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]/*effcorrection6*/);}
-          else {phiSingleM6->Fill(var_phi6[pair1]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair1]/*effcorrection6*/);etaSingleM6->Fill(var_eta6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]/*effcorrection6*/);pTSingleM6->Fill(var_pt6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]/*effcorrection6*/);}
-          if(var_charge6[pair2]>0) {phiSingleP6->Fill(var_phi6[pair2]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair2]/*effcorrection6*/);etaSingleP6->Fill(var_eta6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]/*effcorrection6*/);pTSingleP6->Fill(var_pt6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]/*effcorrection6*/);}
-          else {phiSingleM6->Fill(var_phi6[pair2]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair2]/*effcorrection6*/);etaSingleM6->Fill(var_eta6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]/*effcorrection6*/);pTSingleM6->Fill(var_pt6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]/*effcorrection6*/);pxSingleM6->Fill(var_px6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]/*effcorrection6*/);pySingleM6->Fill(var_py6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]/*effcorrection6*/);}
+          if(var_charge6[pair1]>0) {phiSingleP6->Fill(var_phi6[pair1]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair1]);etaSingleP6->Fill(var_eta6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]);pTSingleP6->Fill(var_pt6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]); pxSingleP6->Fill(var_px6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]);pySingleP6->Fill(var_py6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]);}
+          else {phiSingleM6->Fill(var_phi6[pair1]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair1]);etaSingleM6->Fill(var_eta6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]);pTSingleM6->Fill(var_pt6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]);}
+          if(var_charge6[pair2]>0) {phiSingleP6->Fill(var_phi6[pair2]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair2]);etaSingleP6->Fill(var_eta6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]);pTSingleP6->Fill(var_pt6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]);}
+          else {phiSingleM6->Fill(var_phi6[pair2]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair2]);etaSingleM6->Fill(var_eta6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]);pTSingleM6->Fill(var_pt6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]);pxSingleM6->Fill(var_px6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]);pySingleM6->Fill(var_py6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]);}
 
 
           } // if nTrack&nCalo if relevant
@@ -2618,37 +2694,37 @@ cout<<"Inclusive :"<<endl;
 cout<<"  # Dimuon events = "<<filter6Events_norm<<endl;
 cout<<"                 --> 10<m<20 = "<<filter6_M10<<endl;
 cout<<"                 -->    m>20 = "<<filter6_M20<<endl;
-
+*/
 
 ci = TColor::GetColor("#ffff99");
 
-DrawOneHistogramBis(sMuMuMass,MuMuMass0,MuMuMass1,MuMuMass2,MuMuMass3,MuMuMass4,MuMuMass5,MuMuMass6,"#mu#mu mass [GeV]","Events/1.5 GeV","MuMuMass_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(sMuMu3DAng,MuMu3DAng0,MuMu3DAng1,MuMu3DAng2,MuMu3DAng3,MuMu3DAng4,MuMu3DAng5,MuMu3DAng6,"#mu#mu 3D opening angle / #pi","Events/0.1","MuMu3dangle_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(sMuMudpt,MuMudpt0,MuMudpt1,MuMudpt2,MuMudpt3,MuMudpt4,MuMudpt5,MuMudpt6,"#mu#mu |#Delta p_{T}| [GeV]","Events/0.1 GeV","MuMudpt_noNorm_trackExclu2mm.root"); 
-DrawOneHistogramBis(sMuMudphi,MuMudphi0,MuMudphi1,MuMudphi2,MuMudphi3,MuMudphi4,MuMudphi5,MuMudphi6,"#mu#mu 1-|#Delta #phi / #pi|","Events/0.005","MuMudphi_noNorm_trackExclu2mm.root"); 
-DrawOneHistogramBis(sMuMuSymdphi,MuMuSymdphi0,MuMuSymdphi1,MuMuSymdphi2,MuMuSymdphi3,MuMuSymdphi4,MuMuSymdphi5,MuMuSymdphi6,"1 - |#phi(#mu^{-})-#phi(#mu^{+})| / #pi","Events/0.01","MuMuSymdphi_noNorm_trackExclu2mm.root"); 
-DrawOneHistogramBis(sMuMuDeta,MuMuDeta0,MuMuDeta1,MuMuDeta2,MuMuDeta3,MuMuDeta4,MuMuDeta5,MuMuDeta6,"#mu#mu #Delta #eta","Events/0.2","MuMuDeta_noNorm_trackExclu2mm.root"); 
-DrawOneHistogramBis(setaPair,etaPair0,etaPair1,etaPair2,etaPair3,etaPair4,etaPair5,etaPair6,"#eta(#mu#mu)","Events/0.2","etaPair_noNorm_trackExclu2mm.root");  
-DrawOneHistogramBis(spTPair,pTPair0,pTPair1,pTPair2,pTPair3,pTPair4,pTPair5,pTPair6,"p_{T}(#mu#mu) [GeV]","Events/0.15 GeV","pTPair_noNorm_trackExclu2mm.root");   
-DrawOneHistogramBis(spXPair,pXPair0,pXPair1,pXPair2,pXPair3,pXPair4,pXPair5,pXPair6,"p_{X}(#mu#mu) [GeV]","Events/0.15 GeV","pXPair_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(spYPair,pYPair0,pYPair1,pYPair2,pYPair3,pYPair4,pYPair5,pYPair6,"p_{Y}(#mu#mu) [GeV]","Events/0.15 GeV","pYPair_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(spT2Pair,pT2Pair0,pT2Pair1,pT2Pair2,pT2Pair3,pT2Pair4,pT2Pair5,pT2Pair6,"p_{T}^{2}(#mu#mu) [GeV^{2}]","Events/0.1 GeV^{2}","pT2Pair_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(setaSingleP,etaSingleP0,etaSingleP1,etaSingleP2,etaSingleP3,etaSingleP4,etaSingleP5,etaSingleP6,"#eta(#mu^{+})","Events/0.3","etaSingleP_noNorm_trackExclu2mm.root");  
-DrawOneHistogramBis(setaSingleM,etaSingleM0,etaSingleM1,etaSingleM2,etaSingleM3,etaSingleM4,etaSingleM5,etaSingleM6,"#eta(#mu^{-})","Events/0.3","etaSingleM_noNorm_trackExclu2mm.root"); 
-DrawOneHistogramBis(spTSingleP,pTSingleP0,pTSingleP1,pTSingleP2,pTSingleP3,pTSingleP4,pTSingleP5,pTSingleP6,"p_{T}(#mu^{+}) [GeV]","Events/1 GeV","pTSingleP_noNorm_trackExclu2mm.root");  
-DrawOneHistogramBis(spTSingleM,pTSingleM0,pTSingleM1,pTSingleM2,pTSingleM3,pTSingleM4,pTSingleM5,pTSingleM6,"p_{T}(#mu^{-}) [GeV]","Events/1 GeV","pTSingleM_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(spxSingleP,pxSingleP0,pxSingleP1,pxSingleP2,pxSingleP3,pxSingleP4,pxSingleP5,pxSingleP6,"p_{X}(#mu^{+}) [GeV]","Events/1 GeV","pxSingleP_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(spxSingleM,pxSingleM0,pxSingleM1,pxSingleM2,pxSingleM3,pxSingleM4,pxSingleM5,pxSingleM6,"p_{X}(#mu^{-}) [GeV]","Events/1 GeV","pxSingleM_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(spySingleP,pySingleP0,pySingleP1,pySingleP2,pySingleP3,pySingleP4,pySingleP5,pySingleP6,"p_{Y}(#mu^{+}) [GeV]","Events/1 GeV","pySingleP_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(spySingleM,pySingleM0,pySingleM1,pySingleM2,pySingleM3,pySingleM4,pySingleM5,pySingleM6,"p_{Y}(#mu^{-}) [GeV]","Events/1 GeV","pySingleM_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(sphiSingleP,phiSingleP0,phiSingleP1,phiSingleP2,phiSingleP3,phiSingleP4,phiSingleP5,phiSingleP6,"#phi(#mu^{+})/#pi","Events/0.5","phiSingleP_noNorm_trackExclu2mm.root");    
-DrawOneHistogramBis(sphiSingleM,phiSingleM0,phiSingleM1,phiSingleM2,phiSingleM3,phiSingleM4,phiSingleM5,phiSingleM6,"#phi(#mu^{-})/#pi","Events/0.5","phiSingleM_noNorm_trackExclu2mm.root");
-//DrawOneHistogramBis(sMuMuMassUps,MuMuMassUps0,MuMuMassUps1,MuMuMassUps2,MuMuMassUps3,MuMuMassUps4,MuMuMassUps5,MuMuMassUps6,"#mu#mu mass","Events/0.1 GeV","MuMuMassUps_noNorm_trackExclu2mm.root");
-//DrawOneHistogramBis(sMuMuMassJpsi,MuMuMassJpsi0,MuMuMassJpsi1,MuMuMassJpsi2,MuMuMassJpsi3,MuMuMassJpsi4,MuMuMassJpsi5,MuMuMassJpsi6,"#mu#mu mass","Events/0.4","MuMuMassJpsi_noNorm_trackExclu2mm.root");
-//DrawOneHistogram(sTrack,nTrack0,nTrack1,nTrack2,nTrack3,nTrack4,nTrack5,"# track (|d|<2mm)","Events/0.1 GeV","nTrack_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(sVtxT,VtxT0,VtxT1,VtxT2,VtxT3,VtxT4,VtxT5,VtxT6,"#mu#mu transverse vtx [cm]","Events/0.002 cm","VtxT_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(sVtxZ,VtxZ0,VtxZ1,VtxZ2,VtxZ3,VtxZ4,VtxZ5,VtxZ6,"#mu#mu z vtx [cm]","Events/2.5 cm","VtxZ_noNorm_trackExclu2mm.root");
-DrawOneHistogramBis(snVtx,nVtx0,nVtx1,nVtx2,nVtx3,nVtx4,nVtx5,nVtx6,"# valid vertices ","Events","nVtx_noNorm_trackExclu2mm.root");
+DrawOneHistogramBis(sMuMuMass,MuMuMass0,MuMuMass1,MuMuMass2,MuMuMass3,MuMuMass4,MuMuMass5,MuMuMass6,"#mu#mu mass [GeV]","Events/1.5 GeV","MuMuMass_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(sMuMu3DAng,MuMu3DAng0,MuMu3DAng1,MuMu3DAng2,MuMu3DAng3,MuMu3DAng4,MuMu3DAng5,MuMu3DAng6,"#mu#mu 3D opening angle / #pi","Events/0.1","MuMu3dangle_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(sMuMudpt,MuMudpt0,MuMudpt1,MuMudpt2,MuMudpt3,MuMudpt4,MuMudpt5,MuMudpt6,"#mu#mu |#Delta p_{T}| [GeV]","Events/0.1 GeV","MuMudpt_noNorm_trackExclu2mm.png"); 
+DrawOneHistogramBis(sMuMudphi,MuMudphi0,MuMudphi1,MuMudphi2,MuMudphi3,MuMudphi4,MuMudphi5,MuMudphi6,"#mu#mu 1-|#Delta #phi / #pi|","Events/0.005","MuMudphi_noNorm_trackExclu2mm.png"); 
+DrawOneHistogramBis(sMuMuSymdphi,MuMuSymdphi0,MuMuSymdphi1,MuMuSymdphi2,MuMuSymdphi3,MuMuSymdphi4,MuMuSymdphi5,MuMuSymdphi6,"1 - |#phi(#mu^{-})-#phi(#mu^{+})| / #pi","Events/0.01","MuMuSymdphi_noNorm_trackExclu2mm.png"); 
+DrawOneHistogramBis(sMuMuDeta,MuMuDeta0,MuMuDeta1,MuMuDeta2,MuMuDeta3,MuMuDeta4,MuMuDeta5,MuMuDeta6,"#mu#mu #Delta #eta","Events/0.2","MuMuDeta_noNorm_trackExclu2mm.png"); 
+DrawOneHistogramBis(setaPair,etaPair0,etaPair1,etaPair2,etaPair3,etaPair4,etaPair5,etaPair6,"#eta(#mu#mu)","Events/0.2","etaPair_noNorm_trackExclu2mm.png");  
+DrawOneHistogramBis(spTPair,pTPair0,pTPair1,pTPair2,pTPair3,pTPair4,pTPair5,pTPair6,"p_{T}(#mu#mu) [GeV]","Events/0.15 GeV","pTPair_noNorm_trackExclu2mm.png");   
+DrawOneHistogramBis(spXPair,pXPair0,pXPair1,pXPair2,pXPair3,pXPair4,pXPair5,pXPair6,"p_{X}(#mu#mu) [GeV]","Events/0.15 GeV","pXPair_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(spYPair,pYPair0,pYPair1,pYPair2,pYPair3,pYPair4,pYPair5,pYPair6,"p_{Y}(#mu#mu) [GeV]","Events/0.15 GeV","pYPair_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(spT2Pair,pT2Pair0,pT2Pair1,pT2Pair2,pT2Pair3,pT2Pair4,pT2Pair5,pT2Pair6,"p_{T}^{2}(#mu#mu) [GeV^{2}]","Events/0.1 GeV^{2}","pT2Pair_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(setaSingleP,etaSingleP0,etaSingleP1,etaSingleP2,etaSingleP3,etaSingleP4,etaSingleP5,etaSingleP6,"#eta(#mu^{+})","Events/0.3","etaSingleP_noNorm_trackExclu2mm.png");  
+DrawOneHistogramBis(setaSingleM,etaSingleM0,etaSingleM1,etaSingleM2,etaSingleM3,etaSingleM4,etaSingleM5,etaSingleM6,"#eta(#mu^{-})","Events/0.3","etaSingleM_noNorm_trackExclu2mm.png"); 
+DrawOneHistogramBis(spTSingleP,pTSingleP0,pTSingleP1,pTSingleP2,pTSingleP3,pTSingleP4,pTSingleP5,pTSingleP6,"p_{T}(#mu^{+}) [GeV]","Events/1 GeV","pTSingleP_noNorm_trackExclu2mm.png");  
+DrawOneHistogramBis(spTSingleM,pTSingleM0,pTSingleM1,pTSingleM2,pTSingleM3,pTSingleM4,pTSingleM5,pTSingleM6,"p_{T}(#mu^{-}) [GeV]","Events/1 GeV","pTSingleM_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(spxSingleP,pxSingleP0,pxSingleP1,pxSingleP2,pxSingleP3,pxSingleP4,pxSingleP5,pxSingleP6,"p_{X}(#mu^{+}) [GeV]","Events/1 GeV","pxSingleP_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(spxSingleM,pxSingleM0,pxSingleM1,pxSingleM2,pxSingleM3,pxSingleM4,pxSingleM5,pxSingleM6,"p_{X}(#mu^{-}) [GeV]","Events/1 GeV","pxSingleM_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(spySingleP,pySingleP0,pySingleP1,pySingleP2,pySingleP3,pySingleP4,pySingleP5,pySingleP6,"p_{Y}(#mu^{+}) [GeV]","Events/1 GeV","pySingleP_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(spySingleM,pySingleM0,pySingleM1,pySingleM2,pySingleM3,pySingleM4,pySingleM5,pySingleM6,"p_{Y}(#mu^{-}) [GeV]","Events/1 GeV","pySingleM_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(sphiSingleP,phiSingleP0,phiSingleP1,phiSingleP2,phiSingleP3,phiSingleP4,phiSingleP5,phiSingleP6,"#phi(#mu^{+})/#pi","Events/0.5","phiSingleP_noNorm_trackExclu2mm.png");    
+DrawOneHistogramBis(sphiSingleM,phiSingleM0,phiSingleM1,phiSingleM2,phiSingleM3,phiSingleM4,phiSingleM5,phiSingleM6,"#phi(#mu^{-})/#pi","Events/0.5","phiSingleM_noNorm_trackExclu2mm.png");
+//DrawOneHistogramBis(sMuMuMassUps,MuMuMassUps0,MuMuMassUps1,MuMuMassUps2,MuMuMassUps3,MuMuMassUps4,MuMuMassUps5,MuMuMassUps6,"#mu#mu mass","Events/0.1 GeV","MuMuMassUps_noNorm_trackExclu2mm.png");
+//DrawOneHistogramBis(sMuMuMassJpsi,MuMuMassJpsi0,MuMuMassJpsi1,MuMuMassJpsi2,MuMuMassJpsi3,MuMuMassJpsi4,MuMuMassJpsi5,MuMuMassJpsi6,"#mu#mu mass","Events/0.4","MuMuMassJpsi_noNorm_trackExclu2mm.png");
+//DrawOneHistogram(sTrack,nTrack0,nTrack1,nTrack2,nTrack3,nTrack4,nTrack5,"# track (|d|<2mm)","Events/0.1 GeV","nTrack_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(sVtxT,VtxT0,VtxT1,VtxT2,VtxT3,VtxT4,VtxT5,VtxT6,"#mu#mu transverse vtx [cm]","Events/0.002 cm","VtxT_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(sVtxZ,VtxZ0,VtxZ1,VtxZ2,VtxZ3,VtxZ4,VtxZ5,VtxZ6,"#mu#mu z vtx [cm]","Events/2.5 cm","VtxZ_noNorm_trackExclu2mm.png");
+DrawOneHistogramBis(snVtx,nVtx0,nVtx1,nVtx2,nVtx3,nVtx4,nVtx5,nVtx6,"# valid vertices ","Events","nVtx_noNorm_trackExclu2mm.png");
 
 //============================
 
