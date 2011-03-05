@@ -392,8 +392,8 @@ bool PassesMuonID(int trackerMuon1, int selectorMuon1, int globalMuon1, int trac
         bool muhit2pass = (nHitsMuon2 >= 1) && (nMatches2 >=2);
         bool muchi1pass = (Chi2Muon1 < 10);
         bool muchi2pass = (Chi2Muon2 < 10);
-        bool muID1pass = (trackerMuon1 && selectorMuon1) || (trackerMuon1 && globalMuon1);
-        bool muID2pass = (trackerMuon2 && selectorMuon2) || (trackerMuon2 && globalMuon2);    
+        bool muID1pass = /*(trackerMuon1 && selectorMuon1) ||*/ (trackerMuon1 && globalMuon1);
+        bool muID2pass = /*(trackerMuon2 && selectorMuon2) ||*/ (trackerMuon2 && globalMuon2);    
 
         if(tkhit1pass && tkhit2pass && muhit1pass && muhit2pass && muID1pass && muID2pass && muchi1pass && muchi2pass)
         {
@@ -432,21 +432,18 @@ gROOT->SetTitle(0);*/
 //definition des fichiers + Tree
   TFile *f0 = new TFile("candNov4.root"); // 
   TTree *t0 = f0->Get("ntp1");
-  TFile *f1 = new TFile("/home/fynu/schul/scratch/Crab_Feb2010/CMSSW_3_8_6/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/MC/El-El.root"); //
-//  TFile *f1 = new TFile("El-El_highPt.root");
+  TFile *f1 = new TFile("ElEl.root"); //
   TTree *t1 = f1->Get("ntp1");
-  TFile *f2 = new TFile("/home/fynu/schul/scratch/Crab_Feb2010/CMSSW_3_8_6/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/MC/InelEl.root"); //
-//  TFile *f2 = new TFile("HighStat_Inel-El_highPt.root");
+  TFile *f2 = new TFile("InelEl.root"); //
   TTree *t2 = f2->Get("ntp1");
-  TFile *f3 = new TFile("/home/fynu/schul/scratch/Crab_Feb2010/CMSSW_3_8_6/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/MC/InelInel.root"); //
-//  TFile *f3 = new TFile("HighStat_Inel-Inel_highPt.root");
+  TFile *f3 = new TFile("InelInel.root"); //
   TTree *t3 = f3->Get("ntp1");
   TFile *f4 = new TFile("Upsilon.root"); //
   TTree *t4 = f4->Get("ntp1");
   TFile *f5 = new TFile("Jpsi.root"); //
   TTree *t5 = f5->Get("ntp1");
 
-  TFile *f6 = new TFile("DY_tp385.root"); //
+  TFile *f6 = new TFile("DrellYan.root"); //
 //  TFile *f6 = new TFile("/storage/data/cms/store/user/schul/384_novQCD/QCD2MU_merge.root");
   TTree *t6 = f6->Get("ntp1");
 //  TFile *f5 = new TFile("../Jpsi.root"); //
@@ -894,13 +891,9 @@ gROOT->SetTitle(0);*/
   const int NUM5 = t5->GetEntries();
   const int NUM6 = t6->GetEntries();
 
-//  const float integrated_lumi = 299.30569*0.5857; //in nb-1
-//  const float integrated_lumi = 2872.246*0.5; // in nb-1	
-//  const float integrated_lumi = 2872.246;
-  const float integrated_lumi = 39980*0.892;//35437.511542*0.892;
-//  const float integrated_lumi = 3044.0 * 0.5;
-//  const float integrated_lumi = 4426.5;
-//  const float integrated_lumi = 4426.5 - 3044.0;
+  const float integrated_lumi = 39980.93196*0.922869696;//
+  const float run2010A_part=0.08110262968;
+  const float run2010B_part=0.91889737032;
 
   const float doublemuopenfractionallumi = 1.0;
   const float doublemuopentightfractionallumi = 0.0;
@@ -916,8 +909,8 @@ gROOT->SetTitle(0);*/
 
   const float fac_lumi0 = 1.0;
   const float fac_lumi1 = 1.0850e-6*integrated_lumi;			//  4.02929e-8*integrated_lumi;
-  const float fac_lumi2 = 3.0543555e-7*integrated_lumi/**1.12534*/;                    //  3.05250e-6*integrated_lumi;
-  const float fac_lumi3 = 3.6488765e-7*integrated_lumi;                    //  4.740e-6*integrated_lumi;
+  const float fac_lumi2 = 3.0525000e-7*integrated_lumi/**1.12534*/;                    //  3.05250e-6*integrated_lumi;
+  const float fac_lumi3 = 3.6700657e-7*integrated_lumi;                    //  4.740e-6*integrated_lumi;
   const float fac_lumi4 = 1.350e-6*integrated_lumi;			//  1.350e-6*integrated_lumi;
   const float fac_lumi5 = 3.02430e-4*integrated_lumi;
 
@@ -1725,11 +1718,8 @@ gROOT->SetTitle(0);*/
           pYPair0->Fill(py_pair,fac_lumi0);
           pT2Pair0->Fill(pt_pair*pt_pair,fac_lumi0);
 
-	  if(var_charge0[pair1]>0) {phiSingleP0->Fill(var_phi0[pair1]/pi,fac_lumi0);etaSingleP0->Fill(var_eta0[pair1],fac_lumi0);pTSingleP0->Fill(var_pt0[pair1],fac_lumi0); pxSingleP0->Fill(var_px0[pair1],fac_lumi0); pySingleP0->Fill(var_py0[pair1],fac_lumi0);}   
-	  else {phiSingleM0->Fill(var_phi0[pair1]/pi,fac_lumi0);etaSingleM0->Fill(var_eta0[pair1],fac_lumi0);pTSingleM0->Fill(var_pt0[pair1],fac_lumi0);}
-
-	  if(var_charge0[pair2]>0) {phiSingleP0->Fill(var_phi0[pair2]/pi,fac_lumi0);etaSingleP0->Fill(var_eta0[pair2],fac_lumi0);pTSingleP0->Fill(var_pt0[pair2],fac_lumi0);}   
-	  else {phiSingleM0->Fill(var_phi0[pair2]/pi,fac_lumi0);etaSingleM0->Fill(var_eta0[pair2],fac_lumi0);pTSingleM0->Fill(var_pt0[pair2],fac_lumi0);pxSingleM0->Fill(var_px0[pair2],fac_lumi0); pySingleM0->Fill(var_py0[pair2],fac_lumi0);}
+	  {phiSingleP0->Fill(var_phi0[pair1]/pi,fac_lumi0);etaSingleP0->Fill(var_eta0[pair1],fac_lumi0);pTSingleP0->Fill(var_pt0[pair1],fac_lumi0); pxSingleP0->Fill(var_px0[pair1],fac_lumi0); pySingleP0->Fill(var_py0[pair1],fac_lumi0);}   
+	  {phiSingleM0->Fill(var_phi0[pair2]/pi,fac_lumi0);etaSingleM0->Fill(var_eta0[pair2],fac_lumi0);pTSingleM0->Fill(var_pt0[pair2],fac_lumi0);pxSingleM0->Fill(var_px0[pair2],fac_lumi0); pySingleM0->Fill(var_py0[pair2],fac_lumi0);}
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -1748,7 +1738,7 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
         int muID2 = var_idA1[pair2];
 	int muAng1 = var_idB1[pair1];
         int muAng2 = var_idB1[pair2];
-	double effcorrection1 = (var_eff1[pair1]*var_eff1[pair2]*doublemuopenfractionallumi+doublemuopentightfractionallumi);
+	double effcorrection1 = (i<6587) ? (var_eff1[pair1]*var_eff1[pair2]*run2010A_part) : (var_eff1[pair1]*var_eff1[pair2]*run2010B_part);
         int hlt_pass = hlt_d1[0];
 	int nPrimVtx = var_nvtx1[0];
         int nValidVtx_loose(0);
@@ -1781,7 +1771,6 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
 	if(label_vertex!=99
 	   && sqrt(pow(var_vtxX1[label_vertex],2)+pow(var_vtxY1[label_vertex],2))<0.514
            && sqrt(pow(var_vtxX1[label_vertex],2)+pow(var_vtxY1[label_vertex],2))>0.414
-//         && sqrt(pow(var_vtxX1[label_vertex],2)+pow(var_vtxY1[label_vertex],2))>0.564
            && PassesMuonID(var_tracker1[pair1], muAng1, var_global1[pair1], var_tracker1[pair2], muAng2, var_global1[pair2], var_nhitsTrack1[pair1], var_nhitsTrack1[pair2], var_nhitsPixel1[pair1], var_nhitsPixel1[pair2], var_nhitsMuon1[pair1], var_nhitsMuon1[pair2], var_matches1[pair1], var_matches1[pair2], var_normChi1[pair1], var_normChi1[pair2])
            && PassesDptCut(var_dpt1[0])  
            && PassesDphiCut(var_dphi1[0]/pi) 
@@ -1887,10 +1876,10 @@ cout<<"  # Dimuon events = "<<filter0Events<<endl;
           pXPair1->Fill(px_pair,fac_lumi1*effcorrection1);
           pT2Pair1->Fill(pt_pair*pt_pair,fac_lumi1*effcorrection1);
 
-          if(var_charge1[pair1]>0) {phiSingleP1->Fill(var_phi1[pair1]/pi,fac_lumi1*var_eff1[pair1]/*effcorrection1*/);etaSingleP1->Fill(var_eta1[pair1],fac_lumi1*var_eff1[pair1]/*effcorrection1*/);pTSingleP1->Fill(var_pt1[pair1],fac_lumi1*var_eff1[pair1]/*effcorrection1*/);  pySingleP1->Fill(var_py1[pair1],fac_lumi1*var_eff1[pair1]); pxSingleP1->Fill(var_px1[pair1],fac_lumi1*var_eff1[pair1]);}   
-	  else {phiSingleM1->Fill(var_phi1[pair1]/pi,fac_lumi1*var_eff1[pair1]/*effcorrection1*/);etaSingleM1->Fill(var_eta1[pair1],fac_lumi1*var_eff1[pair1]/*effcorrection1*/);pTSingleM1->Fill(var_pt1[pair1],fac_lumi1*var_eff1[pair1]/*effcorrection1*/);}
-          if(var_charge1[pair2]>0) {phiSingleP1->Fill(var_phi1[pair2]/pi,fac_lumi1*var_eff1[pair2]/*effcorrection1*/);etaSingleP1->Fill(var_eta1[pair2],fac_lumi1*var_eff1[pair2]/*effcorrection1*/);pTSingleP1->Fill(var_pt1[pair2],fac_lumi1*var_eff1[pair2]/*effcorrection1*/);}   
-	  else {phiSingleM1->Fill(var_phi1[pair2]/pi,fac_lumi1*var_eff1[pair2]/*effcorrection1*/);etaSingleM1->Fill(var_eta1[pair2],fac_lumi1*var_eff1[pair2]/*effcorrection1*/);pTSingleM1->Fill(var_pt1[pair2],fac_lumi1*var_eff1[pair2]/*effcorrection1*/);pySingleM1->Fill(var_py1[pair2],fac_lumi1*var_eff1[pair2]); pxSingleM1->Fill(var_px1[pair2],fac_lumi1*var_eff1[pair2]);}
+	  float part_period = (i<6587) ? (run2010A_part) : (run2010B_part);
+
+          {phiSingleP1->Fill(var_phi1[pair1]/pi,fac_lumi1*var_eff1[pair1]*part_period);etaSingleP1->Fill(var_eta1[pair1],fac_lumi1*var_eff1[pair1]*part_period);pTSingleP1->Fill(var_pt1[pair1],fac_lumi1*var_eff1[pair1]*part_period);  pySingleP1->Fill(var_py1[pair1],fac_lumi1*var_eff1[pair1]*part_period); pxSingleP1->Fill(var_px1[pair1],fac_lumi1*var_eff1[pair1]*part_period);}   
+	  {phiSingleM1->Fill(var_phi1[pair2]/pi,fac_lumi1*var_eff1[pair2]*part_period);etaSingleM1->Fill(var_eta1[pair2],fac_lumi1*var_eff1[pair2]*part_period);pTSingleM1->Fill(var_pt1[pair2],fac_lumi1*var_eff1[pair2]*part_period);  pySingleM1->Fill(var_py1[pair2],fac_lumi1*var_eff1[pair2]*part_period); pxSingleM1->Fill(var_px1[pair2],fac_lumi1*var_eff1[pair2]*part_period);}
 	  } // if nTrack&nCalo if relevant
         }
   }
@@ -1908,7 +1897,7 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
         int muID2 = var_idA2[pair2];
 	int muAng1 = var_idB2[pair1];
         int muAng2 = var_idB2[pair2];
-	double effcorrection2 = (var_eff2[pair1]*var_eff2[pair2]*doublemuopenfractionallumi+doublemuopentightfractionallumi);
+        double effcorrection2 = (i<40083) ? (var_eff2[pair1]*var_eff2[pair2]*run2010A_part) : (var_eff2[pair1]*var_eff2[pair2]*run2010B_part);
 
         int hlt_pass = hlt_d2[0];
 	int nPrimVtx = var_nvtx2[0];
@@ -2060,11 +2049,10 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
           pYPair2->Fill(py_pair,fac_lumi2*effcorrection2*ExpCorrection);
           pT2Pair2->Fill(pt_pair*pt_pair,fac_lumi2*effcorrection2*ExpCorrection);
 
-          if(var_charge2[pair1]>0) {phiSingleP2->Fill(var_phi2[pair1]/pi,fac_lumi2*var_eff2[pair1]*ExpCorrection);etaSingleP2->Fill(var_eta2[pair1],fac_lumi2*var_eff2[pair1]*ExpCorrection);pTSingleP2->Fill(var_pt2[pair1],fac_lumi2*var_eff2[pair1]*ExpCorrection); pxSingleP2->Fill(var_px2[pair1],fac_lumi2*var_eff2[pair1]*ExpCorrection);pySingleP2->Fill(var_py2[pair1],fac_lumi2*var_eff2[pair1]*ExpCorrection);}  
-          else {phiSingleM2->Fill(var_phi2[pair1]/pi,fac_lumi2*var_eff2[pair1]*ExpCorrection);etaSingleM2->Fill(var_eta2[pair1],fac_lumi2*var_eff2[pair1]*ExpCorrection);pTSingleM2->Fill(var_pt2[pair1],fac_lumi2*var_eff2[pair1]*ExpCorrection);}
-          if(var_charge2[pair2]>0) {phiSingleP2->Fill(var_phi2[pair2]/pi,fac_lumi2*var_eff2[pair2]*ExpCorrection);etaSingleP2->Fill(var_eta2[pair2],fac_lumi2*var_eff2[pair2]*ExpCorrection);pTSingleP2->Fill(var_pt2[pair2],fac_lumi2*var_eff2[pair2]*ExpCorrection);}  
-          else {phiSingleM2->Fill(var_phi2[pair2]/pi,fac_lumi2*var_eff2[pair2]*ExpCorrection);etaSingleM2->Fill(var_eta2[pair2],fac_lumi2*var_eff2[pair2]*ExpCorrection);pTSingleM2->Fill(var_pt2[pair2],fac_lumi2*var_eff2[pair2]*ExpCorrection);pxSingleM2->Fill(var_px2[pair2],fac_lumi2*var_eff2[pair2]*ExpCorrection);pySingleM2->Fill(var_py2[pair2],fac_lumi2*var_eff2[pair2]*ExpCorrection);}
+          float part_period = (i<40083) ? (run2010A_part) : (run2010B_part);
 
+          {phiSingleP2->Fill(var_phi2[pair1]/pi,fac_lumi2*var_eff2[pair1]*ExpCorrection*part_period);etaSingleP2->Fill(var_eta2[pair1],fac_lumi2*var_eff2[pair1]*ExpCorrection*part_period);pTSingleP2->Fill(var_pt2[pair1],fac_lumi2*var_eff2[pair1]*ExpCorrection*part_period); pxSingleP2->Fill(var_px2[pair1],fac_lumi2*var_eff2[pair1]*ExpCorrection*part_period);pySingleP2->Fill(var_py2[pair1],fac_lumi2*var_eff2[pair1]*ExpCorrection*part_period);}  
+          {phiSingleM2->Fill(var_phi2[pair2]/pi,fac_lumi2*var_eff2[pair2]*ExpCorrection*part_period);etaSingleM2->Fill(var_eta2[pair2],fac_lumi2*var_eff2[pair2]*ExpCorrection*part_period);pTSingleM2->Fill(var_pt2[pair2],fac_lumi2*var_eff2[pair2]*ExpCorrection*part_period); pxSingleM2->Fill(var_px2[pair2],fac_lumi2*var_eff2[pair2]*ExpCorrection*part_period);pySingleM2->Fill(var_py2[pair2],fac_lumi2*var_eff2[pair2]*ExpCorrection*part_period);}
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -2083,7 +2071,7 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
         int muID2 = var_idA3[pair2];
 	int muAng1 = var_idB3[pair1];
         int muAng2 = var_idB3[pair2];
-	double effcorrection3 = (var_eff3[pair1]*var_eff3[pair2]*doublemuopenfractionallumi+doublemuopentightfractionallumi);
+        double effcorrection3 = (i<15265) ? (var_eff3[pair1]*var_eff3[pair2]*run2010A_part) : (var_eff3[pair1]*var_eff3[pair2]*run2010B_part);
         int hlt_pass = hlt_d3[0];
 	int nPrimVtx = var_nvtx3[0];
         int nValidVtx_loose(0);
@@ -2219,10 +2207,10 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
           pYPair3->Fill(py_pair,fac_lumi3*effcorrection3);
           pT2Pair3->Fill(pt_pair*pt_pair,fac_lumi3*effcorrection3);
 
-          if(var_charge3[pair1]>0) {phiSingleP3->Fill(var_phi3[pair1]/pi,fac_lumi3*var_eff3[pair1]/*effcorrection3*/);etaSingleP3->Fill(var_eta3[pair1],fac_lumi3*var_eff3[pair1]/*effcorrection3*/);pTSingleP3->Fill(var_pt3[pair1],fac_lumi3*var_eff3[pair1]/*effcorrection3*/);  pxSingleP3->Fill(var_px3[pair1],fac_lumi3*var_eff3[pair1]/*effcorrection3*/);pySingleP3->Fill(var_py3[pair1],fac_lumi3*var_eff3[pair1]/*effcorrection3*/);}  
-          else {phiSingleM3->Fill(var_phi3[pair1]/pi,fac_lumi3*var_eff3[pair1]/*effcorrection3*/);etaSingleM3->Fill(var_eta3[pair1],fac_lumi3*var_eff3[pair1]/*effcorrection3*/);pTSingleM3->Fill(var_pt3[pair1],fac_lumi3*var_eff3[pair1]/*effcorrection3*/);}
-          if(var_charge3[pair2]>0) {phiSingleP3->Fill(var_phi3[pair2]/pi,fac_lumi3*var_eff3[pair2]/*effcorrection3*/);etaSingleP3->Fill(var_eta3[pair2],fac_lumi3*var_eff3[pair2]/*effcorrection3*/);pTSingleP3->Fill(var_pt3[pair2],fac_lumi3*var_eff3[pair2]/*effcorrection3*/);}  
-          else {phiSingleM3->Fill(var_phi3[pair2]/pi,fac_lumi3*var_eff3[pair2]/*effcorrection3*/);etaSingleM3->Fill(var_eta3[pair2],fac_lumi3*var_eff3[pair2]/*effcorrection3*/);pTSingleM3->Fill(var_pt3[pair2],fac_lumi3*var_eff3[pair2]/*effcorrection3*/); pxSingleM3->Fill(var_px3[pair2],fac_lumi3*var_eff3[pair2]/*effcorrection3*/);pySingleM3->Fill(var_py3[pair2],fac_lumi3*var_eff3[pair2]/*effcorrection3*/);}
+          float part_period = (i<15265) ? (run2010A_part) : (run2010B_part);
+
+          {phiSingleP3->Fill(var_phi3[pair1]/pi,fac_lumi3*var_eff3[pair1]*part_period);etaSingleP3->Fill(var_eta3[pair1],fac_lumi3*var_eff3[pair1]*part_period);pTSingleP3->Fill(var_pt3[pair1],fac_lumi3*var_eff3[pair1]*part_period); pxSingleP3->Fill(var_px3[pair1],fac_lumi3*var_eff3[pair1]*part_period);pySingleP3->Fill(var_py3[pair1],fac_lumi3*var_eff3[pair1]*part_period);}  
+          {phiSingleM3->Fill(var_phi3[pair2]/pi,fac_lumi3*var_eff3[pair2]*part_period);etaSingleM3->Fill(var_eta3[pair2],fac_lumi3*var_eff3[pair2]*part_period);pTSingleM3->Fill(var_pt3[pair2],fac_lumi3*var_eff3[pair2]*part_period); pxSingleM3->Fill(var_px3[pair2],fac_lumi3*var_eff3[pair2]*part_period);pySingleM3->Fill(var_py3[pair2],fac_lumi3*var_eff3[pair2]*part_period);}
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -2371,10 +2359,8 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
           pTPair4->Fill(sqrt(pt_pair),fac_lumi4*effcorrection4);
           pT2Pair4->Fill(pt_pair,fac_lumi4*effcorrection4);
 
-          if(var_charge4[pair1]>0) {phiSingleP4->Fill(var_phi4[pair1]/pi,fac_lumi4*var_eff4[pair1]/*effcorrection4*/);etaSingleP4->Fill(var_eta4[pair1],fac_lumi4*var_eff4[pair1]/*effcorrection4*/);pTSingleP4->Fill(var_pt4[pair1],fac_lumi4*var_eff4[pair1]/*effcorrection4*/);}
-          else {phiSingleM4->Fill(var_phi4[pair1]/pi,fac_lumi4*var_eff4[pair1]/*effcorrection4*/);etaSingleM4->Fill(var_eta4[pair1],fac_lumi4*var_eff4[pair1]/*effcorrection4*/);pTSingleM4->Fill(var_pt4[pair1],fac_lumi4*var_eff4[pair1]/*effcorrection4*/);}
-          if(var_charge4[pair2]>0) {phiSingleP4->Fill(var_phi4[pair2]/pi,fac_lumi4*var_eff4[pair2]/*effcorrection4*/);etaSingleP4->Fill(var_eta4[pair2],fac_lumi4*var_eff4[pair2]/*effcorrection4*/);pTSingleP4->Fill(var_pt4[pair2],fac_lumi4*var_eff4[pair2]/*effcorrection4*/);}
-          else {phiSingleM4->Fill(var_phi4[pair2]/pi,fac_lumi4*var_eff4[pair2]/*effcorrection4*/);etaSingleM4->Fill(var_eta4[pair2],fac_lumi4*var_eff4[pair2]/*effcorrection4*/);pTSingleM4->Fill(var_pt4[pair2],fac_lumi4*var_eff4[pair2]/*effcorrection4*/);}
+          {phiSingleP4->Fill(var_phi4[pair1]/pi,fac_lumi4*var_eff4[pair1]/*effcorrection4*/);etaSingleP4->Fill(var_eta4[pair1],fac_lumi4*var_eff4[pair1]/*effcorrection4*/);pTSingleP4->Fill(var_pt4[pair1],fac_lumi4*var_eff4[pair1]/*effcorrection4*/);}
+          {phiSingleM4->Fill(var_phi4[pair2]/pi,fac_lumi4*var_eff4[pair2]/*effcorrection4*/);etaSingleM4->Fill(var_eta4[pair2],fac_lumi4*var_eff4[pair2]/*effcorrection4*/);pTSingleM4->Fill(var_pt4[pair2],fac_lumi4*var_eff4[pair2]/*effcorrection4*/);}
 
 	  } // if nTrack&nCalo if relevant
         }
@@ -2518,10 +2504,8 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
           pTPair5->Fill(sqrt(pt_pair),fac_lumi5*effcorrection5);
           pT2Pair5->Fill(pt_pair,fac_lumi5*effcorrection5);
 
-          if(var_charge5[pair1]>0) {phiSingleP5->Fill(var_phi5[pair1]/pi,fac_lumi5*var_eff5[pair1]/*effcorrection5*/);etaSingleP5->Fill(var_eta5[pair1],fac_lumi5*var_eff5[pair1]/*effcorrection5*/);pTSingleP5->Fill(var_pt5[pair1],fac_lumi5*var_eff5[pair1]/*effcorrection5*/);}
-          else {phiSingleM5->Fill(var_phi5[pair1]/pi,fac_lumi5*var_eff5[pair1]/*effcorrection5*/);etaSingleM5->Fill(var_eta5[pair1],fac_lumi5*var_eff5[pair1]/*effcorrection5*/);pTSingleM5->Fill(var_pt5[pair1],fac_lumi5*var_eff5[pair1]/*effcorrection5*/);}
-          if(var_charge5[pair2]>0) {phiSingleP5->Fill(var_phi5[pair2]/pi,fac_lumi5*var_eff5[pair2]/*effcorrection5*/);etaSingleP5->Fill(var_eta5[pair2],fac_lumi5*var_eff5[pair2]/*effcorrection5*/);pTSingleP5->Fill(var_pt5[pair2],fac_lumi5*var_eff5[pair2]/*effcorrection5*/);}
-          else {phiSingleM5->Fill(var_phi5[pair2]/pi,fac_lumi5*var_eff5[pair2]/*effcorrection5*/);etaSingleM5->Fill(var_eta5[pair2],fac_lumi5*var_eff5[pair2]/*effcorrection5*/);pTSingleM5->Fill(var_pt5[pair2],fac_lumi5*var_eff5[pair2]/*effcorrection5*/);}
+          {phiSingleP5->Fill(var_phi5[pair1]/pi,fac_lumi5*var_eff5[pair1]/*effcorrection5*/);etaSingleP5->Fill(var_eta5[pair1],fac_lumi5*var_eff5[pair1]/*effcorrection5*/);pTSingleP5->Fill(var_pt5[pair1],fac_lumi5*var_eff5[pair1]/*effcorrection5*/);}
+          {phiSingleM5->Fill(var_phi5[pair2]/pi,fac_lumi5*var_eff5[pair2]/*effcorrection5*/);etaSingleM5->Fill(var_eta5[pair2],fac_lumi5*var_eff5[pair2]/*effcorrection5*/);pTSingleM5->Fill(var_pt5[pair2],fac_lumi5*var_eff5[pair2]/*effcorrection5*/);}
 
           } // if nTrack&nCalo if relevant
         }
@@ -2529,7 +2513,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
 cout<<"Jpsi :"<<endl;
 cout<<"  # Dimuon events = "<<filter5Events<<endl;
 
-/*
+
   int filter6Gen(0);
   int filter6Track(0);
   double filter6Events_norm(0);
@@ -2551,7 +2535,8 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
         int nCalo=var_ncalo6[0];
         int label_vertex(99);
 	int bkgNum=var_run6[0];
-        double effcorrection6 = (var_eff6[pair1]*var_eff6[pair2]*doublemuopenfractionallumi+doublemuopentightfractionallumi);
+        double effcorrection6 = (i<1630) ? (var_eff6[pair1]*var_eff6[pair2]*run2010A_part) : (var_eff6[pair1]*var_eff6[pair2]*run2010B_part);
+
 //      cout<<"--------------------"<<var_event1[0]<<"-----------------------"<<endl;
 
        if(PassesTrigger(hlt_pass,1) == false)
@@ -2680,10 +2665,10 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
           pYPair6->Fill(py_pair,fac_lumiBkg[bkgNum]*effcorrection6);
           pT2Pair6->Fill(pt_pair*pt_pair,fac_lumiBkg[bkgNum]*effcorrection6);
 
-          if(var_charge6[pair1]>0) {phiSingleP6->Fill(var_phi6[pair1]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair1]);etaSingleP6->Fill(var_eta6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]);pTSingleP6->Fill(var_pt6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]); pxSingleP6->Fill(var_px6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]);pySingleP6->Fill(var_py6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]);}
-          else {phiSingleM6->Fill(var_phi6[pair1]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair1]);etaSingleM6->Fill(var_eta6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]);pTSingleM6->Fill(var_pt6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]);}
-          if(var_charge6[pair2]>0) {phiSingleP6->Fill(var_phi6[pair2]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair2]);etaSingleP6->Fill(var_eta6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]);pTSingleP6->Fill(var_pt6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]);}
-          else {phiSingleM6->Fill(var_phi6[pair2]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair2]);etaSingleM6->Fill(var_eta6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]);pTSingleM6->Fill(var_pt6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]);pxSingleM6->Fill(var_px6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]);pySingleM6->Fill(var_py6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]);}
+          float part_period = (i<1630) ? (run2010A_part) : (run2010B_part);
+
+          {phiSingleP6->Fill(var_phi6[pair1]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair1]*part_period);etaSingleP6->Fill(var_eta6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]*part_period);pTSingleP6->Fill(var_pt6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]*part_period); pxSingleP6->Fill(var_px6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]*part_period);pySingleP6->Fill(var_py6[pair1],fac_lumiBkg[bkgNum]*var_eff6[pair1]*part_period);}
+          {phiSingleM6->Fill(var_phi6[pair2]/pi,fac_lumiBkg[bkgNum]*var_eff6[pair2]*part_period);etaSingleM6->Fill(var_eta6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]*part_period);pTSingleM6->Fill(var_pt6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]*part_period); pxSingleM6->Fill(var_px6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]*part_period);pySingleM6->Fill(var_py6[pair2],fac_lumiBkg[bkgNum]*var_eff6[pair2]*part_period);}
 
 
           } // if nTrack&nCalo if relevant
@@ -2694,7 +2679,7 @@ cout<<"Inclusive :"<<endl;
 cout<<"  # Dimuon events = "<<filter6Events_norm<<endl;
 cout<<"                 --> 10<m<20 = "<<filter6_M10<<endl;
 cout<<"                 -->    m>20 = "<<filter6_M20<<endl;
-*/
+
 
 ci = TColor::GetColor("#ffff99");
 
