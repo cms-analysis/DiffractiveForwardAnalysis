@@ -361,7 +361,7 @@ bool PassesKinematicCuts(float mass, float ptPlus, float ptMinus, float etaPlus,
   	float lowermasscut1 = 10.0;
   	float uppermasscut1 = 8.5;
   	float lowermasscut2 = 11.5;
-  	float uppermasscut2 = 25.0; 
+  	float uppermasscut2 = 999.0; 
 
         if((mass < lowermasscut1) || (mass > uppermasscut2)) 
 		pass = false;
@@ -377,22 +377,26 @@ bool PassesKinematicCuts(float mass, float ptPlus, float ptMinus, float etaPlus,
 	return pass;
 }
 
-bool PassesMuonID(int trackerMuon1, int selectorMuon1, int globalMuon1, int trackerMuon2, int selectorMuon2, int globalMuon2, int nHitsMuon1, int nHitsMuon2)
+bool PassesMuonID(int trackerMuon1, int selectorMuon1, int globalMuon1, int trackerMuon2, int selectorMuon2, int globalMuon2, int nHitsTrack1, int nHitsTrack2, int nHitsPixel1, int nHitsPixel2, int nHitsMuon1, int nHitsMuon2, int nMatches1, int nMatches2, double Chi2Muon1, double Chi2Muon2)
 {
-	bool pass = false;
-	int nhitsthresh = 10;
+        bool pass = false;
 
-	bool muhit1pass = (nHitsMuon1 > nhitsthresh);
-	bool muhit2pass = (nHitsMuon2 > nhitsthresh);
-	bool muID1pass = (trackerMuon1 && selectorMuon1) || globalMuon1;
-	bool muID2pass = (trackerMuon2 && selectorMuon2) || globalMuon2;  
+        bool tkhit1pass = (nHitsTrack1 > 10) && (nHitsPixel1 >= 1);
+        bool tkhit2pass = (nHitsTrack2 > 10) && (nHitsPixel2 >= 1);
+        bool muhit1pass = (nHitsMuon1 >= 1) && (nMatches1 >=2);  //two levels of muon stations matching
+        bool muhit2pass = (nHitsMuon2 >= 1) && (nMatches2 >=2);
+        bool muchi1pass = (Chi2Muon1 < 10);
+        bool muchi2pass = (Chi2Muon2 < 10);
+        bool muID1pass = /*(trackerMuon1 && selectorMuon1) ||*/ (trackerMuon1 && globalMuon1);
+        bool muID2pass = /*(trackerMuon2 && selectorMuon2) ||*/ (trackerMuon2 && globalMuon2);
 
-	if(muhit1pass && muhit2pass && muID1pass && muID2pass)
-	{
-		pass = true;
-	}
-	return pass;
+        if(tkhit1pass && tkhit2pass && muhit1pass && muhit2pass && muID1pass && muID2pass && muchi1pass && muchi2pass)
+        {
+                pass = true;
+        }
+        return pass;
 }
+
 
 bool PassesVertexSelection(int vtxNTrack,double vtxChi2,double vtxNdf,double distance_vertex_z,double vtxZ,int isdimuonvtx) 
 {
@@ -420,21 +424,21 @@ gROOT->SetTitle(0);*/
 #define pi 3.14159265359
 
 //definition des fichiers + Tree
-  TFile *f0 = new TFile("../cand_2tracks.root"); // 
+  TFile *f0 = new TFile("../candNov4.root"); // 
 //  TFile *f0 = new TFile("cand_2tracks.root"); // 
   TTree *t0 = f0->Get("ntp1");
-  TFile *f1 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_8_5/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/El-El.root"); //
+  TFile *f1 = new TFile("../ElEl.root"); //
   TTree *t1 = f1->Get("ntp1");
-  TFile *f2 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_8_5/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Inel-El.root"); //
+  TFile *f2 = new TFile("../InelEl.root"); //
   TTree *t2 = f2->Get("ntp1");
-  TFile *f3 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_8_5/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/Inel-Inel.root"); //
+  TFile *f3 = new TFile("../InelInel.root"); //
   TTree *t3 = f3->Get("ntp1");
   TFile *f4 = new TFile("../Upsilon.root"); //
   TTree *t4 = f4->Get("ntp1");
   TFile *f5 = new TFile("../Jpsi.root"); //
   TTree *t5 = f5->Get("ntp1");
 
-  TFile *f6 = new TFile("/home/fynu/schul/scratch/data_analyses/TagAndProbe/CMSSW_3_8_5/src/DiffractiveForwardAnalysis/GammaGammaLeptonLepton/test/DY_tp385.root"); //
+  TFile *f6 = new TFile("../DrellYan.root"); //
 //  TFile *f6 = new TFile("/storage/data/cms/store/user/schul/384_novQCD/QCD2MU_merge.root");
   TTree *t6 = f6->Get("ntp1");
 //  TFile *f5 = new TFile("../Jpsi.root"); //
@@ -823,13 +827,9 @@ gROOT->SetTitle(0);*/
   const int NUM5 = t5->GetEntries();
   const int NUM6 = t6->GetEntries();
 
-//  const float integrated_lumi = 299.30569*0.5857; //in nb-1
-//  const float integrated_lumi = 2872.246*0.5; // in nb-1	
-//  const float integrated_lumi = 2872.246;
-  const float integrated_lumi = 35437.511542*0.892;
-//  const float integrated_lumi = 3044.0 * 0.5;
-//  const float integrated_lumi = 4426.5;
-//  const float integrated_lumi = 4426.5 - 3044.0;
+  const float integrated_lumi = 39980.93196;//
+  const float run2010A_part=0.08110262968*0.95689798; // 8% lumi x 95.6% PU correction
+  const float run2010B_part=0.91889737032*0.918469775; //92% lumi x 91.8% PU correction
 
   const float doublemuopenfractionallumi = 1.0;
   const float doublemuopentightfractionallumi = 0.0;
@@ -845,8 +845,8 @@ gROOT->SetTitle(0);*/
 
   const float fac_lumi0 = 1.0;
   const float fac_lumi1 = 1.0850e-6*integrated_lumi;			//  1.0820e-6*integrated_lumi;
-  const float fac_lumi2 = 3.0543555e-7*integrated_lumi;                    //  3.05250e-6*integrated_lumi;
-  const float fac_lumi3 = 3.6488765e-7*integrated_lumi;                    //  4.740e-6*integrated_lumi;
+  const float fac_lumi2 = 3.0525000e-7*integrated_lumi;                    //  3.05250e-6*integrated_lumi;
+  const float fac_lumi3 = 3.6700657e-7*integrated_lumi;                    //  4.740e-6*integrated_lumi;
   const float fac_lumi4 = 1.350e-6*integrated_lumi;			//  1.350e-6*integrated_lumi;
   const float fac_lumi5 = 3.02430e-4*integrated_lumi;
 
@@ -860,6 +860,11 @@ gROOT->SetTitle(0);*/
 // MuonID
   Int_t var_idA1[10], var_idA2[10], var_idA0[10],var_idA3[10],var_idA4[10],var_idA5[10],var_idA6[10],var_idB1[10], var_idB2[10], var_idB0[10],var_idB3[10],var_idB4[10],var_idB5[10],var_idB6[10],var_idC1[10], var_idC2[10],var_idC0[10],var_idC3[10],var_idC4[10],var_idC5[10],var_idC6[10],var_idD1[10], var_idD2[10], var_idD0[10], var_idD3[10],var_idD4[10],var_idD5[10],var_idD6[10],var_idE1[10], var_idE2[10], var_idE0[10] , var_idE3[10], var_idE4[10], var_idE5[10], var_idE6[10];
   Int_t var_nMuon[1];
+  Double_t var_normChi0[10], var_normChi1[10],var_normChi2[10],var_normChi3[10],var_normChi4[10],var_normChi5[10],var_normChi6[10];
+  Int_t var_matches0[10], var_matches1[10], var_matches2[10], var_matches3[10], var_matches4[10], var_matches5[10], var_matches6[10];
+  Int_t var_nhitsMuon0[10], var_nhitsMuon1[10], var_nhitsMuon2[10], var_nhitsMuon3[10], var_nhitsMuon4[10], var_nhitsMuon5[10], var_nhitsMuon6[10];
+  Int_t var_nhitsPixel0[10], var_nhitsPixel1[10],var_nhitsPixel2[10],var_nhitsPixel3[10],var_nhitsPixel4[10],var_nhitsPixel5[10],var_nhitsPixel6[10];
+
 // RecoTrack
   Int_t var_nTrack1[1], var_nTrack2[1], var_nTrack0[1],var_nTrack3[1],var_nTrack4[1],var_nTrack5[1],var_nTrack6[1];
   Int_t var_nTrackQual1[1], var_nTrackQual2[1], var_nTrackQual0[1], var_nTrackQual3[1], var_nTrackQual4[1], var_nTrackQual5[1], var_nTrackQual6[1];
@@ -1249,6 +1254,34 @@ gROOT->SetTitle(0);*/
   t5->SetBranchAddress("MuonCand_charge",var_charge5);
   t6->SetBranchAddress("MuonCand_charge",var_charge6);
 
+  t0->SetBranchAddress("MuonCand_normchi2",var_normChi0);
+  t1->SetBranchAddress("MuonCand_normchi2",var_normChi1);
+  t2->SetBranchAddress("MuonCand_normchi2",var_normChi2);
+  t3->SetBranchAddress("MuonCand_normchi2",var_normChi3);
+  t4->SetBranchAddress("MuonCand_normchi2",var_normChi4);
+  t5->SetBranchAddress("MuonCand_normchi2",var_normChi5);
+  t6->SetBranchAddress("MuonCand_normchi2",var_normChi6);
+  t0->SetBranchAddress("MuonCand_matches",var_matches0);
+  t0->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon0);
+  t0->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel0);
+  t1->SetBranchAddress("MuonCand_matches",var_matches1);
+  t1->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon1);
+  t1->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel1);
+  t2->SetBranchAddress("MuonCand_matches",var_matches2);
+  t2->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon2);
+  t2->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel2);
+  t3->SetBranchAddress("MuonCand_matches",var_matches3);
+  t3->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon3);
+  t3->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel3);
+  t4->SetBranchAddress("MuonCand_matches",var_matches4);
+  t4->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon4);
+  t4->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel4);
+  t5->SetBranchAddress("MuonCand_matches",var_matches5);
+  t5->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon5);
+  t5->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel5);
+  t6->SetBranchAddress("MuonCand_matches",var_matches6);
+  t6->SetBranchAddress("MuonCand_validmuonhits",var_nhitsMuon6);
+  t6->SetBranchAddress("MuonCand_validpixelhits",var_nhitsPixel6);
 
   t1->SetBranchAddress("MuonCand_pt",var_pt1);
   t2->SetBranchAddress("MuonCand_pt",var_pt2);
@@ -1470,7 +1503,7 @@ gROOT->SetTitle(0);*/
 	if(label_vertex!=99
 	   && sqrt(pow(var_vtxX0[label_vertex],2)+pow(var_vtxY0[label_vertex],2))< 0.15
            && sqrt(pow(var_vtxX0[label_vertex],2)+pow(var_vtxY0[label_vertex],2))> 0.05
-           && PassesMuonID(var_tracker0[pair1], muAng1, var_global0[pair1], var_tracker0[pair2], muAng2, var_global0[pair2], var_nhitsTrack0[pair1], var_nhitsTrack0[pair2])
+           && PassesMuonID(var_tracker0[pair1], muAng1, var_global0[pair1], var_tracker0[pair2], muAng2, var_global0[pair2], var_nhitsTrack0[pair1], var_nhitsTrack0[pair2], var_nhitsPixel0[pair1], var_nhitsPixel0[pair2], var_nhitsMuon0[pair1], var_nhitsMuon0[pair2], var_matches0[pair1], var_matches0[pair2], var_normChi0[pair1], var_normChi0[pair2])
  	   && PassesDptCut(var_dpt0[0]) 
 	   && PassesDphiCut(var_dphi0[0]/pi)
 //	   && pt_pair<0.8
@@ -1540,7 +1573,7 @@ cout<<"  Max pT(mu mu) = "<<max_pt<<endl;
         int muID2 = var_idA1[pair2];
 	int muAng1 = var_idB1[pair1];
         int muAng2 = var_idB1[pair2];
-	double effcorrection1 = (var_eff1[pair1]*var_eff1[pair2]*doublemuopenfractionallumi+doublemuopentightfractionallumi);
+        double effcorrection1 = (i<6587) ? (var_eff1[pair1]*var_eff1[pair2]*run2010A_part) : (var_eff1[pair1]*var_eff1[pair2]*run2010B_part);
         int hlt_pass = hlt_d1[0];
 	int nPrimVtx = var_nvtx1[0];
 	int nTrack=var_nTrack1[0];
@@ -1568,7 +1601,7 @@ cout<<"  Max pT(mu mu) = "<<max_pt<<endl;
 	if(label_vertex!=99
            && sqrt(pow(var_vtxX1[label_vertex],2)+pow(var_vtxY1[label_vertex],2))<0.514
            && sqrt(pow(var_vtxX1[label_vertex],2)+pow(var_vtxY1[label_vertex],2))>0.414
-	   && PassesMuonID(var_tracker1[pair1], muAng1, var_global1[pair1], var_tracker1[pair2], muAng2, var_global1[pair2], var_nhitsTrack1[pair1], var_nhitsTrack1[pair2]) 
+           && PassesMuonID(var_tracker1[pair1], muAng1, var_global1[pair1], var_tracker1[pair2], muAng2, var_global1[pair2], var_nhitsTrack1[pair1], var_nhitsTrack1[pair2], var_nhitsPixel1[pair1], var_nhitsPixel1[pair2], var_nhitsMuon1[pair1], var_nhitsMuon1[pair2], var_matches1[pair1], var_matches1[pair2], var_normChi1[pair1], var_normChi1[pair2])
            && PassesDptCut(var_dpt1[0])  
            && PassesDphiCut(var_dphi1[0]/pi) 
 //	   && pt_pair < 0.8
@@ -1635,7 +1668,7 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
         int muID2 = var_idA2[pair2];
 	int muAng1 = var_idB2[pair1];
         int muAng2 = var_idB2[pair2];
-        double effcorrection2 = (var_eff2[pair1]*var_eff2[pair2]*doublemuopenfractionallumi+doublemuopentightfractionallumi);
+        double effcorrection2 = (i<40083) ? (var_eff2[pair1]*var_eff2[pair2]*run2010A_part) : (var_eff2[pair1]*var_eff2[pair2]*run2010B_part);
         int hlt_pass = hlt_d2[0];
 	int nPrimVtx = var_nvtx2[0];
 	int nTrack=var_nTrack2[0];
@@ -1664,7 +1697,7 @@ cout<<"  # Dimuon events = "<<filter1Events<<endl;
 	if(label_vertex!=99
            && sqrt(pow(var_vtxX2[label_vertex],2)+pow(var_vtxY2[label_vertex],2))<0.514
            && sqrt(pow(var_vtxX2[label_vertex],2)+pow(var_vtxY2[label_vertex],2))>0.414
-           && PassesMuonID(var_tracker2[pair1], muAng1, var_global2[pair1], var_tracker2[pair2], muAng2, var_global2[pair2], var_nhitsTrack2[pair1], var_nhitsTrack2[pair2])  
+           && PassesMuonID(var_tracker2[pair1], muAng1, var_global2[pair1], var_tracker2[pair2], muAng2, var_global2[pair2], var_nhitsTrack2[pair1], var_nhitsTrack2[pair2], var_nhitsPixel2[pair1], var_nhitsPixel2[pair2], var_nhitsMuon2[pair1], var_nhitsMuon2[pair2], var_matches2[pair1], var_matches2[pair2], var_normChi2[pair1], var_normChi2[pair2])
            && PassesDptCut(var_dpt2[0])   
            && PassesDphiCut(var_dphi2[0]/pi) 
 //	   && pt_pair<0.8 
@@ -1736,8 +1769,7 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
         int muID2 = var_idA3[pair2];
 	int muAng1 = var_idB3[pair1];
         int muAng2 = var_idB3[pair2];
-
-        double effcorrection3 = (var_eff3[pair1]*var_eff3[pair2]*doublemuopenfractionallumi+doublemuopentightfractionallumi);
+        double effcorrection3 = (i<15265) ? (var_eff3[pair1]*var_eff3[pair2]*run2010A_part) : (var_eff3[pair1]*var_eff3[pair2]*run2010B_part);
 
         int hlt_pass = hlt_d3[0];
 	int nPrimVtx = var_nvtx3[0];
@@ -1766,7 +1798,7 @@ cout<<"  # Dimuon events = "<<filter2Events<<endl;
 	if(label_vertex!=99
            && sqrt(pow(var_vtxX3[label_vertex],2)+pow(var_vtxY3[label_vertex],2))<0.514
            && sqrt(pow(var_vtxX3[label_vertex],2)+pow(var_vtxY3[label_vertex],2))>0.414
-           && PassesMuonID(var_tracker3[pair1], muAng1, var_global3[pair1], var_tracker3[pair2], muAng2, var_global3[pair2], var_nhitsTrack3[pair1], var_nhitsTrack3[pair2])   
+           && PassesMuonID(var_tracker3[pair1], muAng1, var_global3[pair1], var_tracker3[pair2], muAng2, var_global3[pair2], var_nhitsTrack3[pair1], var_nhitsTrack3[pair2], var_nhitsPixel3[pair1], var_nhitsPixel3[pair2], var_nhitsMuon3[pair1], var_nhitsMuon3[pair2], var_matches3[pair1], var_matches3[pair2], var_normChi3[pair1], var_normChi3[pair2])
 	   && PassesDptCut(var_dpt3[0])   
            && PassesDphiCut(var_dphi3[0]/pi)  
 //           && pt_pair<0.8
@@ -1870,7 +1902,7 @@ cout<<"  # Dimuon events = "<<filter3Events<<endl;
 	if(label_vertex!=99
            && sqrt(pow(var_vtxX4[label_vertex],2)+pow(var_vtxY4[label_vertex],2))<0.514
            && sqrt(pow(var_vtxX4[label_vertex],2)+pow(var_vtxY4[label_vertex],2))>0.414
-           && PassesMuonID(var_tracker4[pair1], muAng1, var_global4[pair1], var_tracker4[pair2], muAng2, var_global4[pair2], var_nhitsTrack4[pair1], var_nhitsTrack4[pair2])    
+           && PassesMuonID(var_tracker4[pair1], muAng1, var_global4[pair1], var_tracker4[pair2], muAng2, var_global4[pair2], var_nhitsTrack4[pair1], var_nhitsTrack4[pair2], var_nhitsPixel4[pair1], var_nhitsPixel4[pair2], var_nhitsMuon4[pair1], var_nhitsMuon4[pair2], var_matches4[pair1], var_matches4[pair2], var_normChi4[pair1], var_normChi4[pair2])
            && PassesDptCut(var_dpt4[0])   
            && PassesDphiCut(var_dphi4[0]/pi)  
 //           && pt_pair<0.8
@@ -1960,7 +1992,7 @@ cout<<"  # Dimuon events = "<<filter4Events<<endl;
         if(label_vertex!=99
            && sqrt(pow(var_vtxX5[label_vertex],2)+pow(var_vtxY5[label_vertex],2))<0.514
            && sqrt(pow(var_vtxX5[label_vertex],2)+pow(var_vtxY5[label_vertex],2))>0.414
-           && PassesMuonID(var_tracker5[pair1], muAng1, var_global5[pair1], var_tracker5[pair2], muAng2, var_global5[pair2], var_nhitsTrack5[pair1], var_nhitsTrack5[pair2])     
+           && PassesMuonID(var_tracker5[pair1], muAng1, var_global5[pair1], var_tracker5[pair2], muAng2, var_global5[pair2], var_nhitsTrack5[pair1], var_nhitsTrack5[pair2], var_nhitsPixel5[pair1], var_nhitsPixel5[pair2], var_nhitsMuon5[pair1], var_nhitsMuon5[pair2], var_matches5[pair1], var_matches5[pair2], var_normChi5[pair1], var_normChi5[pair2])
            && PassesDptCut(var_dpt5[0])   
            && PassesDphiCut(var_dphi5[0]/pi)  
 //           && pt_pair<0.8
@@ -2029,7 +2061,8 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
         int nCalo=var_ncalo6[0];
         int label_vertex(99);
 	int bkgNum=var_run6[0];
-        double effcorrection6 = (var_eff6[pair1]*var_eff6[pair2]*doublemuopenfractionallumi+doublemuopentightfractionallumi);
+        double effcorrection6 = (i<1630) ? (var_eff6[pair1]*var_eff6[pair2]*run2010A_part) : (var_eff6[pair1]*var_eff6[pair2]*run2010B_part);
+
 //      cout<<"--------------------"<<var_event1[0]<<"-----------------------"<<endl;
 
        if(PassesTrigger(hlt_pass,1) == false)
@@ -2050,7 +2083,7 @@ cout<<"  # Dimuon events = "<<filter5Events<<endl;
         if(label_vertex!=99
            && sqrt(pow(var_vtxX6[label_vertex],2)+pow(var_vtxY6[label_vertex],2))<0.514
            && sqrt(pow(var_vtxX6[label_vertex],2)+pow(var_vtxY6[label_vertex],2))>0.414
-           && PassesMuonID(var_tracker6[pair1], muAng1, var_global6[pair1], var_tracker6[pair2], muAng2, var_global6[pair2], var_nhitsTrack6[pair1], var_nhitsTrack6[pair2])      
+           && PassesMuonID(var_tracker6[pair1], muAng1, var_global6[pair1], var_tracker6[pair2], muAng2, var_global6[pair2], var_nhitsTrack6[pair1], var_nhitsTrack6[pair2], var_nhitsPixel6[pair1], var_nhitsPixel6[pair2], var_nhitsMuon6[pair1], var_nhitsMuon6[pair2], var_matches6[pair1], var_matches6[pair2], var_normChi6[pair1], var_normChi6[pair2])
 	   && PassesDptCut(var_dpt6[0])  
            && PassesDphiCut(var_dphi6[0]/pi) 
 //           && pt_pair<0.8
