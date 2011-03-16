@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.94 2011/02/18 15:20:20 schul Exp $
+// $Id: GammaGammaMuMu.cc,v 1.95 2011/02/18 15:26:48 schul Exp $
 //
 //
 
@@ -664,6 +664,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       size_type muindex = hltObjects->filterIndex(InputTag("hltSingleMu3L3Filtered3::"+hltMenuLabel)); 
       size_type dimu0index = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered0::"+hltMenuLabel)); 
       size_type dimuindex = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered::"+hltMenuLabel)); 
+      size_type dimuv2index = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered3::"+hltMenuLabel));
 
       if( dimu0index < hltObjects->sizeFilters() )
 	{
@@ -689,6 +690,30 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		}
 	    }
 	}
+      if( dimuv2index < hltObjects->sizeFilters() ) 
+        { 
+          const trigger::Keys& DIMUKEYS(hltObjects->filterKeys(dimuv2index));  
+          const size_type nK(DIMUKEYS.size());  
+          const TriggerObjectCollection& TOC(hltObjects->getObjects()); 
+ 
+          for(int ipart = 0; ipart != nK; ++ipart)    
+            { 
+              const TriggerObject& TO = TOC[DIMUKEYS[ipart]];   
+               
+              if(fabs(TO.id()) == 13) 
+                { 
+                  HLT_DoubleMu3_MuonCand_pt[nHLTDiMu3MuonCand] = TO.pt(); 
+                  HLT_DoubleMu3_MuonCand_eta[nHLTDiMu3MuonCand] = TO.eta();  
+                  HLT_DoubleMu3_MuonCand_phi[nHLTDiMu3MuonCand] = TO.phi();  
+                  if(TO.id() > 0)          
+                    HLT_DoubleMu3_MuonCand_charge[nHLTDiMu3MuonCand] = 1;  
+                  else 
+                    HLT_DoubleMu3_MuonCand_charge[nHLTDiMu3MuonCand] = -1;   
+                   
+                  nHLTDiMu3MuonCand++; 
+                } 
+            } 
+        } 
       if( dimuindex < hltObjects->sizeFilters() )
 	{
 	  const trigger::Keys& DIMUKEYS(hltObjects->filterKeys(dimuindex)); 
@@ -884,7 +909,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		      if((MuonCand_charge[nMuonCand] > 0) && ((effname.find("_TrackProbeP_") != std::string::npos)))
 			totalmuoneff *= muoneff;
 		      if((MuonCand_charge[nMuonCand] < 0) && ((effname.find("_TrackProbeM_") != std::string::npos))) 
-			totalmuoneff *= muoneff; 
+			{
+			  totalmuoneff *= muoneff; 
+			}
 		    }
 		}
 	      if(muoneff > -1 && (effname.find("_MC_") != std::string::npos))
@@ -898,7 +925,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		      if((MuonCand_charge[nMuonCand] > 0) && ((effname.find("_TrackProbeP_") != std::string::npos))) 
 			totalmuonmceff *= muoneff; 
 		      else if((MuonCand_charge[nMuonCand] < 0) && ((effname.find("_TrackProbeM_") != std::string::npos)))  
-			totalmuonmceff *= muoneff;  
+			{
+			  totalmuonmceff *= muoneff;  
+			}
 		    }
 		}
 
