@@ -16,9 +16,6 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h" 
 #include "FWCore/Common/interface/TriggerNames.h"
 
-#include "MuonAnalysis/TagAndProbe/interface/MuonPerformanceReadback.h" 
-#include "MuonAnalysis/TagAndProbe/interface/MuonPerformance.h"  
-
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
 
 #include <TFile.h>
@@ -41,7 +38,6 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
 
   // ----------member data ---------------------------
 
-  MuonPerformanceReadback *effreader; 
   std::vector<std::string> algonames; 
   bool readmcEffCorrections; 
   bool readmcEffCorrectionsByCharge;
@@ -129,6 +125,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuonCand_normchi2[10];
   double MuonCand_normtrackchi2[10];
   double MuonCand_dB[10];
+  int MuonCand_tightID[10]; 
 
   int MuonPairCand[2];
 
@@ -160,7 +157,9 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuMu_Kalmanvtxchi2dof;
   int MuMu_Kalmanvtxisvalid;
   int MuMu_extratracks1mm;
+  int MuMu_extratracks2mm; 
   int MuMu_extratracks3mm;
+  int MuMu_extratracks4mm; 
   int MuMu_extratracks5mm;
   int MuMu_extratracks1cm;
   int MuMu_extratracks3cm;

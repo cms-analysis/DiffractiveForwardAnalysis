@@ -22,15 +22,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/EEE64447-9F9B-DF11-A573-001617C3B69C.root',
-                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/E04E9705-8A9B-DF11-8EDB-003048D37560.root',
-                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/CA804E38-8E9B-DF11-A825-001D09F252DA.root',
-                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/C4A1CB31-9D9B-DF11-805E-003048F1BF66.root',
-                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/BA38B11B-C39B-DF11-B826-001D09F25208.root',
-                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/8AD5A5DC-969B-DF11-A088-001D09F2441B.root',
-                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/60D7391C-9B9B-DF11-A1E6-001D09F231C9.root',
-                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/445A9EF8-989B-DF11-BC84-0030487CD7C0.root',
-                             '/store/data/Run2010A/MuOnia/RECO/v4/000/141/956/00BE9355-909B-DF11-A111-001617C3B69C.root'
+        '/store/data/Run2011A/DoubleMu/AOD/PromptReco-v1/000/161/312/321BDA8D-0B58-E011-9F42-0030487CD6D8.root'
                                 )
                             )
 
@@ -40,7 +32,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 # Load configuration stuff
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('GR_R_38X_V9::All')
+process.GlobalTag.globaltag = cms.string('GR_R_42_V2::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
@@ -72,7 +64,7 @@ process.muonFilter=cms.EDFilter("CandViewCountFilter",
 # Trigger
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.HLTFilter_cfi")
 process.hltFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-process.hltFilter.HLTPaths = ['HLT_DoubleMu3']
+process.hltFilter.HLTPaths = ['HLT_DoubleMu4_Acoplanarity03_*']
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring("drop *")
@@ -108,17 +100,24 @@ removeMCMatching(process, ['All'])
 #    ),
 #)
 
+#offline vertices with deterministic annealing. Should become the default as of 4_2_0_pre7. Requires > V01-04-04      RecoVertex/PrimaryVertexProducer
+process.load("RecoVertex.Configuration.RecoVertex_cff")
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
+process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
+process.offlinePrimaryVerticesDA = process.offlinePrimaryVertices.clone()
+
+
 #process.output.outputCommands.extend(AODEventContent.outputCommands)
 
 # Set to True if running on MC  
-##process.gamgammumuanalysis.ReadMCEffCorrections = True
-process.gamgammumuanalysis.outfilename = "DimuonAnalyzer.root"
+process.gamgammumuanalysis.outfilename = "MuMuAnalyzer.root" 
 
 # Put it all together
 process.p = cms.Path(
 #    process.mcgamgammumuanalysis
 #    process.CastorFastReco
     process.hltFilter 
+    + process.offlinePrimaryVerticesDA
     + process.patDefaultSequence  
     + process.gamgammumuanalysis
 #   The output module here is only needed for making 'PATtuples'/skims
