@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.96 2011/03/16 14:20:59 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.97 2011/05/18 08:46:26 jjhollar Exp $
 //
 //
 
@@ -455,6 +455,8 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("PrimVertexCand_chi2",&PrimVertexCand_chi2,"PrimVertexCand_chi2[nPrimVertexCand]/D");
   thetree->Branch("PrimVertexCand_ndof",&PrimVertexCand_ndof,"PrimVertexCand_ndof[nPrimVertexCand]/D");
   thetree->Branch("PrimVertexCand_mumuTwoTracks",&PrimVertexCand_mumuTwoTracks,"PrimVertexCand_mumuTwoTracks[nPrimVertexCand]/I"); 
+  thetree->Branch("PrimVertexCand_mumuExactlyTwoTracks",&PrimVertexCand_mumuExactlyTwoTracks,"PrimVertexCand_mumuExactlyTwoTracks[nPrimVertexCand]/I");  
+  thetree->Branch("PrimVertexCand_mumuTwoTracksMap",&PrimVertexCand_mumuTwoTracksMap,"PrimVertexCand_mumuTwoTracksMap/I");  
 
   thetree->Branch("LowPt_pt",LowPt_pt,"LowPt_pt[nMuonCand]/D");
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
@@ -984,6 +986,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
     int track_match_muon=0;
     PrimVertexCand_mumuTwoTracks[nPrimVertexCand] = 0;
+    PrimVertexCand_mumuExactlyTwoTracks[nPrimVertexCand] = 0; 
+    PrimVertexCand_mumuTwoTracksMap = -1;
 
     // Uncomment for keeping background events
     if((PrimVertexCand_tracks[nPrimVertexCand] >= 2) && found_pair)
@@ -1005,6 +1009,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	mumuprimvtxx = PrimVertexCand_x[nPrimVertexCand];
 	mumuprimvtxy = PrimVertexCand_y[nPrimVertexCand]; 
         mumuprimvtxz = PrimVertexCand_z[nPrimVertexCand]; 
+	if(PrimVertexCand_tracks[nPrimVertexCand] == 2)
+	  {
+	    PrimVertexCand_mumuExactlyTwoTracks[nPrimVertexCand] = 1;
+	    PrimVertexCand_mumuTwoTracksMap = nPrimVertexCand;
+	  }
 	found_mumuvertex = true;
 
     }
@@ -1514,6 +1523,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	closesthighpuritytrkdxyz = TrackCand_vtxdxyz[nTrackCand];
       
       nTrackCand++;  
+>>>>>>> 1.97
     } 
   ClosestExtraTrack_vtxdxyz = closesttrkdxyz;
   ClosestHighPurityExtraTrack_vtxdxyz = closesthighpuritytrkdxyz;
