@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.97 2011/05/18 08:46:26 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.98 2011/05/31 13:47:11 jjhollar Exp $
 //
 //
 
@@ -265,23 +265,29 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_tightID", MuonCand_tightID, "MuonCand_tightID[nMuonCand]/I");  
   thetree->Branch("MuonPairCand",MuonPairCand,"MuonPairCand[2]/I");
 
-  thetree->Branch("nHLTMu3MuonCand",&nHLTMu3MuonCand,"nHLTMu3MuonCand/I"); 
-  thetree->Branch("HLT_Mu3_MuonCand_pt",&HLT_Mu3_MuonCand_pt,"HLT_Mu3_MuonCand_pt[nHLTMu3MuonCand]/D"); 
-  thetree->Branch("HLT_Mu3_MuonCand_eta",&HLT_Mu3_MuonCand_eta,"HLT_Mu3_MuonCand_eta[nHLTMu3MuonCand]/D"); 
-  thetree->Branch("HLT_Mu3_MuonCand_phi",&HLT_Mu3_MuonCand_phi,"HLT_Mu3_MuonCand_phi[nHLTMu3MuonCand]/D"); 
-  thetree->Branch("HLT_Mu3_MuonCand_charge",&HLT_Mu3_MuonCand_charge,"HLT_Mu3_MuonCand_charge[nHLTMu3MuonCand]/I");  
+  thetree->Branch("nHLTDiMu7MuonCand",&nHLTDiMu7MuonCand,"nHLTDiMu7MuonCand/I"); 
+  thetree->Branch("HLT_DoubleMu7_MuonCand_pt",&HLT_DoubleMu7_MuonCand_pt,"HLT_DoubleMu7_MuonCand_pt[nHLTDiMu7MuonCand]/D"); 
+  thetree->Branch("HLT_DoubleMu7_MuonCand_eta",&HLT_DoubleMu7_MuonCand_eta,"HLT_DoubleMu7_MuonCand_eta[nHLTDiMu7MuonCand]/D"); 
+  thetree->Branch("HLT_DoubleMu7_MuonCand_phi",&HLT_DoubleMu7_MuonCand_phi,"HLT_DoubleMu7_MuonCand_phi[nHLTDiMu7MuonCand]/D"); 
+  thetree->Branch("HLT_DoubleMu7_MuonCand_charge",&HLT_DoubleMu7_MuonCand_charge,"HLT_DoubleMu7_MuonCand_charge[nHLTDiMu7MuonCand]/I");  
 
-  thetree->Branch("nHLTDiMu0MuonCand",&nHLTDiMu0MuonCand,"nHLTDiMu0MuonCand/I");  
-  thetree->Branch("HLT_DoubleMu0_MuonCand_pt",&HLT_DoubleMu0_MuonCand_pt,"HLT_DoubleMu0_MuonCand_pt[nHLTDiMu0MuonCand]/D");  
-  thetree->Branch("HLT_DoubleMu0_MuonCand_eta",&HLT_DoubleMu0_MuonCand_eta,"HLT_DoubleMu0_MuonCand_eta[nHLTDiMu0MuonCand]/D");  
-  thetree->Branch("HLT_DoubleMu0_MuonCand_phi",&HLT_DoubleMu0_MuonCand_phi,"HLT_DoubleMu0_MuonCand_phi[nHLTDiMu0MuonCand]/D");  
-  thetree->Branch("HLT_DoubleMu0_MuonCand_charge",&HLT_DoubleMu0_MuonCand_charge,"HLT_DoubleMu0_MuonCand_charge[nHLTDiMu0MuonCand]/I");   
+  thetree->Branch("nHLTMu13Mu8MuonCand",&nHLTMu13Mu8MuonCand,"nHLTMu13Mu8MuonCand/I");  
+  thetree->Branch("HLT_Mu13Mu8_MuonCand_pt",&HLT_Mu13Mu8_MuonCand_pt,"HLT_Mu13Mu8_MuonCand_pt[nHLTMu13Mu8MuonCand]/D");  
+  thetree->Branch("HLT_Mu13Mu8_MuonCand_eta",&HLT_Mu13Mu8_MuonCand_eta,"HLT_Mu13Mu8_MuonCand_eta[nHLTMu13Mu8MuonCand]/D");  
+  thetree->Branch("HLT_Mu13Mu8_MuonCand_phi",&HLT_Mu13Mu8_MuonCand_phi,"HLT_Mu13Mu8_MuonCand_phi[nHLTMu13Mu8MuonCand]/D");  
+  thetree->Branch("HLT_Mu13Mu8_MuonCand_charge",&HLT_Mu13Mu8_MuonCand_charge,"HLT_Mu13Mu8_MuonCand_charge[nHLTMu13Mu8MuonCand]/I");   
 
-  thetree->Branch("nHLTDiMu3MuonCand",&nHLTDiMu3MuonCand,"nHLTDiMu3MuonCand/I");  
-  thetree->Branch("HLT_DoubleMu3_MuonCand_pt",&HLT_DoubleMu3_MuonCand_pt,"HLT_DoubleMu3_MuonCand_pt[nHLTDiMu3MuonCand]/D");  
-  thetree->Branch("HLT_DoubleMu3_MuonCand_eta",&HLT_DoubleMu3_MuonCand_eta,"HLT_DoubleMu3_MuonCand_eta[nHLTDiMu3MuonCand]/D");  
-  thetree->Branch("HLT_DoubleMu3_MuonCand_phi",&HLT_DoubleMu3_MuonCand_phi,"HLT_DoubleMu3_MuonCand_phi[nHLTDiMu3MuonCand]/D");  
-  thetree->Branch("HLT_DoubleMu3_MuonCand_charge",&HLT_DoubleMu3_MuonCand_charge,"HLT_DoubleMu3_MuonCand_charge[nHLTDiMu3MuonCand]/I");   
+  thetree->Branch("nHLTDiMu4AcopMuonCand",&nHLTDiMu4AcopMuonCand,"nHLTDiMu4AcopMuonCand/I");  
+  thetree->Branch("HLT_DoubleMu4Acoplanarity_MuonCand_pt",&HLT_DoubleMu4Acoplanarity_MuonCand_pt,"HLT_DoubleMu4Acoplanarity_MuonCand_pt[nHLTDiMu4AcopMuonCand]/D");  
+  thetree->Branch("HLT_DoubleMu4Acoplanarity_MuonCand_eta",&HLT_DoubleMu4Acoplanarity_MuonCand_eta,"HLT_DoubleMu4Acoplanarity_MuonCand_eta[nHLTDiMu4AcopMuonCand]/D");  
+  thetree->Branch("HLT_DoubleMu4Acoplanarity_MuonCand_phi",&HLT_DoubleMu4Acoplanarity_MuonCand_phi,"HLT_DoubleMu4Acoplanarity_MuonCand_phi[nHLTDiMu4AcopMuonCand]/D");  
+  thetree->Branch("HLT_DoubleMu4Acoplanarity_MuonCand_charge",&HLT_DoubleMu4Acoplanarity_MuonCand_charge,"HLT_DoubleMu4Acoplanarity_MuonCand_charge[nHLTDiMu4AcopMuonCand]/I");   
+
+  thetree->Branch("nHLTDiMu5AcopMuonCand",&nHLTDiMu5AcopMuonCand,"nHLTDiMu5AcopMuonCand/I");  
+  thetree->Branch("HLT_DoubleMu5Acoplanarity_MuonCand_pt",&HLT_DoubleMu5Acoplanarity_MuonCand_pt,"HLT_DoubleMu5Acoplanarity_MuonCand_pt[nHLTDiMu5AcopMuonCand]/D");  
+  thetree->Branch("HLT_DoubleMu5Acoplanarity_MuonCand_eta",&HLT_DoubleMu5Acoplanarity_MuonCand_eta,"HLT_DoubleMu5Acoplanarity_MuonCand_eta[nHLTDiMu5AcopMuonCand]/D");  
+  thetree->Branch("HLT_DoubleMu5Acoplanarity_MuonCand_phi",&HLT_DoubleMu5Acoplanarity_MuonCand_phi,"HLT_DoubleMu5Acoplanarity_MuonCand_phi[nHLTDiMu5AcopMuonCand]/D");  
+  thetree->Branch("HLT_DoubleMu5Acoplanarity_MuonCand_charge",&HLT_DoubleMu5Acoplanarity_MuonCand_charge,"HLT_DoubleMu5Acoplanarity_MuonCand_charge[nHLTDiMu5AcopMuonCand]/I");   
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -426,18 +432,14 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   
   thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
 
-  thetree->Branch("HLT_DoubleMu3",&HLT_DoubleMu3,"HLT_DoubleMu3/I");
-  thetree->Branch("HLT_DoubleMu0",&HLT_DoubleMu0,"HLT_DoubleMu0/I");
-  thetree->Branch("HLT_Mu3",&HLT_Mu3,"HLT_Mu3/I");
-  thetree->Branch("HLT_L2Mu0", &HLT_L2Mu0, "HLT_L2Mu0/I"); 
-  thetree->Branch("HLT_L1DoubleMuOpen", &HLT_L1DoubleMuOpen, "HLT_L1DoubleMuOpen/I"); 
-  thetree->Branch("HLT_L1DoubleMuOpen_Tight", &HLT_L1DoubleMuOpen_Tight, "HLT_L1DoubleMuOpen_Tight/I");
-  thetree->Branch("HLT_DoubleMu3_Prescl",&HLT_DoubleMu3_Prescl,"HLT_DoubleMu3_Prescl/I"); 
-  thetree->Branch("HLT_DoubleMu0_Prescl",&HLT_DoubleMu0_Prescl,"HLT_DoubleMu0_Prescl/I"); 
-  thetree->Branch("HLT_Mu3_Prescl",&HLT_Mu3_Prescl,"HLT_Mu3_Prescl/I"); 
-  thetree->Branch("HLT_L2Mu0_Prescl", &HLT_L2Mu0_Prescl, "HLT_L2Mu0_Prescl/I");  
-  thetree->Branch("HLT_L1DoubleMuOpen_Prescl", &HLT_L1DoubleMuOpen_Prescl, "HLT_L1DoubleMuOpen_Prescl/I");  
-  thetree->Branch("HLT_L1DoubleMuOpen_Tight_Prescl", &HLT_L1DoubleMuOpen_Tight_Prescl, "HLT_L1DoubleMuOpen_Tight_Prescl/I");
+  thetree->Branch("HLT_DoubleMu5Acoplanarity",&HLT_DoubleMu5Acoplanarity,"HLT_DoubleMu5Acoplanarity/I");
+  thetree->Branch("HLT_DoubleMu4Acoplanarity",&HLT_DoubleMu4Acoplanarity,"HLT_DoubleMu4Acoplanarity/I");
+  thetree->Branch("HLT_DoubleMu7",&HLT_DoubleMu7,"HLT_DoubleMu7/I");
+  thetree->Branch("HLT_Mu13Mu8", &HLT_Mu13Mu8, "HLT_Mu13Mu8/I"); 
+  thetree->Branch("HLT_DoubleMu5Acoplanarity_Prescl",&HLT_DoubleMu5Acoplanarity_Prescl,"HLT_DoubleMu5Acoplanarity_Prescl/I"); 
+  thetree->Branch("HLT_DoubleMu4Acoplanarity_Prescl",&HLT_DoubleMu4Acoplanarity_Prescl,"HLT_DoubleMu4Acoplanarity_Prescl/I"); 
+  thetree->Branch("HLT_DoubleMu7_Prescl",&HLT_DoubleMu7_Prescl,"HLT_DoubleMu7_Prescl/I"); 
+  thetree->Branch("HLT_Mu13Mu8_Prescl", &HLT_Mu13Mu8_Prescl, "HLT_Mu13Mu8_Prescl/I");  
 
   thetree->Branch("Run",&Run,"Run/I");
   thetree->Branch("LumiSection",&LumiSection,"LumiSection/I");
@@ -485,9 +487,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 {
   nPrimVertexCand=0;
   nMuonCand=0;
-  nHLTMu3MuonCand=0;
-  nHLTDiMu3MuonCand=0;  
-  nHLTDiMu0MuonCand=0;
+  nHLTDiMu7MuonCand=0;
+  nHLTMu13Mu8MuonCand=0; 
+  nHLTDiMu5AcopMuonCand=0;  
+  nHLTDiMu4AcopMuonCand=0;
   nJetCand=0;
   nCaloCand=0;
   nTrackCand=0;
@@ -597,168 +600,149 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   for (unsigned int i=0; i<trigNames.size(); i++)  
     { 
-      if ( trigNames.triggerNames().at(i) == "HLT_Mu3" )       
-        {  
-	  HLT_Mu3_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_Mu3"); 
+      if ( trigNames.triggerNames().at(i).find("HLT_DoubleMu4_Acoplanarity03_v") != string::npos)
+	{  
+	  HLT_DoubleMu4Acoplanarity_Prescl = hltConfig_.prescaleValue(event, iSetup, trigNames.triggerNames().at(i)); 
+	  
+          if ( hltResults->accept(i) )  
+            {HLT_DoubleMu4Acoplanarity = 1;}
+	  else
+	    HLT_DoubleMu4Acoplanarity = 0;
+        }  
+      if ( trigNames.triggerNames().at(i).find("HLT_DoubleMu5_Acoplanarity03_v") != string::npos)
+	{   
+          HLT_DoubleMu5Acoplanarity_Prescl = hltConfig_.prescaleValue(event, iSetup, trigNames.triggerNames().at(i));
 
           if ( hltResults->accept(i) )  
-            {HLT_Mu3 = 1;}
+	    {HLT_DoubleMu5Acoplanarity = 1;}
 	  else
-	    HLT_Mu3 = 0;
+	    HLT_DoubleMu5Acoplanarity = 0;
         }  
-      if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu0" ) 
+      if ( trigNames.triggerNames().at(i).find("HLT_Mu13_Mu8") != string::npos ) 
         {   
-          HLT_DoubleMu0_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_DoubleMu0");  
+          HLT_Mu13Mu8_Prescl = hltConfig_.prescaleValue(event, iSetup, trigNames.triggerNames().at(i)); 
 
           if ( hltResults->accept(i) )  
-	    {HLT_DoubleMu0 = 1;}
+	    {HLT_Mu13Mu8 = 1;}
 	  else
-	    HLT_DoubleMu0 = 0;
+	    HLT_Mu13Mu8 = 0;
         }  
-      if ( trigNames.triggerNames().at(i) == "HLT_DoubleMu3" ) 
+      if ( trigNames.triggerNames().at(i).find("HLT_DoubleMu7") != string::npos )
         {   
-          HLT_DoubleMu3_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_DoubleMu3");   
-
-          if ( hltResults->accept(i) )  
-	    {HLT_DoubleMu3 = 1;}
-	  else
-	    HLT_DoubleMu3 = 0;
-        }  
-      if ( trigNames.triggerNames().at(i) == "HLT_L1DoubleMuOpen" )
-        {   
-          HLT_L1DoubleMuOpen_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_L1DoubleMuOpen");   
+          HLT_DoubleMu7_Prescl = hltConfig_.prescaleValue(event, iSetup, trigNames.triggerNames().at(i)); 
  
           if ( hltResults->accept(i) )   
-            {HLT_L1DoubleMuOpen = 1;}
+            {HLT_DoubleMu7 = 1;}
           else 
-            HLT_L1DoubleMuOpen = 0; 
+            HLT_DoubleMu7 = 0; 
         }   
-      if ( trigNames.triggerNames().at(i) == "HLT_L1DoubleMuOpen_Tight" )
-        {
-          HLT_L1DoubleMuOpen_Tight_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_L1DoubleMuOpen_Tight");
-
-          if ( hltResults->accept(i) )
-            {HLT_L1DoubleMuOpen_Tight = 1;}
-          else
-            HLT_L1DoubleMuOpen_Tight = 0;
-        }
-      if ( trigNames.triggerNames().at(i) == "HLT_L2Mu0" ) 
-        {     
-          HLT_L2Mu0_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_L2Mu0");   
-
-          if ( hltResults->accept(i) )    
-            {HLT_L2Mu0 = 1;} 
-          else  
-            HLT_L2Mu0 = 0;  
-        }    
     }
 
   Handle<TriggerEvent> hltObjects;
   event.getByLabel(InputTag("hltTriggerSummaryAOD","",hltMenuLabel),hltObjects);
   if (hltObjects.isValid()) 
     {
-      size_type muindex = hltObjects->filterIndex(InputTag("hltSingleMu3L3Filtered3::"+hltMenuLabel)); 
-      size_type dimu0index = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered0::"+hltMenuLabel)); 
-      size_type dimuindex = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered::"+hltMenuLabel)); 
-      size_type dimuv2index = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered3::"+hltMenuLabel));
+      size_type dimu4index = hltObjects->filterIndex(InputTag("hltDoubleMu4ExclL3PreFiltered::"+hltMenuLabel)); 
+      size_type dimu5index = hltObjects->filterIndex(InputTag("hltDoubleMu5ExclL3PreFiltered::"+hltMenuLabel)); 
+      size_type dimu7index = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered7::"+hltMenuLabel));
+      size_type dimu8index = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered8::"+hltMenuLabel)); 
 
-      if( dimu0index < hltObjects->sizeFilters() )
+      if( dimu4index < hltObjects->sizeFilters() )
 	{
-	  const trigger::Keys& DIMU0KEYS(hltObjects->filterKeys(dimu0index)); 
-	  const size_type nK(DIMU0KEYS.size()); 
+	  const trigger::Keys& DIMU4KEYS(hltObjects->filterKeys(dimu4index)); 
+	  const size_type nK(DIMU4KEYS.size()); 
 	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
 
 	  for(int ipart = 0; ipart != nK; ++ipart)   
 	    {
-	      const TriggerObject& TO = TOC[DIMU0KEYS[ipart]];  
+	      const TriggerObject& TO = TOC[DIMU4KEYS[ipart]];  
 	      
 	      if(fabs(TO.id()) == 13)
 		{
-		  HLT_DoubleMu0_MuonCand_pt[nHLTDiMu0MuonCand] = TO.pt();
-		  HLT_DoubleMu0_MuonCand_eta[nHLTDiMu0MuonCand] = TO.eta(); 
-		  HLT_DoubleMu0_MuonCand_phi[nHLTDiMu0MuonCand] = TO.phi(); 
+		  HLT_DoubleMu4Acoplanarity_MuonCand_pt[nHLTDiMu4AcopMuonCand] = TO.pt();
+		  HLT_DoubleMu4Acoplanarity_MuonCand_eta[nHLTDiMu4AcopMuonCand] = TO.eta(); 
+		  HLT_DoubleMu4Acoplanarity_MuonCand_phi[nHLTDiMu4AcopMuonCand] = TO.phi(); 
 		  if(TO.id() > 0)	  
-		    HLT_DoubleMu0_MuonCand_charge[nHLTDiMu0MuonCand] = 1; 
+		    HLT_DoubleMu4Acoplanarity_MuonCand_charge[nHLTDiMu4AcopMuonCand] = 1; 
 		  else
-		    HLT_DoubleMu0_MuonCand_charge[nHLTDiMu0MuonCand] = -1;  
+		    HLT_DoubleMu4Acoplanarity_MuonCand_charge[nHLTDiMu4AcopMuonCand] = -1;  
 		  
-		  nHLTDiMu0MuonCand++;
+		  nHLTDiMu4AcopMuonCand++;
 		}
 	    }
 	}
-      if( dimuv2index < hltObjects->sizeFilters() ) 
+      if( dimu5index < hltObjects->sizeFilters() ) 
         { 
-          const trigger::Keys& DIMUKEYS(hltObjects->filterKeys(dimuv2index));  
-          const size_type nK(DIMUKEYS.size());  
+          const trigger::Keys& DIMU5KEYS(hltObjects->filterKeys(dimu5index));  
+          const size_type nK(DIMU5KEYS.size());  
           const TriggerObjectCollection& TOC(hltObjects->getObjects()); 
  
           for(int ipart = 0; ipart != nK; ++ipart)    
             { 
-              const TriggerObject& TO = TOC[DIMUKEYS[ipart]];   
+              const TriggerObject& TO = TOC[DIMU5KEYS[ipart]];   
                
               if(fabs(TO.id()) == 13) 
                 { 
-                  HLT_DoubleMu3_MuonCand_pt[nHLTDiMu3MuonCand] = TO.pt(); 
-                  HLT_DoubleMu3_MuonCand_eta[nHLTDiMu3MuonCand] = TO.eta();  
-                  HLT_DoubleMu3_MuonCand_phi[nHLTDiMu3MuonCand] = TO.phi();  
+                  HLT_DoubleMu5Acoplanarity_MuonCand_pt[nHLTDiMu5AcopMuonCand] = TO.pt(); 
+                  HLT_DoubleMu5Acoplanarity_MuonCand_eta[nHLTDiMu5AcopMuonCand] = TO.eta();  
+                  HLT_DoubleMu5Acoplanarity_MuonCand_phi[nHLTDiMu5AcopMuonCand] = TO.phi();  
                   if(TO.id() > 0)          
-                    HLT_DoubleMu3_MuonCand_charge[nHLTDiMu3MuonCand] = 1;  
+                    HLT_DoubleMu5Acoplanarity_MuonCand_charge[nHLTDiMu5AcopMuonCand] = 1;  
                   else 
-                    HLT_DoubleMu3_MuonCand_charge[nHLTDiMu3MuonCand] = -1;   
+                    HLT_DoubleMu5Acoplanarity_MuonCand_charge[nHLTDiMu5AcopMuonCand] = -1;   
                    
-                  nHLTDiMu3MuonCand++; 
+                  nHLTDiMu5AcopMuonCand++; 
                 } 
             } 
         } 
-      if( dimuindex < hltObjects->sizeFilters() )
-	{
-	  const trigger::Keys& DIMUKEYS(hltObjects->filterKeys(dimuindex)); 
-	  const size_type nK(DIMUKEYS.size()); 
-	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
-
-	  for(int ipart = 0; ipart != nK; ++ipart)   
-	    {
-	      const TriggerObject& TO = TOC[DIMUKEYS[ipart]];  
-	      
-	      if(fabs(TO.id()) == 13)
-		{
-		  HLT_DoubleMu3_MuonCand_pt[nHLTDiMu3MuonCand] = TO.pt();
-		  HLT_DoubleMu3_MuonCand_eta[nHLTDiMu3MuonCand] = TO.eta(); 
-		  HLT_DoubleMu3_MuonCand_phi[nHLTDiMu3MuonCand] = TO.phi(); 
-		  if(TO.id() > 0)	  
-		    HLT_DoubleMu3_MuonCand_charge[nHLTDiMu3MuonCand] = 1; 
-		  else
-		    HLT_DoubleMu3_MuonCand_charge[nHLTDiMu3MuonCand] = -1;  
-		  
-		  nHLTDiMu3MuonCand++;
-		}
-	    }
-	}
-      if( muindex < hltObjects->sizeFilters() ) 
-	{
-          const trigger::Keys& MUKEYS(hltObjects->filterKeys(muindex));  
-          const size_type nK(MUKEYS.size());  
-          const TriggerObjectCollection& TOC(hltObjects->getObjects()); 
-	  
-          for(int ipart = 0; ipart != nK; ++ipart)    
-            { 
-              const TriggerObject& TO = TOC[MUKEYS[ipart]];   
-               
-              if(fabs(TO.id()) == 13) 
-                { 
-                  HLT_Mu3_MuonCand_pt[nHLTMu3MuonCand] = TO.pt(); 
-                  HLT_Mu3_MuonCand_eta[nHLTMu3MuonCand] = TO.eta();  
-                  HLT_Mu3_MuonCand_phi[nHLTMu3MuonCand] = TO.phi();  
-                  if(TO.id() > 0)          
-                    HLT_Mu3_MuonCand_charge[nHLTMu3MuonCand] = 1;  
-                  else 
-                    HLT_Mu3_MuonCand_charge[nHLTMu3MuonCand] = -1;   
-                   
-                  nHLTMu3MuonCand++; 
-                } 
-            } 
-	  
-	}
+      if( dimu7index < hltObjects->sizeFilters() )  
+        {  
+          const trigger::Keys& DIMU7KEYS(hltObjects->filterKeys(dimu7index));   
+          const size_type nK(DIMU7KEYS.size());   
+          const TriggerObjectCollection& TOC(hltObjects->getObjects());  
+  
+          for(int ipart = 0; ipart != nK; ++ipart)     
+            {  
+              const TriggerObject& TO = TOC[DIMU7KEYS[ipart]];    
+                
+              if(fabs(TO.id()) == 13)  
+                {  
+                  HLT_DoubleMu7_MuonCand_pt[nHLTDiMu7MuonCand] = TO.pt();  
+                  HLT_DoubleMu7_MuonCand_eta[nHLTDiMu7MuonCand] = TO.eta();   
+                  HLT_DoubleMu7_MuonCand_phi[nHLTDiMu7MuonCand] = TO.phi();   
+                  if(TO.id() > 0)           
+                    HLT_DoubleMu7_MuonCand_charge[nHLTDiMu7MuonCand] = 1;   
+                  else  
+                    HLT_DoubleMu7_MuonCand_charge[nHLTDiMu7MuonCand] = -1;    
+                    
+                  nHLTDiMu7MuonCand++;  
+                }  
+            }  
+        }  
+      if( dimu8index < hltObjects->sizeFilters() )   
+        {   
+          const trigger::Keys& DIMU8KEYS(hltObjects->filterKeys(dimu8index));    
+          const size_type nK(DIMU8KEYS.size());    
+          const TriggerObjectCollection& TOC(hltObjects->getObjects());   
+   
+          for(int ipart = 0; ipart != nK; ++ipart)      
+            {   
+              const TriggerObject& TO = TOC[DIMU8KEYS[ipart]];     
+                 
+              if(fabs(TO.id()) == 13)   
+                {   
+                  HLT_Mu13Mu8_MuonCand_pt[nHLTMu13Mu8MuonCand] = TO.pt();   
+                  HLT_Mu13Mu8_MuonCand_eta[nHLTMu13Mu8MuonCand] = TO.eta();    
+                  HLT_Mu13Mu8_MuonCand_phi[nHLTMu13Mu8MuonCand] = TO.phi();    
+                  if(TO.id() > 0)            
+                    HLT_Mu13Mu8_MuonCand_charge[nHLTMu13Mu8MuonCand] = 1;    
+                  else   
+                    HLT_Mu13Mu8_MuonCand_charge[nHLTMu13Mu8MuonCand] = -1;     
+                     
+                  nHLTMu13Mu8MuonCand++;   
+                }   
+            }   
+        }   
     }
 
 
@@ -1523,7 +1507,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	closesthighpuritytrkdxyz = TrackCand_vtxdxyz[nTrackCand];
       
       nTrackCand++;  
->>>>>>> 1.97
     } 
   ClosestExtraTrack_vtxdxyz = closesttrkdxyz;
   ClosestHighPurityExtraTrack_vtxdxyz = closesthighpuritytrkdxyz;

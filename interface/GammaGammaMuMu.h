@@ -129,23 +129,29 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
 
   int MuonPairCand[2];
 
-  int nHLTMu3MuonCand;
-  double HLT_Mu3_MuonCand_pt[10];
-  double HLT_Mu3_MuonCand_eta[10];
-  double HLT_Mu3_MuonCand_phi[10];
-  int HLT_Mu3_MuonCand_charge[10];
+  int nHLTDiMu7MuonCand;
+  double HLT_DoubleMu7_MuonCand_pt[10];
+  double HLT_DoubleMu7_MuonCand_eta[10];
+  double HLT_DoubleMu7_MuonCand_phi[10];
+  int HLT_DoubleMu7_MuonCand_charge[10];
 
-  int nHLTDiMu3MuonCand; 
-  double HLT_DoubleMu3_MuonCand_pt[10]; 
-  double HLT_DoubleMu3_MuonCand_eta[10]; 
-  double HLT_DoubleMu3_MuonCand_phi[10]; 
-  int HLT_DoubleMu3_MuonCand_charge[10]; 
+  int nHLTMu13Mu8MuonCand;   
+  double HLT_Mu13Mu8_MuonCand_pt[10];   
+  double HLT_Mu13Mu8_MuonCand_eta[10];   
+  double HLT_Mu13Mu8_MuonCand_phi[10];   
+  int HLT_Mu13Mu8_MuonCand_charge[10];   
 
-  int nHLTDiMu0MuonCand;  
-  double HLT_DoubleMu0_MuonCand_pt[10];  
-  double HLT_DoubleMu0_MuonCand_eta[10];  
-  double HLT_DoubleMu0_MuonCand_phi[10];  
-  int HLT_DoubleMu0_MuonCand_charge[10];  
+  int nHLTDiMu4AcopMuonCand; 
+  double HLT_DoubleMu4Acoplanarity_MuonCand_pt[10]; 
+  double HLT_DoubleMu4Acoplanarity_MuonCand_eta[10]; 
+  double HLT_DoubleMu4Acoplanarity_MuonCand_phi[10]; 
+  int HLT_DoubleMu4Acoplanarity_MuonCand_charge[10]; 
+
+  int nHLTDiMu5AcopMuonCand;  
+  double HLT_DoubleMu5Acoplanarity_MuonCand_pt[10];  
+  double HLT_DoubleMu5Acoplanarity_MuonCand_eta[10];  
+  double HLT_DoubleMu5Acoplanarity_MuonCand_phi[10];  
+  int HLT_DoubleMu5Acoplanarity_MuonCand_charge[10];  
 
   double MuMu_mass;
   double MuMu_dphi;
@@ -300,18 +306,14 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
 
   double evweight;
   
-  int HLT_DoubleMu3;
-  int HLT_Mu3;
-  int HLT_DoubleMu0;
-  int HLT_L2Mu0;
-  int HLT_L1DoubleMuOpen;
-  int HLT_L1DoubleMuOpen_Tight;
-  int HLT_DoubleMu3_Prescl; 
-  int HLT_Mu3_Prescl; 
-  int HLT_DoubleMu0_Prescl; 
-  int HLT_L2Mu0_Prescl; 
-  int HLT_L1DoubleMuOpen_Prescl; 
-  int HLT_L1DoubleMuOpen_Tight_Prescl;
+  int HLT_DoubleMu4Acoplanarity;
+  int HLT_DoubleMu5Acoplanarity; 
+  int HLT_DoubleMu7;
+  int HLT_Mu13Mu8;
+  int HLT_DoubleMu4Acoplanarity_Prescl; 
+  int HLT_DoubleMu5Acoplanarity_Prescl;  
+  int HLT_DoubleMu7_Prescl; 
+  int HLT_Mu13Mu8_Prescl;  
 
 
   double LowPt_pt[10];
