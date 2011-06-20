@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.98 2011/05/31 13:47:11 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.99 2011/06/17 08:05:27 jjhollar Exp $
 //
 //
 
@@ -397,6 +397,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuMu_mass",&MuMu_mass,"MuMu_mass/D");
   thetree->Branch("MuMu_dphi",&MuMu_dphi,"MuMu_dphi/D");
   thetree->Branch("MuMu_dpt",&MuMu_dpt,"MuMu_dpt/D");
+  thetree->Branch("MuMu_pt",&MuMu_pt,"MuMu_pt/D"); 
   thetree->Branch("MuMu_Kalmanvtxx",&MuMu_Kalmanvtxx,"MuMu_Kalmanvtxx/D");
   thetree->Branch("MuMu_Kalmanvtxy",&MuMu_Kalmanvtxy,"MuMu_Kalmanvtxy/D"); 
   thetree->Branch("MuMu_Kalmanvtxz",&MuMu_Kalmanvtxz,"MuMu_Kalmanvtxz/D");
@@ -536,6 +537,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   MuMu_mass = -1;
   MuMu_dphi = -1;
   MuMu_dpt = -1;
+  MuMu_pt = -1;
   MuMu_extratracks1mm = 0; 
   MuMu_extratracks2mm = 0;  
   MuMu_extratracks3mm = 0; 
@@ -900,6 +902,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       recomuvec2.SetXYZM(MuonCand_px[MuonPairCand[1]],MuonCand_py[MuonPairCand[1]],MuonCand_pz[MuonPairCand[1]],0.1057);  
       recomumuvec = recomuvec1 + recomuvec2; 
       MuMu_mass = recomumuvec.M();
+      
+      MuMu_pt = recomumuvec.Pt();
 
       MuMu_dpt = fabs(MuonCand_pt[MuonPairCand[0]]-MuonCand_pt[MuonPairCand[1]]);
 

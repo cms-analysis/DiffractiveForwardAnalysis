@@ -156,6 +156,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuMu_mass;
   double MuMu_dphi;
   double MuMu_dpt;
+  double MuMu_pt;
   double MuMu_Kalmanvtxx;
   double MuMu_Kalmanvtxy;
   double MuMu_Kalmanvtxz;

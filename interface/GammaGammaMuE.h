@@ -181,6 +181,7 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double MuE_mass;
   double MuE_dphi;
   double MuE_dpt;
+  double MuE_pt;
   double MuE_Kalmanvtxx;
   double MuE_Kalmanvtxy;
   double MuE_Kalmanvtxz;
@@ -285,6 +286,7 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double PrimVertexCand_chi2[40];
   double PrimVertexCand_ndof[40];
   int PrimVertexCand_mueTwoTracks[40];
+  int PrimVertexCand_mueExactlyTwoTracks[40];
   int PrimVertexCand_mueTwoTracksMuIndex[40];
   int PrimVertexCand_mueTwoTracksEleIndex[40]; 
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.96 2011/03/16 14:20:59 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.1 2011/06/14 15:27:34 jjhollar Exp $
 //
 //
 
@@ -374,6 +374,7 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("MuE_mass",&MuE_mass,"MuE_mass/D");
   thetree->Branch("MuE_dphi",&MuE_dphi,"MuE_dphi/D");
   thetree->Branch("MuE_dpt",&MuE_dpt,"MuE_dpt/D");
+  thetree->Branch("MuE_pt",&MuE_pt,"MuE_pt/D"); 
   thetree->Branch("MuE_Kalmanvtxx",&MuE_Kalmanvtxx,"MuE_Kalmanvtxx/D");
   thetree->Branch("MuE_Kalmanvtxy",&MuE_Kalmanvtxy,"MuE_Kalmanvtxy/D"); 
   thetree->Branch("MuE_Kalmanvtxz",&MuE_Kalmanvtxz,"MuE_Kalmanvtxz/D");
@@ -432,6 +433,7 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("PrimVertexCand_chi2",&PrimVertexCand_chi2,"PrimVertexCand_chi2[nPrimVertexCand]/D");
   thetree->Branch("PrimVertexCand_ndof",&PrimVertexCand_ndof,"PrimVertexCand_ndof[nPrimVertexCand]/D");
   thetree->Branch("PrimVertexCand_mueTwoTracks",&PrimVertexCand_mueTwoTracks,"PrimVertexCand_mueTwoTracks[nPrimVertexCand]/I"); 
+  thetree->Branch("PrimVertexCand_mueExactlyTwoTracks",&PrimVertexCand_mueExactlyTwoTracks,"PrimVertexCand_mueExactlyTwoTracks[nPrimVertexCand]/I");  
   thetree->Branch("PrimVertexCand_mueTwoTracksMuIndex",&PrimVertexCand_mueTwoTracksMuIndex,"PrimVertexCand_mueTwoTracksMuIndex[nPrimVertexCand]/I");  
   thetree->Branch("PrimVertexCand_mueTwoTracksEleIndex",&PrimVertexCand_mueTwoTracksEleIndex,"PrimVertexCand_mueTwoTracksEleIndex[nPrimVertexCand]/I");   
 
@@ -486,6 +488,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   MuE_mass = -1;
   MuE_dphi = -1;
   MuE_dpt = -1;
+  MuE_pt = -1;
   MuE_extratracks1mm = 0; 
   MuE_extratracks2mm = 0;  
   MuE_extratracks3mm = 0; 
@@ -960,6 +963,8 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       recomuevec = recomuvec + recoevec; 
       MuE_mass = recomuevec.M();
 
+      MuE_pt = recomuevec.Pt();
+
       MuE_dpt = fabs(MuonCand_pt[MuEPairCand[0]]-EleCand_et[MuEPairCand[1]]);
 
       double dphi = fabs(MuonCand_phi[MuEPairCand[0]]-EleCand_phi[MuEPairCand[1]]);
@@ -1029,6 +1034,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
     int track_match_lepton=0;
     PrimVertexCand_mueTwoTracks[nPrimVertexCand] = 0;
+    PrimVertexCand_mueExactlyTwoTracks[nPrimVertexCand] = 0; 
     PrimVertexCand_mueTwoTracksMuIndex[nPrimVertexCand] = -1;
     PrimVertexCand_mueTwoTracksEleIndex[nPrimVertexCand] = -1; 
 
@@ -1056,6 +1062,10 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	mueprimvtxy = PrimVertexCand_y[nPrimVertexCand]; 
         mueprimvtxz = PrimVertexCand_z[nPrimVertexCand]; 
 	found_muevertex = true;
+
+	if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && track_match_lepton==2)
+	  PrimVertexCand_mueExactlyTwoTracks[nPrimVertexCand] = 1; 
+
     }
     nPrimVertexCand++;
   }
