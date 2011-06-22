@@ -160,23 +160,23 @@ class GammaGammaMuE : public edm::EDAnalyzer {
 
   int MuEPairCand[2];
 
-  int nHLTMu3MuonCand;
-  double HLT_Mu3_MuonCand_pt[10];
-  double HLT_Mu3_MuonCand_eta[10];
-  double HLT_Mu3_MuonCand_phi[10];
-  int HLT_Mu3_MuonCand_charge[10];
+  int nHLTMu10Ele10MuonCand;
+  double HLT_Mu10Ele10_MuonCand_pt[10];
+  double HLT_Mu10Ele10_MuonCand_eta[10];
+  double HLT_Mu10Ele10_MuonCand_phi[10];
+  int HLT_Mu10Ele10_MuonCand_charge[10];
 
-  int nHLTDiMu3MuonCand; 
-  double HLT_DoubleMu3_MuonCand_pt[10]; 
-  double HLT_DoubleMu3_MuonCand_eta[10]; 
-  double HLT_DoubleMu3_MuonCand_phi[10]; 
-  int HLT_DoubleMu3_MuonCand_charge[10]; 
+  int nHLTMu8Ele17MuonCand; 
+  double HLT_Mu8Ele17_MuonCand_pt[10]; 
+  double HLT_Mu8Ele17_MuonCand_eta[10]; 
+  double HLT_Mu8Ele17_MuonCand_phi[10]; 
+  int HLT_Mu8Ele17_MuonCand_charge[10]; 
 
-  int nHLTDiMu0MuonCand;  
-  double HLT_DoubleMu0_MuonCand_pt[10];  
-  double HLT_DoubleMu0_MuonCand_eta[10];  
-  double HLT_DoubleMu0_MuonCand_phi[10];  
-  int HLT_DoubleMu0_MuonCand_charge[10];  
+  int nHLTMu17Ele8MuonCand;  
+  double HLT_Mu17Ele8_MuonCand_pt[10];  
+  double HLT_Mu17Ele8_MuonCand_eta[10];  
+  double HLT_Mu17Ele8_MuonCand_phi[10];  
+  int HLT_Mu17Ele8_MuonCand_charge[10];  
 
   double MuE_mass;
   double MuE_dphi;
@@ -324,19 +324,12 @@ class GammaGammaMuE : public edm::EDAnalyzer {
 
   double evweight;
   
-  int HLT_DoubleMu3;
-  int HLT_Mu3;
-  int HLT_DoubleMu0;
-  int HLT_L2Mu0;
-  int HLT_L1DoubleMuOpen;
-  int HLT_L1DoubleMuOpen_Tight;
-  int HLT_DoubleMu3_Prescl; 
-  int HLT_Mu3_Prescl; 
-  int HLT_DoubleMu0_Prescl; 
-  int HLT_L2Mu0_Prescl; 
-  int HLT_L1DoubleMuOpen_Prescl; 
-  int HLT_L1DoubleMuOpen_Tight_Prescl;
-
+  int HLT_Mu8Ele17;
+  int HLT_Mu10Ele10;
+  int HLT_Mu17Ele8;
+  int HLT_Mu8Ele17_Prescl; 
+  int HLT_Mu10Ele10_Prescl; 
+  int HLT_Mu17Ele8_Prescl; 
 
   double LowPt_pt[10];
   double LowPt_eta[10];
