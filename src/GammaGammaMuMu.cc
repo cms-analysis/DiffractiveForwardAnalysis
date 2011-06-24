@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.99 2011/06/17 08:05:27 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.100 2011/06/20 08:06:51 jjhollar Exp $
 //
 //
 
@@ -31,6 +31,7 @@
 #include "DataFormats/Common/interface/Ref.h"   
 #include "DataFormats/Common/interface/TriggerResults.h"   
 #include "DataFormats/HLTReco/interface/TriggerEvent.h" 
+#include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
  
 #include "FWCore/Framework/interface/Frameworkfwd.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -67,6 +68,8 @@
 #include "DataFormats/METReco/interface/CaloMET.h"  
 #include "DataFormats/METReco/interface/CaloMETFwd.h"   
 #include "DataFormats/METReco/interface/CaloMETCollection.h"  
+#include "DataFormats/METReco/interface/PFMETCollection.h" 
+#include "DataFormats/METReco/interface/PFMET.h"  
 #include "DataFormats/EgammaCandidates/interface/Photon.h"  
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"  
 #include "DataFormats/CaloTowers/interface/CaloTower.h"  
@@ -772,6 +775,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     reco::MuonCollection::const_iterator muon;
   */
 
+  //  edm::Handle<edm::ValueMap<reco::MuonCosmicCompatibility> > muonCosmicCompatibilityValueMapH;
+  //  event.getByLabel(InputTag(“cosmicsVeto”), muonCosmicCompatibilityValueMapH);
+  //  unsigned int muonIdx = 0;
+  
   for (muon = muons->begin(); muon != muons->end() && nMuonCand<MUONMAX; ++muon)
     {
       if((!muon->isTrackerMuon()) && (!muon->isGlobalMuon()))continue;
@@ -861,6 +868,12 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       double totalmuonmceff = 1.0;
 
       MuonCand_efficiency[nMuonCand] = totalmuoneff/totalmuonmceff;
+
+      // Cosmics compatibility
+      //     MuonRef muonRef(muonCollectionH, muonIdx);
+      //      MuonCosmicCompatibility muonCosmicCompatibility = (*muonCosmicCompatibilityValueMapH)[muonRef];
+      //      float combinedCompat = muonCosmicCompatibility.cosmicCompatibility;
+      //      float B2BCosmicCompat = muonCosmicCompatibility.backToBackCompatibility;
       
       nMuonCand++;
     }
@@ -938,10 +951,13 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   */
 
   // AOD
-  edm::Handle<reco::CaloMETCollection> pMET;
-  event.getByLabel(theMetLabel,pMET);
-  const reco::CaloMETCollection* mets = pMET.product();
-  reco::CaloMETCollection::const_iterator met;
+  //  edm::Handle<reco::CaloMETCollection> pMET; 
+  //  const reco::CaloMETCollection* mets = pMET.product(); 
+  //  reco::CaloMETCollection::const_iterator met; 
+  edm::Handle<reco::PFMETCollection> pMET;  
+  event.getByLabel(theMetLabel,pMET);  
+  const reco::PFMETCollection* mets = pMET.product();  
+  reco::PFMETCollection::const_iterator met;  
 
   // Get the CaloTower collection from the event
   edm::Handle<CaloTowerCollection> caloTowers; 

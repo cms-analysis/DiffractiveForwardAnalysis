@@ -12,8 +12,8 @@ gamgammueanalysis = cms.EDAnalyzer("GammaGammaMuE",
     ZDCRecHitsLabel = cms.InputTag("zdcreco"),                             
     CastorRecHitsLabel = cms.InputTag("castorreco"),
     CaloTowerdR = cms.double(0.3),
-    MetLabel = cms.InputTag("met"),
-                                    
+##    MetLabel = cms.InputTag("met"),
+    MetLabel = cms.InputTag("pfMet"),                                  
     MinMuEVertexSeparation = cms.double(0.1),
     KeepSameSign = cms.bool(False),
     HLTMenuLabel = cms.string("HLT")                                  

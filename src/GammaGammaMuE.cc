@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.2 2011/06/20 08:06:51 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.3 2011/06/22 09:27:24 jjhollar Exp $
 //
 //
 
@@ -66,7 +66,9 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"   
 #include "DataFormats/METReco/interface/CaloMET.h"  
 #include "DataFormats/METReco/interface/CaloMETFwd.h"   
-#include "DataFormats/METReco/interface/CaloMETCollection.h"  
+#include "DataFormats/METReco/interface/CaloMETCollection.h" 
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/PFMET.h" 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"  
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"  
 #include "DataFormats/CaloTowers/interface/CaloTower.h"  
@@ -940,10 +942,13 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   */
 
   // AOD
-  edm::Handle<reco::CaloMETCollection> pMET;
-  event.getByLabel(theMetLabel,pMET);
-  const reco::CaloMETCollection* mets = pMET.product();
-  reco::CaloMETCollection::const_iterator met;
+  //  edm::Handle<reco::CaloMETCollection> pMET;
+  //  const reco::CaloMETCollection* mets = pMET.product();
+  //  reco::CaloMETCollection::const_iterator met;
+  edm::Handle<reco::PFMETCollection> pMET; 
+  event.getByLabel(theMetLabel,pMET); 
+  const reco::PFMETCollection* mets = pMET.product(); 
+  reco::PFMETCollection::const_iterator met; 
 
   // Get the CaloTower collection from the event
   edm::Handle<CaloTowerCollection> caloTowers; 
