@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.100 2011/06/20 08:06:51 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.101 2011/06/24 14:06:44 jjhollar Exp $
 //
 //
 
@@ -998,9 +998,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     //    if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && found_pair) 
       {
         for (reco::Vertex::trackRef_iterator vertex_curTrack = vertex_i->tracks_begin(); vertex_curTrack!=vertex_i->tracks_end(); vertex_curTrack++) {
-		if( (fabs((*vertex_curTrack)->pt()-MuonCand_pt[MuonPairCand[0]])<1.e-6   || fabs((*vertex_curTrack)->pt()-MuonCand_pt[MuonPairCand[1]])<1.e-6) &&
-		    (fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuonPairCand[0]])<1.e-6 || fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuonPairCand[1]])<1.e-6) &&
-                    (fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuonPairCand[0]])<1.e-6 || fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuonPairCand[1]])<1.e-6)
+		if( (fabs((*vertex_curTrack)->p()-MuonCandTrack_p[MuonPairCand[0]])<1.e-2   || fabs((*vertex_curTrack)->pt()-MuonCand_pt[MuonPairCand[1]])<1.e-2) &&
+		    (fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuonPairCand[0]])<1.e-2 || fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuonPairCand[1]])<1.e-2) &&
+                    (fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuonPairCand[0]])<1.e-2 || fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuonPairCand[1]])<1.e-2)
 		) track_match_muon++;
 	}
     }

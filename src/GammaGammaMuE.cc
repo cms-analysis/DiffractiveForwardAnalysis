@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.3 2011/06/22 09:27:24 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.4 2011/06/24 14:06:44 jjhollar Exp $
 //
 //
 
@@ -990,10 +990,11 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     //    if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && found_pair) 
       {
         for (reco::Vertex::trackRef_iterator vertex_curTrack = vertex_i->tracks_begin(); vertex_curTrack!=vertex_i->tracks_end(); vertex_curTrack++) {
-		if( (fabs((*vertex_curTrack)->pt()-MuonCand_pt[MuEPairCand[0]])<1.e-6   || fabs((*vertex_curTrack)->pt()-EleCandTrack_pt[MuEPairCand[1]])<1.e2) &&
-		    (fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuEPairCand[0]])<1.e-6 || fabs((*vertex_curTrack)->eta()-EleCandTrack_eta[MuEPairCand[1]])<1.e-1) &&
-                    (fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuEPairCand[0]])<1.e-6 || fabs((*vertex_curTrack)->phi()-EleCandTrack_phi[MuEPairCand[1]])<1.e-1)
-		) track_match_lepton++;
+	  //		if( (fabs((*vertex_curTrack)->pt()-MuonCand_pt[MuEPairCand[0]])<1.e-6   || fabs((*vertex_curTrack)->pt()-EleCandTrack_pt[MuEPairCand[1]])<1.e2) &&
+	  if( (fabs((*vertex_curTrack)->p()-MuonCandTrack_p[MuEPairCand[0]])<1.e-2   || fabs((*vertex_curTrack)->pt()-EleCandTrack_pt[MuEPairCand[1]])<1.e2) &&
+	      (fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuEPairCand[0]])<1.e-2 || fabs((*vertex_curTrack)->eta()-EleCandTrack_eta[MuEPairCand[1]])<1.e-1) &&
+	      (fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuEPairCand[0]])<1.e-2 || fabs((*vertex_curTrack)->phi()-EleCandTrack_phi[MuEPairCand[1]])<1.e-1)
+	      ) track_match_lepton++;
 	}
     }
     
@@ -1354,7 +1355,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       TrackCand_X[nTrackCand] = track->vertex().x();
       TrackCand_Y[nTrackCand] = track->vertex().y();
       TrackCand_Z[nTrackCand] = track->vertex().z();
-      
+
       if((TrackCand_purity[nTrackCand] == 1) && (TrackCand_nhits[nTrackCand] >= 3))
 	nQualityTrackCand++;
       
