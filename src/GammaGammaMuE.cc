@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.4 2011/06/24 14:06:44 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.5 2011/07/13 11:41:18 jjhollar Exp $
 //
 //
 
@@ -1009,7 +1009,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	mueprimvtxx = PrimVertexCand_x[nPrimVertexCand];
 	mueprimvtxy = PrimVertexCand_y[nPrimVertexCand]; 
         mueprimvtxz = PrimVertexCand_z[nPrimVertexCand]; 
-	found_muevertex = true;
+	//	found_muevertex = true;
 
 	if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && track_match_lepton==2)
 	  PrimVertexCand_mueExactlyTwoTracks[nPrimVertexCand] = 1; 
@@ -1315,6 +1315,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuE_Kalmanvtxchi2dof = mueVertex.normalisedChiSquared();
 	  MuE_KalmanvtxT = sqrt(mueVertex.position().x()*mueVertex.position().x() + mueVertex.position().y()*mueVertex.position().y() ); 
 	  MuE_Kalmanvtxisvalid = 1;
+	  found_muevertex = 1;
 	}
       else
 	{
@@ -1346,12 +1347,12 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       TrackCand_nhits[nTrackCand]=track->numberOfValidHits();
       TrackCand_chi2[nTrackCand]=track->chi2();
       TrackCand_ndof[nTrackCand]=track->ndof();
-      TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - mueprimvtxx)*(track->vertex().x() - mueprimvtxx)) + 
-					   ((track->vertex().y() - mueprimvtxy)*(track->vertex().y() - mueprimvtxy)) +
-					   ((track->vertex().z() - mueprimvtxz)*(track->vertex().z() - mueprimvtxz)));
-      TrackCand_vtxT[nTrackCand] = sqrt(((track->vertex().x() - mueprimvtxx)*(track->vertex().x() - mueprimvtxx)) +
-					((track->vertex().y() - mueprimvtxy)*(track->vertex().y() - mueprimvtxy)));
-      TrackCand_vtxZ[nTrackCand] = sqrt(((track->vertex().z() - mueprimvtxz)*(track->vertex().z() - mueprimvtxz)));
+      TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - MuE_Kalmanvtxx)*(track->vertex().x() - MuE_Kalmanvtxx)) + 
+					   ((track->vertex().y() - MuE_Kalmanvtxy)*(track->vertex().y() - MuE_Kalmanvtxy)) +
+					   ((track->vertex().z() - MuE_Kalmanvtxz)*(track->vertex().z() - MuE_Kalmanvtxz)));
+      TrackCand_vtxT[nTrackCand] = sqrt(((track->vertex().x() - MuE_Kalmanvtxx)*(track->vertex().x() - MuE_Kalmanvtxx)) +
+					((track->vertex().y() - MuE_Kalmanvtxy)*(track->vertex().y() - MuE_Kalmanvtxy)));
+      TrackCand_vtxZ[nTrackCand] = sqrt(((track->vertex().z() - MuE_Kalmanvtxz)*(track->vertex().z() - MuE_Kalmanvtxz)));
       TrackCand_X[nTrackCand] = track->vertex().x();
       TrackCand_Y[nTrackCand] = track->vertex().y();
       TrackCand_Z[nTrackCand] = track->vertex().z();
