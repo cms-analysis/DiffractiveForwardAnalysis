@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.102 2011/07/13 11:41:18 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.103 2011/07/29 14:27:30 jjhollar Exp $
 //
 //
 
@@ -435,6 +435,11 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("GenMuMu_pt",&GenMuMu_pt,"GenMuMu_pt/D");     
   
   thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
+  thetree->Branch("Etmiss_phi",&Etmiss_phi,"Etmiss_phi/D");  
+  thetree->Branch("Etmiss_x",&Etmiss_x,"Etmiss_x/D");  
+  thetree->Branch("Etmiss_y",&Etmiss_y,"Etmiss_y/D");  
+  thetree->Branch("Etmiss_z",&Etmiss_z,"Etmiss_z/D");  
+  thetree->Branch("Etmiss_significance",&Etmiss_significance,"Etmiss_significance/D");  
 
   thetree->Branch("HLT_DoubleMu5Acoplanarity",&HLT_DoubleMu5Acoplanarity,"HLT_DoubleMu5Acoplanarity/I");
   thetree->Branch("HLT_DoubleMu4Acoplanarity",&HLT_DoubleMu4Acoplanarity,"HLT_DoubleMu4Acoplanarity/I");
@@ -1018,7 +1023,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	    PrimVertexCand_mumuExactlyTwoTracks[nPrimVertexCand] = 1;
 	    PrimVertexCand_mumuTwoTracksMap = nPrimVertexCand;
 	  }
-	//	found_mumuvertex = true;
+	found_mumuvertex = true;
 
     }
     nPrimVertexCand++;
@@ -1082,8 +1087,13 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestJet_phi = highestejetphi;
       SumJet_e = totalejet;
       met = mets->begin();
-      float e_met = met->energy();
+      float e_met = met->et();
       Etmiss = e_met;
+      Etmiss_phi = met->phi();
+      Etmiss_x = met->px();
+      Etmiss_y = met->py();
+      Etmiss_z = met->pz();
+      Etmiss_significance = met->significance();
       for (calo = towers->begin(); calo != towers->end(); ++calo )
 	{
 	  CaloTower_e[nCaloCand]=calo->energy();
@@ -1458,7 +1468,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuMu_Kalmanvtxchi2dof = mumuVertex.normalisedChiSquared();
 	  MuMu_KalmanvtxT = sqrt(mumuVertex.position().x()*mumuVertex.position().x() + mumuVertex.position().y()*mumuVertex.position().y() ); 
 	  MuMu_Kalmanvtxisvalid = 1;
-	  found_mumuvertex = 1;
+	  //	  found_mumuvertex = 1;
 	}
       else
 	{
@@ -1489,12 +1499,12 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       TrackCand_nhits[nTrackCand]=track->numberOfValidHits();
       TrackCand_chi2[nTrackCand]=track->chi2();
       TrackCand_ndof[nTrackCand]=track->ndof();
-      TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - MuMu_Kalmanvtxx)*(track->vertex().x() - MuMu_Kalmanvtxx)) + 
-					   ((track->vertex().y() - MuMu_Kalmanvtxy)*(track->vertex().y() - MuMu_Kalmanvtxy)) +
-					   ((track->vertex().z() - MuMu_Kalmanvtxz)*(track->vertex().z() - MuMu_Kalmanvtxz)));
-      TrackCand_vtxT[nTrackCand] = sqrt(((track->vertex().x() - MuMu_Kalmanvtxx)*(track->vertex().x() - MuMu_Kalmanvtxx)) +
-					((track->vertex().y() - MuMu_Kalmanvtxy)*(track->vertex().y() - MuMu_Kalmanvtxy)));
-      TrackCand_vtxZ[nTrackCand] = sqrt(((track->vertex().z() - MuMu_Kalmanvtxz)*(track->vertex().z() - MuMu_Kalmanvtxz)));
+      TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - mumuprimvtxx)*(track->vertex().x() - mumuprimvtxx)) + 
+					   ((track->vertex().y() - mumuprimvtxy)*(track->vertex().y() - mumuprimvtxy)) +
+					   ((track->vertex().z() - mumuprimvtxz)*(track->vertex().z() - mumuprimvtxz)));
+      TrackCand_vtxT[nTrackCand] = sqrt(((track->vertex().x() - mumuprimvtxx)*(track->vertex().x() - mumuprimvtxx)) +
+					((track->vertex().y() - mumuprimvtxy)*(track->vertex().y() - mumuprimvtxy)));
+      TrackCand_vtxZ[nTrackCand] = sqrt(((track->vertex().z() - mumuprimvtxz)*(track->vertex().z() - mumuprimvtxz)));
       TrackCand_X[nTrackCand] = track->vertex().x();
       TrackCand_Y[nTrackCand] = track->vertex().y();
       TrackCand_Z[nTrackCand] = track->vertex().z();

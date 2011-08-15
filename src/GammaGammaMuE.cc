@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.5 2011/07/13 11:41:18 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.6 2011/07/29 14:27:30 jjhollar Exp $
 //
 //
 
@@ -49,6 +49,8 @@
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
+#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -405,6 +407,11 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("GenMuE_pt",&GenMuE_pt,"GenMuE_pt/D");     
   
   thetree->Branch("Etmiss",&Etmiss,"Etmiss/D");
+  thetree->Branch("Etmiss_phi",&Etmiss_phi,"Etmiss_phi/D"); 
+  thetree->Branch("Etmiss_x",&Etmiss_x,"Etmiss_x/D"); 
+  thetree->Branch("Etmiss_y",&Etmiss_y,"Etmiss_y/D"); 
+  thetree->Branch("Etmiss_z",&Etmiss_z,"Etmiss_z/D"); 
+  thetree->Branch("Etmiss_significance",&Etmiss_significance,"Etmiss_significance/D"); 
 
   thetree->Branch("HLT_Mu17Ele8",&HLT_Mu17Ele8,"HLT_Mu17Ele8/I");
   thetree->Branch("HLT_Mu8Ele17",&HLT_Mu8Ele17,"HLT_Mu8Ele17/I");
@@ -438,6 +445,7 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
 
   thetree->Branch("nPU",&nPU,"nPU/I");
+  thetree->Branch("PUWeight",&PUWeight,"PUWeight/D");
 
 //  thetree->Branch("evweight",&evweight,"evweight/D");
 }
@@ -662,6 +670,27 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
 
   // Get the #PU information
+  PUWeight = 0.0;
+  Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+  event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
+
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+
+  float sum_nvtx = 0.0;
+  int npv = -1;
+  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+
+    int BX = PVI->getBunchCrossing();
+
+    cout << "PU rewighting - BX = " << BX << endl;
+
+    npv = PVI->getPU_NumInteractions();
+
+    sum_nvtx += float(npv);
+    cout << "\tnpv = " << npv << ", sum = " << sum_nvtx << endl;
+  }
+  PUWeight = sum_nvtx/3.;
+
   nPU=0;
   edm::Handle<CrossingFrame<edm::HepMCProduct> > crossingFrameHepMCH;
   event.getByLabel("mix","source",crossingFrameHepMCH);
@@ -1009,7 +1038,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	mueprimvtxx = PrimVertexCand_x[nPrimVertexCand];
 	mueprimvtxy = PrimVertexCand_y[nPrimVertexCand]; 
         mueprimvtxz = PrimVertexCand_z[nPrimVertexCand]; 
-	//	found_muevertex = true;
+	found_muevertex = true;
 
 	if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && track_match_lepton==2)
 	  PrimVertexCand_mueExactlyTwoTracks[nPrimVertexCand] = 1; 
@@ -1068,8 +1097,13 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       HighestJet_phi = highestejetphi;
       SumJet_e = totalejet;
       met = mets->begin();
-      float e_met = met->energy();
+      float e_met = met->et();
       Etmiss = e_met;
+      Etmiss_phi = met->phi();
+      Etmiss_x = met->px();
+      Etmiss_y = met->py();
+      Etmiss_z = met->pz();
+      Etmiss_significance = met->significance();
       for (calo = towers->begin(); calo != towers->end(); ++calo )
 	{
 	  CaloTower_e[nCaloCand]=calo->energy();
@@ -1315,7 +1349,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuE_Kalmanvtxchi2dof = mueVertex.normalisedChiSquared();
 	  MuE_KalmanvtxT = sqrt(mueVertex.position().x()*mueVertex.position().x() + mueVertex.position().y()*mueVertex.position().y() ); 
 	  MuE_Kalmanvtxisvalid = 1;
-	  found_muevertex = 1;
+	  //	  found_muevertex = 1;
 	}
       else
 	{
@@ -1347,12 +1381,12 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       TrackCand_nhits[nTrackCand]=track->numberOfValidHits();
       TrackCand_chi2[nTrackCand]=track->chi2();
       TrackCand_ndof[nTrackCand]=track->ndof();
-      TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - MuE_Kalmanvtxx)*(track->vertex().x() - MuE_Kalmanvtxx)) + 
-					   ((track->vertex().y() - MuE_Kalmanvtxy)*(track->vertex().y() - MuE_Kalmanvtxy)) +
-					   ((track->vertex().z() - MuE_Kalmanvtxz)*(track->vertex().z() - MuE_Kalmanvtxz)));
-      TrackCand_vtxT[nTrackCand] = sqrt(((track->vertex().x() - MuE_Kalmanvtxx)*(track->vertex().x() - MuE_Kalmanvtxx)) +
-					((track->vertex().y() - MuE_Kalmanvtxy)*(track->vertex().y() - MuE_Kalmanvtxy)));
-      TrackCand_vtxZ[nTrackCand] = sqrt(((track->vertex().z() - MuE_Kalmanvtxz)*(track->vertex().z() - MuE_Kalmanvtxz)));
+      TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - mueprimvtxx)*(track->vertex().x() - mueprimvtxx)) + 
+					   ((track->vertex().y() - mueprimvtxy)*(track->vertex().y() - mueprimvtxy)) +
+					   ((track->vertex().z() - mueprimvtxz)*(track->vertex().z() - mueprimvtxz)));
+      TrackCand_vtxT[nTrackCand] = sqrt(((track->vertex().x() - mueprimvtxx)*(track->vertex().x() - mueprimvtxx)) +
+					((track->vertex().y() - mueprimvtxy)*(track->vertex().y() - mueprimvtxy)));
+      TrackCand_vtxZ[nTrackCand] = sqrt(((track->vertex().z() - mueprimvtxz)*(track->vertex().z() - mueprimvtxz)));
       TrackCand_X[nTrackCand] = track->vertex().x();
       TrackCand_Y[nTrackCand] = track->vertex().y();
       TrackCand_Z[nTrackCand] = track->vertex().z();

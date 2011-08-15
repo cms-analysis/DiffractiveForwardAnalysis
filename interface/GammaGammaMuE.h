@@ -19,6 +19,8 @@
 //#include "MuonAnalysis/TagAndProbe/interface/MuonPerformanceReadback.h" 
 //#include "MuonAnalysis/TagAndProbe/interface/MuonPerformance.h"  
 
+#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
 
 #include <TFile.h>
@@ -224,6 +226,11 @@ class GammaGammaMuE : public edm::EDAnalyzer {
 
 
   double Etmiss;
+  double Etmiss_phi;
+  double Etmiss_x;
+  double Etmiss_y;
+  double Etmiss_z;
+  double Etmiss_significance;
 
   int nCaloCand;
 
@@ -335,6 +342,7 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double LowPt_eta[10];
 
   int nPU;
+  double PUWeight; 
   HLTConfigProvider hltConfig_;  
 
   AcceptanceTableHelper helper420beam1;   

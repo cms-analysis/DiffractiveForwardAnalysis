@@ -206,6 +206,11 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
 
 
   double Etmiss;
+  double Etmiss_phi; 
+  double Etmiss_x; 
+  double Etmiss_y; 
+  double Etmiss_z; 
+  double Etmiss_significance; 
 
   int nCaloCand;
   int nExtraCaloTowersE0pt6eb, nExtraCaloTowersE2pt45ee, nExtraCaloTowersE1pt25hb, nExtraCaloTowersE1pt9he, nExtraCaloTowersE4pt5hfp, nExtraCaloTowersE4pt0hfm;
