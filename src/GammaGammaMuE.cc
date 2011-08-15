@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.6 2011/07/29 14:27:30 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.7 2011/08/15 12:44:46 jjhollar Exp $
 //
 //
 
@@ -379,6 +379,8 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("MuE_dphi",&MuE_dphi,"MuE_dphi/D");
   thetree->Branch("MuE_dpt",&MuE_dpt,"MuE_dpt/D");
   thetree->Branch("MuE_pt",&MuE_pt,"MuE_pt/D"); 
+  thetree->Branch("MuE_phi",&MuE_phi,"MuE_phi/D");  
+  thetree->Branch("MuE_3Dangle",&MuE_3Dangle,"MuE_3Dangle/D");  
   thetree->Branch("MuE_Kalmanvtxx",&MuE_Kalmanvtxx,"MuE_Kalmanvtxx/D");
   thetree->Branch("MuE_Kalmanvtxy",&MuE_Kalmanvtxy,"MuE_Kalmanvtxy/D"); 
   thetree->Branch("MuE_Kalmanvtxz",&MuE_Kalmanvtxz,"MuE_Kalmanvtxz/D");
@@ -493,6 +495,8 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   MuE_dphi = -1;
   MuE_dpt = -1;
   MuE_pt = -1;
+  MuE_phi = -999.; 
+  MuE_3Dangle = -999.;  
   MuE_extratracks1mm = 0; 
   MuE_extratracks2mm = 0;  
   MuE_extratracks3mm = 0; 
@@ -937,6 +941,8 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       MuE_mass = recomuevec.M();
 
       MuE_pt = recomuevec.Pt();
+      MuE_phi = recomuevec.Phi();
+      MuE_3Dangle = (recomuvec.Angle(recoevec.Vect()))/3.14159265359;
 
       MuE_dpt = fabs(MuonCand_pt[MuEPairCand[0]]-EleCand_et[MuEPairCand[1]]);
 

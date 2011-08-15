@@ -184,6 +184,8 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double MuE_dphi;
   double MuE_dpt;
   double MuE_pt;
+  double MuE_phi;
+  double MuE_3Dangle;
   double MuE_Kalmanvtxx;
   double MuE_Kalmanvtxy;
   double MuE_Kalmanvtxz;
