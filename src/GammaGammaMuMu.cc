@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.104 2011/08/15 12:44:46 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.105 2011/08/15 13:30:00 jjhollar Exp $
 //
 //
 
@@ -50,6 +50,8 @@
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
+#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -475,6 +477,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
 
   thetree->Branch("nPU",&nPU,"nPU/I");
+  thetree->Branch("PUWeight",&PUWeight,"PUWeight/D");
 
 //  thetree->Branch("evweight",&evweight,"evweight/D");
 }
@@ -761,6 +764,27 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
 
   // Get the #PU information
+  Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+  event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
+
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+
+  float sum_nvtx = 0.0;
+  int npv = -1;
+  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+
+    int BX = PVI->getBunchCrossing();
+
+    cout << "PU rewighting - BX = " << BX << endl;
+
+    npv = PVI->getPU_NumInteractions();
+
+    sum_nvtx += float(npv);
+    cout << "\tnpv = " << npv << ", sum = " << sum_nvtx << endl;
+  }
+  PUWeight = sum_nvtx/3.;
+
+
   nPU=0;
   edm::Handle<CrossingFrame<edm::HepMCProduct> > crossingFrameHepMCH;
   event.getByLabel("mix","source",crossingFrameHepMCH);
