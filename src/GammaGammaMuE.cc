@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.7 2011/08/15 12:44:46 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.8 2011/08/15 13:30:00 jjhollar Exp $
 //
 //
 
@@ -51,6 +51,7 @@
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
+#include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
 
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -446,8 +447,12 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("LowPt_pt",LowPt_pt,"LowPt_pt[nMuonCand]/D");
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
 
-  thetree->Branch("nPU",&nPU,"nPU/I");
-  thetree->Branch("PUWeight",&PUWeight,"PUWeight/D");
+  thetree->Branch("nTruePUforPUWeight",&nTruePUforPUWeight,"nTruePUforPUWeight/I");
+  thetree->Branch("nTruePUforPUWeightBXM1", &nTruePUforPUWeightBXM1, "nTruePUforPUWeightBXM1/I");
+  thetree->Branch("nTruePUforPUWeightBXP1", &nTruePUforPUWeightBXP1, "nTruePUforPUWeightBXP1/I"); 
+  thetree->Branch("nTruePUforPUWeightBX0", &nTruePUforPUWeightBX0, "nTruePUforPUWeightBX0/I");
+
+  thetree->Branch("PUWeightTrue",&PUWeightTrue,"PUWeightTrue/D");
 
 //  thetree->Branch("evweight",&evweight,"evweight/D");
 }
@@ -470,6 +475,12 @@ void
 GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 {
   nPrimVertexCand=0;
+  PUWeightTrue = 0.0;
+  nTruePUforPUWeight = 0;
+  nTruePUforPUWeightBXM1 = 0;
+  nTruePUforPUWeightBXP1 = 0;
+  nTruePUforPUWeightBX0 = 0;
+
   nMuonCand=0;
   nEleCand=0;
   nHLTMu10Ele10MuonCand=0;
@@ -674,7 +685,12 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
 
   // Get the #PU information
-  PUWeight = 0.0;
+  //  edm::Lumi3DReWeighting *LumiWeights;
+  //  LumiWeights = new edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup");
+  //  LumiWeights->weight3D_init( 1.0 );
+  //  const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
+  //  PUWeightTrue = LumiWeights->weight3D( (*iEventB) );
+
   Handle<std::vector< PileupSummaryInfo > >  PupInfo;
   event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
 
@@ -682,28 +698,34 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   float sum_nvtx = 0.0;
   int npv = -1;
+  int npvtrue = -1;
+  int npvm1true = -1;
+  int npvp1true = -1;
+  int npv0true = -1;
+
   for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
 
     int BX = PVI->getBunchCrossing();
 
-    cout << "PU rewighting - BX = " << BX << endl;
+    //    cout << "PU rewighting - BX = " << BX << endl;
+    if(BX == -1)
+      npvm1true++;
+    if(BX == 0)
+      npv0true++;
+    if(BX == 1)
+      npvp1true++;
 
     npv = PVI->getPU_NumInteractions();
+    npvtrue = PVI->getTrueNumInteractions();
 
-    sum_nvtx += float(npv);
+    sum_nvtx += float(npvtrue);
     cout << "\tnpv = " << npv << ", sum = " << sum_nvtx << endl;
   }
-  PUWeight = sum_nvtx/3.;
 
-  nPU=0;
-  edm::Handle<CrossingFrame<edm::HepMCProduct> > crossingFrameHepMCH;
-  event.getByLabel("mix","source",crossingFrameHepMCH);
-  
-  if((crossingFrameHepMCH.isValid())) 
-    {  
-      int nrPileUp = crossingFrameHepMCH->getNrPileups(0);
-      nPU = nrPileUp;
-    }
+  nTruePUforPUWeight = sum_nvtx;
+  nTruePUforPUWeightBXM1 = npvm1true;
+  nTruePUforPUWeightBXP1 = npvp1true;
+  nTruePUforPUWeightBX0 = npv0true;
 
   // Get the muon collection from the event
   // PAT

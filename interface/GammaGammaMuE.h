@@ -343,8 +343,8 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double LowPt_pt[10];
   double LowPt_eta[10];
 
-  int nPU;
-  double PUWeight; 
+  int nTruePUforPUWeight, nTruePUforPUWeightBXM1, nTruePUforPUWeightBXP1, nTruePUforPUWeightBX0;
+  double PUWeightTrue;
   HLTConfigProvider hltConfig_;  
 
   AcceptanceTableHelper helper420beam1;   
