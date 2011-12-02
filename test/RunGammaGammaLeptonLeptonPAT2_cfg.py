@@ -22,7 +22,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-        '/store/data/Run2011A/DoubleMu/AOD/PromptReco-v1/000/161/312/321BDA8D-0B58-E011-9F42-0030487CD6D8.root'
+                                '/store/data/Run2011A/DoubleMu/AOD/PromptReco-v1/000/161/312/321BDA8D-0B58-E011-9F42-0030487CD6D8.root'
                                 )
                             )
 
@@ -32,7 +32,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 # Load configuration stuff
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('GR_R_42_V2::All')
+process.GlobalTag.globaltag = cms.string('GR_R_44_V12::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
@@ -64,7 +64,7 @@ process.muonFilter=cms.EDFilter("CandViewCountFilter",
 # Trigger
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.HLTFilter_cfi")
 process.hltFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-process.hltFilter.HLTPaths = ['HLT_DoubleMu4_Acoplanarity03_*']
+process.hltFilter.HLTPaths = ['HLT_DoubleMu7_Acoplanarity03_*']
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring("drop *")
