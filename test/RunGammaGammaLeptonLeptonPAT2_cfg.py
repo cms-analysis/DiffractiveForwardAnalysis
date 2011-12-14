@@ -22,7 +22,9 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-                                '/store/data/Run2011A/DoubleMu/AOD/PromptReco-v1/000/161/312/321BDA8D-0B58-E011-9F42-0030487CD6D8.root'
+                                'rfio:/castor/cern.ch/user/j/jjhollar/ExclWW/GamGamWW_SM_WithFF_START44_Fall11PU_RECO.root'
+##                                '/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/178/479/806AB8EB-B8F8-E011-B1FD-BCAEC532970B.root'
+##                                '/store/data/Run2011A/DoubleMu/AOD/PromptReco-v1/000/161/312/321BDA8D-0B58-E011-9F42-0030487CD6D8.root'
                                 )
                             )
 
@@ -64,7 +66,7 @@ process.muonFilter=cms.EDFilter("CandViewCountFilter",
 # Trigger
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.HLTFilter_cfi")
 process.hltFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-process.hltFilter.HLTPaths = ['HLT_DoubleMu7_Acoplanarity03_*']
+process.hltFilter.HLTPaths = ['HLT_DoubleMu7_Acoplanarity03_*',]
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring("drop *")

@@ -43,6 +43,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   bool readmcEffCorrections; 
   bool readmcEffCorrectionsByCharge;
   bool readmcEffCorrectionsBySignedEta;
+  bool readmcPileup;
 
   edm::InputTag recTrackLabel;
   edm::InputTag recVertexLabel;
@@ -153,6 +154,18 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double HLT_DoubleMu5Acoplanarity_MuonCand_eta[10];  
   double HLT_DoubleMu5Acoplanarity_MuonCand_phi[10];  
   int HLT_DoubleMu5Acoplanarity_MuonCand_charge[10];  
+
+  int nHLTDiMu6AcopMuonCand;
+  double HLT_DoubleMu6Acoplanarity_MuonCand_pt[10];
+  double HLT_DoubleMu6Acoplanarity_MuonCand_eta[10];
+  double HLT_DoubleMu6Acoplanarity_MuonCand_phi[10];
+  int HLT_DoubleMu6Acoplanarity_MuonCand_charge[10];
+
+  int nHLTDiMu7AcopMuonCand;
+  double HLT_DoubleMu7Acoplanarity_MuonCand_pt[10];
+  double HLT_DoubleMu7Acoplanarity_MuonCand_eta[10];
+  double HLT_DoubleMu7Acoplanarity_MuonCand_phi[10];
+  int HLT_DoubleMu7Acoplanarity_MuonCand_charge[10];
 
   double MuMu_mass;
   double MuMu_dphi;
@@ -317,10 +330,14 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   
   int HLT_DoubleMu4Acoplanarity;
   int HLT_DoubleMu5Acoplanarity; 
+  int HLT_DoubleMu6Acoplanarity;
+  int HLT_DoubleMu7Acoplanarity;
   int HLT_DoubleMu7;
   int HLT_Mu13Mu8;
   int HLT_DoubleMu4Acoplanarity_Prescl; 
   int HLT_DoubleMu5Acoplanarity_Prescl;  
+  int HLT_DoubleMu6Acoplanarity_Prescl;
+  int HLT_DoubleMu7Acoplanarity_Prescl;
   int HLT_DoubleMu7_Prescl; 
   int HLT_Mu13Mu8_Prescl;  
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.106 2011/08/19 11:34:48 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.107 2011/11/28 16:05:10 jjhollar Exp $
 //
 //
 
@@ -175,6 +175,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   keepsamesign       = pset.getParameter<bool>("KeepSameSignDimuons");
   minmumuvtxd        = pset.getParameter<double>("MinMuMuVertexSeparation"); 
 
+  readmcPileup         = pset.getParameter<bool>("ReadMCPileup");
   readmcEffCorrections = pset.getParameter<bool>("ReadMCEffCorrections");
   readmcEffCorrectionsByCharge = pset.getParameter<bool>("ReadMCEffCorrectionsByCharge"); 
   readmcEffCorrectionsBySignedEta = pset.getParameter<bool>("ReadmcEffCorrectionsBySignedEta");
@@ -294,6 +295,19 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("HLT_DoubleMu5Acoplanarity_MuonCand_eta",&HLT_DoubleMu5Acoplanarity_MuonCand_eta,"HLT_DoubleMu5Acoplanarity_MuonCand_eta[nHLTDiMu5AcopMuonCand]/D");  
   thetree->Branch("HLT_DoubleMu5Acoplanarity_MuonCand_phi",&HLT_DoubleMu5Acoplanarity_MuonCand_phi,"HLT_DoubleMu5Acoplanarity_MuonCand_phi[nHLTDiMu5AcopMuonCand]/D");  
   thetree->Branch("HLT_DoubleMu5Acoplanarity_MuonCand_charge",&HLT_DoubleMu5Acoplanarity_MuonCand_charge,"HLT_DoubleMu5Acoplanarity_MuonCand_charge[nHLTDiMu5AcopMuonCand]/I");   
+
+  thetree->Branch("nHLTDiMu6AcopMuonCand",&nHLTDiMu6AcopMuonCand,"nHLTDiMu6AcopMuonCand/I");
+  thetree->Branch("HLT_DoubleMu6Acoplanarity_MuonCand_pt",&HLT_DoubleMu6Acoplanarity_MuonCand_pt,"HLT_DoubleMu6Acoplanarity_MuonCand_pt[nHLTDiMu6AcopMuonCand]/D");
+  thetree->Branch("HLT_DoubleMu6Acoplanarity_MuonCand_eta",&HLT_DoubleMu6Acoplanarity_MuonCand_eta,"HLT_DoubleMu6Acoplanarity_MuonCand_eta[nHLTDiMu6AcopMuonCand]/D");
+  thetree->Branch("HLT_DoubleMu6Acoplanarity_MuonCand_phi",&HLT_DoubleMu6Acoplanarity_MuonCand_phi,"HLT_DoubleMu6Acoplanarity_MuonCand_phi[nHLTDiMu6AcopMuonCand]/D");
+  thetree->Branch("HLT_DoubleMu6Acoplanarity_MuonCand_charge",&HLT_DoubleMu6Acoplanarity_MuonCand_charge,"HLT_DoubleMu6Acoplanarity_MuonCand_charge[nHLTDiMu6AcopMuonCand]/I");
+
+  thetree->Branch("nHLTDiMu7AcopMuonCand",&nHLTDiMu7AcopMuonCand,"nHLTDiMu7AcopMuonCand/I");
+  thetree->Branch("HLT_DoubleMu7Acoplanarity_MuonCand_pt",&HLT_DoubleMu7Acoplanarity_MuonCand_pt,"HLT_DoubleMu7Acoplanarity_MuonCand_pt[nHLTDiMu7AcopMuonCand]/D");
+  thetree->Branch("HLT_DoubleMu7Acoplanarity_MuonCand_eta",&HLT_DoubleMu7Acoplanarity_MuonCand_eta,"HLT_DoubleMu7Acoplanarity_MuonCand_eta[nHLTDiMu7AcopMuonCand]/D");
+  thetree->Branch("HLT_DoubleMu7Acoplanarity_MuonCand_phi",&HLT_DoubleMu7Acoplanarity_MuonCand_phi,"HLT_DoubleMu7Acoplanarity_MuonCand_phi[nHLTDiMu7AcopMuonCand]/D");
+  thetree->Branch("HLT_DoubleMu7Acoplanarity_MuonCand_charge",&HLT_DoubleMu7Acoplanarity_MuonCand_charge,"HLT_DoubleMu7Acoplanarity_MuonCand_charge[nHLTDiMu7AcopMuonCand]/I");
+
 
   thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
   thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
@@ -448,10 +462,14 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
 
   thetree->Branch("HLT_DoubleMu5Acoplanarity",&HLT_DoubleMu5Acoplanarity,"HLT_DoubleMu5Acoplanarity/I");
   thetree->Branch("HLT_DoubleMu4Acoplanarity",&HLT_DoubleMu4Acoplanarity,"HLT_DoubleMu4Acoplanarity/I");
+  thetree->Branch("HLT_DoubleMu6Acoplanarity",&HLT_DoubleMu6Acoplanarity,"HLT_DoubleMu6Acoplanarity/I");
+  thetree->Branch("HLT_DoubleMu7Acoplanarity",&HLT_DoubleMu7Acoplanarity,"HLT_DoubleMu7Acoplanarity/I");
   thetree->Branch("HLT_DoubleMu7",&HLT_DoubleMu7,"HLT_DoubleMu7/I");
   thetree->Branch("HLT_Mu13Mu8", &HLT_Mu13Mu8, "HLT_Mu13Mu8/I"); 
   thetree->Branch("HLT_DoubleMu5Acoplanarity_Prescl",&HLT_DoubleMu5Acoplanarity_Prescl,"HLT_DoubleMu5Acoplanarity_Prescl/I"); 
   thetree->Branch("HLT_DoubleMu4Acoplanarity_Prescl",&HLT_DoubleMu4Acoplanarity_Prescl,"HLT_DoubleMu4Acoplanarity_Prescl/I"); 
+  thetree->Branch("HLT_DoubleMu6Acoplanarity_Prescl",&HLT_DoubleMu6Acoplanarity_Prescl,"HLT_DoubleMu6Acoplanarity_Prescl/I");
+  thetree->Branch("HLT_DoubleMu7Acoplanarity_Prescl",&HLT_DoubleMu7Acoplanarity_Prescl,"HLT_DoubleMu7Acoplanarity_Prescl/I");
   thetree->Branch("HLT_DoubleMu7_Prescl",&HLT_DoubleMu7_Prescl,"HLT_DoubleMu7_Prescl/I"); 
   thetree->Branch("HLT_Mu13Mu8_Prescl", &HLT_Mu13Mu8_Prescl, "HLT_Mu13Mu8_Prescl/I");  
 
@@ -513,6 +531,8 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nMuonCand=0;
   nHLTDiMu7MuonCand=0;
   nHLTMu13Mu8MuonCand=0; 
+  nHLTDiMu7AcopMuonCand=0;
+  nHLTDiMu6AcopMuonCand=0;
   nHLTDiMu5AcopMuonCand=0;  
   nHLTDiMu4AcopMuonCand=0;
   nJetCand=0;
@@ -593,12 +613,15 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   const edm::LuminosityBlock& iLumi = event.getLuminosityBlock();
   // get LumiSummary
   edm::Handle<LumiSummary> lumiSummary;
+
+  /*
   iLumi.getByLabel("lumiProducer", lumiSummary);
 
   if(lumiSummary->isValid())
     AvgInstDelLumi = lumiSummary->avgInsDelLumi();
   else
     AvgInstDelLumi = -999.;
+  */
 
   BunchInstLumi[0] = -999.;
   BunchInstLumi[1] = -999.;
@@ -645,6 +668,24 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  else
 	    HLT_DoubleMu5Acoplanarity = 0;
         }  
+      if ( trigNames.triggerNames().at(i).find("HLT_DoubleMu6_Acoplanarity03_v") != string::npos)
+        {
+          HLT_DoubleMu6Acoplanarity_Prescl = hltConfig_.prescaleValue(event, iSetup, trigNames.triggerNames().at(i));
+
+          if ( hltResults->accept(i) )
+            {HLT_DoubleMu6Acoplanarity = 1;}
+          else
+            HLT_DoubleMu6Acoplanarity = 0;
+        }
+      if ( trigNames.triggerNames().at(i).find("HLT_DoubleMu7_Acoplanarity03_v") != string::npos)
+        {
+          HLT_DoubleMu7Acoplanarity_Prescl = hltConfig_.prescaleValue(event, iSetup, trigNames.triggerNames().at(i));
+
+          if ( hltResults->accept(i) )
+            {HLT_DoubleMu7Acoplanarity = 1;}
+          else
+            HLT_DoubleMu7Acoplanarity = 0;
+        }
       if ( trigNames.triggerNames().at(i).find("HLT_Mu13_Mu8") != string::npos ) 
         {   
           HLT_Mu13Mu8_Prescl = hltConfig_.prescaleValue(event, iSetup, trigNames.triggerNames().at(i)); 
@@ -669,20 +710,22 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   event.getByLabel(InputTag("hltTriggerSummaryAOD","",hltMenuLabel),hltObjects);
   if (hltObjects.isValid()) 
     {
-      size_type dimu4index = hltObjects->filterIndex(InputTag("hltDoubleMu4ExclL3PreFiltered::"+hltMenuLabel)); 
-      size_type dimu5index = hltObjects->filterIndex(InputTag("hltDoubleMu5ExclL3PreFiltered::"+hltMenuLabel)); 
+      size_type dimu4acopindex = hltObjects->filterIndex(InputTag("hltDoubleMu4ExclL3PreFiltered::"+hltMenuLabel)); 
+      size_type dimu5acopindex = hltObjects->filterIndex(InputTag("hltDoubleMu5ExclL3PreFiltered::"+hltMenuLabel)); 
+      size_type dimu6acopindex = hltObjects->filterIndex(InputTag("hltDoubleMu6ExclL3PreFiltered::"+hltMenuLabel));
+      size_type dimu7acopindex = hltObjects->filterIndex(InputTag("hltDoubleMu7ExclL3PreFiltered::"+hltMenuLabel));
       size_type dimu7index = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered7::"+hltMenuLabel));
       size_type dimu8index = hltObjects->filterIndex(InputTag("hltDiMuonL3PreFiltered8::"+hltMenuLabel)); 
 
-      if( dimu4index < hltObjects->sizeFilters() )
+      if( dimu4acopindex < hltObjects->sizeFilters() )
 	{
-	  const trigger::Keys& DIMU4KEYS(hltObjects->filterKeys(dimu4index)); 
-	  const size_type nK(DIMU4KEYS.size()); 
+	  const trigger::Keys& DIMU4ACOPKEYS(hltObjects->filterKeys(dimu4acopindex)); 
+	  const size_type nK(DIMU4ACOPKEYS.size()); 
 	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
 
 	  for(int ipart = 0; ipart != nK; ++ipart)   
 	    {
-	      const TriggerObject& TO = TOC[DIMU4KEYS[ipart]];  
+	      const TriggerObject& TO = TOC[DIMU4ACOPKEYS[ipart]];  
 	      
 	      if(fabs(TO.id()) == 13)
 		{
@@ -698,15 +741,15 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		}
 	    }
 	}
-      if( dimu5index < hltObjects->sizeFilters() ) 
+      if( dimu5acopindex < hltObjects->sizeFilters() ) 
         { 
-          const trigger::Keys& DIMU5KEYS(hltObjects->filterKeys(dimu5index));  
-          const size_type nK(DIMU5KEYS.size());  
+          const trigger::Keys& DIMU5ACOPKEYS(hltObjects->filterKeys(dimu5acopindex));  
+          const size_type nK(DIMU5ACOPKEYS.size());  
           const TriggerObjectCollection& TOC(hltObjects->getObjects()); 
  
           for(int ipart = 0; ipart != nK; ++ipart)    
             { 
-              const TriggerObject& TO = TOC[DIMU5KEYS[ipart]];   
+              const TriggerObject& TO = TOC[DIMU5ACOPKEYS[ipart]];   
                
               if(fabs(TO.id()) == 13) 
                 { 
@@ -722,6 +765,55 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 } 
             } 
         } 
+      if( dimu6acopindex < hltObjects->sizeFilters() )
+        {
+          const trigger::Keys& DIMU6ACOPKEYS(hltObjects->filterKeys(dimu6acopindex));
+          const size_type nK(DIMU6ACOPKEYS.size());
+          const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+          for(int ipart = 0; ipart != nK; ++ipart)
+            {
+              const TriggerObject& TO = TOC[DIMU6ACOPKEYS[ipart]];
+
+              if(fabs(TO.id()) == 13)
+                {
+                  HLT_DoubleMu6Acoplanarity_MuonCand_pt[nHLTDiMu6AcopMuonCand] = TO.pt();
+                  HLT_DoubleMu6Acoplanarity_MuonCand_eta[nHLTDiMu6AcopMuonCand] = TO.eta();
+                  HLT_DoubleMu6Acoplanarity_MuonCand_phi[nHLTDiMu6AcopMuonCand] = TO.phi();
+                  if(TO.id() > 0)
+                    HLT_DoubleMu6Acoplanarity_MuonCand_charge[nHLTDiMu6AcopMuonCand] = 1;
+                  else
+                    HLT_DoubleMu6Acoplanarity_MuonCand_charge[nHLTDiMu6AcopMuonCand] = -1;
+
+                  nHLTDiMu6AcopMuonCand++;
+                }
+            }
+        }
+      if( dimu7acopindex < hltObjects->sizeFilters() )
+        {
+          const trigger::Keys& DIMU7ACOPKEYS(hltObjects->filterKeys(dimu7acopindex));
+          const size_type nK(DIMU7ACOPKEYS.size());
+          const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+          for(int ipart = 0; ipart != nK; ++ipart)
+            {
+              const TriggerObject& TO = TOC[DIMU7ACOPKEYS[ipart]];
+
+              if(fabs(TO.id()) == 13)
+                {
+                  HLT_DoubleMu7Acoplanarity_MuonCand_pt[nHLTDiMu7AcopMuonCand] = TO.pt();
+                  HLT_DoubleMu7Acoplanarity_MuonCand_eta[nHLTDiMu7AcopMuonCand] = TO.eta();
+                  HLT_DoubleMu7Acoplanarity_MuonCand_phi[nHLTDiMu7AcopMuonCand] = TO.phi();
+                  if(TO.id() > 0)
+                    HLT_DoubleMu7Acoplanarity_MuonCand_charge[nHLTDiMu7AcopMuonCand] = 1;
+                  else
+                    HLT_DoubleMu7Acoplanarity_MuonCand_charge[nHLTDiMu7AcopMuonCand] = -1;
+
+                  nHLTDiMu7AcopMuonCand++;
+                }
+            }
+        }
+
       if( dimu7index < hltObjects->sizeFilters() )  
         {  
           const trigger::Keys& DIMU7KEYS(hltObjects->filterKeys(dimu7index));   
@@ -774,48 +866,50 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
 
   // Get the #PU information
-  edm::Lumi3DReWeighting *LumiWeights;
-  LumiWeights = new edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup");
-  LumiWeights->weight3D_init( 1.0 );
-  const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
-  PUWeightTrue = LumiWeights->weight3D( (*iEventB) );
+  if(readmcPileup)
+    { 
+      edm::Lumi3DReWeighting *LumiWeights;
+      LumiWeights = new edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup");
+      LumiWeights->weight3D_init( 1.0 );
+      const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
+      PUWeightTrue = LumiWeights->weight3D( (*iEventB) );
+      
+      Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+      event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
+      
+      std::vector<PileupSummaryInfo>::const_iterator PVI;
+      
+      float sum_nvtx = 0.0;
+      int npv = -1;
+      int npvtrue = -1;
+      int npvm1true = -1;
+      int npvp1true = -1;
+      int npv0true = -1;
+      
+      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+	
+	int BX = PVI->getBunchCrossing();
+	
+	//    cout << "PU rewighting - BX = " << BX << endl;
+	if(BX == -1)
+	  npvm1true++;
+	if(BX == 0)
+	  npv0true++;
+	if(BX == 1)
+	  npvp1true++;
+	
+	npv = PVI->getPU_NumInteractions();
+	npvtrue = PVI->getTrueNumInteractions();
+	
+	sum_nvtx += float(npvtrue);
+	
+      }
 
-  Handle<std::vector< PileupSummaryInfo > >  PupInfo;
-  event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
-
-  std::vector<PileupSummaryInfo>::const_iterator PVI;
-
-  float sum_nvtx = 0.0;
-  int npv = -1;
-  int npvtrue = -1;
-  int npvm1true = -1;
-  int npvp1true = -1;
-  int npv0true = -1;
-
-  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-
-    int BX = PVI->getBunchCrossing();
-
-    //    cout << "PU rewighting - BX = " << BX << endl;
-    if(BX == -1)
-      npvm1true++;
-    if(BX == 0)
-      npv0true++;
-    if(BX == 1)
-      npvp1true++;
-
-    npv = PVI->getPU_NumInteractions();
-    npvtrue = PVI->getTrueNumInteractions();
-
-    sum_nvtx += float(npvtrue);
-    
-    cout << "\tnpv = " << npv << ", sum = " << sum_nvtx << endl;
-  }
-
-  nTruePUforPUWeight = sum_nvtx;
-  nTruePUforPUWeightBXM1 = npvm1true;
-  nTruePUforPUWeightBXP1 = npvp1true;
-  nTruePUforPUWeightBX0 = npv0true;
+      nTruePUforPUWeight = sum_nvtx;
+      nTruePUforPUWeightBXM1 = npvm1true;
+      nTruePUforPUWeightBXP1 = npvp1true;
+      nTruePUforPUWeightBX0 = npv0true;
+    }
 
   // Get the muon collection from the event
   // PAT
@@ -1635,6 +1729,7 @@ GammaGammaMuMu::fillDescriptions(ConfigurationDescriptions & descriptions) {
   iDesc.add<bool>("ReadMCEffCorrections", false)->setComment("Flag to read Tag-&-Probe eff. corrections when running on MC"); 
   iDesc.add<bool>("ReadMCEffCorrectionsByCharge", false)->setComment("Flag to read Tag-&-Probe eff. corrections vs. Charge when running on MC");
   iDesc.add<bool>("ReadmcEffCorrectionsBySignedEta", false)->setComment("Flag to read Tag-&-Probe eff. corrections vs. signed eta when running on MC");
+  iDesc.add<bool>("ReadMCPileup", false)->setComment("Flag to read pileup information when running on MC");
 
   iDesc.add<double>("MinMuMuVertexSeparation",0.1)->setComment("Minimum distance in cm between the dimuon vertex and any other track");
 
