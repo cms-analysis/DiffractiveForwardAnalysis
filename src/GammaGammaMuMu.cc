@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.107 2011/11/28 16:05:10 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.108 2011/12/14 10:52:29 jjhollar Exp $
 //
 //
 
@@ -869,7 +869,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   if(readmcPileup)
     { 
       edm::Lumi3DReWeighting *LumiWeights;
-      LumiWeights = new edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup");
+      LumiWeights = new edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup", "test.root");
       LumiWeights->weight3D_init( 1.0 );
       const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
       PUWeightTrue = LumiWeights->weight3D( (*iEventB) );

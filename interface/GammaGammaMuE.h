@@ -27,6 +27,8 @@
 #include <TH1D.h>
 #include <TTree.h>
 #include <TLorentzVector.h>
+#include <fstream>
+#include <string>
 
 class GammaGammaMuE : public edm::EDAnalyzer {
  public:
@@ -54,6 +56,10 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   edm::InputTag recCastorTowerLabel;   
   edm::InputTag recZDCRecHitsLabel;
   edm::InputTag recCastorRecHitsLabel;
+  std::string mcPileupFile;
+  std::string mcPileupPath;
+  std::string dataPileupFile;
+  std::string dataPileupPath;
   std::string hltMenuLabel;
 
   double mudptmax;
@@ -66,6 +72,7 @@ class GammaGammaMuE : public edm::EDAnalyzer {
 
   TFile *thefile;
   TTree *thetree;
+  std::ofstream outdebug;
 
   int BX;
   int Run;
@@ -342,6 +349,14 @@ class GammaGammaMuE : public edm::EDAnalyzer {
 
   double LowPt_pt[10];
   double LowPt_eta[10];
+
+
+  double nTruePUafterPUWeight;
+  double nTruePUafterPUWeightBXM1;
+  double nTruePUafterPUWeightBXP1;
+  double nTruePUafterPUWeightBX0;
+  double Weight3D;
+
 
   int nTruePUforPUWeight, nTruePUforPUWeightBXM1, nTruePUforPUWeightBXP1, nTruePUforPUWeightBX0;
   double PUWeightTrue;

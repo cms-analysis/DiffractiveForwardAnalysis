@@ -16,7 +16,9 @@ gamgammueanalysis = cms.EDAnalyzer("GammaGammaMuE",
     MetLabel = cms.InputTag("pfMet"),                                  
     MinMuEVertexSeparation = cms.double(0.1),
     KeepSameSign = cms.bool(False),
-    HLTMenuLabel = cms.string("HLT")                                  
+    HLTMenuLabel = cms.string("HLT"),
+##    MCPileupDist = cms.untracked.string("PUHistos.root"),
+##    DataPileupDist = cms.untracked.string("PUHistos.root"),
 )
 
 

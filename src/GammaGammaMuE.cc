@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.8 2011/08/15 13:30:00 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.9 2011/11/28 16:05:10 jjhollar Exp $
 //
 //
 
@@ -99,6 +99,11 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h" // for PU
 
+#include "TH1.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaMuE.h"
 
 // user include files
@@ -169,8 +174,14 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
 
   drisocalo          = pset.getParameter<double>("CaloTowerdR");
   keepsamesign       = pset.getParameter<bool>("KeepSameSign");
-  minmuevtxd        = pset.getParameter<double>("MinMuEVertexSeparation"); 
+  minmuevtxd         = pset.getParameter<double>("MinMuEVertexSeparation"); 
 
+  /*mcPileupFile       = pset.getUntrackedParameter<std::string>("mcpufile", "MC_pileup.root");
+    dataPileupFile     = pset.getUntrackedParameter<std::string>("datapufile", "Data_pileup.root");*/
+  mcPileupFile       = pset.getUntrackedParameter<std::string>("mcpufile", "PUHistos.root");
+  mcPileupPath       = pset.getUntrackedParameter<std::string>("mcpupath", "pileup");
+  dataPileupFile     = pset.getUntrackedParameter<std::string>("datapufile", "PUHistos_duplicated.root");
+  dataPileupPath     = pset.getUntrackedParameter<std::string>("datapupath", "pileup");
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
 
   //  edm::FileInPath myDataFile("FastSimulation/ProtonTaggers/data/acceptance_420_220.root");  
@@ -182,6 +193,9 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
     std::cout << "Description found: " << f.Get("description")->GetTitle() << std::endl;  
     
   std::cout << "Reading acceptance tables " << std::endl;  
+
+  outdebug.open("out_debug.log");
+
  
   helper420beam1.Init(f, "a420");  
   helper420beam2.Init(f, "a420_b2");  
@@ -200,6 +214,8 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thefile = new TFile(rootfilename.c_str(),"recreate");
   thefile->cd();
   thetree= new TTree("ntp1","ntp1");
+
+  //thetree->Branch("NTPUInTime",&NTPUInTime,"NTPUInTime/F");
 
   thetree->Branch("nJetCand",&nJetCand,"nJetCand/I");
   thetree->Branch("JetCand_px",JetCand_px,"JetCand_px[nJetCand]/D");
@@ -448,9 +464,15 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
 
   thetree->Branch("nTruePUforPUWeight",&nTruePUforPUWeight,"nTruePUforPUWeight/I");
+  thetree->Branch("nTruePUafterPUWeight",&nTruePUafterPUWeight,"nTruePUafterPUWeight/D");
   thetree->Branch("nTruePUforPUWeightBXM1", &nTruePUforPUWeightBXM1, "nTruePUforPUWeightBXM1/I");
+  thetree->Branch("nTruePUafterPUWeightBXM1", &nTruePUafterPUWeightBXM1, "nTruePUafterPUWeightBXM1/D");
   thetree->Branch("nTruePUforPUWeightBXP1", &nTruePUforPUWeightBXP1, "nTruePUforPUWeightBXP1/I"); 
+  thetree->Branch("nTruePUafterPUWeightBXP1", &nTruePUafterPUWeightBXP1, "nTruePUafterPUWeightBXP1/D"); 
   thetree->Branch("nTruePUforPUWeightBX0", &nTruePUforPUWeightBX0, "nTruePUforPUWeightBX0/I");
+  thetree->Branch("nTruePUafterPUWeightBX0", &nTruePUafterPUWeightBX0, "nTruePUafterPUWeightBX0/D");
+
+  thetree->Branch("Weight3D", &Weight3D, "Weight3D/D");
 
   thetree->Branch("PUWeightTrue",&PUWeightTrue,"PUWeightTrue/D");
 
@@ -480,6 +502,11 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nTruePUforPUWeightBXM1 = 0;
   nTruePUforPUWeightBXP1 = 0;
   nTruePUforPUWeightBX0 = 0;
+  nTruePUafterPUWeight = 0;
+  nTruePUafterPUWeightBXM1 = 0;
+  nTruePUafterPUWeightBXP1 = 0;
+  nTruePUafterPUWeightBX0 = 0;
+  Weight3D = -999.;
 
   nMuonCand=0;
   nEleCand=0;
@@ -536,13 +563,16 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   EventNum = event.id().event();
 
   const edm::LuminosityBlock& iLumi = event.getLuminosityBlock();
+  /* FIXME removed!!!!!!! has to be replaced!
   // get LumiSummary
   edm::Handle<LumiSummary> lumiSummary;
   iLumi.getByLabel("lumiProducer", lumiSummary);
   if(lumiSummary->isValid())
     AvgInstDelLumi = lumiSummary->avgInsDelLumi();
-  else
-    AvgInstDelLumi = -999.;
+    else*/
+  AvgInstDelLumi = -999.;
+
+
 
   BunchInstLumi[0] = -999.;
   BunchInstLumi[1] = -999.;
@@ -606,7 +636,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     {
       size_type mu10ele10index = hltObjects->filterIndex(InputTag("hltL1Mu3EG5L3Filtered10::"+hltMenuLabel)); 
       size_type mu8ele17index = hltObjects->filterIndex(InputTag("hltL1MuOpenEG5L3Filtered8::"+hltMenuLabel)); 
-      size_type mu17ele8index = hltObjects->filterIndex(InputTag("hltL1MuOpenEG5L3Filtered17::"+hltMenuLabel)); 
+      //size_type mu17ele8index = hltObjects->filterIndex(InputTag("hltL1MuOpenEG5L3Filtered17::"+hltMenuLabel)); 
 
       if( mu8ele17index < hltObjects->sizeFilters() )
 	{
@@ -681,51 +711,23 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
             } 
 	  
 	}
-    }
-
-
+    }  
+  
   // Get the #PU information
-  //  edm::Lumi3DReWeighting *LumiWeights;
+  edm::Lumi3DReWeighting *LumiWeights;
+  LumiWeights = new edm::Lumi3DReWeighting(
+           std::string(mcPileupFile),
+				   std::string(dataPileupFile),
+				   std::string(mcPileupPath),
+				   std::string(dataPileupPath),
+				   "test.root"
+				   );
   //  LumiWeights = new edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup");
-  //  LumiWeights->weight3D_init( 1.0 );
-  //  const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
-  //  PUWeightTrue = LumiWeights->weight3D( (*iEventB) );
+  LumiWeights->weight3D_init(1.0);
+  const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
+  Weight3D = LumiWeights->weight3D(*iEventB);
+  outdebug << Weight3D << endl;
 
-  Handle<std::vector< PileupSummaryInfo > >  PupInfo;
-  event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
-
-  std::vector<PileupSummaryInfo>::const_iterator PVI;
-
-  float sum_nvtx = 0.0;
-  int npv = -1;
-  int npvtrue = -1;
-  int npvm1true = -1;
-  int npvp1true = -1;
-  int npv0true = -1;
-
-  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-
-    int BX = PVI->getBunchCrossing();
-
-    //    cout << "PU rewighting - BX = " << BX << endl;
-    if(BX == -1)
-      npvm1true++;
-    if(BX == 0)
-      npv0true++;
-    if(BX == 1)
-      npvp1true++;
-
-    npv = PVI->getPU_NumInteractions();
-    npvtrue = PVI->getTrueNumInteractions();
-
-    sum_nvtx += float(npvtrue);
-    cout << "\tnpv = " << npv << ", sum = " << sum_nvtx << endl;
-  }
-
-  nTruePUforPUWeight = sum_nvtx;
-  nTruePUforPUWeightBXM1 = npvm1true;
-  nTruePUforPUWeightBXP1 = npvp1true;
-  nTruePUforPUWeightBX0 = npv0true;
 
   // Get the muon collection from the event
   // PAT
@@ -896,26 +898,27 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  if( !(electron->ecalDrivenSeed()==1) )  select = false; 
 	  if(EleCand_convDist[nEleCand]<MIN_Dist && EleCand_convDcot[nEleCand]<MIN_Dcot) select = false;
 	  if(electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits()>MAX_MissingHits) select = false;
-	  if(select == true)
-	  if( electron->isEB() ) {
-	    if( fabs(EleCand_deltaPhi[nEleCand])>cut_EB_deltaPhi ) select = false;
-	    if( fabs(EleCand_deltaEta[nEleCand])>cut_EB_deltaEta ) select = false;
-	    if( EleCand_HoverE[nEleCand]>cut_EB_HoverE ) select = false;
-	    if( EleCand_trackiso[nEleCand]>cut_EB_trackRel03 ) select = false;
-	    if( EleCand_ecaliso[nEleCand]>cut_EB_ecalRel03 ) select = false;
-	    if( EleCand_hcaliso[nEleCand]>cut_EB_hcalRel03 ) select = false;
-	    if( EleCand_sigmaIetaIeta[nEleCand] > cut_EB_sigmaIetaIeta ) select = false;
-	  }    
-	  else if( electron->isEE() ) {
-	    if( fabs(EleCand_deltaPhi[nEleCand])>cut_EE_deltaPhi ) select = false;
-	    if( fabs(EleCand_deltaEta[nEleCand])>cut_EE_deltaEta ) select = false;
-	    if( EleCand_HoverE[nEleCand]>cut_EE_HoverE ) select = false;
-	    if( EleCand_trackiso[nEleCand]>cut_EE_trackRel03 ) select = false;
-	    if( EleCand_ecaliso[nEleCand]>cut_EE_ecalRel03 ) select = false;
-	    if( EleCand_hcaliso[nEleCand]>cut_EE_hcalRel03 ) select = false;
-	    if( EleCand_sigmaIetaIeta[nEleCand] > cut_EE_sigmaIetaIeta ) select = false;
+	  if(select == true) {
+	    if( electron->isEB() ) {
+	      if( fabs(EleCand_deltaPhi[nEleCand])>cut_EB_deltaPhi ) select = false;
+	      if( fabs(EleCand_deltaEta[nEleCand])>cut_EB_deltaEta ) select = false;
+	      if( EleCand_HoverE[nEleCand]>cut_EB_HoverE ) select = false;
+	      if( EleCand_trackiso[nEleCand]>cut_EB_trackRel03 ) select = false;
+	      if( EleCand_ecaliso[nEleCand]>cut_EB_ecalRel03 ) select = false;
+	      if( EleCand_hcaliso[nEleCand]>cut_EB_hcalRel03 ) select = false;
+	      if( EleCand_sigmaIetaIeta[nEleCand] > cut_EB_sigmaIetaIeta ) select = false;
+	    }    
+	    else if( electron->isEE() ) {
+	      if( fabs(EleCand_deltaPhi[nEleCand])>cut_EE_deltaPhi ) select = false;
+	      if( fabs(EleCand_deltaEta[nEleCand])>cut_EE_deltaEta ) select = false;
+	      if( EleCand_HoverE[nEleCand]>cut_EE_HoverE ) select = false;
+	      if( EleCand_trackiso[nEleCand]>cut_EE_trackRel03 ) select = false;
+	      if( EleCand_ecaliso[nEleCand]>cut_EE_ecalRel03 ) select = false;
+	      if( EleCand_hcaliso[nEleCand]>cut_EE_hcalRel03 ) select = false;
+	      if( EleCand_sigmaIetaIeta[nEleCand] > cut_EE_sigmaIetaIeta ) select = false;
+	    }
+	    else select = false;
 	  }
-	  else select = false;
 
 	  if(select == true)
 	    EleCand_wp80[nEleCand] = 1; 
@@ -1463,6 +1466,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   if(passed == true){
     thetree->Fill();
   }
+  delete LumiWeights;
 }
 
 void
@@ -1485,6 +1489,11 @@ GammaGammaMuE::fillDescriptions(ConfigurationDescriptions & descriptions) {
   iDesc.add<double>("CaloTowerdR", 0.3)->setComment("Minimum delta-R to use for finding extra towers");  
   iDesc.add<bool>("KeepSameSign", false)->setComment("Set to true to keep same-sign emu combinations");
   iDesc.addOptionalUntracked<std::string>("outfilename", ("mue.pat.root"))->setComment("output flat ntuple file name");  
+  iDesc.addOptionalUntracked<std::string>("mcpufile", ("PUHistos.root"))->setComment("Input MC pileup distributions file");
+  iDesc.addOptionalUntracked<std::string>("mcpupath", ("pileup"))->setComment("Input path to the histogram within the MC pileup distributions file");
+  iDesc.addOptionalUntracked<std::string>("datapufile", ("PUHistos_duplicated.root"))->setComment("Input Data pileup distributions file");
+  iDesc.addOptionalUntracked<std::string>("datapupath", ("pileup"))->setComment("Input path to the histogram within the Data pileup distributions file");
+
   iDesc.add<std::string>("HLTMenuLabel", ("HLT8E29"))->setComment("HLT AOD trigger summary label");
 
   iDesc.add<double>("MinMuEVertexSeparation",0.1)->setComment("Minimum distance in cm between the dimuon vertex and any other track");
@@ -1540,5 +1549,7 @@ GammaGammaMuE::endJob() {
   list->Add(new TObjString(thepset.dump().c_str()));
   thefile->Write();
   thefile->Close();
+  outdebug.close();
+
 }
   
