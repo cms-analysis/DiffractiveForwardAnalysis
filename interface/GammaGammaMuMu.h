@@ -127,6 +127,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuonCand_normchi2[10];
   double MuonCand_normtrackchi2[10];
   double MuonCand_dB[10];
+  int MuonCand_nlayers[10];
+  int MuonCand_PF[10];
   int MuonCand_tightID[10]; 
 
   int MuonPairCand[2];

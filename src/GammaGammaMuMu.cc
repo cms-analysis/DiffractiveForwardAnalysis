@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.108 2011/12/14 10:52:29 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.109 2012/03/15 11:08:27 lforthom Exp $
 //
 //
 
@@ -269,7 +269,9 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_normchi2", MuonCand_normchi2, "MuonCand_normchi2[nMuonCand]/D");        
   thetree->Branch("MuonCand_normtrackchi2", MuonCand_normtrackchi2, "MuonCand_normtrackchi2[nMuonCand]/D");         
   thetree->Branch("MuonCand_dB", MuonCand_dB, "MuonCand_dB[nMuonCand]/D");
+  thetree->Branch("MuonCand_nlayers", MuonCand_nlayers, "MuonCand_nlayers[nMuonCand]/I"); 
   thetree->Branch("MuonCand_tightID", MuonCand_tightID, "MuonCand_tightID[nMuonCand]/I");  
+  thetree->Branch("MuonCand_PF", MuonCand_PF, "MuonCand_PF[nMuonCand]/I");   
   thetree->Branch("MuonPairCand",MuonPairCand,"MuonPairCand[2]/I");
 
   thetree->Branch("nHLTDiMu7MuonCand",&nHLTDiMu7MuonCand,"nHLTDiMu7MuonCand/I"); 
@@ -991,10 +993,15 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_validhits[nMuonCand]=muon->numberOfValidHits(); 
 	  MuonCand_normtrackchi2[nMuonCand]=muon->innerTrack()->normalizedChi2();  
 	  MuonCand_validpixelhits[nMuonCand] = muon->innerTrack()->hitPattern().numberOfValidPixelHits();	  
+	  MuonCand_nlayers[nMuonCand] = muon->innerTrack()->hitPattern().trackerLayersWithMeasurement();
 	  MuonCand_matches[nMuonCand] = muon->numberOfMatches();
 	  MuonCand_dB[nMuonCand] = muon->dB();
 
           MuonCand_tightID[nMuonCand] = 0; 
+	  MuonCand_PF[nMuonCand] = 0;
+
+	  if(muon->isPFMuon())
+	    MuonCand_PF[nMuonCand] = 1;
  
           if(muon->isGlobalMuon()) 
             { 

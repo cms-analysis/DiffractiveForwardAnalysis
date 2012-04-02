@@ -129,10 +129,12 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   int MuonCand_validpixelhits[10];
   int MuonCand_validmuonhits[10];
   int MuonCand_matches[10];
-  int MuonCand_tightID[10];
   double MuonCand_normchi2[10];
   double MuonCand_normtrackchi2[10];
   double MuonCand_dB[10];
+  int MuonCand_nlayers[10]; 
+  int MuonCand_tightID[10]; 
+  int MuonCand_PF[10];
 
   int nEleCand;
   int ELEMAX;// used to set maximum of arrays
@@ -147,7 +149,8 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double EleCandTrack_p[100];
   double EleCandTrack_pt[100]; 
   double EleCandTrack_eta[100]; 
-  double EleCandTrack_phi[100]; 
+  double EleCandTrack_phi[100];
+  double EleCandTrack_vtxz[100]; 
   int EleCand_charge[10];
   int EleCand_looseid[10];
   double EleCand_likelihoodid[10];
@@ -230,8 +233,19 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double GenMuonCand_px[10]; 
   double GenMuonCand_py[10]; 
   double GenMuonCand_pz[10]; 
+  double GenMuonCand_pt[10];  
+  double GenMuonCand_eta[10];  
+  int nGenEleCand; 
+  int GENELEMAX; 
+  double GenEleCand_px[10];  
+  double GenEleCand_py[10];  
+  double GenEleCand_pz[10];  
+  double GenEleCand_pt[10];   
+  double GenEleCand_eta[10];   
+
   double GenMuE_eta; 
   double GenMuE_pt; 
+
 
 
   double Etmiss;

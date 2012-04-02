@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.9 2011/11/28 16:05:10 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.10 2012/03/15 11:08:27 lforthom Exp $
 //
 //
 
@@ -210,6 +210,7 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   JETMAX=30;
   TRACKMAX=500;
   GENMUONMAX=10;
+  GENELEMAX=10;
 
   thefile = new TFile(rootfilename.c_str(),"recreate");
   thefile->cd();
@@ -271,10 +272,12 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("MuonCand_validpixelhits", MuonCand_validpixelhits, "MuonCand_validpixelhits[nMuonCand]/I");
   thetree->Branch("MuonCand_validmuonhits", MuonCand_validmuonhits, "MuonCand_validmuonhits[nMuonCand]/I");
   thetree->Branch("MuonCand_matches", MuonCand_matches, "MuonCand_matches[nMuonCand]/I"); 
+  thetree->Branch("MuonCand_nlayers", MuonCand_nlayers, "MuonCand_nlayers[nMuonCand]/I");
   thetree->Branch("MuonCand_normchi2", MuonCand_normchi2, "MuonCand_normchi2[nMuonCand]/D");        
   thetree->Branch("MuonCand_normtrackchi2", MuonCand_normtrackchi2, "MuonCand_normtrackchi2[nMuonCand]/D");         
   thetree->Branch("MuonCand_dB", MuonCand_dB, "MuonCand_dB[nMuonCand]/D");
   thetree->Branch("MuonCand_tightID", MuonCand_tightID, "MuonCand_tightID[nMuonCand]/I");  
+  thetree->Branch("MuonCand_PF", MuonCand_PF, "MuonCand_PF[nMuonCand]/I");
   thetree->Branch("MuEPairCand",MuEPairCand,"MuEPairCand[2]/I");
 
   thetree->Branch("nEleCand",&nEleCand,"nEleCand/I");
@@ -294,6 +297,7 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("EleCandTrack_pt",EleCandTrack_pt,"EleCandTrack_pt[nEleCand]/D"); 
   thetree->Branch("EleCandTrack_eta",EleCandTrack_eta,"EleCandTrack_eta[nEleCand]/D"); 
   thetree->Branch("EleCandTrack_phi",EleCandTrack_phi,"EleCandTrack_phi[nEleCand]/D"); 
+  thetree->Branch("EleCandTrack_vtxz",EleCandTrack_vtxz,"EleCandTrack_vtxz[nEleCand]/D"); 
   thetree->Branch("EleCand_vtxx",EleCand_vtxx,"EleCand_vtxx[nEleCand]/D");  
   thetree->Branch("EleCand_vtxy",EleCand_vtxy,"EleCand_vtxy[nEleCand]/D");  
   thetree->Branch("EleCand_vtxz",EleCand_vtxz,"EleCand_vtxz[nEleCand]/D");  
@@ -421,6 +425,15 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("GenMuonCand_px",GenMuonCand_px,"GenMuonCand_px[nGenMuonCand]/D");  
   thetree->Branch("GenMuonCand_py",GenMuonCand_py,"GenMuonCand_py[nGenMuonCand]/D");   
   thetree->Branch("GenMuonCand_pz",GenMuonCand_pz,"GenMuonCand_pz[nGenMuonCand]/D");   
+  thetree->Branch("GenMuonCand_pt",GenMuonCand_pt,"GenMuonCand_pt[nGenMuonCand]/D");    
+  thetree->Branch("GenMuonCand_eta",GenMuonCand_eta,"GenMuonCand_eta[nGenMuonCand]/D");    
+  thetree->Branch("nGenEleCand",&nGenEleCand,"nGenEleCand/I");   
+  thetree->Branch("GenEleCand_px",GenEleCand_px,"GenEleCand_px[nGenEleCand]/D");   
+  thetree->Branch("GenEleCand_py",GenEleCand_py,"GenEleCand_py[nGenEleCand]/D");    
+  thetree->Branch("GenEleCand_pz",GenEleCand_pz,"GenEleCand_pz[nGenEleCand]/D");    
+  thetree->Branch("GenEleCand_pt",GenEleCand_pt,"GenEleCand_pt[nGenEleCand]/D");     
+  thetree->Branch("GenEleCand_eta",GenEleCand_eta,"GenEleCand_eta[nGenEleCand]/D");     
+
 
   thetree->Branch("GenMuE_eta",&GenMuE_eta,"GenMuE_eta/D");    
   thetree->Branch("GenMuE_pt",&GenMuE_pt,"GenMuE_pt/D");     
@@ -528,6 +541,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   HitInZDC=0;
   HitInCastor=0;
   nGenMuonCand=0;
+  nGenEleCand=0;
 
   MuE_mass = -1;
   MuE_dphi = -1;
@@ -562,6 +576,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   LumiSection = event.luminosityBlock();
   EventNum = event.id().event();
 
+  /*
   const edm::LuminosityBlock& iLumi = event.getLuminosityBlock();
   /* FIXME removed!!!!!!! has to be replaced!
   // get LumiSummary
@@ -569,9 +584,10 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   iLumi.getByLabel("lumiProducer", lumiSummary);
   if(lumiSummary->isValid())
     AvgInstDelLumi = lumiSummary->avgInsDelLumi();
-    else*/
+  else
+    AvgInstDelLumi = -999.;
+  */
   AvgInstDelLumi = -999.;
-
 
 
   BunchInstLumi[0] = -999.;
@@ -714,6 +730,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }  
   
   // Get the #PU information
+  /* JH
   edm::Lumi3DReWeighting *LumiWeights;
   LumiWeights = new edm::Lumi3DReWeighting(
            std::string(mcPileupFile),
@@ -723,11 +740,55 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 				   "test.root"
 				   );
   //  LumiWeights = new edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup");
+  //  LumiWeights->weight3D_init( 1.0 );
+  //  const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
+  //  PUWeightTrue = LumiWeights->weight3D( (*iEventB) );
+  */
+
+  Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+  event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
+
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+
+  float sum_nvtx = 0.0;
+  float sum_nvtxbxm1 = 0.0;
+  float sum_nvtxbxp1 = 0.0;
+  float sum_nvtxbx0 = 0.0;
+  int npv = -1;
+  int npvtrue = -1;
+  int npvm1true = -1;
+  int npvp1true = -1;
+  int npv0true = -1;
+
+/*
+  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+
+    int BX = PVI->getBunchCrossing();
+
+    cout << "PU rewighting - BX = " << BX << endl;
+
+    npv = PVI->getPU_NumInteractions();
+    npvtrue = PVI->getTrueNumInteractions();
+
+    sum_nvtx += float(npvtrue);
+    if(BX == -1)
+      npvm1true+=float(npvtrue);
+    if(BX == 0)
+      npv0true+=float(npvtrue);
+    if(BX == 1)
+      npvp1true+=float(npvtrue);
+    
+    cout << "\tnpv = " << npv << ", sum = " << sum_nvtx << endl;
+    cout << "\t\tBX -1: " << npvm1true << ", BX 0: " << npv0true << ", BX +1: " << npvp1true << endl;
+  }
+*/
+
+  /* JH
   LumiWeights->weight3D_init(1.0);
   const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
   Weight3D = LumiWeights->weight3D(*iEventB);
   outdebug << Weight3D << endl;
-
+  */
 
   // Get the muon collection from the event
   // PAT
@@ -805,9 +866,16 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  MuonCand_validhits[nMuonCand]=muon->numberOfValidHits(); 
 	  MuonCand_normtrackchi2[nMuonCand]=muon->innerTrack()->normalizedChi2();  
 	  MuonCand_validpixelhits[nMuonCand] = muon->innerTrack()->hitPattern().numberOfValidPixelHits();	  
+	  MuonCand_nlayers[nMuonCand] = muon->innerTrack()->hitPattern().trackerLayersWithMeasurement();
 	  MuonCand_matches[nMuonCand] = muon->numberOfMatches();
 	  MuonCand_dB[nMuonCand] = muon->dB();
+
 	  MuonCand_tightID[nMuonCand] = 0;
+          MuonCand_PF[nMuonCand] = 0; 
+ 
+          if(muon->isPFMuon()) 
+            MuonCand_PF[nMuonCand] = 1; 
+
 
 	  if(muon->isGlobalMuon())
 	    {
@@ -855,6 +923,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
               EleCandTrack_pt[nEleCand]=electron->closestCtfTrackRef()->pt();  
               EleCandTrack_eta[nEleCand]=electron->closestCtfTrackRef()->eta();  
               EleCandTrack_phi[nEleCand]=electron->closestCtfTrackRef()->phi();  
+	      EleCandTrack_vtxz[nEleCand]=electron->closestCtfTrackRef()->vertex().z();
 	    }
 	  else
 	    {
@@ -1268,9 +1337,24 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		  GenMuonCand_px[nGenMuonCand]=p.px(); 
 		  GenMuonCand_py[nGenMuonCand]=p.py();  
 		  GenMuonCand_pz[nGenMuonCand]=p.pz();  
+                  GenMuonCand_pt[nGenMuonCand]=p.pt();  
+                  GenMuonCand_eta[nGenMuonCand]=p.eta();  
 		  nGenMuonCand++; 
 		} 
 	    }
+          if(MCPar_pdgid == 11 || MCPar_pdgid == -11) 
+            { 
+              if(p.status() == 1 && nGenEleCand < GENELEMAX)  
+                {  
+                  GenEleCand_px[nGenEleCand]=p.px();  
+                  GenEleCand_py[nGenEleCand]=p.py();   
+                  GenEleCand_pz[nGenEleCand]=p.pz();   
+                  GenEleCand_pt[nGenEleCand]=p.pt();   
+                  GenEleCand_eta[nGenEleCand]=p.eta();   
+                  nGenEleCand++;  
+                }  
+            } 
+
 	  
 	  if(MCPar_pdgid == 22 && abs(MCPar_eta) > 8.6 && MCPar_e > 20.0) 
 	    HitInZDC++;
@@ -1323,15 +1407,15 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   GenMuE_eta = 0.0;
   GenMuE_pt = 0.0;
-  if(nGenMuonCand == 2)
+  if(nGenMuonCand == 1 && nGenEleCand == 1)
     {
       TLorentzVector muvec1;
-      TLorentzVector muvec2;
+      TLorentzVector evec2;
       TLorentzVector muevec;
 
       muvec1.SetXYZM(GenMuonCand_px[0],GenMuonCand_py[0],GenMuonCand_pz[0],0.1057);
-      muvec2.SetXYZM(GenMuonCand_px[1],GenMuonCand_py[1],GenMuonCand_pz[1],0.1057); 
-      muevec = muvec1 + muvec2;
+      evec2.SetXYZM(GenEleCand_px[1],GenEleCand_py[1],GenEleCand_pz[1],0.1057); 
+      muevec = muvec1 + evec2;
       GenMuE_eta = muevec.Eta();
       GenMuE_pt = muevec.Pt();
     }
@@ -1456,17 +1540,22 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   ClosestHighPurityExtraTrack_vtxdxyz = closesthighpuritytrkdxyz;
 
   // Check for di-objects with valid vertex
-  if(nMuonCand < 1 || nEleCand < 1 || !(found_pair)) {passed = false;}
+  // JH - keep everything!
+  //  if(nMuonCand < 1 || nEleCand < 1 || !(found_pair)) {passed = false;}
 
   // Comment for keeping background events
-  if(!(found_muevertex)) {passed = false;}
+  // JH
+  //  if(!(found_muevertex)) {passed = false;}
+
   //  if(ClosestHighPurityExtraTrack_vtxdxyz < minmuevtxd) {passed = false;}
 
   // "Exclusivity" cuts
   if(passed == true){
     thetree->Fill();
   }
+  /* JH
   delete LumiWeights;
+  */
 }
 
 void
