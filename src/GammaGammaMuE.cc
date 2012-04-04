@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.10 2012/03/15 11:08:27 lforthom Exp $
+// $Id: GammaGammaMuE.cc,v 1.11 2012/04/02 07:51:31 jjhollar Exp $
 //
 //
 
@@ -760,7 +760,6 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   int npvp1true = -1;
   int npv0true = -1;
 
-/*
   for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
 
     int BX = PVI->getBunchCrossing();
@@ -781,7 +780,8 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     cout << "\tnpv = " << npv << ", sum = " << sum_nvtx << endl;
     cout << "\t\tBX -1: " << npvm1true << ", BX 0: " << npv0true << ", BX +1: " << npvp1true << endl;
   }
-*/
+
+  nTruePUforPUWeightBX0 = npv0true;
 
   /* JH
   LumiWeights->weight3D_init(1.0);
@@ -1010,7 +1010,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     double minimal_distance(999); 
     for(int k=0; k<nMuonCand; k++)
 	{
-	for(int l=k+1; l<nEleCand; l++)
+	for(int l=0; l<nEleCand; l++)
 		{
 		if((MuonCand_charge[k]*EleCand_charge[l]<0) || (keepsamesign == true))
 			{
