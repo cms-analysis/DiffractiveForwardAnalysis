@@ -134,7 +134,7 @@ data_pileup_path = str("genPUdist/TNVTX")
 if (not os.path.exists(mc_pileup_file)):
     print "MC pileup file does not exist !\nFirst run to generate pileup distributions..."
     # Load analysis modules
-    process.load("DiffractiveForwardAnalysis.GeneratePUdist.generatepudist_cfi")
+    process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.GeneratePUdist_cfi")
     process.TFileService = cms.Service("TFileService",
                                        fileName = cms.string(mc_pileup_file),
                                        closeFileFast = cms.untracked.bool(True)
@@ -145,7 +145,7 @@ if (not os.path.exists(mc_pileup_file)):
         process.genPUdist
         )
 else :
-    print "MC pileup file exists !\nProcessing the next step (+ reweighting)..."
+    print "MC pileup file \""+mc_pileup_file+"\" exists !\nProcessing the next step (+ reweighting)..."
     # Load analysis modules
     process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.PATGammaGammaMuE_cfi")
 
