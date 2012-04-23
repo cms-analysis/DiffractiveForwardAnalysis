@@ -82,6 +82,13 @@ removeCleaning(process)
 removeMCMatching(process, ['All'])
 #restrictInputToAOD(process, ['All'])
 
+# JH - testing
+#from PhysicsTools.PatAlgos.tools.pfTools import *
+#postfix = "PFlow"
+#jetAlgo="AK5"
+#usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix)
+# end JH
+
 # Output definition - this is for testing "PATtuples"
 #process.output = cms.OutputModule("PoolOutputModule",
 #                                  outputCommands = cms.untracked.vstring("drop *"),    
@@ -112,15 +119,15 @@ process.offlinePrimaryVerticesDA = process.offlinePrimaryVertices.clone()
 #process.output.outputCommands.extend(AODEventContent.outputCommands)
 
 # Set to True if running on MC  
-process.gamgammumuanalysis.outfilename = "MuMuAnalyzer.root" 
+process.gamgammumuanalysis.outfilename = "/tmp/jjhollar/MuMuAnalyzer_NoPF.root" 
 
 # Put it all together
 process.p = cms.Path(
 #    process.mcgamgammumuanalysis
 #    process.CastorFastReco
-    process.hltFilter 
-    + process.offlinePrimaryVerticesDA
-    + process.patDefaultSequence  
+#    process.hltFilter 
+    process.patDefaultSequence  
+#    getattr(process,"patPF2PATSequence"+postfix)
     + process.gamgammumuanalysis
 #   The output module here is only needed for making 'PATtuples'/skims
 #   + process.output

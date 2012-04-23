@@ -235,6 +235,7 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double GenMuonCand_pz[10]; 
   double GenMuonCand_pt[10];  
   double GenMuonCand_eta[10];  
+  double GenMuonCand_phi[10];   
   int nGenEleCand; 
   int GENELEMAX; 
   double GenEleCand_px[10];  
@@ -242,6 +243,7 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double GenEleCand_pz[10];  
   double GenEleCand_pt[10];   
   double GenEleCand_eta[10];   
+  double GenEleCand_phi[10];    
 
   double GenMuE_eta; 
   double GenMuE_pt; 

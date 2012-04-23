@@ -91,6 +91,14 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 removeCleaning(process)
 removeMCMatching(process, ['All'])
 
+# JH - testing
+from PhysicsTools.PatAlgos.tools.pfTools import *
+postfix = "PFlow"
+jetAlgo="AK5"
+usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix)
+# end JH
+
+
 #restrictInputToAOD(process, ['All'])
 
 # Output definition - this is for testing "PATtuples"
@@ -159,12 +167,13 @@ else :
 
     ##process.gamgammueanalysis.datapupath = cms.untracked.string("pileup")
     ##process.gamgammueanalysis.datapufile = cms.untracked.string("PUHistos.root")
-    #process.gamgammueanalysis.outfilename = cms.untracked.string("/tmp/lforthom/SignalMuEAnalyzer.root")
+    #process.gamgammueanalysis.outfilename = cms.untracked.string("/tmp/jjhollar/SignalMuEAnalyzer.root")
 
-    process.gamgammueanalysis.outfilename = cms.untracked.string("MuEAnalyzerResults.root")
+    process.gamgammueanalysis.outfilename = cms.untracked.string("/tmp/jjhollar/MuEAnalyzerResults.root")
 
     process.p = cms.Path(
-        process.patDefaultSequence
+#        process.patDefaultSequence
+        getattr(process,"patPF2PATSequence"+postfix)
         + process.gamgammueanalysis
         )
     

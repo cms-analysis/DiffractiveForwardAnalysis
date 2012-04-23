@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.11 2012/04/02 07:51:31 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.12 2012/04/04 11:55:02 jjhollar Exp $
 //
 //
 
@@ -427,13 +427,14 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("GenMuonCand_pz",GenMuonCand_pz,"GenMuonCand_pz[nGenMuonCand]/D");   
   thetree->Branch("GenMuonCand_pt",GenMuonCand_pt,"GenMuonCand_pt[nGenMuonCand]/D");    
   thetree->Branch("GenMuonCand_eta",GenMuonCand_eta,"GenMuonCand_eta[nGenMuonCand]/D");    
+  thetree->Branch("GenMuonCand_phi",GenMuonCand_phi,"GenMuonCand_phi[nGenMuonCand]/D");     
   thetree->Branch("nGenEleCand",&nGenEleCand,"nGenEleCand/I");   
   thetree->Branch("GenEleCand_px",GenEleCand_px,"GenEleCand_px[nGenEleCand]/D");   
   thetree->Branch("GenEleCand_py",GenEleCand_py,"GenEleCand_py[nGenEleCand]/D");    
   thetree->Branch("GenEleCand_pz",GenEleCand_pz,"GenEleCand_pz[nGenEleCand]/D");    
   thetree->Branch("GenEleCand_pt",GenEleCand_pt,"GenEleCand_pt[nGenEleCand]/D");     
   thetree->Branch("GenEleCand_eta",GenEleCand_eta,"GenEleCand_eta[nGenEleCand]/D");     
-
+  thetree->Branch("GenEleCand_phi",GenEleCand_phi,"GenEleCand_phi[nGenEleCand]/D");      
 
   thetree->Branch("GenMuE_eta",&GenMuE_eta,"GenMuE_eta/D");    
   thetree->Branch("GenMuE_pt",&GenMuE_pt,"GenMuE_pt/D");     
@@ -730,7 +731,6 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }  
   
   // Get the #PU information
-  /* JH
   edm::Lumi3DReWeighting *LumiWeights;
   LumiWeights = new edm::Lumi3DReWeighting(
            std::string(mcPileupFile),
@@ -743,7 +743,6 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   //  LumiWeights->weight3D_init( 1.0 );
   //  const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
   //  PUWeightTrue = LumiWeights->weight3D( (*iEventB) );
-  */
 
   Handle<std::vector< PileupSummaryInfo > >  PupInfo;
   event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
@@ -777,18 +776,16 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     if(BX == 1)
       npvp1true+=float(npvtrue);
     
-    cout << "\tnpv = " << npv << ", sum = " << sum_nvtx << endl;
-    cout << "\t\tBX -1: " << npvm1true << ", BX 0: " << npv0true << ", BX +1: " << npvp1true << endl;
+    //    cout << "\tnpv = " << npv << ", sum = " << sum_nvtx << endl;
+    //    cout << "\t\tBX -1: " << npvm1true << ", BX 0: " << npv0true << ", BX +1: " << npvp1true << endl;
   }
 
   nTruePUforPUWeightBX0 = npv0true;
 
-  /* JH
   LumiWeights->weight3D_init(1.0);
   const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
   Weight3D = LumiWeights->weight3D(*iEventB);
   outdebug << Weight3D << endl;
-  */
 
   // Get the muon collection from the event
   // PAT
@@ -885,8 +882,10 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	      if((MuonCand_istracker[nMuonCand] == 1) && 
 		 (MuonCand_validpixelhits[nMuonCand] >= 1) && 
 		 (MuonCand_normchi2[nMuonCand] < 10) && 
-		 (MuonCand_validtrackhits[nMuonCand] > 10) && 
+		 //		 (MuonCand_validtrackhits[nMuonCand] > 10) && 
+		 (MuonCand_nlayers[nMuonCand] > 8) && 
 		 (MuonCand_matches[nMuonCand] >= 2) && 
+		 (MuonCand_dB[nMuonCand] < 0.2) &&  
 		 (MuonCand_validmuonhits[nMuonCand] >= 1))
 		MuonCand_tightID[nMuonCand] = 1;
 		 
@@ -1339,6 +1338,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		  GenMuonCand_pz[nGenMuonCand]=p.pz();  
                   GenMuonCand_pt[nGenMuonCand]=p.pt();  
                   GenMuonCand_eta[nGenMuonCand]=p.eta();  
+                  GenMuonCand_phi[nGenMuonCand]=p.phi();   
 		  nGenMuonCand++; 
 		} 
 	    }
@@ -1351,6 +1351,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                   GenEleCand_pz[nGenEleCand]=p.pz();   
                   GenEleCand_pt[nGenEleCand]=p.pt();   
                   GenEleCand_eta[nGenEleCand]=p.eta();   
+                  GenEleCand_phi[nGenEleCand]=p.phi();    
                   nGenEleCand++;  
                 }  
             } 
@@ -1553,9 +1554,9 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   if(passed == true){
     thetree->Fill();
   }
-  /* JH
+
   delete LumiWeights;
-  */
+
 }
 
 void

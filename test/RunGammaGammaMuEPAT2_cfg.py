@@ -22,7 +22,14 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-                                'file:/tmp/jjhollar/CalcHEP_GamGamWW_ElEl_SM_RECO.root'
+#                                '/store/relval/CMSSW_4_4_0/RelValZMM/GEN-SIM-RECO/START44_V5-v2/0051/0407CEA7-ECE6-E011-B360-002618943826.root',
+#                                '/store/relval/CMSSW_4_4_0/RelValZMM/GEN-SIM-RECO/START44_V5-v2/0045/E095BF22-11E6-E011-8B1F-002618943821.root',
+#                                '/store/relval/CMSSW_4_4_0/RelValZMM/GEN-SIM-RECO/START44_V5-v2/0045/82EECF40-10E6-E011-A6D9-0018F3D09624.root',
+#                                '/store/relval/CMSSW_4_4_0/RelValZMM/GEN-SIM-RECO/START44_V5-v2/0045/7C73A5A1-0AE6-E011-992F-00261894380A.root'
+
+##                                'rfio:/castor/cern.ch/user/j/jjhollar/ExclWW/GamGamWW_Anomalous1_Lambda500GeV_A0W0point0002_NoFF_START44_Fall11PU_RAW.root'
+    'rfio:/castor/cern.ch/user/j/jjhollar/ExclWW/GamGamWW_SM_WithFF_START44_Fall11PU_RECO.root'
+##                                'file:/tmp/jjhollar/CalcHEP_GamGamWW_ElEl_SM_RECO_10kevents.root'
                                                                 )
                             )
 
@@ -32,7 +39,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 # Load configuration stuff
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('GR_R_42_V2::All')
+process.GlobalTag.globaltag = cms.string('GR_R_44_V12::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
@@ -64,7 +71,7 @@ process.muonFilter=cms.EDFilter("CandViewCountFilter",
 # Trigger
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.HLTFilter_cfi")
 process.hltFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-process.hltFilter.HLTPaths = ['HLT_Mu10_Ele10_CaloIdL_*']
+process.hltFilter.HLTPaths = ['HLT_Mu10_Ele10_CaloIdL_*', 'HLT_Mu8_Ele17_*', 'HLT_Mu17_Ele8_*']
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring("drop *")
@@ -75,50 +82,30 @@ from Configuration.EventContent.EventContent_cff import *
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
 from PhysicsTools.PatAlgos.patEventContent_cff import patExtraAodEventContent
 from PhysicsTools.PatAlgos.tools.coreTools import *
+
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 removeCleaning(process)
 removeMCMatching(process, ['All'])
 #restrictInputToAOD(process, ['All'])
 
-# Output definition - this is for testing "PATtuples"
-#process.output = cms.OutputModule("PoolOutputModule",
-#                                  outputCommands = cms.untracked.vstring("drop *"),    
-#                                  outputCommands = cms.untracked.vstring('drop *',
-#                                                                         'keep *_selectedPatPhotons_*_*',
-#                                                                         'keep *_selectedPatElectrons_*_*',
-#                                                                         'keep *_selectedPatMuons_*_*',
-#                                                                         'keep *_selectedPatTaus_*_*',
-#                                                                         'keep *_selectedPatJets_*_*',
-#                                                                         'keep *_layer1METs_*_*',
-#                                                                         'keep *_selectedPatPFParticles_*_*',
-#                                                                         'keep *_CastorFastTowerReco_*_*',
-#                                                                         *patExtraAodEventContent ),
-#                                  fileName = cms.untracked.string('file:/tmp/jjhollar/mumu.pattuple.root'),
-#                                  dataset = cms.untracked.PSet(
-#    dataTier = cms.untracked.string('PAT'),
-#    filterName = cms.untracked.string('')
-#    ),
-#)
+# JH - testing
+#from PhysicsTools.PatAlgos.tools.pfTools import *
+#postfix = "PFlow"
+#jetAlgo="AK5"
+#usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix)
+# end JH
 
-#offline vertices with deterministic annealing. Should become the default as of 4_2_0_pre7. Requires > V01-04-04      RecoVertex/PrimaryVertexProducer
-#process.load("RecoVertex.Configuration.RecoVertex_cff")
-#from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
-#process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
-#process.offlinePrimaryVerticesDA = process.offlinePrimaryVertices.clone()
-
-#process.output.outputCommands.extend(AODEventContent.outputCommands)
 
 # Set to True if running on MC  
 ##process.gamgammueanalysis.ReadMCEffCorrections = True
-process.gamgammueanalysis.outfilename = "/tmp/jjhollar/SignalMuEAnalyzer.root"
+##process.gamgammueanalysis.outfilename = "SignalMuEAnalyzer_Anomalous1_Lambda500GeV_A0W0point0002_NoFF_START44_Fall11PU.root"
+process.gamgammueanalysis.outfilename = "/tmp/jjhollar/MuEAnalyzer_nonPF.root"
 
 # Put it all together
 process.p = cms.Path(
-#    process.mcgamgammumuanalysis
-#    process.CastorFastReco
 #    process.hltFilter 
-#    + process.offlinePrimaryVerticesDA
     process.patDefaultSequence  
+#    getattr(process,"patPF2PATSequence"+postfix) 
     + process.gamgammueanalysis
 #   The output module here is only needed for making 'PATtuples'/skims
 #   + process.output
