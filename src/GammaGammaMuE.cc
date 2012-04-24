@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.12 2012/04/04 11:55:02 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.13 2012/04/23 11:29:20 jjhollar Exp $
 //
 //
 
@@ -183,6 +183,16 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   dataPileupFile     = pset.getUntrackedParameter<std::string>("datapufile", "PUHistos_duplicated.root");
   dataPileupPath     = pset.getUntrackedParameter<std::string>("datapupath", "pileup");
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
+
+
+  LumiWeights = new edm::Lumi3DReWeighting( 
+					   std::string(mcPileupFile), 
+					   std::string(dataPileupFile), 
+					   std::string(mcPileupPath), 
+					   std::string(dataPileupPath), 
+					   "test.root" 
+					   ); 
+  LumiWeights->weight3D_init(1.0); 
 
   //  edm::FileInPath myDataFile("FastSimulation/ProtonTaggers/data/acceptance_420_220.root");  
   edm::FileInPath myDataFile("FastSimulation/ForwardDetectors/data/acceptance_420_220.root");
@@ -577,8 +587,8 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   LumiSection = event.luminosityBlock();
   EventNum = event.id().event();
 
-  /*
-  const edm::LuminosityBlock& iLumi = event.getLuminosityBlock();
+
+  //  const edm::LuminosityBlock& iLumi = event.getLuminosityBlock();
   /* FIXME removed!!!!!!! has to be replaced!
   // get LumiSummary
   edm::Handle<LumiSummary> lumiSummary;
@@ -731,14 +741,16 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }  
   
   // Get the #PU information
-  edm::Lumi3DReWeighting *LumiWeights;
-  LumiWeights = new edm::Lumi3DReWeighting(
-           std::string(mcPileupFile),
-				   std::string(dataPileupFile),
-				   std::string(mcPileupPath),
-				   std::string(dataPileupPath),
-				   "test.root"
-				   );
+  //  edm::Lumi3DReWeighting *LumiWeights;
+
+  //  LumiWeights = new edm::Lumi3DReWeighting(
+  //           std::string(mcPileupFile),
+  //				   std::string(dataPileupFile),
+  //				   std::string(mcPileupPath),
+  //				   std::string(dataPileupPath),
+  //				   "test.root"
+  //				   );
+
   //  LumiWeights = new edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup");
   //  LumiWeights->weight3D_init( 1.0 );
   //  const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
@@ -763,8 +775,6 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
     int BX = PVI->getBunchCrossing();
 
-    cout << "PU rewighting - BX = " << BX << endl;
-
     npv = PVI->getPU_NumInteractions();
     npvtrue = PVI->getTrueNumInteractions();
 
@@ -775,14 +785,13 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       npv0true+=float(npvtrue);
     if(BX == 1)
       npvp1true+=float(npvtrue);
-    
-    //    cout << "\tnpv = " << npv << ", sum = " << sum_nvtx << endl;
-    //    cout << "\t\tBX -1: " << npvm1true << ", BX 0: " << npv0true << ", BX +1: " << npvp1true << endl;
   }
 
   nTruePUforPUWeightBX0 = npv0true;
 
+  /*
   LumiWeights->weight3D_init(1.0);
+  */
   const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
   Weight3D = LumiWeights->weight3D(*iEventB);
   outdebug << Weight3D << endl;
@@ -1173,6 +1182,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
   if(nMuonCand >= 1 && nEleCand >= 1)
     {
+      if(0){
       for ( jet = jets->begin(); jet != jets->end() && nJetCand<JETMAX; ++jet )
 	{
 	  JetCand_e[nJetCand]=jet->energy();
@@ -1300,7 +1310,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	      nCastorTowerCand++;  
 	    } 
 	}
-
+      }
       HighestCastorTowerFwd_e = highestcastortowerfwd; 
       HighestCastorTowerBwd_e = highestcastortowerbwd; 
       SumCastorFwd_e = totalecastorfwd;
@@ -1555,7 +1565,8 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     thetree->Fill();
   }
 
-  delete LumiWeights;
+
+  //  delete LumiWeights;
 
 }
 

@@ -386,6 +386,9 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   AcceptanceTableHelper helper420a220beam2;   
 
   edm::TriggerNames trigNames ;
+
+  edm::Lumi3DReWeighting *LumiWeights; 
+
 };
 #endif
 
