@@ -51,11 +51,11 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   edm::InputTag thePixelGsfELabel;
   edm::InputTag theJetLabel;
   edm::InputTag theMetLabel;
-  edm::InputTag thePhotonLabel;
-  edm::InputTag theCaloTowLabel;
-  edm::InputTag recCastorTowerLabel;   
-  edm::InputTag recZDCRecHitsLabel;
-  edm::InputTag recCastorRecHitsLabel;
+  edm::InputTag conversionsInputTag; 
+  edm::InputTag beamSpotInputTag; 
+  edm::InputTag rhoIsoInputTag; 
+  std::vector<edm::InputTag>  isoValInputTags; 
+
   std::string mcPileupFile;
   std::string mcPileupPath;
   std::string dataPileupFile;
@@ -169,6 +169,7 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double EleCand_convDcot[10];
   int EleCand_ecalDriven[10]; 
   int EleCand_wp80[10];
+  int EleCand_mediumID[10];
 
   int MuEPairCand[2];
 
@@ -189,6 +190,30 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double HLT_Mu17Ele8_MuonCand_eta[10];  
   double HLT_Mu17Ele8_MuonCand_phi[10];  
   int HLT_Mu17Ele8_MuonCand_charge[10];  
+
+  int nHLTMu8Ele17EleTCand;  
+  double HLT_Mu8Ele17_EleTCand_pt[10];  
+  double HLT_Mu8Ele17_EleTCand_eta[10];  
+  double HLT_Mu8Ele17_EleTCand_phi[10];  
+  int HLT_Mu8Ele17_EleTCand_charge[10];  
+ 
+  int nHLTMu17Ele8EleTCand;   
+  double HLT_Mu17Ele8_EleTCand_pt[10];   
+  double HLT_Mu17Ele8_EleTCand_eta[10];   
+  double HLT_Mu17Ele8_EleTCand_phi[10];   
+  int HLT_Mu17Ele8_EleTCand_charge[10];   
+
+  int nHLTMu8Ele17EleLCand;   
+  double HLT_Mu8Ele17_EleLCand_pt[10];   
+  double HLT_Mu8Ele17_EleLCand_eta[10];   
+  double HLT_Mu8Ele17_EleLCand_phi[10];   
+  int HLT_Mu8Ele17_EleLCand_charge[10];   
+  
+  int nHLTMu17Ele8EleLCand;    
+  double HLT_Mu17Ele8_EleLCand_pt[10];    
+  double HLT_Mu17Ele8_EleLCand_eta[10];    
+  double HLT_Mu17Ele8_EleLCand_phi[10];    
+  int HLT_Mu17Ele8_EleLCand_charge[10];    
 
   double MuE_mass;
   double MuE_dphi;
@@ -225,9 +250,6 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double HighestJet_phi;
   double SumJet_e;
 
-  int HitInZDC; 
-  int HitInCastor; 
-
   int nGenMuonCand;
   int GENMUONMAX;
   double GenMuonCand_px[10]; 
@@ -257,59 +279,6 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   double Etmiss_z;
   double Etmiss_significance;
 
-  int nCaloCand;
-
-  double CaloTower_e[1000];
-  double CaloTower_et[1000];
-  double CaloTower_eta[1000];
-  double CaloTower_phi[1000];
-  double CaloTower_dr[1000];
-  double CaloTower_emE[1000];
-  double CaloTower_hadE[1000];
-  double CaloTower_outE[1000];
-  int CaloTower_ID[1000];
-  double CaloTower_x[1000];
-  double CaloTower_y[1000];
-  double CaloTower_z[1000];
-  double CaloTower_t[1000];
-  int CaloTower_badhcalcells[1000];
-  int CaloTower_problemhcalcells[1000];
-  int CaloTower_badecalcells[1000];
-  int CaloTower_problemecalcells[1000];
-
-  double HighestCaloTower_e;
-  double HighestCaloTower_eta;
-  double HighestCaloTower_phi;
-  double HighestCaloTower_dr;
-  double HighestEtCaloTower_et;
-  double HighestEtCaloTower_eta;
-  double HighestEtCaloTower_phi;
-  double HighestEtCaloTower_dr;
-  double SumCalo_e;
-
-  int nCastorTowerCand;   
-  int nCastorTowerCandE3;
-  double CastorTower_e[1000];   
-  double CastorTower_eta[1000];    
-  double CastorTower_phi[1000];   
-  double CastorTower_emratio[1000];   
-  double HighestCastorTowerFwd_e;   
-  double HighestCastorTowerBwd_e;   
-  double SumCastorFwd_e; 
-  double SumCastorBwd_e; 
-
-  int nZDChitCand;
-  int ZDChit_section[5000];
-  double ZDChit_energy[5000];
-  double ZDChit_time[5000];
-  int ZDChit_side[5000];
-  double ZDCsumEMplus;
-  double ZDCsumHADplus;
-  double ZDCsumEMminus;
-  double ZDCsumHADminus;
-
-  double CASTORsumRecHitsE;
-
   int nPrimVertexCand;
   double PrimVertexCand_x[40];
   double PrimVertexCand_y[40];
@@ -321,9 +290,12 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   int PrimVertexCand_mueExactlyTwoTracks[40];
   int PrimVertexCand_mueTwoTracksMuIndex[40];
   int PrimVertexCand_mueTwoTracksEleIndex[40]; 
+  int mueVertexIndex;
+  int maxMuEVertexTracks;
 
     
   int nTrackCand;
+  int nExtraTrackCand;
   int nQualityTrackCand;
   int TRACKMAX;
   double TrackCand_purity[500];
@@ -356,16 +328,16 @@ class GammaGammaMuE : public edm::EDAnalyzer {
 
   double evweight;
   
-  int HLT_Mu8Ele17;
+  int HLT_Mu8Ele17L;
+  int HLT_Mu17Ele8L; 
+  int HLT_Mu8Ele17T; 
+  int HLT_Mu17Ele8T;  
   int HLT_Mu10Ele10;
-  int HLT_Mu17Ele8;
-  int HLT_Mu8Ele17_Prescl; 
+  int HLT_Mu8Ele17L_Prescl; 
+  int HLT_Mu17Ele8L_Prescl;  
+  int HLT_Mu8Ele17T_Prescl;  
+  int HLT_Mu17Ele8T_Prescl;   
   int HLT_Mu10Ele10_Prescl; 
-  int HLT_Mu17Ele8_Prescl; 
-
-  double LowPt_pt[10];
-  double LowPt_eta[10];
-
 
   double nTruePUafterPUWeight;
   double nTruePUafterPUWeightBXM1;

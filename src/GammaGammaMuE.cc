@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.13 2012/04/23 11:29:20 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.14 2012/04/24 09:16:07 jjhollar Exp $
 //
 //
 
@@ -26,8 +26,6 @@
 #include "DataFormats/PatCandidates/interface/Photon.h" 
 #include "DataFormats/PatCandidates/interface/MET.h" 
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
-#include "DataFormats/CastorReco/interface/CastorTower.h" 
-#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
 #include "DataFormats/Common/interface/Ref.h"   
 #include "DataFormats/Common/interface/TriggerResults.h"   
 #include "DataFormats/HLTReco/interface/TriggerEvent.h" 
@@ -44,7 +42,6 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 #include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
-#include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
@@ -114,6 +111,9 @@
 #include <DataFormats/TrackReco/interface/Track.h>
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
+#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h" 
+#include "DataFormats/EgammaCandidates/interface/Conversion.h" 
 
 // Vertexing 
 #include "DataFormats/VertexReco/interface/Vertex.h" 
@@ -149,6 +149,8 @@ using namespace trigger;
 //
 // constants, enums and typedefs
 //
+typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > >   IsoDepositMaps; 
+typedef std::vector< edm::Handle< edm::ValueMap<double> > >             IsoDepositVals; 
 
 //
 // static data member definitions
@@ -166,18 +168,17 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thePixelGsfELabel  = pset.getParameter<edm::InputTag>("ElectronCollectionLabel");
   theJetLabel        = pset.getParameter<edm::InputTag>("JetCollectionLabel");
   theMetLabel        = pset.getParameter<edm::InputTag>("MetLabel");
-  theCaloTowLabel    = pset.getParameter<edm::InputTag>("CaloTowerLabel");
-  recCastorTowerLabel = pset.getParameter<edm::InputTag>("CastorTowerLabel"); 
-  recZDCRecHitsLabel = pset.getParameter<edm::InputTag>("ZDCRecHitsLabel");
-  recCastorRecHitsLabel = pset.getParameter<edm::InputTag>("CastorRecHitsLabel");
+  conversionsInputTag   = pset.getParameter<edm::InputTag>("conversionsInputTag"); 
+  beamSpotInputTag      = pset.getParameter<edm::InputTag>("beamSpotInputTag"); 
+  rhoIsoInputTag        = pset.getParameter<edm::InputTag>("rhoIsoInputTag"); 
+  isoValInputTags       = pset.getParameter<std::vector<edm::InputTag> >("isoValInputTags"); 
+
   hltMenuLabel       = pset.getParameter<std::string>("HLTMenuLabel");
 
   drisocalo          = pset.getParameter<double>("CaloTowerdR");
   keepsamesign       = pset.getParameter<bool>("KeepSameSign");
   minmuevtxd         = pset.getParameter<double>("MinMuEVertexSeparation"); 
 
-  /*mcPileupFile       = pset.getUntrackedParameter<std::string>("mcpufile", "MC_pileup.root");
-    dataPileupFile     = pset.getUntrackedParameter<std::string>("datapufile", "Data_pileup.root");*/
   mcPileupFile       = pset.getUntrackedParameter<std::string>("mcpufile", "PUHistos.root");
   mcPileupPath       = pset.getUntrackedParameter<std::string>("mcpupath", "pileup");
   dataPileupFile     = pset.getUntrackedParameter<std::string>("datapufile", "PUHistos_duplicated.root");
@@ -186,10 +187,11 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
 
 
   LumiWeights = new edm::Lumi3DReWeighting( 
+  //  LumiWeights = new edm::LumiReWeighting(
 					   std::string(mcPileupFile), 
 					   std::string(dataPileupFile), 
 					   std::string(mcPileupPath), 
-					   std::string(dataPileupPath), 
+					   std::string(dataPileupPath),
 					   "test.root" 
 					   ); 
   LumiWeights->weight3D_init(1.0); 
@@ -322,6 +324,7 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("EleCand_convDcot",EleCand_convDcot,"EleCand_convDcot[nEleCand]/D"); 
   thetree->Branch("EleCand_ecalDriven",EleCand_ecalDriven,"EleCand_ecalDriven[nEleCand]/D");  
   thetree->Branch("EleCand_wp80", EleCand_wp80, "EleCand_wp80[nEleCand]/I");   
+  thetree->Branch("EleCand_mediumID", EleCand_mediumID, "EleCand_mediumID[nEleCand]/I");    
 
   thetree->Branch("nHLTMu10Ele10MuonCand",&nHLTMu10Ele10MuonCand,"nHLTMu10Ele10MuonCand/I"); 
   thetree->Branch("HLT_Mu10Ele10_MuonCand_pt",&HLT_Mu10Ele10_MuonCand_pt,"HLT_Mu10Ele10_MuonCand_pt[nHLTMu10Ele10MuonCand]/D"); 
@@ -341,68 +344,53 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("HLT_Mu17Ele8_MuonCand_phi",&HLT_Mu17Ele8_MuonCand_phi,"HLT_Mu17Ele8_MuonCand_phi[nHLTMu17Ele8MuonCand]/D");  
   thetree->Branch("HLT_Mu17Ele8_MuonCand_charge",&HLT_Mu17Ele8_MuonCand_charge,"HLT_Mu17Ele8_MuonCand_charge[nHLTMu17Ele8MuonCand]/I");   
 
-  thetree->Branch("nCaloCand",&nCaloCand,"nCaloCand/I");
-  thetree->Branch("CaloTower_e",CaloTower_e,"CaloTower_e[nCaloCand]/D");
-  thetree->Branch("CaloTower_et",CaloTower_et,"CaloTower_et[nCaloCand]/D");
-  thetree->Branch("CaloTower_eta",CaloTower_eta,"CaloTower_eta[nCaloCand]/D"); 
-  thetree->Branch("CaloTower_phi",CaloTower_phi,"CaloTower_phi[nCaloCand]/D"); 
-  thetree->Branch("CaloTower_dr",CaloTower_dr,"CaloTower_dr[nCaloCand]/D");
-  thetree->Branch("CaloTower_emE",CaloTower_emE,"CaloTower_emE[nCaloCand]/D");
-  thetree->Branch("CaloTower_hadE",CaloTower_hadE,"CaloTower_hadE[nCaloCand]/D");
-  thetree->Branch("CaloTower_outE",CaloTower_outE,"CaloTower_outE[nCaloCand]/D");
-  thetree->Branch("CaloTower_x",CaloTower_x,"CaloTower_x[nCaloCand]/D");
-  thetree->Branch("CaloTower_y",CaloTower_y,"CaloTower_y[nCaloCand]/D");
-  thetree->Branch("CaloTower_z",CaloTower_z,"CaloTower_z[nCaloCand]/D");
-  thetree->Branch("CaloTower_t",CaloTower_t,"CaloTower_t[nCaloCand]/D");
-  thetree->Branch("CaloTower_badhcalcells",CaloTower_badhcalcells,"CaloTower_badhcalcells[nCaloCand]/I"); 
-  thetree->Branch("CaloTower_problemhcalcells",CaloTower_problemhcalcells,"CaloTower_problemhcalcells[nCaloCand]/I"); 
-  thetree->Branch("CaloTower_badecalcells",CaloTower_badecalcells,"CaloTower_badecalcells[nCaloCand]/I");  
-  thetree->Branch("CaloTower_problemecalcells",CaloTower_problemecalcells,"CaloTower_problemecalcells[nCaloCand]/I");  
-  thetree->Branch("SumCalo_e",&SumCalo_e,"SumCalo_e/D");
+  thetree->Branch("nHLTMu8Ele17EleLCand",&nHLTMu8Ele17EleLCand,"nHLTMu8Ele17EleLCand/I");   
+  thetree->Branch("HLT_Mu8Ele17_EleLCand_pt",&HLT_Mu8Ele17_EleLCand_pt,"HLT_Mu8Ele17_EleLCand_pt[nHLTMu8Ele17EleLCand]/D");   
+  thetree->Branch("HLT_Mu8Ele17_EleLCand_eta",&HLT_Mu8Ele17_EleLCand_eta,"HLT_Mu8Ele17_EleLCand_eta[nHLTMu8Ele17EleLCand]/D");   
+  thetree->Branch("HLT_Mu8Ele17_EleLCand_phi",&HLT_Mu8Ele17_EleLCand_phi,"HLT_Mu8Ele17_EleLCand_phi[nHLTMu8Ele17EleLCand]/D");   
+  thetree->Branch("HLT_Mu8Ele17_EleLCand_charge",&HLT_Mu8Ele17_EleLCand_charge,"HLT_Mu8Ele17_EleLCand_charge[nHLTMu8Ele17EleLCand]/I");    
+ 
+  thetree->Branch("nHLTMu17Ele8EleLCand",&nHLTMu17Ele8EleLCand,"nHLTMu17Ele8EleLCand/I");   
+  thetree->Branch("HLT_Mu17Ele8_EleLCand_pt",&HLT_Mu17Ele8_EleLCand_pt,"HLT_Mu17Ele8_EleLCand_pt[nHLTMu17Ele8EleLCand]/D");   
+  thetree->Branch("HLT_Mu17Ele8_EleLCand_eta",&HLT_Mu17Ele8_EleLCand_eta,"HLT_Mu17Ele8_EleLCand_eta[nHLTMu17Ele8EleLCand]/D");   
+  thetree->Branch("HLT_Mu17Ele8_EleLCand_phi",&HLT_Mu17Ele8_EleLCand_phi,"HLT_Mu17Ele8_EleLCand_phi[nHLTMu17Ele8EleLCand]/D");   
+  thetree->Branch("HLT_Mu17Ele8_EleLCand_charge",&HLT_Mu17Ele8_EleLCand_charge,"HLT_Mu17Ele8_EleLCand_charge[nHLTMu17Ele8EleLCand]/I");    
 
-  thetree->Branch("nCastorTowerCand",&nCastorTowerCand,"nCastorTowerCand/I");  
-  thetree->Branch("nCastorTowerCandE3",&nCastorTowerCandE3,"nCastorTowerCandE3/I");   
-  thetree->Branch("CastorTower_e",CastorTower_e,"CastorTower_e[nCastorTowerCand]/D");  
-  thetree->Branch("CastorTower_eta",CastorTower_eta,"CastorTower_eta[nCastorTowerCand]/D");   
-  thetree->Branch("CastorTower_phi",CastorTower_phi,"CastorTower_phi[nCastorTowerCand]/D");  
-  thetree->Branch("CastorTower_emratio",CastorTower_emratio,"CastorTower_emratio[nCastorTowerCand]/D");  
-  thetree->Branch("HighestCastorTowerFwd_e",&HighestCastorTowerFwd_e,"HighestCastorTowerFwd_e/D"); 
-  thetree->Branch("HighestCastorTowerBwd_e",&HighestCastorTowerBwd_e,"HighestCastorTowerBwd_e/D"); 
-  thetree->Branch("SumCastorFwd_e",&SumCastorFwd_e,"SumCastorFwd_e/D");
-  thetree->Branch("SumCastorBwd_e",&SumCastorBwd_e,"SumCastorBwd_e/D"); 
+  thetree->Branch("nHLTMu8Ele17EleTCand",&nHLTMu8Ele17EleTCand,"nHLTMu8Ele17EleTCand/I");    
+  thetree->Branch("HLT_Mu8Ele17_EleTCand_pt",&HLT_Mu8Ele17_EleTCand_pt,"HLT_Mu8Ele17_EleTCand_pt[nHLTMu8Ele17EleTCand]/D");    
+  thetree->Branch("HLT_Mu8Ele17_EleTCand_eta",&HLT_Mu8Ele17_EleTCand_eta,"HLT_Mu8Ele17_EleTCand_eta[nHLTMu8Ele17EleTCand]/D");    
+  thetree->Branch("HLT_Mu8Ele17_EleTCand_phi",&HLT_Mu8Ele17_EleTCand_phi,"HLT_Mu8Ele17_EleTCand_phi[nHLTMu8Ele17EleTCand]/D");    
+  thetree->Branch("HLT_Mu8Ele17_EleTCand_charge",&HLT_Mu8Ele17_EleTCand_charge,"HLT_Mu8Ele17_EleTCand_charge[nHLTMu8Ele17EleTCand]/I");     
+  
+  thetree->Branch("nHLTMu17Ele8EleTCand",&nHLTMu17Ele8EleTCand,"nHLTMu17Ele8EleTCand/I");    
+  thetree->Branch("HLT_Mu17Ele8_EleTCand_pt",&HLT_Mu17Ele8_EleTCand_pt,"HLT_Mu17Ele8_EleTCand_pt[nHLTMu17Ele8EleTCand]/D");    
+  thetree->Branch("HLT_Mu17Ele8_EleTCand_eta",&HLT_Mu17Ele8_EleTCand_eta,"HLT_Mu17Ele8_EleTCand_eta[nHLTMu17Ele8EleTCand]/D");    
+  thetree->Branch("HLT_Mu17Ele8_EleTCand_phi",&HLT_Mu17Ele8_EleTCand_phi,"HLT_Mu17Ele8_EleTCand_phi[nHLTMu17Ele8EleTCand]/D");    
+  thetree->Branch("HLT_Mu17Ele8_EleTCand_charge",&HLT_Mu17Ele8_EleTCand_charge,"HLT_Mu17Ele8_EleTCand_charge[nHLTMu17Ele8EleTCand]/I");     
 
-  thetree->Branch("nZDChitCand", &nZDChitCand, "nZDChitCand/I");
-  thetree->Branch("ZDChit_section", ZDChit_section, "ZDChit_section[nZDChitCand]/I");
-  thetree->Branch("ZDChit_energy", ZDChit_energy, "ZDChit_energy[nZDChitCand]/D");
-  thetree->Branch("ZDChit_time", ZDChit_time, "ZDChit_time[nZDChitCand]/D");
-  thetree->Branch("ZDChit_side", ZDChit_side, "ZDChit_side[nZDChitCand]/I");
-  thetree->Branch("ZDCsumEMplus", &ZDCsumEMplus, "ZDCsumEMplus/D");
-  thetree->Branch("ZDCsumHADplus", &ZDCsumHADplus, "ZDCsumHADplus/D");
-  thetree->Branch("ZDCsumEMminus", &ZDCsumEMminus, "ZDCsumEMminus/D");
-  thetree->Branch("ZDCsumHADminus", &ZDCsumHADminus, "ZDCsumHADminus/D");
-  thetree->Branch("CASTORsumRecHitsE", &CASTORsumRecHitsE, "CASTORsumRecHitsE/D");
 
   thetree->Branch("nTrackCand",&nTrackCand,"nTrackCand/I");
   thetree->Branch("nQualityTrackCand",&nQualityTrackCand,"nQualityTrackCand/I"); 
-  thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nTrackCand]/D");
-  thetree->Branch("TrackCand_py",TrackCand_py,"TrackCand_py[nTrackCand]/D");
-  thetree->Branch("TrackCand_pz",TrackCand_pz,"TrackCand_pz[nTrackCand]/D");
-  thetree->Branch("TrackCand_p",TrackCand_p,"TrackCand_p[nTrackCand]/D");
-  thetree->Branch("TrackCand_pt",TrackCand_pt,"TrackCand_pt[nTrackCand]/D");
-  thetree->Branch("TrackCand_eta",TrackCand_eta,"TrackCand_eta[nTrackCand]/D");
-  thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nTrackCand]/D");
-  thetree->Branch("TrackCand_vtxdxyz",TrackCand_vtxdxyz,"TrackCand_vtxdxyz[nTrackCand]/D");
-  thetree->Branch("TrackCand_charge",TrackCand_charge,"TrackCand_charge[nTrackCand]/D"); 
-  thetree->Branch("TrackCand_purity",TrackCand_purity,"TrackCand_purity[nTrackCand]/D");
-  thetree->Branch("TrackCand_nhits",TrackCand_nhits,"TrackCand_nhits[nTrackCand]/I");
-  thetree->Branch("TrackCand_chi2",TrackCand_chi2,"TrackCand_chi2[nTrackCand]/D");
-  thetree->Branch("TrackCand_ndof",TrackCand_ndof,"TrackCand_ndof[nTrackCand]/D");
+  thetree->Branch("nExtraTrackCand",&nExtraTrackCand,"nExtraTrackCand/I"); 
+  thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_py",TrackCand_py,"TrackCand_py[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_pz",TrackCand_pz,"TrackCand_pz[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_p",TrackCand_p,"TrackCand_p[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_pt",TrackCand_pt,"TrackCand_pt[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_eta",TrackCand_eta,"TrackCand_eta[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_vtxdxyz",TrackCand_vtxdxyz,"TrackCand_vtxdxyz[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_charge",TrackCand_charge,"TrackCand_charge[nExtraTrackCand]/D"); 
+  thetree->Branch("TrackCand_purity",TrackCand_purity,"TrackCand_purity[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_nhits",TrackCand_nhits,"TrackCand_nhits[nExtraTrackCand]/I");
+  thetree->Branch("TrackCand_chi2",TrackCand_chi2,"TrackCand_chi2[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_ndof",TrackCand_ndof,"TrackCand_ndof[nExtraTrackCand]/D");
 
-  thetree->Branch("TrackCand_vtxZ",TrackCand_vtxZ,"TrackCand_vtxZ[nTrackCand]/D");
-  thetree->Branch("TrackCand_vtxT",TrackCand_vtxT,"TrackCand_vtxT[nTrackCand]/D");
-  thetree->Branch("TrackCand_X",TrackCand_X,"TrackCand_X[nTrackCand]/D");
-  thetree->Branch("TrackCand_Y",TrackCand_Y,"TrackCand_Y[nTrackCand]/D");
-  thetree->Branch("TrackCand_Z",TrackCand_Z,"TrackCand_Z[nTrackCand]/D");
+  thetree->Branch("TrackCand_vtxZ",TrackCand_vtxZ,"TrackCand_vtxZ[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_vtxT",TrackCand_vtxT,"TrackCand_vtxT[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_X",TrackCand_X,"TrackCand_X[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_Y",TrackCand_Y,"TrackCand_Y[nExtraTrackCand]/D");
+  thetree->Branch("TrackCand_Z",TrackCand_Z,"TrackCand_Z[nExtraTrackCand]/D");
   thetree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D");
   thetree->Branch("ClosestHighPurityExtraTrack_vtxdxyz",&ClosestHighPurityExtraTrack_vtxdxyz,"ClosestHighPurityExtraTrack_vtxdxyz/D");
 
@@ -427,9 +415,6 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("MuE_extratracks3cm",&MuE_extratracks3cm,"MuE_extratracks3cm/I");
   thetree->Branch("MuE_extratracks5cm",&MuE_extratracks5cm,"MuE_extratracks5cm/I"); 
   thetree->Branch("MuE_extratracks10cm",&MuE_extratracks10cm,"MuE_extratracks10cm/I"); 
-
-  thetree->Branch("HitInZDC",&HitInZDC,"HitInZDC/I");
-  thetree->Branch("HitInCastor",&HitInCastor,"HitInCastor/I");
 
   thetree->Branch("nGenMuonCand",&nGenMuonCand,"nGenMuonCand/I");  
   thetree->Branch("GenMuonCand_px",GenMuonCand_px,"GenMuonCand_px[nGenMuonCand]/D");  
@@ -456,11 +441,15 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("Etmiss_z",&Etmiss_z,"Etmiss_z/D"); 
   thetree->Branch("Etmiss_significance",&Etmiss_significance,"Etmiss_significance/D"); 
 
-  thetree->Branch("HLT_Mu17Ele8",&HLT_Mu17Ele8,"HLT_Mu17Ele8/I");
-  thetree->Branch("HLT_Mu8Ele17",&HLT_Mu8Ele17,"HLT_Mu8Ele17/I");
+  thetree->Branch("HLT_Mu17Ele8L",&HLT_Mu17Ele8L,"HLT_Mu17Ele8L/I");
+  thetree->Branch("HLT_Mu8Ele17L",&HLT_Mu8Ele17L,"HLT_Mu8Ele17L/I");
+  thetree->Branch("HLT_Mu17Ele8T",&HLT_Mu17Ele8T,"HLT_Mu17Ele8T/I"); 
+  thetree->Branch("HLT_Mu8Ele17T",&HLT_Mu8Ele17T,"HLT_Mu8Ele17T/I"); 
   thetree->Branch("HLT_Mu10Ele10",&HLT_Mu10Ele10,"HLT_Mu10Ele10/I");
-  thetree->Branch("HLT_Mu17Ele8_Prescl",&HLT_Mu17Ele8_Prescl,"HLT_Mu17Ele8_Prescl/I"); 
-  thetree->Branch("HLT_Mu8Ele17_Prescl",&HLT_Mu8Ele17_Prescl,"HLT_Mu8Ele17_Prescl/I"); 
+  thetree->Branch("HLT_Mu17Ele8L_Prescl",&HLT_Mu17Ele8L_Prescl,"HLT_Mu17Ele8L_Prescl/I");  
+  thetree->Branch("HLT_Mu8Ele17L_Prescl",&HLT_Mu8Ele17L_Prescl,"HLT_Mu8Ele17L_Prescl/I");  
+  thetree->Branch("HLT_Mu17Ele8T_Prescl",&HLT_Mu17Ele8T_Prescl,"HLT_Mu17Ele8T_Prescl/I"); 
+  thetree->Branch("HLT_Mu8Ele17T_Prescl",&HLT_Mu8Ele17T_Prescl,"HLT_Mu8Ele17T_Prescl/I"); 
   thetree->Branch("HLT_Mu10Ele10_Prescl",&HLT_Mu10Ele10_Prescl,"HLT_Mu10Ele10_Prescl/I"); 
 
   thetree->Branch("Run",&Run,"Run/I");
@@ -483,9 +472,6 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("PrimVertexCand_mueTwoTracksMuIndex",&PrimVertexCand_mueTwoTracksMuIndex,"PrimVertexCand_mueTwoTracksMuIndex[nPrimVertexCand]/I");  
   thetree->Branch("PrimVertexCand_mueTwoTracksEleIndex",&PrimVertexCand_mueTwoTracksEleIndex,"PrimVertexCand_mueTwoTracksEleIndex[nPrimVertexCand]/I");   
 
-
-  thetree->Branch("LowPt_pt",LowPt_pt,"LowPt_pt[nMuonCand]/D");
-  thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
 
   thetree->Branch("nTruePUforPUWeight",&nTruePUforPUWeight,"nTruePUforPUWeight/I");
   thetree->Branch("nTruePUafterPUWeight",&nTruePUafterPUWeight,"nTruePUafterPUWeight/D");
@@ -537,20 +523,15 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   nHLTMu10Ele10MuonCand=0;
   nHLTMu17Ele8MuonCand=0;  
   nHLTMu8Ele17MuonCand=0;
-  nJetCand=0;
-  nCaloCand=0;
-  nTrackCand=0;
-  nQualityTrackCand=0;
-  nCastorTowerCand=0;
-  nCastorTowerCandE3=0;
-  nZDChitCand=0;
-  ZDCsumHADminus=0;
-  ZDCsumEMminus=0;
-  ZDCsumHADplus=0;
-  ZDCsumEMplus=0;
+  nHLTMu8Ele17EleTCand=0;
+  nHLTMu8Ele17EleLCand=0; 
+  nHLTMu17Ele8EleTCand=0; 
+  nHLTMu17Ele8EleLCand=0;  
 
-  HitInZDC=0;
-  HitInCastor=0;
+  nJetCand=0;
+  nExtraTrackCand=0;
+  nQualityTrackCand=0;
+  
   nGenMuonCand=0;
   nGenEleCand=0;
 
@@ -573,10 +554,18 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double mueprimvtxx = 0.0; 
   double mueprimvtxy = 0.0; 
   double mueprimvtxz = 0.0; 
+  mueVertexIndex = -999; 
+  maxMuEVertexTracks = 10; 
+
+  double highestejet = -1.0; 
+  double highestejeteta = -999.0; 
+  double highestejetphi = -999.0; 
+  double totalejet = -1.0; 
+  double closesttrkdxyz = 999.0; 
+  double closesthighpuritytrkdxyz = 999.0; 
+
 
   bool passed = true;
-  int LS = 0;
-  int LSopt = 0;
 
   nEvt++;
   using reco::TrackCollection;
@@ -637,34 +626,175 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  else
 	    HLT_Mu10Ele10 = 0;
         }  
-      if ( trigNames.triggerNames().at(i).find("HLT_Mu8_Ele17_") != string::npos) 
+      if ( trigNames.triggerNames().at(i).find("HLT_Mu8_Ele17_CaloIdL_") != string::npos) 
         {   
-          HLT_Mu8Ele17_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_Mu8Ele17");  
+          HLT_Mu8Ele17L_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_Mu8Ele17L");  
 
           if ( hltResults->accept(i) )  
-	    {HLT_Mu8Ele17 = 1;}
+	    {HLT_Mu8Ele17L = 1;}
 	  else
-	    HLT_Mu8Ele17 = 0;
+	    HLT_Mu8Ele17L = 0;
         }  
-      if ( trigNames.triggerNames().at(i).find("HLT_Mu17_Ele8_") != string::npos) 
+      if ( trigNames.triggerNames().at(i).find("HLT_Mu17_Ele8_CaloIdL_") != string::npos) 
         {   
-          HLT_Mu17Ele8_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_Mu17Ele8");   
+          HLT_Mu17Ele8L_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_Mu17Ele8L");   
 
           if ( hltResults->accept(i) )  
-	    {HLT_Mu17Ele8 = 1;}
+	    {HLT_Mu17Ele8L = 1;}
 	  else
-	    HLT_Mu17Ele8 = 0;
+	    HLT_Mu17Ele8L = 0;
         }  
+      if ( trigNames.triggerNames().at(i).find("HLT_Mu8_Ele17_CaloIdT_") != string::npos)  
+        {    
+          HLT_Mu8Ele17T_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_Mu8Ele17T");   
+ 
+          if ( hltResults->accept(i) )   
+            {HLT_Mu8Ele17T = 1;} 
+          else 
+            HLT_Mu8Ele17T = 0; 
+        }   
+      if ( trigNames.triggerNames().at(i).find("HLT_Mu17_Ele8_CaloIdT_") != string::npos)  
+        {    
+          HLT_Mu17Ele8T_Prescl = hltConfig_.prescaleValue(event, iSetup, "HLT_Mu17Ele8T");    
+ 
+          if ( hltResults->accept(i) )   
+            {HLT_Mu17Ele8T = 1;} 
+          else 
+            HLT_Mu17Ele8T = 0; 
+        }   
     }
 
   Handle<TriggerEvent> hltObjects;
   event.getByLabel(InputTag("hltTriggerSummaryAOD","",hltMenuLabel),hltObjects);
   if (hltObjects.isValid()) 
     {
-      size_type mu10ele10index = hltObjects->filterIndex(InputTag("hltL1Mu3EG5L3Filtered10::"+hltMenuLabel)); 
-      size_type mu8ele17index = hltObjects->filterIndex(InputTag("hltL1MuOpenEG5L3Filtered8::"+hltMenuLabel)); 
-      //size_type mu17ele8index = hltObjects->filterIndex(InputTag("hltL1MuOpenEG5L3Filtered17::"+hltMenuLabel)); 
+      // JH - data/set 1
+      size_type mu10ele10index = 
+	hltObjects->filterIndex(InputTag("hltL1Mu3EG5L3Filtered10::"+hltMenuLabel)); 
+      size_type mu8ele17index = 
+	hltObjects->filterIndex(InputTag("hltL1MuOpenEG5L3Filtered8::"+hltMenuLabel)); 
+      size_type mu17ele8index = 
+	hltObjects->filterIndex(InputTag("hltL1MuOpenEG5L3Filtered17::"+hltMenuLabel)); 
+      size_type mu17ele8eleTindex = 
+	hltObjects->filterIndex(InputTag("hltMu17Ele8CaloIdTPixelMatchFilter::"+hltMenuLabel));
+      size_type mu17ele8eleLindex = 
+	hltObjects->filterIndex(InputTag("hltL1NonIsoHLTNonIsoMu17Ele8PixelMatchFilter::"+hltMenuLabel)); 
+      size_type mu8ele17eleTindex = 
+	hltObjects->filterIndex(InputTag("hltMu8Ele17CaloIdTCaloIsoVLPixelMatchFilter::"+hltMenuLabel));    
+      size_type mu8ele17eleLindex = 
+	hltObjects->filterIndex(InputTag("hltL1NonIsoHLTNonIsoMu8Ele17PixelMatchFilter::"+hltMenuLabel));  
 
+      // JH - MC/set 2
+      size_type mu8ele17index2 = 
+	hltObjects->filterIndex(InputTag("hltL1MuOpenEG12L3Filtered8::"+hltMenuLabel));  
+      size_type mu17ele8index2 = 
+	hltObjects->filterIndex(InputTag("hltL1Mu7EG5L3MuFiltered17::"+hltMenuLabel));  
+      size_type mu17ele8eleTindex2 = 
+	hltObjects->filterIndex(InputTag("hltMu17Ele8CaloIdTPixelMatchFilter::"+hltMenuLabel)); 
+      size_type mu17ele8eleLindex2 = 
+	hltObjects->filterIndex(InputTag("hltL1NonIsoHLTNonIsoMu17Ele8PixelMatchFilter::"+hltMenuLabel));  
+      size_type mu8ele17eleTindex2 = 
+	hltObjects->filterIndex(InputTag("hltMu8Ele17CaloIdTCaloIsoVLPixelMatchFilter::"+hltMenuLabel));     
+      size_type mu8ele17eleLindex2 = 
+	hltObjects->filterIndex(InputTag("hltL1NonIsoHLTNonIsoMu8Ele17PixelMatchFilter::"+hltMenuLabel));   
+
+      // JH - data/set 1
+      if ( mu17ele8eleTindex < hltObjects->sizeFilters() )
+	{
+	  const trigger::Keys& MU17ELE8ELETKEYS(hltObjects->filterKeys(mu17ele8eleTindex)); 
+	  const size_type nK(MU17ELE8ELETKEYS.size()); 
+	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+	  for(int ipart = 0; ipart != nK; ++ipart)   
+	    {
+	      const TriggerObject& TO = TOC[MU17ELE8ELETKEYS[ipart]];  
+
+	      if(fabs(TO.id()) == 11 || fabs(TO.id()) == 0)
+		{
+		  HLT_Mu17Ele8_EleTCand_pt[nHLTMu17Ele8EleTCand] = TO.pt();
+		  HLT_Mu17Ele8_EleTCand_eta[nHLTMu17Ele8EleTCand] = TO.eta(); 
+		  HLT_Mu17Ele8_EleTCand_phi[nHLTMu17Ele8EleTCand] = TO.phi(); 
+		  if(TO.id() > 0)	  
+		    HLT_Mu17Ele8_EleTCand_charge[nHLTMu17Ele8EleTCand] = 1; 
+		  else
+		    HLT_Mu17Ele8_EleTCand_charge[nHLTMu17Ele8EleTCand] = -1;  
+		  
+		  nHLTMu17Ele8EleTCand++;
+		}
+	    }
+	}
+      if ( mu17ele8eleLindex < hltObjects->sizeFilters() )
+	{
+	  const trigger::Keys& MU17ELE8ELELKEYS(hltObjects->filterKeys(mu17ele8eleLindex)); 
+	  const size_type nK(MU17ELE8ELELKEYS.size()); 
+	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+	  for(int ipart = 0; ipart != nK; ++ipart)   
+	    {
+	      const TriggerObject& TO = TOC[MU17ELE8ELELKEYS[ipart]];  
+	      
+	      if(fabs(TO.id()) == 11 || fabs(TO.id()) == 0)
+		{
+		  HLT_Mu17Ele8_EleLCand_pt[nHLTMu17Ele8EleLCand] = TO.pt();
+		  HLT_Mu17Ele8_EleLCand_eta[nHLTMu17Ele8EleLCand] = TO.eta(); 
+		  HLT_Mu17Ele8_EleLCand_phi[nHLTMu17Ele8EleLCand] = TO.phi(); 
+		  if(TO.id() > 0)	  
+		    HLT_Mu17Ele8_EleLCand_charge[nHLTMu17Ele8EleLCand] = 1; 
+		  else
+		    HLT_Mu17Ele8_EleLCand_charge[nHLTMu17Ele8EleLCand] = -1;  
+		  
+		  nHLTMu17Ele8EleLCand++;
+		}
+	    }
+	}
+      if ( mu8ele17eleTindex < hltObjects->sizeFilters() )
+	{
+	  const trigger::Keys& MU8ELE17ELETKEYS(hltObjects->filterKeys(mu8ele17eleTindex)); 
+	  const size_type nK(MU8ELE17ELETKEYS.size()); 
+	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+	  for(int ipart = 0; ipart != nK; ++ipart)   
+	    {
+	      const TriggerObject& TO = TOC[MU8ELE17ELETKEYS[ipart]];  
+	      
+	      if(fabs(TO.id()) == 11 || fabs(TO.id()) == 0)
+		{
+		  HLT_Mu8Ele17_EleTCand_pt[nHLTMu8Ele17EleTCand] = TO.pt();
+		  HLT_Mu8Ele17_EleTCand_eta[nHLTMu8Ele17EleTCand] = TO.eta(); 
+		  HLT_Mu8Ele17_EleTCand_phi[nHLTMu8Ele17EleTCand] = TO.phi(); 
+		  if(TO.id() > 0)	  
+		    HLT_Mu8Ele17_EleTCand_charge[nHLTMu8Ele17EleTCand] = 1; 
+		  else
+		    HLT_Mu8Ele17_EleTCand_charge[nHLTMu8Ele17EleTCand] = -1;  
+		  
+		  nHLTMu8Ele17EleTCand++;
+		}
+	    }
+	}
+      if ( mu8ele17eleLindex < hltObjects->sizeFilters() )
+	{
+	  const trigger::Keys& MU8ELE17ELELKEYS(hltObjects->filterKeys(mu8ele17eleLindex)); 
+	  const size_type nK(MU8ELE17ELELKEYS.size()); 
+	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+	  for(int ipart = 0; ipart != nK; ++ipart)   
+	    {
+	      const TriggerObject& TO = TOC[MU8ELE17ELELKEYS[ipart]];  
+	      
+	      if(fabs(TO.id()) == 11 || fabs(TO.id()) == 0)
+		{
+		  HLT_Mu8Ele17_EleLCand_pt[nHLTMu8Ele17EleLCand] = TO.pt();
+		  HLT_Mu8Ele17_EleLCand_eta[nHLTMu8Ele17EleLCand] = TO.eta(); 
+		  HLT_Mu8Ele17_EleLCand_phi[nHLTMu8Ele17EleLCand] = TO.phi(); 
+		  if(TO.id() > 0)	  
+		    HLT_Mu8Ele17_EleLCand_charge[nHLTMu8Ele17EleLCand] = 1; 
+		  else
+		    HLT_Mu8Ele17_EleLCand_charge[nHLTMu8Ele17EleLCand] = -1;  
+		  
+		  nHLTMu8Ele17EleLCand++;
+		}
+	    }
+	}
       if( mu8ele17index < hltObjects->sizeFilters() )
 	{
 	  const trigger::Keys& MU8ELE17KEYS(hltObjects->filterKeys(mu8ele17index)); 
@@ -675,7 +805,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	    {
 	      const TriggerObject& TO = TOC[MU8ELE17KEYS[ipart]];  
 	      
-	      if(fabs(TO.id()) == 13)
+	      if(fabs(TO.id()) == 13 || fabs(TO.id()) == 0)
 		{
 		  HLT_Mu8Ele17_MuonCand_pt[nHLTMu8Ele17MuonCand] = TO.pt();
 		  HLT_Mu8Ele17_MuonCand_eta[nHLTMu8Ele17MuonCand] = TO.eta(); 
@@ -689,17 +819,17 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		}
 	    }
 	}
-      if( mu8ele17index < hltObjects->sizeFilters() )
+      if( mu17ele8index < hltObjects->sizeFilters() )
 	{
-	  const trigger::Keys& MU8ELE17KEYS(hltObjects->filterKeys(mu8ele17index)); 
-	  const size_type nK(MU8ELE17KEYS.size()); 
+	  const trigger::Keys& MU17ELE8KEYS(hltObjects->filterKeys(mu17ele8index)); 
+	  const size_type nK(MU17ELE8KEYS.size()); 
 	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
 
 	  for(int ipart = 0; ipart != nK; ++ipart)   
 	    {
-	      const TriggerObject& TO = TOC[MU8ELE17KEYS[ipart]];  
-	      
-	      if(fabs(TO.id()) == 13)
+	      const TriggerObject& TO = TOC[MU17ELE8KEYS[ipart]];  
+
+	      if(fabs(TO.id()) == 13 || fabs(TO.id()) == 0)
 		{
 		  HLT_Mu17Ele8_MuonCand_pt[nHLTMu17Ele8MuonCand] = TO.pt();
 		  HLT_Mu17Ele8_MuonCand_eta[nHLTMu17Ele8MuonCand] = TO.eta(); 
@@ -713,6 +843,152 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 		}
 	    }
 	}
+      // JH - set 2
+      if ( mu17ele8eleTindex2 < hltObjects->sizeFilters() )
+	{
+	  const trigger::Keys& MU17ELE8ELETKEYS(hltObjects->filterKeys(mu17ele8eleTindex2)); 
+	  const size_type nK(MU17ELE8ELETKEYS.size()); 
+	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+	  for(int ipart = 0; ipart != nK; ++ipart)   
+	    {
+	      const TriggerObject& TO = TOC[MU17ELE8ELETKEYS[ipart]];  
+
+	      if(fabs(TO.id()) == 11 || fabs(TO.id()) == 0)
+		{
+		  HLT_Mu17Ele8_EleTCand_pt[nHLTMu17Ele8EleTCand] = TO.pt();
+		  HLT_Mu17Ele8_EleTCand_eta[nHLTMu17Ele8EleTCand] = TO.eta(); 
+		  HLT_Mu17Ele8_EleTCand_phi[nHLTMu17Ele8EleTCand] = TO.phi(); 
+		  if(TO.id() > 0)	  
+		    HLT_Mu17Ele8_EleTCand_charge[nHLTMu17Ele8EleTCand] = 1; 
+		  else
+		    HLT_Mu17Ele8_EleTCand_charge[nHLTMu17Ele8EleTCand] = -1;  
+		  
+		  nHLTMu17Ele8EleTCand++;
+		}
+	    }
+	}
+      if ( mu17ele8eleLindex2 < hltObjects->sizeFilters() )
+	{
+	  const trigger::Keys& MU17ELE8ELELKEYS(hltObjects->filterKeys(mu17ele8eleLindex2)); 
+	  const size_type nK(MU17ELE8ELELKEYS.size()); 
+	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+	  for(int ipart = 0; ipart != nK; ++ipart)   
+	    {
+	      const TriggerObject& TO = TOC[MU17ELE8ELELKEYS[ipart]];  
+	      
+	      if(fabs(TO.id()) == 11 || fabs(TO.id()) == 0)
+		{
+		  HLT_Mu17Ele8_EleLCand_pt[nHLTMu17Ele8EleLCand] = TO.pt();
+		  HLT_Mu17Ele8_EleLCand_eta[nHLTMu17Ele8EleLCand] = TO.eta(); 
+		  HLT_Mu17Ele8_EleLCand_phi[nHLTMu17Ele8EleLCand] = TO.phi(); 
+		  if(TO.id() > 0)	  
+		    HLT_Mu17Ele8_EleLCand_charge[nHLTMu17Ele8EleLCand] = 1; 
+		  else
+		    HLT_Mu17Ele8_EleLCand_charge[nHLTMu17Ele8EleLCand] = -1;  
+		  
+		  nHLTMu17Ele8EleLCand++;
+		}
+	    }
+	}
+      if ( mu8ele17eleTindex2 < hltObjects->sizeFilters() )
+	{
+	  const trigger::Keys& MU8ELE17ELETKEYS(hltObjects->filterKeys(mu8ele17eleTindex2)); 
+	  const size_type nK(MU8ELE17ELETKEYS.size()); 
+	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+	  for(int ipart = 0; ipart != nK; ++ipart)   
+	    {
+	      const TriggerObject& TO = TOC[MU8ELE17ELETKEYS[ipart]];  
+	      
+	      if(fabs(TO.id()) == 11 || fabs(TO.id()) == 0)
+		{
+		  HLT_Mu8Ele17_EleTCand_pt[nHLTMu8Ele17EleTCand] = TO.pt();
+		  HLT_Mu8Ele17_EleTCand_eta[nHLTMu8Ele17EleTCand] = TO.eta(); 
+		  HLT_Mu8Ele17_EleTCand_phi[nHLTMu8Ele17EleTCand] = TO.phi(); 
+		  if(TO.id() > 0)	  
+		    HLT_Mu8Ele17_EleTCand_charge[nHLTMu8Ele17EleTCand] = 1; 
+		  else
+		    HLT_Mu8Ele17_EleTCand_charge[nHLTMu8Ele17EleTCand] = -1;  
+		  
+		  nHLTMu8Ele17EleTCand++;
+		}
+	    }
+	}
+      if ( mu8ele17eleLindex2 < hltObjects->sizeFilters() )
+	{
+	  const trigger::Keys& MU8ELE17ELELKEYS(hltObjects->filterKeys(mu8ele17eleLindex2)); 
+	  const size_type nK(MU8ELE17ELELKEYS.size()); 
+	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+	  for(int ipart = 0; ipart != nK; ++ipart)   
+	    {
+	      const TriggerObject& TO = TOC[MU8ELE17ELELKEYS[ipart]];  
+	      
+	      if(fabs(TO.id()) == 11 || fabs(TO.id()) == 0)
+		{
+		  HLT_Mu8Ele17_EleLCand_pt[nHLTMu8Ele17EleLCand] = TO.pt();
+		  HLT_Mu8Ele17_EleLCand_eta[nHLTMu8Ele17EleLCand] = TO.eta(); 
+		  HLT_Mu8Ele17_EleLCand_phi[nHLTMu8Ele17EleLCand] = TO.phi(); 
+		  if(TO.id() > 0)	  
+		    HLT_Mu8Ele17_EleLCand_charge[nHLTMu8Ele17EleLCand] = 1; 
+		  else
+		    HLT_Mu8Ele17_EleLCand_charge[nHLTMu8Ele17EleLCand] = -1;  
+		  
+		  nHLTMu8Ele17EleLCand++;
+		}
+	    }
+	}
+      if( mu8ele17index2 < hltObjects->sizeFilters() )
+	{
+	  const trigger::Keys& MU8ELE17KEYS(hltObjects->filterKeys(mu8ele17index2)); 
+	  const size_type nK(MU8ELE17KEYS.size()); 
+	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+	  for(int ipart = 0; ipart != nK; ++ipart)   
+	    {
+	      const TriggerObject& TO = TOC[MU8ELE17KEYS[ipart]];  
+	      
+	      if(fabs(TO.id()) == 13 || fabs(TO.id()) == 0)
+		{
+		  HLT_Mu8Ele17_MuonCand_pt[nHLTMu8Ele17MuonCand] = TO.pt();
+		  HLT_Mu8Ele17_MuonCand_eta[nHLTMu8Ele17MuonCand] = TO.eta(); 
+		  HLT_Mu8Ele17_MuonCand_phi[nHLTMu8Ele17MuonCand] = TO.phi(); 
+		  if(TO.id() > 0)	  
+		    HLT_Mu8Ele17_MuonCand_charge[nHLTMu8Ele17MuonCand] = 1; 
+		  else
+		    HLT_Mu8Ele17_MuonCand_charge[nHLTMu8Ele17MuonCand] = -1;  
+		  
+		  nHLTMu8Ele17MuonCand++;
+		}
+	    }
+	}
+      if( mu17ele8index2 < hltObjects->sizeFilters() )
+	{
+	  const trigger::Keys& MU17ELE8KEYS(hltObjects->filterKeys(mu17ele8index2)); 
+	  const size_type nK(MU17ELE8KEYS.size()); 
+	  const TriggerObjectCollection& TOC(hltObjects->getObjects());
+
+	  for(int ipart = 0; ipart != nK; ++ipart)   
+	    {
+	      const TriggerObject& TO = TOC[MU17ELE8KEYS[ipart]];  
+
+	      if(fabs(TO.id()) == 13 || fabs(TO.id()) == 0)
+		{
+		  HLT_Mu17Ele8_MuonCand_pt[nHLTMu17Ele8MuonCand] = TO.pt();
+		  HLT_Mu17Ele8_MuonCand_eta[nHLTMu17Ele8MuonCand] = TO.eta(); 
+		  HLT_Mu17Ele8_MuonCand_phi[nHLTMu17Ele8MuonCand] = TO.phi(); 
+		  if(TO.id() > 0)	  
+		    HLT_Mu17Ele8_MuonCand_charge[nHLTMu17Ele8MuonCand] = 1; 
+		  else
+		    HLT_Mu17Ele8_MuonCand_charge[nHLTMu17Ele8MuonCand] = -1;  
+		  
+		  nHLTMu17Ele8MuonCand++;
+		}
+	    }
+	}
+      // JH - obsolete
       if( mu10ele10index < hltObjects->sizeFilters() ) 
 	{
           const trigger::Keys& MU10ELE10KEYS(hltObjects->filterKeys(mu10ele10index));  
@@ -761,15 +1037,16 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   std::vector<PileupSummaryInfo>::const_iterator PVI;
 
-  float sum_nvtx = 0.0;
-  float sum_nvtxbxm1 = 0.0;
-  float sum_nvtxbxp1 = 0.0;
-  float sum_nvtxbx0 = 0.0;
-  int npv = -1;
-  int npvtrue = -1;
-  int npvm1true = -1;
-  int npvp1true = -1;
-  int npv0true = -1;
+  int sum_nvtx = 0;
+  //  float sum_nvtxbxm1 = 0.0;
+  //  float sum_nvtxbxp1 = 0.0;
+  //  float sum_nvtxbx0 = 0.0;
+  int npv = 0;
+  int npvtrue = 0;
+  int npvm1true = 0;
+  int npvp1true = 0;
+  int npv0true = 0;
+  int npv0 = 0;
 
   for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
 
@@ -778,23 +1055,44 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     npv = PVI->getPU_NumInteractions();
     npvtrue = PVI->getTrueNumInteractions();
 
-    sum_nvtx += float(npvtrue);
+    sum_nvtx += npvtrue;
     if(BX == -1)
-      npvm1true+=float(npvtrue);
+      npvm1true+=npvtrue;
     if(BX == 0)
-      npv0true+=float(npvtrue);
+      {
+	npv0+=npv;
+	npv0true+=npvtrue;
+      }
     if(BX == 1)
-      npvp1true+=float(npvtrue);
+      npvp1true+=npvtrue;
   }
 
   nTruePUforPUWeightBX0 = npv0true;
 
-  /*
+  /* JH - leave commented
   LumiWeights->weight3D_init(1.0);
   */
+
   const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
   Weight3D = LumiWeights->weight3D(*iEventB);
-  outdebug << Weight3D << endl;
+
+  //  Weight3D = LumiWeights->weight(*iEventB);
+  //  std::cout << "\tJH: analyzer sees weight =  " << Weight3D << " for event with " 
+  //	    << nTruePUforPUWeightBX0 << " (" << npv << ") true (recoed) interactions in BX0" << std::endl;
+  //  outdebug << Weight3D << endl;
+
+  // Get the track collection from the event 
+  edm::Handle<reco::TrackCollection> recoTracks; 
+  event.getByLabel(recTrackLabel, recoTracks); 
+  const TrackCollection* tracks = recoTracks.product(); 
+  TrackCollection::const_iterator track; 
+ 
+  // Get the vertex collection from the event 
+  edm::Handle<reco::VertexCollection> recoVertexs; 
+  event.getByLabel(recVertexLabel, recoVertexs); 
+  const VertexCollection* vertexs = recoVertexs.product(); 
+  VertexCollection::const_iterator vertex_i; 
+
 
   // Get the muon collection from the event
   // PAT
@@ -840,14 +1138,6 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       MuonCand_istracker[nMuonCand]=muon->isTrackerMuon(); 
       MuonCand_isstandalone[nMuonCand]=muon->isStandAloneMuon();
       
-      if(!(muon::isGoodMuon(*muon, muon::TMLastStationLoose)) && (muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose))){	  
-	LowPt_eta[nMuonCand]=muon->eta();
-	LowPt_pt[nMuonCand]=muon->pt();
-      }else{  LowPt_eta[nMuonCand]=10.;
-	LowPt_pt[nMuonCand]=-1.;}
-      
-      if(muon::isGoodMuon(*muon, muon::TMLastStationLoose)) LS++;
-      if(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose)) LSopt++;
       
       // Isolation 
       MuonCand_hcalisor3[nMuonCand]=muon->isolationR03().hadEt;
@@ -911,6 +1201,32 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   event.getByLabel(thePixelGsfELabel,electrons); 
   edm::View<pat::Electron>::const_iterator electron;
 
+  // RECO electrons 
+  edm::Handle<reco::GsfElectronCollection> els_h; 
+  event.getByLabel(InputTag("gsfElectrons"), els_h); 
+
+
+  // New 2012 electron ID variables
+  // conversions 
+  edm::Handle<reco::ConversionCollection> conversions_h; 
+  event.getByLabel(conversionsInputTag, conversions_h); 
+
+  // beam spot 
+  edm::Handle<reco::BeamSpot> beamspot_h; 
+  event.getByLabel(beamSpotInputTag, beamspot_h); 
+  const reco::BeamSpot &beamSpot = *(beamspot_h.product()); 
+
+  // iso deposits 
+  IsoDepositVals isoVals(isoValInputTags.size()); 
+  for (size_t j = 0; j < isoValInputTags.size(); ++j) { 
+    event.getByLabel(isoValInputTags[j], isoVals[j]); 
+  } 
+
+  // rho for isolation 
+  edm::Handle<double> rhoIso_h; 
+  event.getByLabel(rhoIsoInputTag, rhoIso_h); 
+  double rhoIso = *(rhoIso_h.product()); 
+
   for ( electron = electrons->begin(); electron != electrons->end() && nEleCand<ELEMAX; ++electron )
     {
 	  EleCand_e[nEleCand]=electron->energy();
@@ -971,7 +1287,9 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  const float cut_EE_HoverE        = 0.025;
 
 	  EleCand_wp80[nEleCand] = 0;
+	  EleCand_mediumID[nEleCand] = 0;
 	  bool select = true;
+	  bool selectmedium = false;
 	  if( !(electron->ecalDrivenSeed()==1) )  select = false; 
 	  if(EleCand_convDist[nEleCand]<MIN_Dist && EleCand_convDcot[nEleCand]<MIN_Dcot) select = false;
 	  if(electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits()>MAX_MissingHits) select = false;
@@ -1000,6 +1318,19 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  if(select == true)
 	    EleCand_wp80[nEleCand] = 1; 
 
+	  // get reference to electron 
+	  reco::GsfElectronRef ele(els_h, nEleCand); 
+
+	  double iso_ch =  (*(isoVals)[0])[ele]; 
+	  double iso_em = (*(isoVals)[1])[ele]; 
+	  double iso_nh = (*(isoVals)[2])[ele]; 
+
+	  if(PassTriggerCuts(EgammaCutBasedEleId::TRIGGERTIGHT, ele) == true)
+	    selectmedium = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, recoVertexs, iso_ch, iso_em, iso_nh, rhoIso); 
+
+	  if(selectmedium == true)
+	    EleCand_mediumID[nEleCand] = 1;
+
 	  nEleCand++;
     }	
 
@@ -1008,12 +1339,14 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   bool found_muevertex(false);
   MuEPairCand[0]=0; MuEPairCand[1]=0;
   
+  /*
   if(nMuonCand == 1 && nEleCand == 1)
     {
       if((MuonCand_charge[0]*EleCand_charge[0]<0) || (keepsamesign == true)) found_pair=true;
     }
+  */
 
-  if(nMuonCand+nEleCand>2)
+  if((nMuonCand+nEleCand)>=2)
     {
     double minimal_distance(999); 
     for(int k=0; k<nMuonCand; k++)
@@ -1087,24 +1420,6 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   const reco::PFMETCollection* mets = pMET.product(); 
   reco::PFMETCollection::const_iterator met; 
 
-  // Get the CaloTower collection from the event
-  edm::Handle<CaloTowerCollection> caloTowers; 
-  event.getByLabel(theCaloTowLabel,caloTowers); 
-  const CaloTowerCollection* towers = caloTowers.product(); 
-  CaloTowerCollection::const_iterator calo; 
-
-  // Get the track collection from the event
-  edm::Handle<reco::TrackCollection> recoTracks;
-  event.getByLabel(recTrackLabel, recoTracks);
-  const TrackCollection* tracks = recoTracks.product();
-  TrackCollection::const_iterator track;
-
-  // Get the vertex collection from the event
-  edm::Handle<reco::VertexCollection> recoVertexs;
-  event.getByLabel(recVertexLabel, recoVertexs);
-  const VertexCollection* vertexs = recoVertexs.product();
-  VertexCollection::const_iterator vertex_i;
-
   for (vertex_i = vertexs->begin(); vertex_i != vertexs->end(); vertex_i++){
     PrimVertexCand_x[nPrimVertexCand] = vertex_i->x();
     PrimVertexCand_y[nPrimVertexCand] = vertex_i->y();
@@ -1113,8 +1428,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     PrimVertexCand_chi2[nPrimVertexCand] = vertex_i->chi2();
     PrimVertexCand_ndof[nPrimVertexCand] = vertex_i->ndof();
 
-    // Now check if a primary vertex is consistent with having exactly 2 muons 
-    // and no other tracks
+    // Now check if a primary vertex is consistent with having exactly 1 muon+electron 
 
     int track_match_lepton=0;
     PrimVertexCand_mueTwoTracks[nPrimVertexCand] = 0;
@@ -1122,19 +1436,43 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     PrimVertexCand_mueTwoTracksMuIndex[nPrimVertexCand] = -1;
     PrimVertexCand_mueTwoTracksEleIndex[nPrimVertexCand] = -1; 
 
+    //    cout << "Vertex " << nPrimVertexCand << " with " << PrimVertexCand_tracks[nPrimVertexCand] << " tracks" << endl;
+
     // Uncomment for keeping background events
     if((PrimVertexCand_tracks[nPrimVertexCand] >= 2) && found_pair)
     //    if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && found_pair) 
       {
         for (reco::Vertex::trackRef_iterator vertex_curTrack = vertex_i->tracks_begin(); vertex_curTrack!=vertex_i->tracks_end(); vertex_curTrack++) {
-	  //		if( (fabs((*vertex_curTrack)->pt()-MuonCand_pt[MuEPairCand[0]])<1.e-6   || fabs((*vertex_curTrack)->pt()-EleCandTrack_pt[MuEPairCand[1]])<1.e2) &&
-	  if( (fabs((*vertex_curTrack)->p()-MuonCandTrack_p[MuEPairCand[0]])<1.e-2   || fabs((*vertex_curTrack)->pt()-EleCandTrack_pt[MuEPairCand[1]])<1.e2) &&
-	      (fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuEPairCand[0]])<1.e-2 || fabs((*vertex_curTrack)->eta()-EleCandTrack_eta[MuEPairCand[1]])<1.e-1) &&
-	      (fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuEPairCand[0]])<1.e-2 || fabs((*vertex_curTrack)->phi()-EleCandTrack_phi[MuEPairCand[1]])<1.e-1)
-	      ) track_match_lepton++;
+	  //	  cout << "\t\t\tTrack eta = " << (*vertex_curTrack)->eta()  
+	  //	       << ", phi = " << (*vertex_curTrack)->phi()  
+	  //	       << ", pT = " << (*vertex_curTrack)->pt() << endl; 
+	  //	  cout << "\t\t\tMuon eta = " << MuonCand_eta[MuEPairCand[0]]  
+	  //	       << ", phi = " << MuonCand_phi[MuEPairCand[0]] 
+	  //	       << ", pT = " << MuonCand_pt[MuEPairCand[0]] << endl; 
+	  //	  cout << "\t\t\tElectron eta = " << EleCandTrack_eta[MuEPairCand[1]] 
+	  //	       << ", phi = " << EleCandTrack_phi[MuEPairCand[1]]  
+	  //	       << ", pT = " << EleCandTrack_pt[MuEPairCand[1]] << endl;  
+
+	  //	  if( (fabs((*vertex_curTrack)->pt()-MuonCand_pt[MuEPairCand[0]])<1.e-6 || 
+	  //	       fabs((*vertex_curTrack)->pt()-EleCandTrack_pt[MuEPairCand[1]])<1.e2) &&
+	  if( (fabs((*vertex_curTrack)->p()-MuonCandTrack_p[MuEPairCand[0]])<1.e-2   || 
+	       fabs((*vertex_curTrack)->pt()-EleCandTrack_pt[MuEPairCand[1]])<1.e2) &&
+	      (fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuEPairCand[0]])<1.e-2 || 
+	       fabs((*vertex_curTrack)->eta()-EleCandTrack_eta[MuEPairCand[1]])<1.e-1) &&
+	      (fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuEPairCand[0]])<1.e-2 || 
+	       fabs((*vertex_curTrack)->phi()-EleCandTrack_phi[MuEPairCand[1]])<1.e-1)
+	      ) 
+	    {
+	      track_match_lepton++;
+	      //	      cout << "\t\t\ttrack_match_lepton = " << track_match_lepton << endl;
+	    }
 	}
     }
     
+    //    cout << "\tnMuonCand = " << nMuonCand << endl
+    //	 << "\tnEleCand = " << nEleCand << endl;
+    //    cout << "\ttrack_match_lepton = " << track_match_lepton << endl;
+
     // Uncomment for keeping background events
     if((PrimVertexCand_tracks[nPrimVertexCand] >= 2) && found_pair && track_match_lepton>=2)
     //    if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && found_pair && track_match_lepton==2)
@@ -1142,6 +1480,9 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	PrimVertexCand_mueTwoTracks[nPrimVertexCand] = 1;
         PrimVertexCand_mueTwoTracksMuIndex[nPrimVertexCand] = MuEPairCand[0]; 
         PrimVertexCand_mueTwoTracksEleIndex[nPrimVertexCand] = MuEPairCand[1]; 
+	//	cout << "\tfound_pair && track_match_lepton>=2 on vertex " << nPrimVertexCand << endl;
+	mueVertexIndex = nPrimVertexCand;
+	//	cout << "\t\t=> mueVertexIndex = " << mueVertexIndex << endl;
 
 	mueprimvtxx = PrimVertexCand_x[nPrimVertexCand];
 	mueprimvtxy = PrimVertexCand_y[nPrimVertexCand]; 
@@ -1151,38 +1492,100 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	if((PrimVertexCand_tracks[nPrimVertexCand] == 2) && track_match_lepton==2)
 	  PrimVertexCand_mueExactlyTwoTracks[nPrimVertexCand] = 1; 
 
+        for (reco::Vertex::trackRef_iterator vertex_curTrack = vertex_i->tracks_begin(); 
+	     vertex_curTrack!=vertex_i->tracks_end(); 
+	     vertex_curTrack++) { 
+
+	  //	  cout << "\t\tIterating on track from vertex" << endl;
+
+	  if(((*vertex_curTrack)->p() == MuonCandTrack_p[MuEPairCand[0]]) || 
+	     ((*vertex_curTrack)->p() == MuonCandTrack_p[MuEPairCand[1]])) continue; 
+	  if(((*vertex_curTrack)->p() == EleCandTrack_p[MuEPairCand[0]]) || 
+	     ((*vertex_curTrack)->p() == EleCandTrack_p[MuEPairCand[1]])) continue;  
+
+          if( (fabs((*vertex_curTrack)->p()-MuonCandTrack_p[MuEPairCand[0]])<1.e-2   ||  
+               fabs((*vertex_curTrack)->pt()-EleCandTrack_pt[MuEPairCand[1]])<1.e2) && 
+              (fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuEPairCand[0]])<1.e-2 ||  
+               fabs((*vertex_curTrack)->eta()-EleCandTrack_eta[MuEPairCand[1]])<1.e-1) && 
+              (fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuEPairCand[0]])<1.e-2 ||  
+               fabs((*vertex_curTrack)->phi()-EleCandTrack_phi[MuEPairCand[1]])<1.e-1) 
+              )
+	    continue;
+ 
+	  TrackCand_purity[nExtraTrackCand]=(*vertex_curTrack)->quality(TrackBase::highPurity);  
+	  TrackCand_p[nExtraTrackCand]=(*vertex_curTrack)->p();  
+	  TrackCand_px[nExtraTrackCand]=(*vertex_curTrack)->px();  
+	  TrackCand_py[nExtraTrackCand]=(*vertex_curTrack)->py();  
+	  TrackCand_pz[nExtraTrackCand]=(*vertex_curTrack)->pz();  
+	  TrackCand_pt[nExtraTrackCand]=(*vertex_curTrack)->pt();  
+	  TrackCand_eta[nExtraTrackCand]=(*vertex_curTrack)->eta();  
+	  TrackCand_phi[nExtraTrackCand]=(*vertex_curTrack)->phi();  
+	  TrackCand_charge[nExtraTrackCand]=(*vertex_curTrack)->charge(); 
+	  TrackCand_nhits[nExtraTrackCand]=(*vertex_curTrack)->numberOfValidHits(); 
+	  TrackCand_chi2[nExtraTrackCand]=(*vertex_curTrack)->chi2(); 
+	  TrackCand_ndof[nExtraTrackCand]=(*vertex_curTrack)->ndof(); 
+	  TrackCand_vtxdxyz[nExtraTrackCand] = 
+	    sqrt((((*vertex_curTrack)->vertex().x() - mueprimvtxx)*((*vertex_curTrack)->vertex().x() - mueprimvtxx)) +  
+		 (((*vertex_curTrack)->vertex().y() - mueprimvtxy)*((*vertex_curTrack)->vertex().y() - mueprimvtxy)) + 
+		 (((*vertex_curTrack)->vertex().z() - mueprimvtxz)*((*vertex_curTrack)->vertex().z() - mueprimvtxz))); 
+	  TrackCand_vtxT[nExtraTrackCand] = 
+	    sqrt((((*vertex_curTrack)->vertex().x() - mueprimvtxx)*((*vertex_curTrack)->vertex().x() - mueprimvtxx)) + 
+		 (((*vertex_curTrack)->vertex().y() - mueprimvtxy)*((*vertex_curTrack)->vertex().y() - mueprimvtxy))); 
+	  TrackCand_vtxZ[nExtraTrackCand] = 
+	    sqrt((((*vertex_curTrack)->vertex().z() - mueprimvtxz)*((*vertex_curTrack)->vertex().z() - mueprimvtxz))); 
+	  TrackCand_X[nExtraTrackCand] = (*vertex_curTrack)->vertex().x(); 
+	  TrackCand_Y[nExtraTrackCand] = (*vertex_curTrack)->vertex().y(); 
+	  TrackCand_Z[nExtraTrackCand] = (*vertex_curTrack)->vertex().z(); 
+
+	  if((TrackCand_purity[nExtraTrackCand] == 1) && (TrackCand_nhits[nExtraTrackCand] >= 3)) 
+	    nQualityTrackCand++; 
+       
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.1) 
+	    MuE_extratracks1mm++; 
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.2)  
+	    MuE_extratracks2mm++;  
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.3) 
+	    MuE_extratracks3mm++; 
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.4)  
+	    MuE_extratracks4mm++;  
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 0.5)  
+	    MuE_extratracks5mm++;  
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 1)  
+	    MuE_extratracks1cm++;  
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 3) 
+	    MuE_extratracks3cm++; 
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 5)  
+	    MuE_extratracks5cm++;  
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < 10)  
+	    MuE_extratracks10cm++;  
+	  if(TrackCand_vtxdxyz[nExtraTrackCand] < closesttrkdxyz) 
+	    closesttrkdxyz = TrackCand_vtxdxyz[nExtraTrackCand]; 
+	  if((TrackCand_vtxdxyz[nExtraTrackCand] < closesthighpuritytrkdxyz) &&  
+	     (TrackCand_purity[nExtraTrackCand] == 1) &&  
+	     (TrackCand_nhits[nExtraTrackCand] >= 3)) 
+	    closesthighpuritytrkdxyz = TrackCand_vtxdxyz[nExtraTrackCand]; 
+       
+	  //	  cout << "\t\tN(extra tracks) = " << nExtraTrackCand << endl; 
+	  nExtraTrackCand++;   
+	}
+	ClosestExtraTrack_vtxdxyz = closesttrkdxyz; 
+	ClosestHighPurityExtraTrack_vtxdxyz = closesthighpuritytrkdxyz; 
     }
     nPrimVertexCand++;
   }
 
-
-  // Get the CASTOR towers collection from the event 
-  edm::Handle<reco::CastorTowerCollection> recoCastorTowers;  
-  event.getByLabel(recCastorTowerLabel, recoCastorTowers);  
-
-  // Get the ZDC rechits collection from the event
+  //  cout << "\tFinal N(extra tracks) = " << nExtraTrackCand << endl;
+  //  cout << "\tN(extra tracks on mueVertexIndex = " << PrimVertexCand_tracks[mueVertexIndex]-2 << endl;
+  //  cout << "\tmue vertex index = " << mueVertexIndex << endl;
 
   // Get the PFlow collection from the event
   edm::Handle<reco::PFCandidateCollection> pflows;
   event.getByLabel("particleFlow",pflows);
   reco::PFCandidateCollection::const_iterator pflow;
 
-  double highestejet = -1.0;
-  double highestejeteta = -999.0;
-  double highestejetphi = -999.0;
-  double totalejet = -1.0;
-  double highestcastortowerfwd = -999.0; 
-  double highestcastortowerbwd = -999.0; 
-  double totalecastorfwd = 0.0;
-  double totalecastorbwd = 0.0;
-  double totalecalo = -1.0; 
-  double closesttrkdxyz = 999.0;
-  double closesthighpuritytrkdxyz = 999.0;
-
   // If this event contains a di-mu/e/gamma candidate, look at Jets & MET & CaloTowers & Tracks
   if(nMuonCand >= 1 && nEleCand >= 1)
     {
-      if(0){
       for ( jet = jets->begin(); jet != jets->end() && nJetCand<JETMAX; ++jet )
 	{
 	  JetCand_e[nJetCand]=jet->energy();
@@ -1213,113 +1616,8 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       Etmiss_y = met->py();
       Etmiss_z = met->pz();
       Etmiss_significance = met->significance();
-      for (calo = towers->begin(); calo != towers->end(); ++calo )
-	{
-	  CaloTower_e[nCaloCand]=calo->energy();
-	  CaloTower_et[nCaloCand]=calo->et();
-	  CaloTower_phi[nCaloCand]=calo->phi(); 
-	  CaloTower_eta[nCaloCand]=calo->eta(); 
-	  CaloTower_emE[nCaloCand]=calo->emEnergy();
-	  CaloTower_hadE[nCaloCand]=calo->hadEnergy();  //hcal
-	  CaloTower_outE[nCaloCand]=calo->outerEnergy(); //ho
-	  GlobalPoint emPosition=calo->emPosition();
-          GlobalPoint hadPosition=calo->hadPosition();
-	  CaloTowerDetId idTower=calo->id();
-	  
-	  size_t numRecHits = calo->constituentsSize();
-	  bool isEB(false),isEE(false),isHB(false),isHE(false),isHF(false),isHO(false);
-	  for (size_t j = 0; j < numRecHits; j++) {
-	    DetId RecHitDetID=calo->constituent(j);
-	    DetId::Detector DetNum=RecHitDetID.det();
-	    if( DetNum == DetId::Hcal){
-	      HcalDetId HcalID = RecHitDetID;
-	      int HcalNum =  HcalID.subdetId();
-	      if(HcalNum == HcalForward ){isHF=true;}
-	      if(HcalNum == HcalBarrel ) {isHB=true;}
-	      if(HcalNum == HcalEndcap ) {isHE=true;}
-	      if(HcalNum == HcalOuter ) {isHO=true;}
-	    }
-	    if( DetNum == DetId::Ecal){
-	      int EcalNum = RecHitDetID.subdetId();
-	      if(EcalNum==1){isEB=true;}
-	      if(EcalNum==2){isEE=true;}
-	    }
-	  }
-
-	  CaloTower_badhcalcells[nCaloCand]=calo->numBadHcalCells();
-	  CaloTower_problemhcalcells[nCaloCand]=calo->numProblematicHcalCells(); 
-          CaloTower_badecalcells[nCaloCand]=calo->numBadEcalCells(); 
-          CaloTower_problemecalcells[nCaloCand]=calo->numProblematicEcalCells();  
-	  
-	  float calodr1 = sqrt(((CaloTower_eta[nCaloCand]-MuonCand_eta[MuEPairCand[0]])*(CaloTower_eta[nCaloCand]-MuonCand_eta[MuEPairCand[0]])) + 
-			       ((CaloTower_phi[nCaloCand]-MuonCand_phi[MuEPairCand[0]])*(CaloTower_phi[nCaloCand]-MuonCand_phi[MuEPairCand[0]])));
-	  float calodr2 = sqrt(((CaloTower_eta[nCaloCand]-MuonCand_eta[MuEPairCand[1]])*(CaloTower_eta[nCaloCand]-MuonCand_eta[MuEPairCand[1]])) + 
-			       ((CaloTower_phi[nCaloCand]-MuonCand_phi[MuEPairCand[1]])*(CaloTower_phi[nCaloCand]-MuonCand_phi[MuEPairCand[1]])));
-	  
-	  if(calodr1 < calodr2)
-	    CaloTower_dr[nCaloCand] = calodr1;
-	  else
-	    CaloTower_dr[nCaloCand] = calodr2;
-
-	  totalecalo = totalecalo + CaloTower_e[nCaloCand]; 
-
-	  nCaloCand++;
-	}
-
-      SumCalo_e = totalecalo;
-
-      // Now CASTOR rechits
-      edm::Handle<CastorRecHitCollection> recoCASTORhits;
-      event.getByLabel(recCastorRecHitsLabel, recoCASTORhits);
-      const CastorRecHitCollection* castorhits = recoCASTORhits.product();
-      CastorRecHitCollection::const_iterator castorhit;
-      for ( castorhit = castorhits->begin(); castorhit != castorhits->end(); ++castorhit )
-	{
-	  CASTORsumRecHitsE += castorhit->energy();
-	}
-
-      // Now CASTOR towers 
-      if(recoCastorTowers.isValid()) 
-	{ 
-	  const CastorTowerCollection* castortowers = recoCastorTowers.product();   
-	  CastorTowerCollection::const_iterator castortower;   
-	  
-	  for ( castortower = castortowers->begin(); castortower != castortowers->end(); ++castortower )  
-	    { 
-	      CastorTower_e[nCastorTowerCand] = castortower->energy(); 
-	      CastorTower_eta[nCastorTowerCand] = castortower->eta();  
-	      CastorTower_phi[nCastorTowerCand] = castortower->phi();  
-	      CastorTower_emratio[nCastorTowerCand] = castortower->fem(); 
-	      
-	      if(CastorTower_eta[nCastorTowerCand] > 0)
-		{
-		  totalecastorfwd+=CastorTower_e[nCastorTowerCand];
-		  if(CastorTower_e[nCastorTowerCand] > highestcastortowerfwd) 
-		    highestcastortowerfwd = CastorTower_e[nCastorTowerCand];
-		} 
-	      if(CastorTower_eta[nCastorTowerCand] < 0) 
-		{
-		  totalecastorbwd+=CastorTower_e[nCastorTowerCand];
-		  if(CastorTower_e[nCastorTowerCand] > highestcastortowerbwd)  
-		    highestcastortowerbwd = CastorTower_e[nCastorTowerCand];  
-		}
-	      
-	      if(CastorTower_e[nCastorTowerCand] > 3.0)
-		nCastorTowerCandE3++;
-
-	      nCastorTowerCand++;  
-	    } 
-	}
-      }
-      HighestCastorTowerFwd_e = highestcastortowerfwd; 
-      HighestCastorTowerBwd_e = highestcastortowerbwd; 
-      SumCastorFwd_e = totalecastorfwd;
-      SumCastorBwd_e = totalecastorbwd; 
     }
 
-  // Now ZDC rechits
-
-  // Check for particles in ZDC/Castor acceptance. 
   // Use MC truth for now, replace with real RECO when available
   double MCPar_px,MCPar_py,MCPar_pz,MCPar_e,MCPar_eta,MCPar_mass;
   int MCPar_pdgid;
@@ -1366,13 +1664,6 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
                 }  
             } 
 
-	  
-	  if(MCPar_pdgid == 22 && abs(MCPar_eta) > 8.6 && MCPar_e > 20.0) 
-	    HitInZDC++;
-	  if(MCPar_pdgid == 2112 && abs(MCPar_eta) > 8.6 && MCPar_e > 50.0)
-	    HitInZDC++;
-	  if((MCPar_pdgid != 22 && MCPar_pdgid != 2112) && (abs(MCPar_eta) > 5.2 && abs(MCPar_eta) < 6.6))
-	    HitInCastor++;
 	  
 	  if(MCPar_pdgid == 2212 && MCPar_pz > 3000.0) 
 	    { 
@@ -1488,67 +1779,6 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	}
    }
 
-  // OK, now go back and count "extra" tracks on the dimuon vertex
-  // Loop2 = compute "track" quantities
-  for(track = tracks->begin(); track != tracks->end() && nTrackCand<TRACKMAX; ++ track)
-    {
-      if((track->p() == MuonCandTrack_p[MuEPairCand[0]]) || (track->p() == MuonCandTrack_p[MuEPairCand[1]])) continue;
-      if((track->p() == EleCandTrack_p[MuEPairCand[0]]) || (track->p() == EleCandTrack_p[MuEPairCand[1]])) continue; 
-
-      TrackCand_purity[nTrackCand]=track->quality(TrackBase::highPurity); 
-      TrackCand_p[nTrackCand]=track->p(); 
-      TrackCand_px[nTrackCand]=track->px(); 
-      TrackCand_py[nTrackCand]=track->py(); 
-      TrackCand_pz[nTrackCand]=track->pz(); 
-      TrackCand_pt[nTrackCand]=track->pt(); 
-      TrackCand_eta[nTrackCand]=track->eta(); 
-      TrackCand_phi[nTrackCand]=track->phi(); 
-      TrackCand_charge[nTrackCand]=track->charge();
-      TrackCand_nhits[nTrackCand]=track->numberOfValidHits();
-      TrackCand_chi2[nTrackCand]=track->chi2();
-      TrackCand_ndof[nTrackCand]=track->ndof();
-      TrackCand_vtxdxyz[nTrackCand] = sqrt(((track->vertex().x() - mueprimvtxx)*(track->vertex().x() - mueprimvtxx)) + 
-					   ((track->vertex().y() - mueprimvtxy)*(track->vertex().y() - mueprimvtxy)) +
-					   ((track->vertex().z() - mueprimvtxz)*(track->vertex().z() - mueprimvtxz)));
-      TrackCand_vtxT[nTrackCand] = sqrt(((track->vertex().x() - mueprimvtxx)*(track->vertex().x() - mueprimvtxx)) +
-					((track->vertex().y() - mueprimvtxy)*(track->vertex().y() - mueprimvtxy)));
-      TrackCand_vtxZ[nTrackCand] = sqrt(((track->vertex().z() - mueprimvtxz)*(track->vertex().z() - mueprimvtxz)));
-      TrackCand_X[nTrackCand] = track->vertex().x();
-      TrackCand_Y[nTrackCand] = track->vertex().y();
-      TrackCand_Z[nTrackCand] = track->vertex().z();
-
-      if((TrackCand_purity[nTrackCand] == 1) && (TrackCand_nhits[nTrackCand] >= 3))
-	nQualityTrackCand++;
-      
-      if(TrackCand_vtxdxyz[nTrackCand] < 0.1)
-	MuE_extratracks1mm++;
-      if(TrackCand_vtxdxyz[nTrackCand] < 0.2) 
-	MuE_extratracks2mm++; 
-      if(TrackCand_vtxdxyz[nTrackCand] < 0.3)
-	MuE_extratracks3mm++;
-      if(TrackCand_vtxdxyz[nTrackCand] < 0.4) 
-	MuE_extratracks4mm++; 
-      if(TrackCand_vtxdxyz[nTrackCand] < 0.5) 
-	MuE_extratracks5mm++; 
-      if(TrackCand_vtxdxyz[nTrackCand] < 1) 
-	MuE_extratracks1cm++; 
-      if(TrackCand_vtxdxyz[nTrackCand] < 3)
-	MuE_extratracks3cm++;
-      if(TrackCand_vtxdxyz[nTrackCand] < 5) 
-	MuE_extratracks5cm++; 
-      if(TrackCand_vtxdxyz[nTrackCand] < 10) 
-	MuE_extratracks10cm++; 
-      if(TrackCand_vtxdxyz[nTrackCand] < closesttrkdxyz)
-	closesttrkdxyz = TrackCand_vtxdxyz[nTrackCand];
-      if((TrackCand_vtxdxyz[nTrackCand] < closesthighpuritytrkdxyz) && 
-	 (TrackCand_purity[nTrackCand] == 1) && 
-	 (TrackCand_nhits[nTrackCand] >= 3))
-	closesthighpuritytrkdxyz = TrackCand_vtxdxyz[nTrackCand];
-      
-      nTrackCand++;  
-    } 
-  ClosestExtraTrack_vtxdxyz = closesttrkdxyz;
-  ClosestHighPurityExtraTrack_vtxdxyz = closesthighpuritytrkdxyz;
 
   // Check for di-objects with valid vertex
   // JH - keep everything!
@@ -1560,8 +1790,15 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   //  if(ClosestHighPurityExtraTrack_vtxdxyz < minmuevtxd) {passed = false;}
 
+  if((PrimVertexCand_tracks[mueVertexIndex]-2 > maxMuEVertexTracks) || (!(found_muevertex)))
+    {
+      //      cout << "Failed!" << endl;
+      passed = false;
+    }
+
   // "Exclusivity" cuts
   if(passed == true){
+    //    cout << "Passed!" << endl;
     thetree->Fill();
   }
 
@@ -1578,15 +1815,17 @@ GammaGammaMuE::fillDescriptions(ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription iDesc;  
 
   iDesc.add<edm::InputTag>("GlobalMuonCollectionLabel", edm::InputTag("selectedLayer1Muons"))->setComment("input muon collection");
-  iDesc.add<edm::InputTag>("CaloTowerLabel", edm::InputTag("towerMaker"))->setComment("input calo tower collection"); 
   iDesc.add<edm::InputTag>("RecoTrackLabel", edm::InputTag("generalTracks"))->setComment("input track collection"); 
   iDesc.add<edm::InputTag>("RecoVertexLabel", edm::InputTag("offlinePrimaryVertices"))->setComment("input vertex collection"); 
-  iDesc.add<edm::InputTag>("CastorTowerLabel", edm::InputTag("CastorFastTowerReco"))->setComment("input CASTOR tower collection"); 
-  iDesc.add<edm::InputTag>("ZDCRecHitsLabel", edm::InputTag("zdchits"))->setComment("input ZDC rechit collection");
-  iDesc.add<edm::InputTag>("CastorRecHitsLabel", edm::InputTag("castorreco"))->setComment("input CASTOR rechit collection");
   iDesc.add<edm::InputTag>("JetCollectionLabel", edm::InputTag("selectedLayer1Jets"))->setComment("input jet collection"); 
   iDesc.add<edm::InputTag>("ElectronCollectionLabel", edm::InputTag("selectedLayer1Electrons"))->setComment("input electron collection"); 
   iDesc.add<edm::InputTag>("MetLabel", edm::InputTag("selectedLayer1METs"))->setComment("input MET collection");   
+  iDesc.add<edm::InputTag>("conversionsInputTag", edm::InputTag(""))->setComment("input Conversions tag for electron ID");
+  iDesc.add<edm::InputTag>("beamSpotInputTag", edm::InputTag(""))->setComment("input Beamspot tag for electron ID");  
+  iDesc.add<edm::InputTag>("rhoIsoInputTag", edm::InputTag(""))->setComment("input rho PU subtraction tag for electron ID");
+  std::vector<edm::InputTag> emptyVInputTags;
+  iDesc.add<std::vector<edm::InputTag> >("isoValInputTags", emptyVInputTags)->setComment("input isolation tags for electron ID");
+
   iDesc.add<double>("CaloTowerdR", 0.3)->setComment("Minimum delta-R to use for finding extra towers");  
   iDesc.add<bool>("KeepSameSign", false)->setComment("Set to true to keep same-sign emu combinations");
   iDesc.addOptionalUntracked<std::string>("outfilename", ("mue.pat.root"))->setComment("output flat ntuple file name");  
