@@ -170,6 +170,7 @@ class GammaGammaMuE : public edm::EDAnalyzer {
   int EleCand_ecalDriven[10]; 
   int EleCand_wp80[10];
   int EleCand_mediumID[10];
+  int EleCand_looseID[10];
 
   int MuEPairCand[2];
 

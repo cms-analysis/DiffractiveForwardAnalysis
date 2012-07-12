@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.14 2012/04/24 09:16:07 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.15 2012/05/29 15:53:04 jjhollar Exp $
 //
 //
 
@@ -325,6 +325,7 @@ GammaGammaMuE::GammaGammaMuE(const edm::ParameterSet& pset)
   thetree->Branch("EleCand_ecalDriven",EleCand_ecalDriven,"EleCand_ecalDriven[nEleCand]/D");  
   thetree->Branch("EleCand_wp80", EleCand_wp80, "EleCand_wp80[nEleCand]/I");   
   thetree->Branch("EleCand_mediumID", EleCand_mediumID, "EleCand_mediumID[nEleCand]/I");    
+  thetree->Branch("EleCand_looseID", EleCand_looseID, "EleCand_looseID[nEleCand]/I");     
 
   thetree->Branch("nHLTMu10Ele10MuonCand",&nHLTMu10Ele10MuonCand,"nHLTMu10Ele10MuonCand/I"); 
   thetree->Branch("HLT_Mu10Ele10_MuonCand_pt",&HLT_Mu10Ele10_MuonCand_pt,"HLT_Mu10Ele10_MuonCand_pt[nHLTMu10Ele10MuonCand]/D"); 
@@ -555,7 +556,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   double mueprimvtxy = 0.0; 
   double mueprimvtxz = 0.0; 
   mueVertexIndex = -999; 
-  maxMuEVertexTracks = 10; 
+  maxMuEVertexTracks = 15; 
 
   double highestejet = -1.0; 
   double highestejeteta = -999.0; 
@@ -1288,8 +1289,11 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
 	  EleCand_wp80[nEleCand] = 0;
 	  EleCand_mediumID[nEleCand] = 0;
+	  EleCand_looseID[nEleCand] = 0;
+
 	  bool select = true;
 	  bool selectmedium = false;
+	  bool selectloose = false;
 	  if( !(electron->ecalDrivenSeed()==1) )  select = false; 
 	  if(EleCand_convDist[nEleCand]<MIN_Dist && EleCand_convDcot[nEleCand]<MIN_Dcot) select = false;
 	  if(electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits()>MAX_MissingHits) select = false;
@@ -1326,10 +1330,15 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	  double iso_nh = (*(isoVals)[2])[ele]; 
 
 	  if(PassTriggerCuts(EgammaCutBasedEleId::TRIGGERTIGHT, ele) == true)
-	    selectmedium = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, recoVertexs, iso_ch, iso_em, iso_nh, rhoIso); 
+	    {
+	      selectmedium = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, recoVertexs, iso_ch, iso_em, iso_nh, rhoIso); 
+	      selectloose = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele, conversions_h, beamSpot, recoVertexs, iso_ch, iso_em, iso_nh, rhoIso);  
+	    }
 
 	  if(selectmedium == true)
 	    EleCand_mediumID[nEleCand] = 1;
+	  if(selectloose == true)
+	    EleCand_looseID[nEleCand] = 1;
 
 	  nEleCand++;
     }	

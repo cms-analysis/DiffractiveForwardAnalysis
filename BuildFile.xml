@@ -16,6 +16,7 @@
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1Trigger"/>
+<use   name="EGamma/EGammaAnalysisTools"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
