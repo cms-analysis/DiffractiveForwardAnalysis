@@ -1092,7 +1092,7 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
     //    xsec = 2.0 * 0.087 * 1000 * lumi / 10000.0; pT>25
     //    xsec = 2.0 * 1.02 * 1000 * lumi / 100000.0; // pT>10
     //    xsec = 2.0 * 0.18 * 1000 * lumi * 0.42542 / 3000.0; // pT>19, GEN-level filter
-    xsec = 2.0 * 0.18 * 1000 * lumi * (6694.0/3000.0) / 100000.0; // pT>19, 3k events, emu only
+    xsec = 2.53 * 0.18 * 1000 * lumi * (6694.0/3000.0) / 100000.0; // pT>19, 3k events, emu only
     //    st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPair_Fall11_S6.root";
     //    st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPAIR_pT10_Fall11_Round4_merge.root";
     //    st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPAIR_pT19_1prong_Fall11_Round4_merge.root";
@@ -1100,7 +1100,7 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
     fillcolor = 5;
     break;
   case 6: 
-    xsec = 2.0 * 0.18 * 1000 * lumi * (35848.0/3000.0) / 100000.0; // pT>19, 3k events, lepton+hadron only  
+    xsec = 2.53 * 0.18 * 1000 * lumi * (35848.0/3000.0) / 100000.0; // pT>19, 3k events, lepton+hadron only  
     st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPAIR_pT19_1hadrononly_Fall11_Round4_merge.root"; 
     fillcolor = 5;  
     break;  
@@ -1115,7 +1115,7 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
     fillcolor = 11;
     break;
   case 11:
-    xsec = 2.0 * 40.0 * lumi * (4*0.107*0.107) / 10000.0; 
+    xsec = 2.53 * 40.0 * lumi * (4*0.107*0.107) / 10000.0; 
     st = "ExclusiveMuE_GammaGammaWW_CalcHep_SM_START44_Fall11_Round4/GammaGammaWW_CalcHep_SM_Fall11_S6_Round4_merge.root";
     //    fillcolor = 3;
     fillcolor = 0;
@@ -1123,7 +1123,7 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
     linewidth = 3; 
     break;
   case 12:
-    xsec = 2.0 * 138.0 * lumi * (4*0.107*0.107) / 5000.0;  
+    xsec = 2.53 * 138.0 * lumi * (4*0.107*0.107) / 5000.0;  
     st = "ExclusiveMuE_GammaGammaWW_CalcHep_SM_START44_Fall11_Round4/GammaGammaWW_CalcHep_Anomalous1_Gustavo_Fall11_S6_Round4_merge.root"; 
     fillcolor = 0; 
     linecolor = 3;  
