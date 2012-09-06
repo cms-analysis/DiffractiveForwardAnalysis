@@ -17,12 +17,15 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h" 
 #include "FWCore/Common/interface/TriggerNames.h"
 
+#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
 
 #include <TFile.h>
 #include <TH1D.h>
 #include <TTree.h>
 #include <TLorentzVector.h>
+#include <fstream>
 
 class GammaGammaMuMu : public edm::EDAnalyzer {
  public:
@@ -45,6 +48,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   bool readmcEffCorrectionsBySignedEta;
   bool readmcPileup;
 
+  int maxNumExtraTracks;
   edm::InputTag recTrackLabel;
   edm::InputTag recVertexLabel;
   edm::InputTag theGLBMuonLabel;
@@ -56,6 +60,12 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   edm::InputTag recCastorTowerLabel;   
   edm::InputTag recZDCRecHitsLabel;
   edm::InputTag recCastorRecHitsLabel;
+  std::string mcPileupFile;
+  std::string mcPileupPath;
+  std::string dataPileupFile;
+  std::string dataPileupFileA;
+  std::string dataPileupFileB;
+  std::string dataPileupPath;
   std::string hltMenuLabel;
 
   double mudptmax;
@@ -64,10 +74,13 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double minmumuvtxd;
   bool keepsamesign;
 
+  bool runningOnData;
+
   std::string rootfilename;
 
   TFile *thefile;
   TTree *thetree;
+  std::ofstream outdebug;
 
   int BX;
   int Run;
@@ -145,6 +158,12 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double HLT_Mu13Mu8_MuonCand_phi[10];   
   int HLT_Mu13Mu8_MuonCand_charge[10];   
 
+  int nHLTMu17Mu8MuonCand;   
+  double HLT_Mu17Mu8_MuonCand_pt[10];   
+  double HLT_Mu17Mu8_MuonCand_eta[10];   
+  double HLT_Mu17Mu8_MuonCand_phi[10];   
+  int HLT_Mu17Mu8_MuonCand_charge[10];   
+
   int nHLTDiMu4AcopMuonCand; 
   double HLT_DoubleMu4Acoplanarity_MuonCand_pt[10]; 
   double HLT_DoubleMu4Acoplanarity_MuonCand_eta[10]; 
@@ -192,21 +211,21 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int MuMu_extratracks10cm;
   double MuMuGamma_mass[50];
 
-  int nJetCand;
-  int JETMAX;// used to set maximum of arrays
-  double JetCand_px[30];
-  double JetCand_py[30];
-  double JetCand_pz[30];
-  double JetCand_e[30];
-  double JetCand_eta[30];
-  double JetCand_phi[30];
-  double HighestJet_e;
-  double HighestJet_eta;
-  double HighestJet_phi;
-  double SumJet_e;
+  /*int nJetCand;
+    int JETMAX;// used to set maximum of arrays
+    double JetCand_px[30];
+    double JetCand_py[30];
+    double JetCand_pz[30];
+    double JetCand_e[30];
+    double JetCand_eta[30];
+    double JetCand_phi[30];
+    double HighestJet_e;
+    double HighestJet_eta;
+    double HighestJet_phi;
+    double SumJet_e;*/
 
-  int HitInZDC; 
-  int HitInCastor; 
+  /*int HitInZDC; 
+    int HitInCastor; */
 
   int nGenPhotCand;
   int GENPHOTONMAX;
@@ -230,67 +249,67 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double Etmiss_z; 
   double Etmiss_significance; 
 
-  int nCaloCand;
-  int nExtraCaloTowersE0pt6eb, nExtraCaloTowersE2pt45ee, nExtraCaloTowersE1pt25hb, nExtraCaloTowersE1pt9he, nExtraCaloTowersE4pt5hfp, nExtraCaloTowersE4pt0hfm;
-  int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9; 
-  int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4; 
+  /*int nCaloCand;
+    int nExtraCaloTowersE0pt6eb, nExtraCaloTowersE2pt45ee, nExtraCaloTowersE1pt25hb, nExtraCaloTowersE1pt9he, nExtraCaloTowersE4pt5hfp, nExtraCaloTowersE4pt0hfm;
+    int nExtraCaloTowersE1, nExtraCaloTowersE2, nExtraCaloTowersE3, nExtraCaloTowersE4, nExtraCaloTowersE5, nExtraCaloTowersE6, nExtraCaloTowersE7, nExtraCaloTowersE8, nExtraCaloTowersE9; 
+    int nExtraCaloTowersEt0pt1, nExtraCaloTowersEt0pt2, nExtraCaloTowersEt0pt5, nExtraCaloTowersEt1, nExtraCaloTowersEt2, nExtraCaloTowersEt3, nExtraCaloTowersEt4; */
 
-  double CaloTower_e[1000];
-  double CaloTower_et[1000];
-  double CaloTower_eta[1000];
-  double CaloTower_phi[1000];
-  double CaloTower_dr[1000];
-  double CaloTower_emE[1000];
-  double CaloTower_hadE[1000];
-  double CaloTower_outE[1000];
-  int CaloTower_ID[1000];
-  double CaloTower_x[1000];
-  double CaloTower_y[1000];
-  double CaloTower_z[1000];
-  double CaloTower_t[1000];
-  int CaloTower_badhcalcells[1000];
-  int CaloTower_problemhcalcells[1000];
-  int CaloTower_badecalcells[1000];
-  int CaloTower_problemecalcells[1000];
+  /*double CaloTower_e[1000];
+    double CaloTower_et[1000];
+    double CaloTower_eta[1000];
+    double CaloTower_phi[1000];
+    double CaloTower_dr[1000];
+    double CaloTower_emE[1000];
+    double CaloTower_hadE[1000];
+    double CaloTower_outE[1000];
+    int CaloTower_ID[1000];
+    double CaloTower_x[1000];
+    double CaloTower_y[1000];
+    double CaloTower_z[1000];
+    double CaloTower_t[1000];
+    int CaloTower_badhcalcells[1000];
+    int CaloTower_problemhcalcells[1000];
+    int CaloTower_badecalcells[1000];
+    int CaloTower_problemecalcells[1000];*/
 
-  double HighestCaloTower_e;
-  double HighestCaloTower_eta;
-  double HighestCaloTower_phi;
-  double HighestCaloTower_dr;
-  double HighestEtCaloTower_et;
-  double HighestEtCaloTower_eta;
-  double HighestEtCaloTower_phi;
-  double HighestEtCaloTower_dr;
-  double SumCalo_e;
+  /*double HighestCaloTower_e;
+    double HighestCaloTower_eta;
+    double HighestCaloTower_phi;
+    double HighestCaloTower_dr;
+    double HighestEtCaloTower_et;
+    double HighestEtCaloTower_eta;
+    double HighestEtCaloTower_phi;
+    double HighestEtCaloTower_dr;
+    double SumCalo_e;*/
 
-  int nCastorTowerCand;   
-  int nCastorTowerCandE3;
-  double CastorTower_e[1000];   
-  double CastorTower_eta[1000];    
-  double CastorTower_phi[1000];   
-  double CastorTower_emratio[1000];   
-  double HighestCastorTowerFwd_e;   
-  double HighestCastorTowerBwd_e;   
-  double SumCastorFwd_e; 
-  double SumCastorBwd_e; 
+  /*int nCastorTowerCand;   
+    int nCastorTowerCandE3;
+    double CastorTower_e[1000];   
+    double CastorTower_eta[1000];    
+    double CastorTower_phi[1000];   
+    double CastorTower_emratio[1000];   
+    double HighestCastorTowerFwd_e;   
+    double HighestCastorTowerBwd_e;   
+    double SumCastorFwd_e; 
+    double SumCastorBwd_e; */
 
-  int nZDChitCand;
-  int ZDChit_section[5000];
-  double ZDChit_energy[5000];
-  double ZDChit_time[5000];
-  int ZDChit_side[5000];
-  double ZDCsumEMplus;
-  double ZDCsumHADplus;
-  double ZDCsumEMminus;
-  double ZDCsumHADminus;
+  /*int nZDChitCand;
+    int ZDChit_section[5000];
+    double ZDChit_energy[5000];
+    double ZDChit_time[5000];
+    int ZDChit_side[5000];
+    double ZDCsumEMplus;
+    double ZDCsumHADplus;
+    double ZDCsumEMminus;
+    double ZDCsumHADminus;*/
 
-  double CASTORsumRecHitsE;
+  //double CASTORsumRecHitsE;
 
   int nPrimVertexCand;
   double PrimVertexCand_x[20];
   double PrimVertexCand_y[20];
   double PrimVertexCand_z[20];
-  int PrimVertexCand_tracks[20];
+  double PrimVertexCand_tracks[20];
   double PrimVertexCand_chi2[20];
   double PrimVertexCand_ndof[20];
   int PrimVertexCand_mumuTwoTracks[20];
@@ -336,17 +355,20 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int HLT_DoubleMu7Acoplanarity;
   int HLT_DoubleMu7;
   int HLT_Mu13Mu8;
+  int HLT_Mu17Mu8;
   int HLT_DoubleMu4Acoplanarity_Prescl; 
   int HLT_DoubleMu5Acoplanarity_Prescl;  
   int HLT_DoubleMu6Acoplanarity_Prescl;
   int HLT_DoubleMu7Acoplanarity_Prescl;
   int HLT_DoubleMu7_Prescl; 
   int HLT_Mu13Mu8_Prescl;  
+  int HLT_Mu17Mu8_Prescl;  
 
 
   double LowPt_pt[10];
   double LowPt_eta[10];
 
+  double Weight3D, Weight3DRun2011A, Weight3DRun2011B;
   int nTruePUforPUWeight, nTruePUforPUWeightBXM1, nTruePUforPUWeightBXP1, nTruePUforPUWeightBX0;
   double PUWeightTrue;
   HLTConfigProvider hltConfig_;  
@@ -359,5 +381,8 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   AcceptanceTableHelper helper420a220beam2;   
 
   edm::TriggerNames trigNames ;
+
+  edm::Lumi3DReWeighting *LumiWeights, *LumiWeightsA, *LumiWeightsB;
+
 };
 #endif
