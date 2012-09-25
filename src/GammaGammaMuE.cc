@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuE.cc,v 1.15 2012/05/29 15:53:04 jjhollar Exp $
+// $Id: GammaGammaMuE.cc,v 1.16 2012/07/12 15:47:08 jjhollar Exp $
 //
 //
 
@@ -1018,20 +1018,6 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     }  
   
   // Get the #PU information
-  //  edm::Lumi3DReWeighting *LumiWeights;
-
-  //  LumiWeights = new edm::Lumi3DReWeighting(
-  //           std::string(mcPileupFile),
-  //				   std::string(dataPileupFile),
-  //				   std::string(mcPileupPath),
-  //				   std::string(dataPileupPath),
-  //				   "test.root"
-  //				   );
-
-  //  LumiWeights = new edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup");
-  //  LumiWeights->weight3D_init( 1.0 );
-  //  const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
-  //  PUWeightTrue = LumiWeights->weight3D( (*iEventB) );
 
   Handle<std::vector< PileupSummaryInfo > >  PupInfo;
   event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
@@ -1725,7 +1711,7 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       TLorentzVector muevec;
 
       muvec1.SetXYZM(GenMuonCand_px[0],GenMuonCand_py[0],GenMuonCand_pz[0],0.1057);
-      evec2.SetXYZM(GenEleCand_px[1],GenEleCand_py[1],GenEleCand_pz[1],0.1057); 
+      evec2.SetXYZM(GenEleCand_px[0],GenEleCand_py[0],GenEleCand_pz[0],0.000511); 
       muevec = muvec1 + evec2;
       GenMuE_eta = muevec.Eta();
       GenMuE_pt = muevec.Pt();
@@ -1788,26 +1774,15 @@ GammaGammaMuE::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 	}
    }
 
-
-  // Check for di-objects with valid vertex
-  // JH - keep everything!
-  //  if(nMuonCand < 1 || nEleCand < 1 || !(found_pair)) {passed = false;}
-
-  // Comment for keeping background events
   // JH
-  //  if(!(found_muevertex)) {passed = false;}
-
-  //  if(ClosestHighPurityExtraTrack_vtxdxyz < minmuevtxd) {passed = false;}
-
-  if((PrimVertexCand_tracks[mueVertexIndex]-2 > maxMuEVertexTracks) || (!(found_muevertex)))
+  //  if((PrimVertexCand_tracks[mueVertexIndex]-2 > maxMuEVertexTracks) || (!(found_muevertex)))
+  if(!(found_muevertex))
     {
-      //      cout << "Failed!" << endl;
       passed = false;
     }
 
   // "Exclusivity" cuts
   if(passed == true){
-    //    cout << "Passed!" << endl;
     thetree->Fill();
   }
 
