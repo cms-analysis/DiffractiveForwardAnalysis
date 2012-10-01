@@ -22,7 +22,7 @@ lumi     lnN      1.022 1.022      lumi affects both signal and bkg (data-driven
 lepton   lnN      1.016 1.016      lepton trigger and id uncertainty
 vtx      lnN      1.01  1.01       vertex uncertainty
 pu       lnN      1.10  1.10       PU uncertainty 
-i_scale  lnN      1.20  1.20       Inelastic scale factor uncertainty 
+i_scale  lnN      -     1.20       Inelastic scale factor uncertainty 
 eff_var  lnN      1.06  -          Model-dependent efficiency
 aaWW_norm  gmN 27 -     0.004      MC statistical uncertainty
 

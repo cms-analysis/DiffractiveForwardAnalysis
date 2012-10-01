@@ -283,9 +283,14 @@ void setTDRStyle() {
 
 }
 
+void PlotSubset()
+{
+  PlotSigVsBkgWW(1,3,1,1,"nextratracks_pt30_mcatnlo");  
+  PlotSigVsBkgWW(1,3,2,1,"nextratracks_pt30_mcatnlo_log");   
+}
+
 void PlotSigVsBkgWWAll()
 {
-  /*
   PlotSigVsBkgWW(1,1,1,1,"nextratracks");
   PlotSigVsBkgWW(1,1,2,1,"nextratracks_log"); 
   PlotSigVsBkgWW(1,3,1,1,"nextratracks_pt30"); 
@@ -317,88 +322,90 @@ void PlotSigVsBkgWWAll()
   PlotSigVsBkgWW(4,3,2,1,"dptemu_1to6tracks_pt30_log");   
   PlotSigVsBkgWW(4,4,1,1,"dptemu_1to6tracks_ptlessthan30");     
   PlotSigVsBkgWW(4,4,2,1,"dptemu_1to6tracks_ptlessthan30_log");    
+  //  PlotSigVsBkgWW(4,777,1,1,"dptemu_0tracks_ptlessthan30");
   PlotSigVsBkgWW(4,888,1,1,"dptemu_0tracks_pt30_unblind");  
-  */
+
 
   PlotSigVsBkgWW(5,1,1,1,"ptemu_1to6tracks");    
   PlotSigVsBkgWW(5,1,2,1,"ptemu_1to6tracks_log");   
   PlotSigVsBkgWW(5,999,1,1,"ptemu_0tracks_pt30_unblindAQGC");   
 
+
   //  PlotSigVsBkgWW(5,888,1,1,"ptemu_0tracks_pt30_unblind");  
-  /*
   PlotSigVsBkgWW(6,1,1,1,"pfmet_1to6tracks");    
   PlotSigVsBkgWW(6,1,2,1,"pfmet_1to6tracks_log");   
   PlotSigVsBkgWW(6,3,1,1,"pfmet_1to6tracks_pt30");     
   PlotSigVsBkgWW(6,3,2,1,"pfmet_1to6tracks_pt30_log");    
   PlotSigVsBkgWW(6,4,1,1,"pfmet_1to6tracks_ptlessthan30");      
   PlotSigVsBkgWW(6,4,2,1,"pfmet_1to6tracks_ptlessthan30_log");     
+  //  PlotSigVsBkgWW(6,777,1,1,"pfmet_0tracks_ptlessthan30");
   PlotSigVsBkgWW(6,888,1,1,"pfmet_0tracks_pt30_unblind");  
-  */
+
 
   PlotSigVsBkgWW(7,1,1,1,"npv_1to6tracks");     
   PlotSigVsBkgWW(7,1,2,1,"npv_1to6tracks_log");    
   /*
   PlotSigVsBkgWW(7,3,1,1,"npv_1to6tracks_pt30");      
   PlotSigVsBkgWW(7,3,2,1,"npv_1to6tracks_pt30_log");     
-  */
   PlotSigVsBkgWW(7,4,1,1,"npv_1to6tracks_ptlessthan30");       
   PlotSigVsBkgWW(7,4,2,1,"npv_1to6tracks_ptlessthan30_log");      
-  /*
-  PlotSigVsBkgWW(7,888,1,1,"npv_0tracks_pt30_unblind");  
   */
+  PlotSigVsBkgWW(7,888,1,1,"npv_0tracks_pt30_unblind");  
 
   PlotSigVsBkgWW(12,1,1,1,"ptmu_1to6tracks");      
   PlotSigVsBkgWW(12,1,2,1,"ptmu_1to6tracks_log");     
-  /*
   PlotSigVsBkgWW(12,3,1,1,"ptmu_1to6tracks_pt30");       
   PlotSigVsBkgWW(12,3,2,1,"ptmu_1to6tracks_pt30_log");      
-  */
+  /*
   PlotSigVsBkgWW(12,4,1,1,"ptmu_1to6tracks_ptlessthan30");        
   PlotSigVsBkgWW(12,4,2,1,"ptmu_1to6tracks_ptlessthan30_log");       
+  */
   PlotSigVsBkgWW(12,888,1,1,"ptmu_0tracks_pt30_unblind");  
 
   PlotSigVsBkgWW(13,1,1,1,"etamu_1to6tracks");       
   PlotSigVsBkgWW(13,1,2,1,"etamu_1to6tracks_log");      
-  /*
   PlotSigVsBkgWW(13,3,1,1,"etamu_1to6tracks_pt30");        
   PlotSigVsBkgWW(13,3,2,1,"etamu_1to6tracks_pt30_log");       
-  */
+  /*
   PlotSigVsBkgWW(13,4,1,1,"etamu_1to6tracks_ptlessthan30");         
   PlotSigVsBkgWW(13,4,2,1,"etamu_1to6tracks_ptlessthan30_log");        
+  */
   PlotSigVsBkgWW(13,888,1,1,"etamu_0tracks_pt30_unblind");  
 
   PlotSigVsBkgWW(14,1,1,1,"etele_1to6tracks");       
   PlotSigVsBkgWW(14,1,2,1,"etele_1to6tracks_log");      
-  /*
   PlotSigVsBkgWW(14,3,1,1,"etele_1to6tracks_pt30");        
   PlotSigVsBkgWW(14,3,2,1,"etele_1to6tracks_pt30_log");       
-  */
+  /*
   PlotSigVsBkgWW(14,4,1,1,"etele_1to6tracks_ptlessthan30");         
   PlotSigVsBkgWW(14,4,2,1,"etele_1to6tracks_ptlessthan30_log");        
+  */
   PlotSigVsBkgWW(14,888,1,1,"elele_0tracks_pt30_unblind");  
 
   PlotSigVsBkgWW(15,1,1,1,"etaele_1to6tracks");       
   PlotSigVsBkgWW(15,1,2,1,"etaele_1to6tracks_log");      
-  /*
   PlotSigVsBkgWW(15,3,1,1,"etaele_1to6tracks_pt30");        
   PlotSigVsBkgWW(15,3,2,1,"etaele_1to6tracks_pt30_log");       
-  */
+  /*
   PlotSigVsBkgWW(15,4,1,1,"etaele_1to6tracks_ptlessthan30");         
   PlotSigVsBkgWW(15,4,2,1,"etaele_1to6tracks_ptlessthan30_log");        
+  */
   PlotSigVsBkgWW(15,888,1,1,"etaele_0tracks_pt30_unblind");  
 
-  /*
   PlotSigVsBkgWW(16,1,1,1,"ptextratracks_1to6tracks");        
   PlotSigVsBkgWW(16,1,2,1,"ptextratracks_1to6tracks_log");       
   PlotSigVsBkgWW(16,3,1,1,"ptextratracks_1to6tracks_pt30");         
   PlotSigVsBkgWW(16,3,2,1,"ptextratracks_1to6tracks_pt30_log");        
+  /*
   PlotSigVsBkgWW(16,4,1,1,"ptextratracks_1to6tracks_ptlessthan30");          
   PlotSigVsBkgWW(16,4,2,1,"ptextratracks_1to6tracks_ptlessthan30_log");        
+  */
 
   PlotSigVsBkgWW(17,1,1,1,"etaextratracks_1to6tracks");         
   PlotSigVsBkgWW(17,1,2,1,"etaextratracks_1to6tracks_log");        
   PlotSigVsBkgWW(17,3,1,1,"etaextratracks_1to6tracks_pt30");          
   PlotSigVsBkgWW(17,3,2,1,"etaextratracks_1to6tracks_pt30_log");         
+  /*
   PlotSigVsBkgWW(17,4,1,1,"etaextratracks_1to6tracks_ptlessthan30");           
   PlotSigVsBkgWW(17,4,2,1,"etaextratracks_1to6tracks_ptlessthan30_log");     
   */
@@ -407,8 +414,10 @@ void PlotSigVsBkgWWAll()
   PlotSigVsBkgWW(18,1,2,1,"sumptextratracks_1to6tracks_log");        
   PlotSigVsBkgWW(18,3,1,1,"sumptextratracks_1to6tracks_pt30");          
   PlotSigVsBkgWW(18,3,2,1,"sumptextratracks_1to6tracks_pt30_log");         
+  /*
   PlotSigVsBkgWW(18,4,1,1,"sumptextratracks_1to6tracks_ptlessthan30");           
-  PlotSigVsBkgWW(18,4,2,1,"sumptextratracks_1to6tracks_ptlessthan30_log");       
+  PlotSigVsBkgWW(18,4,2,1,"sumptextratracks_1to6tracks_ptlessthan30_log");     
+  */  
 }
 
 void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t save = 0, TString savename="none")
@@ -518,10 +527,10 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
  if(mode == 2)
    c1->Divide(1,2);
 
-  TH1F *htmp[13]; 
+ TH1F *htmp[13]; 
+ // TH2F *htmp[13];
 
-
-  htmp[0] = GetMuEHist(thevar,1,cutset,save,muoneffs,muonhlt17effs,muonhlt8effs,eleeffs);
+ htmp[0] = GetMuEHist(thevar,1,cutset,save,muoneffs,muonhlt17effs,muonhlt8effs,eleeffs);
   htmp[1] = GetMuEHist(thevar,2,cutset,save,muoneffs,muonhlt17effs,muonhlt8effs,eleeffs);
   htmp[2] = GetMuEHist(thevar,3,cutset,save,muoneffs,muonhlt17effs,muonhlt8effs,eleeffs);
   htmp[3] = GetMuEHist(thevar,4,cutset,save,muoneffs,muonhlt17effs,muonhlt8effs,eleeffs);
@@ -530,6 +539,9 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
   htmp[6] = GetMuEHist(thevar,7,cutset,save,muoneffs,muonhlt17effs,muonhlt8effs,eleeffs);
   if((cutset != 3) && (cutset < 777))
     htmp[7] = GetMuEHist(thevar,8,cutset,save,muoneffs,muonhlt17effs,muonhlt8effs,eleeffs); 
+  if(cutset > 999)
+    htmp[7] = GetMuEHist(thevar,8,cutset,save,muoneffs,muonhlt17effs,muonhlt8effs,eleeffs);  
+  htmp[8] = GetMuEHist(thevar,9,cutset,save,muoneffs,muonhlt17effs,muonhlt8effs,eleeffs);
   htmp[10] = GetMuEHist(thevar,11,cutset,save,muoneffs,muonhlt17effs,muonhlt8effs,eleeffs); 
   htmp[11] = GetMuEHist(thevar,12,cutset,save,muoneffs,muonhlt17effs,muonhlt8effs,eleeffs);  
   htmp[12] = GetMuEHist(thevar,13,cutset,save,muoneffs,muonhlt17effs,muonhlt8effs,eleeffs);   
@@ -537,7 +549,7 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
   // JH - rescaled W+jets from anti-ID sample
   TString wjetstemplatefile;
   TString wjetstemplathist;
-
+  
   if(cutset == 3)
     {
       if(thevar == 1)
@@ -602,6 +614,7 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
           wjetstemplatefile = "plotsnew/sumptextratracks_1to6tracks_pt30_invertleptonIDrescale.root";    
         }   
 
+      cout << "Opening " << wjetstemplatefile << endl;
       TFile *fr = TFile::Open(wjetstemplatefile);
       htmp[7] = (TH1F *)fr->Get(wjetstemplatehist); 
       htmp[7]->SetFillColor(11);
@@ -654,6 +667,11 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
           wjetstemplatehist = "hmet";    
           wjetstemplatefile = "plotsnew/pfmet_0tracks_pt30_invertleptonIDrescale.root";   
         }  
+      if(thevar == 7)
+	{
+	  wjetstemplatehist = "hnvrt";
+	  wjetstemplatefile = "plotsnew/npv_0tracks_pt30_invertleptonIDrescale.root";
+	}
       if(thevar == 12)  
         {  
           wjetstemplatehist = "hmupt";   
@@ -722,12 +740,20 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
   Float_t gamgamtautau = htmp[4]->GetSumOfWeights(); 
   Float_t gamgamtautaustats = htmp[4]->GetEntries(); 
   Float_t gamgamtautauerr = sqrt(gamgamtautaustats)*gamgamtautau/gamgamtautaustats;
+  Float_t inelgamgamtautau = htmp[8]->GetSumOfWeights();
+  Float_t inelgamgamtautaustats = htmp[8]->GetEntries();
+  Float_t inelgamgamtautauerr = sqrt(inelgamgamtautaustats)*inelgamgamtautau/inelgamgamtautaustats;
+  Float_t dytautau = htmp[1]->GetSumOfWeights();
+  Float_t dytautaustats = htmp[1]->GetEntries();
+  Float_t dytautauerr = sqrt(dytautaustats)*dytautau/dytautaustats;
   Float_t diffww = htmp[3]->GetSumOfWeights(); 
   Float_t diffwwstats = htmp[3]->GetEntries(); 
   Float_t diffwwerr = sqrt(diffwwstats)*diffww/diffwwstats; 
   Float_t wjets = htmp[7]->GetSumOfWeights();  
   Float_t wjetsstats = htmp[7]->GetEntries();  
   Float_t wjetserr = sqrt(wjetsstats)*wjets/wjetsstats;  
+  Float_t aqgc1stats = htmp[11]->GetEntries();
+  Float_t aqgc2stats = htmp[12]->GetEntries();
 
   //  htmp[2]->Scale(44.0/38.9); 
   //  htmp[3]->Scale(44.0/38.9); 
@@ -742,26 +768,34 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
   htmp[1]->Add(htmp[5]);
   htmp[1]->Add(htmp[6]); 
   htmp[1]->Add(htmp[7]);  
+  htmp[1]->Add(htmp[8]);
 
   htmp[2]->Add(htmp[3]);  
   htmp[2]->Add(htmp[4]);  
   htmp[2]->Add(htmp[5]);   
   htmp[2]->Add(htmp[6]);    
   htmp[2]->Add(htmp[7]);     
+  htmp[2]->Add(htmp[8]);
 
   htmp[3]->Add(htmp[4]);   
   htmp[3]->Add(htmp[5]);    
   htmp[3]->Add(htmp[6]);     
   htmp[3]->Add(htmp[7]);      
+  htmp[3]->Add(htmp[8]);
 
   htmp[6]->Add(htmp[4]); 
   htmp[6]->Add(htmp[5]);  
   htmp[6]->Add(htmp[7]);  
+  htmp[6]->Add(htmp[8]);
 
   htmp[7]->Add(htmp[4]);   
   htmp[7]->Add(htmp[5]);   
+  htmp[7]->Add(htmp[8]);
 
-  htmp[4]->Add(htmp[5]);    
+  htmp[8]->Add(htmp[5]);    
+  htmp[8]->Add(htmp[4]);
+
+  htmp[4]->Add(htmp[5]);
   
   TH1F *herror=(TH1F*)htmp[1]->Clone();
   herror->SetName("herror");
@@ -783,9 +817,9 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
   else
     {
       if(htmp[0]->GetMaximum() > 1)
-	htmp[1]->SetMaximum(1.75 * htmp[0]->GetMaximum());
+	htmp[1]->SetMaximum(2.5 * htmp[0]->GetMaximum());
       else
-	htmp[1]->SetMaximum(3.0);
+	htmp[1]->SetMaximum(4.0);
       if(cutset>=999)
 	{
 	  if(htmp[12]->GetMaximum() > htmp[1]->GetMaximum())
@@ -803,15 +837,22 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
   htmp[1]->SetStats(0);
   htmp[1]->SetTitle(0);
 
+  // JH
+  htmp[10]->Add(htmp[1]);
+
   htmp[1]->Draw("hist");
   htmp[2]->Draw("histsame");
   htmp[3]->Draw("histsame"); 
   htmp[6]->Draw("histsame");
   htmp[7]->Draw("histsame");
+  htmp[8]->Draw("histsame");
   htmp[4]->Draw("histsame"); 
   htmp[10]->Draw("histsame");  
   if(cutset >= 999)
-    {
+   {
+      htmp[11]->Add(htmp[1]);
+      htmp[12]->Add(htmp[1]);
+
       htmp[11]->Draw("histsame");
       htmp[12]->Draw("histsame"); 
     }
@@ -843,7 +884,8 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
   l1->AddEntry(htmp[1],"Drell-Yan #tau^{+}#tau^{-}","lf"); 
   l1->AddEntry(htmp[2],"Inclusive W^{+}W^{-}","lf"); 
   l1->AddEntry(htmp[3],"Diffractive W^{+}W^{-}","lf");  
-  l1->AddEntry(htmp[4],"#gamma#gamma #rightarrow #tau^{+}#tau^{-}","lf");  
+  l1->AddEntry(htmp[4],"ElEl #gamma#gamma #rightarrow #tau^{+}#tau^{-}","lf");  
+  l1->AddEntry(htmp[8],"InelEl #gamma#gamma #rightarrow #tau^{+}#tau^{-}","lf");
   l1->AddEntry(htmp[6],"ttbar","lf"); 
   l1->AddEntry(htmp[7],"W+jets","lf");
   l1->AddEntry(htmp[10],"#gamma#gamma #rightarrow W^{+}W^{-} (SM)","lf");   
@@ -916,7 +958,7 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
     }
 
   cout << "Data = " << htmp[0]->GetSumOfWeights() << endl;
-  cout << "MC SM Signal = " << htmp[10]->GetSumOfWeights() << " ("
+  cout << "MC SM Signal + Background = " << htmp[10]->GetSumOfWeights() << " ("
        << htmp[10]->GetEntries() << ")" << endl;
   cout << "MC Sum of bkg = " << htmp[1]->GetSumOfWeights() << " +- " 
        << sqrt(sumofsq) << endl;
@@ -924,8 +966,10 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
   cout << "\tDiff WW = " << diffww << " +- " << diffwwerr << " (" << diffwwstats << ")" << endl; 
   cout << "\tW+Jets = " << wjets << " +- " << wjetserr << " (" << wjetsstats << ")" << endl;
   cout << "\tgamgam->tautau = " << gamgamtautau << " +- " << gamgamtautauerr << " (" << gamgamtautaustats << ")" << endl; 
-  cout << "MC AQGC Signal (Point 1) = " << htmp[11]->GetSumOfWeights() << endl;
-  cout << "MC AQGC Signal (Point 2) = " << htmp[12]->GetSumOfWeights() << endl; 
+  cout << "\tgamgam->tautau = " << inelgamgamtautau << " +- " << inelgamgamtautauerr << " (" << inelgamgamtautaustats << ")" << endl;
+  cout << "\tDY->tautau = " << dytautau << " +- " << dytautauerr << " (" << dytautaustats << ")" << endl; 
+  cout << "MC AQGC Signal (Point 1) + Background = " << htmp[11]->GetSumOfWeights() << " (" << aqgc1stats << ")" <<endl;
+  cout << "MC AQGC Signal (Point 2) + Background = " << htmp[12]->GetSumOfWeights() << " (" << aqgc2stats << ")" <<endl;
 
   if(save == 1)
     {
@@ -943,7 +987,7 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
 
 // Return histogrammed quantities for mu+mu- samples
 TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool save = false, Double_t efftable[28][8], Double_t effhltmu17table[17][8], Double_t effhltmu8table[17][8], Double_t effeletable[30][8])
-//TH2F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool save = false, Double_t efftable[28][8])
+//TH2F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool save = false, Double_t efftable[28][8], Double_t effhltmu17table[17][8], Double_t effhltmu8table[17][8], Double_t effeletable[30][8])
 {
   Double_t lumi = 5.05; // Run 2011 A+B
   // lumi = 2.31 // Run 2011 A
@@ -1010,6 +1054,8 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
     // No extra tracks cut, no pT cut
     extratracksmin = 0;  
     extratracksmax = 999;  
+    massemumin = 0.0; 
+
     cout << "\tm(emu) > 20 GeV" << endl;   
     cout << "\tpT(emu) > 0 GeV" << endl;    
     break; 
@@ -1050,6 +1096,20 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
     cout << "\tpT(emu) > 100 GeV" << endl;     
     cout << "\tN(extra tracks) = 0" << endl;   
     break;
+  case 2222: 
+    // Unblind - pT30, no extra tracks cut
+    pTemumin = 30.0;  
+    massemumin = 20.0; 
+    cout << "\tm(emu) > 20 GeV" << endl;     
+    cout << "\tpT(emu) > 30 GeV" << endl;      
+    break; 
+  case 3333:
+    // Unblind - pT100, no extra tracks cut
+    pTemumin = 100.0;
+    massemumin = 20.0;
+    cout << "\tm(emu) > 20 GeV" << endl;
+    cout << "\tpT(emu) > 100 GeV" << endl;
+    break;
   default:
     break;
   }
@@ -1058,7 +1118,7 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
   case 1:
     xsec = 1.0;
     st = "ExclusiveMuE2011ABReRecoNov08_Round4/ExclusiveMuE2011ABReRecoNov08_Round4_merge.root";
-//    st = "ExclusiveMuE2011BReRecoNov08_Round4/ExclusiveMuE2011BReRecoNov08_Round4_merge.root";
+    //    st = "ExclusiveMuE2011ABReRecoNov08_Round4/SSExclusiveMuE2011ABReRecoNov08_Round4_merge.root";
     linecolor = 1;
     linewidth = 3;
     fillcolor = 1;
@@ -1081,26 +1141,32 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
     // Pythia6 - NLO cross-section  
     //    xsec = 4.79 * 1000 * lumi / 210667.0;
     //    st = "ExclusiveMuE_WWTo2L2Nu_Z2_START44_Pythia6Tauola_Fall11_Round4/ExclusiveMuE_WWTo2L2Nu_Z2_START44_Pythia6Tauola_Fall11_Round4_merge.root";
-    fillcolor = 2;
+    fillcolor = 7;
     break;
   case 4:
     xsec = 77.0 * lumi / 20000.0; 
     st = "ExclusiveMuE_WW_Pompyt_Fall11_Round4/ExclusiveMuE_WW_Pompyt_Fall11_Round4_merge.root";
-    fillcolor = 7;
+    fillcolor = 96;
     break;
   case 5:
     //    xsec = 2.0 * 0.087 * 1000 * lumi / 10000.0; pT>25
     //    xsec = 2.0 * 1.02 * 1000 * lumi / 100000.0; // pT>10
     //    xsec = 2.0 * 0.18 * 1000 * lumi * 0.42542 / 3000.0; // pT>19, GEN-level filter
-    xsec = 2.53 * 0.18 * 1000 * lumi * (6694.0/3000.0) / 100000.0; // pT>19, 3k events, emu only
+    //    xsec = 2.53 * 0.18 * 1000 * lumi * (6694.0/3000.0) / 100000.0; // pT>19, 3k events, emu only - default
+    xsec = 0.022 * 1000 * lumi / 100000.0; // pT 40GeV 
     //    st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPair_Fall11_S6.root";
     //    st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPAIR_pT10_Fall11_Round4_merge.root";
     //    st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPAIR_pT19_1prong_Fall11_Round4_merge.root";
-    st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPAIR_pT19_emuonly_Fall11_Round4_merge.root";
+    // JH - default
+    //    st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPAIR_pT19_emuonly_Fall11_Round4_merge.root";
+    // JH - 40GeV cut
+    st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPAIR_ElEl_pT40_Fall11_S6_Round4_.root";
     fillcolor = 5;
     break;
   case 6: 
-    xsec = 2.53 * 0.18 * 1000 * lumi * (35848.0/3000.0) / 100000.0; // pT>19, 3k events, lepton+hadron only  
+    //    xsec = 2.53 * 0.18 * 1000 * lumi * (35848.0/3000.0) / 100000.0; // pT>19, 3k events, lepton+hadron only, 2.53 scale factor  
+    xsec = 0.18 * 1000 * lumi * (35848.0/3000.0) / 100000.0; // pT>19, 3k events, lepton+hadron only, no scale factor - default
+    // JH - default
     st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPAIR_pT19_1hadrononly_Fall11_Round4_merge.root"; 
     fillcolor = 5;  
     break;  
@@ -1114,8 +1180,18 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
     st = "ExclusiveMuE_WJetsToLNu_Z2_Madgraph_Tauola_Fall11_Round4/ExclusiveMuE_WJetsToLNu_Z2_Madgraph_Tauola_Fall11_Round4_merge.root";
     fillcolor = 11;
     break;
+  case 9:
+    //    xsec = 0.8099 * 1000 * lumi / 100000.0; // default
+    xsec = 0.59 * 2 * 0.031 * 1000 * lumi / 100000.0; // 40GeV pT cut, 0.59 scale factor derived from mumu 
+    // JH - default
+    //    st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPAIR_InelEl_SM_Fall11_S6_Round4_.root";
+    // JH - 40GeV cut 
+    st = "ExclusiveMuE_GammaGammaTauTau_LPAIR_pT25_Fall11_Round4/GammaGammaTauTau_LPAIR_InelEl_pT40_Fall11_S6_Round4_.root"; 
+    fillcolor = 76;
+    break;
   case 11:
-    xsec = 2.53 * 40.0 * lumi * (4*0.107*0.107) / 10000.0; 
+    //    xsec = 2.53 * 40.0 * lumi * (4*0.107*0.107) / 10000.0; 
+    xsec = 3.95 * 40.0 * lumi * (4*0.107*0.107) / 10000.0;
     st = "ExclusiveMuE_GammaGammaWW_CalcHep_SM_START44_Fall11_Round4/GammaGammaWW_CalcHep_SM_Fall11_S6_Round4_merge.root";
     //    fillcolor = 3;
     fillcolor = 0;
@@ -1123,7 +1199,8 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
     linewidth = 3; 
     break;
   case 12:
-    xsec = 2.53 * 138.0 * lumi * (4*0.107*0.107) / 5000.0;  
+    //    xsec = 2.53 * 138.0 * lumi * (4*0.107*0.107) / 5000.0;  
+    xsec = 3.95 * 138.0 * lumi * (4*0.107*0.107) / 5000.0;
     st = "ExclusiveMuE_GammaGammaWW_CalcHep_SM_START44_Fall11_Round4/GammaGammaWW_CalcHep_Anomalous1_Gustavo_Fall11_S6_Round4_merge.root"; 
     fillcolor = 0; 
     linecolor = 3;  
@@ -1131,7 +1208,8 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
     linestyle = 2;
     break;
   case 13: 
-    xsec = 2.0 * 369.6 * lumi * (4*0.107*0.107) / 5000.0;   
+    //    xsec = 2.0 * 369.6 * lumi * (4*0.107*0.107) / 5000.0;   
+    xsec = 3.95 * 369.6 * lumi * (4*0.107*0.107) / 5000.0;
     st = "ExclusiveMuE_GammaGammaWW_CalcHep_SM_START44_Fall11_Round4/GammaGammaWW_CalcHep_Anomalous2_Gustavo_Fall11_S6_Round4_merge.root";  
     fillcolor = 0;  
     linecolor = 3;   
@@ -1185,12 +1263,12 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
   if(thecuts > 777)
     hdphi = new TH1F("hdphi","hdphi",5,0.0,1.0);
   if(thecuts < 777) 
-    //    hdpt = new TH1F("hdpt","hdpt",50,0,100);
-    hdpt = new TH1F("hdpt","hdpt",10,0,100);
+    hdpt = new TH1F("hdpt","hdpt",50,0,100);
+    //    hdpt = new TH1F("hdpt","hdpt",10,0,100);
   if(thecuts == 777)
-    hdpt = new TH1F("hdpt","hdpt",10,0,100); 
+    hdpt = new TH1F("hdpt","hdpt",20,0,100); 
   if(thecuts > 777) 
-    hdpt = new TH1F("hdpt","hdpt",5,0,100); 
+    hdpt = new TH1F("hdpt","hdpt",10,0,100); 
   if(thecuts < 777)
     hpt = new TH1F("hpt","hpt",50,0,300); 
   if(thecuts >= 777)
@@ -1199,10 +1277,11 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
   if(thecuts < 777)
     hmet = new TH1F("hmet","hmet",50,0,300);
   if(thecuts == 777)
-    hmet = new TH1F("hmet","hmet",10,0,300);  
+    hmet = new TH1F("hmet","hmet",5,0,300);  
   if(thecuts > 777)
-    hmet = new TH1F("hmet","hmet",5,0,300); 
-  hntrk = new TH1F("hntrk","hntrk",15,0,15);
+    hmet = new TH1F("hmet","hmet",10,0,300); 
+  //  hntrk = new TH1F("hntrk","hntrk",15,0,15);
+  hntrk = new TH1F("hntrk","hntrk",15,-0.5,14.5);
   hnvrt = new TH1F("hnvrt","hnvrt",30,0,30); 
   hptextra = new TH1F("hptextra","hptextra",50,0,20);
   hetaextra = new TH1F("hetaextra","hetaextra",50,-3,3); 
@@ -1212,7 +1291,16 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
   hemudist = new TH1F("hemudist","hemudist",100,-0.05,0.05);
   hsumptextra = new TH1F("hsumptextra","hsumptextra",25,0,100);
   hsumpzextra = new TH1F("hsumpzextra","hsumpzextra",25,0,100); 
-  if(thecuts < 777)
+  if(thecuts == 6)
+    {
+      hmupt = new TH1F("hmupt","hmupt",50,0,250); 
+      hmueta = new TH1F("hmueta","hmueta",30,-3.0,3.0);  
+      hept = new TH1F("hept","hept",50,0,250);  
+      heeta = new TH1F("heeta","heeta",30,-3.0,3.0);   
+      hleadpt = new TH1F("hleadpt","hleadpt",50,0,250); 
+      htrailpt = new TH1F("htrailpt","htrailpt",50,0,250); 
+    }
+  if((thecuts < 777) && (thecuts != 6))
     {
       hmupt = new TH1F("hmupt","hmupt",25,0,250);
       hmueta = new TH1F("hmueta","hmueta",15,-3.0,3.0); 
@@ -1224,13 +1312,13 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
   if(thecuts >= 777)
     {
       hmupt = new TH1F("hmupt","hmupt",5,0,250); 
-      hmueta = new TH1F("hmueta","hmueta",5,-3.0,3.0);  
+      hmueta = new TH1F("hmueta","hmueta",6,-3.0,3.0);  
       hept = new TH1F("hept","hept",5,0,250);  
       heeta = new TH1F("heeta","heeta",5,-3.0,3.0);   
       hleadpt = new TH1F("hleadpt","hleadpt",5,0,250); 
       htrailpt = new TH1F("htrailpt","htrailpt",5,0,250); 
     }
-  hptntrackcorr = new TH2F("hptntrackcorr","hptntrackcorr",15,0,15,20,0,120);
+  hptntrackcorr = new TH2F("hptntrackcorr","hptntrackcorr",15,0,15,20,0,300);
   //  hleadpt = new TH1F("hleadpt","hleadpt",50,0,200);
   //  htrailpt = new TH1F("htrailpt","htrailpt",50,0,200);
 
@@ -1924,6 +2012,19 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
       if(physsample>1)
 	theweight = Weight3D;
 
+      // Acceptance
+      /*
+      if(physsample > 1)
+      	{
+      	  if(GenMuE_pt <= 100)
+      	    continue;
+      	  if((fabs(GenMuonCand_eta[0])>=2.4) || (fabs(GenEleCand_eta[0])>=2.4))
+      	    continue;
+      	  if((GenMuonCand_pt <= 20) || (GenEleCand_pt <= 20))
+      	    continue;
+      	}
+      */
+
       Int_t mu17ele8 = 0;
       Int_t mu8ele17 = 0;
       if((HLT_Mu17Ele8L && HLT_Mu17Ele8L_Prescl == 1) || (HLT_Mu17Ele8T && HLT_Mu17Ele8T_Prescl == 1))
@@ -1932,7 +2033,7 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
 	mu8ele17 = 1;
       
       if((HLT_Mu17Ele8L && HLT_Mu17Ele8L_Prescl == 1) || (HLT_Mu17Ele8T && HLT_Mu17Ele8T_Prescl == 1) ||
-	 (HLT_Mu8Ele17L && HLT_Mu8Ele17L_Prescl == 1) || (HLT_Mu8Ele17T && HLT_Mu8Ele17T_Prescl == 1))
+      	 (HLT_Mu8Ele17L && HLT_Mu8Ele17L_Prescl == 1) || (HLT_Mu8Ele17T && HLT_Mu8Ele17T_Prescl == 1))
 	{
 	  for(Int_t j = 0;j< nPrimVertexCand;j++)
 	    {
@@ -1943,8 +2044,9 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
 		      int muindex = PrimVertexCand_mueTwoTracksMuIndex[j];
 		      int eleindex = PrimVertexCand_mueTwoTracksEleIndex[j];
 
-		      if((MuonCand_pt[muindex]>20 && EleCand_et[eleindex]>20 && mu8ele17==1) || 
-			 (MuonCand_pt[muindex]>20 && EleCand_et[eleindex]>20 && mu17ele8==1))
+		      if(((MuonCand_pt[muindex]>20 && EleCand_et[eleindex]>20 && mu8ele17==1) || 
+			  (MuonCand_pt[muindex]>20 && EleCand_et[eleindex]>20 && mu17ele8==1)) && 
+			 (fabs(MuonCand_eta[muindex])<2.4 && fabs(EleCand_eta[eleindex])<2.4))
 			{
 			  if((MuonCand_tightID[muindex] == 1) && (EleCand_mediumID[eleindex] == 1))
 			    //			  if((MuonCand_tightID[muindex] == 0) || (EleCand_mediumID[eleindex] == 0))
@@ -1955,6 +2057,8 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
 				  Double_t muoneffcorr = 1.0;
 				  Double_t mutrigeffcorr = 1.0;
 				  Double_t eleeffcorr = 1.0;
+				  Double_t eletrigeffcorr = 1.0;
+
 				  if(physsample>1) 
 				    {
 				      // Muon offline
@@ -2003,9 +2107,14 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
 					    if((abseleeta > effeletable[x][0]) && (abseleeta < effeletable[x][1]))
 					      eleeffcorr = effeletable[x][4];
 					}
+
+				      // Electron HLT
+				      eletrigeffcorr *= 1.0;
+				      
 				      theweight *= muoneffcorr;
 				      theweight *= mutrigeffcorr;
 				      theweight *= eleeffcorr;
+				      theweight *= eletrigeffcorr;
 				    }
 				  
 				  // JH
@@ -2022,7 +2131,9 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
 				    continue;
 				  // JH
 
-				  hntrk->Fill(PrimVertexCand_tracks[j]-2,theweight);
+				  hntrk->Fill(PrimVertexCand_tracks[j]-2-0.5,theweight);
+				  hptntrackcorr->Fill(PrimVertexCand_tracks[j]-2,MuE_pt,theweight);
+
 				  if((PrimVertexCand_tracks[j]-2) == 0) 
 				    {
                                       cout << "Run:LS:Event = " << Run << ":" << LumiSection << ":" << EventNum << endl; 
@@ -2064,7 +2175,7 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
                                       hept->Fill(EleCand_et[eleindex],theweight); 
                                       hmueta->Fill(MuonCand_eta[muindex],theweight); 
                                       heeta->Fill(EleCand_eta[eleindex],theweight); 
-				      hptntrackcorr->Fill(PrimVertexCand_tracks[j]-2,MuE_pt,theweight);
+				      //				      hptntrackcorr->Fill(PrimVertexCand_tracks[j]-2,MuE_pt,theweight);
 
 				      if(MuonCand_pt[muindex] > EleCand_et[eleindex])
 					{
@@ -2346,7 +2457,8 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
     {  
       hptntrackcorr->SetXTitle("N(extra tracks, e#mu vertex)"); 
       hptntrackcorr->SetYTitle("p_{T}(e#mu) [GeV]");   
-      hptntrackcorr->Draw("profhist");
+      //      hptntrackcorr->Draw("col2z");
+      return hptntrackcorr;
     }  
 
 }
