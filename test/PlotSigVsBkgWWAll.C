@@ -613,6 +613,37 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
           wjetstemplatehist = "hsumptextra";     
           wjetstemplatefile = "plotsnew/sumptextratracks_1to6tracks_pt30_invertleptonIDrescale.root";    
         }   
+      if(thevar == 24)
+	{
+	  wjetstemplatehist = "hdzextra";
+	  wjetstemplatefile = "plotsnew/dzextra_1to6tracks_pt30_invertleptonIDrescale.root";
+	}
+      if(thevar == 25) 
+        { 
+          wjetstemplatehist = "hdxyextra"; 
+          wjetstemplatefile = "plotsnew/dxyextra_1to6tracks_pt30_invertleptonIDrescale.root"; 
+        } 
+      if(thevar == 26)  
+        {  
+          wjetstemplatehist = "hchi2extra";  
+          wjetstemplatefile = "plotsnew/chi2extra_1to6tracks_pt30_invertleptonIDrescale.root";  
+        }  
+      if(thevar == 27)  
+        {  
+          wjetstemplatehist = "hhitsextra";  
+          wjetstemplatefile = "plotsnew/hitsextra_1to6tracks_pt30_invertleptonIDrescale.root";  
+        }  
+      if(thevar == 28)  
+        {  
+          wjetstemplatehist = "hpurityextra";  
+          wjetstemplatefile = "plotsnew/purityextra_1to6tracks_pt30_invertleptonIDrescale.root";  
+        }  
+      if(thevar == 29)
+	{
+	  wjetstemplatehist = "hchi2pv";   
+          wjetstemplatefile = "plotsnew/chi2pv_1to6tracks_pt30_invertleptonIDrescale.root";   
+
+	}
 
       cout << "Opening " << wjetstemplatefile << endl;
       TFile *fr = TFile::Open(wjetstemplatefile);
@@ -879,14 +910,14 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
   }
   g->Draw("P");
 
-  TLegend *l1 = new TLegend(0.55,0.7,0.65,0.9);
+  TLegend *l1 = new TLegend(0.55,0.6,0.65,0.9);
   l1->AddEntry(htmp[0],"Data","lf");
   l1->AddEntry(htmp[1],"Drell-Yan #tau^{+}#tau^{-}","lf"); 
   l1->AddEntry(htmp[2],"Inclusive W^{+}W^{-}","lf"); 
   l1->AddEntry(htmp[3],"Diffractive W^{+}W^{-}","lf");  
-  l1->AddEntry(htmp[4],"ElEl #gamma#gamma #rightarrow #tau^{+}#tau^{-}","lf");  
-  l1->AddEntry(htmp[8],"InelEl #gamma#gamma #rightarrow #tau^{+}#tau^{-}","lf");
-  l1->AddEntry(htmp[6],"ttbar","lf"); 
+  l1->AddEntry(htmp[4],"Elastic #gamma#gamma #rightarrow #tau^{+}#tau^{-}","lf");  
+  l1->AddEntry(htmp[8],"Inelastic #gamma#gamma #rightarrow #tau^{+}#tau^{-}","lf");
+  l1->AddEntry(htmp[6],"t#bar{t}","lf"); 
   l1->AddEntry(htmp[7],"W+jets","lf");
   l1->AddEntry(htmp[10],"#gamma#gamma #rightarrow W^{+}W^{-} (SM)","lf");   
   //  l1->AddEntry(htmp[1],"POWHEG-PYTHIA Z2 DY #tau^{+}#tau^{-}","lf");
@@ -904,8 +935,23 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
       l1->AddEntry(htmp[12],"#gamma#gamma #rightarrow W^{+}W^{-} (a0W=-2E-4, aCW=-8E-4, #Lambda=500GeV)","lf");    
     }
   
-  l1->SetFillColor(0); l1->SetTextSize(0.03);
+  l1->SetFillColor(0); // l1->SetTextSize(0.03);
+  l1->SetTextSize(18); 
+  l1->SetTextFont(43); 
   l1->Draw("same");
+
+  stringstream ss;
+  ss.str(""); ss << "CMS Preliminary 2011, #sqrt{s}=7 TeV, L=5.05 fb^{-1}";
+  //  TPaveText *plotlabel = new TPaveText(0.5,0.96,0.92,0.99,"NDC");
+  TPaveText *plotlabel = new TPaveText(0.4,0.96,0.92,1.0,"NDC");
+  plotlabel->SetTextColor(kBlack);
+  plotlabel->SetFillColor(kWhite);
+  plotlabel->SetBorderSize(0);
+  plotlabel->SetTextAlign(32);
+  plotlabel->SetTextSize(20);
+  plotlabel->SetTextFont(43);
+  plotlabel->AddText(ss.str().c_str());
+  plotlabel->Draw("same");
 
   if(mode == 2)
     {
@@ -921,9 +967,12 @@ void PlotSigVsBkgWW(Int_t thevar = 1, Int_t cutset = 1, Int_t mode = 1, Int_t sa
       Float_t themin = (-1.0 * hsub->GetMaximum()) - 2;
       Float_t themax = (-1.0 * themin) + 1;
       //      Float_t themin = (-1.0 * hsub->GetMaximum());
-      hsub->SetMinimum(themin);
+      //      hsub->SetMinimum(themin);
+      if(themax > 4) themax = 4.0;
+      hsub->SetMinimum(0);
       hmcsub->SetMaximum(themax);
-      hmcsub->SetMinimum(themin);
+      //      hmcsub->SetMinimum(themin);
+      hmcsub->SetMinimum(0);
       //      hsub->SetMaximum(5.0); hsub->SetMinimum(-3.0);
       //      hsub->SetMaximum(5.0); hsub->SetMinimum(-5.0);
       hmcsub->SetTitle(0); hmcsub->SetStats(0); hmcsub->SetMarkerColor(6);
@@ -1238,7 +1287,9 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
   TH1F *hvtxT;
   TH1F *hemudist;
   TH1F *hsumptextra;
-  TH1F *hsumpzextra; 
+  TH1F *hsumpzextra;
+  TH1F *hdzextra, *hdxyextra;
+  TH1F *hchi2extra, *hhitsextra, *hpurityextra, *hchi2pv; 
   TH1F *hmupt, *hmueta, *hept, *heeta;
   TH1F *hleadpt, *htrailpt;
   TH2F *hptntrackcorr;
@@ -1285,12 +1336,19 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
   hnvrt = new TH1F("hnvrt","hnvrt",30,0,30); 
   hptextra = new TH1F("hptextra","hptextra",50,0,20);
   hetaextra = new TH1F("hetaextra","hetaextra",50,-3,3); 
-  hvtxz = new TH1F("hvtxz","hvtxz",15,-30,30);
+  hvtxz = new TH1F("hvtxz","hvtxz",30,-30,30);
   hvtxT = new TH1F("hvtxT","hvtxT",500,0,0.6); 
   hmuemetdphi = new TH1F("hmuemetdphi","hmuemetdphi",20,0,1);
   hemudist = new TH1F("hemudist","hemudist",100,-0.05,0.05);
   hsumptextra = new TH1F("hsumptextra","hsumptextra",25,0,100);
   hsumpzextra = new TH1F("hsumpzextra","hsumpzextra",25,0,100); 
+  hdzextra = new TH1F("hdzextra","hdzextra",100,0,0.5);
+  hdxyextra = new TH1F("hdxyextra","hdxyextra",100,0,0.5);
+  hchi2extra = new TH1F("hchi2extra","hchi2extra",50,0,5); 
+  hhitsextra = new TH1F("hhitsextra","hhitsextra",35,0,35); 
+  hpurityextra = new TH1F("hpurityextra","hpurityextra",2,0,2); 
+  hchi2pv = new TH1F("hchi2pv","hchi2pv",50,0,5);
+
   if(thecuts == 6)
     {
       hmupt = new TH1F("hmupt","hmupt",50,0,250); 
@@ -2166,6 +2224,7 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
 				      hmet->Fill(Etmiss,theweight);
 				      hvtxz->Fill(PrimVertexCand_z[j],theweight);
 				      hvtxT->Fill(sqrt(PrimVertexCand_x[j]*PrimVertexCand_x[j])+(PrimVertexCand_y[j]*PrimVertexCand_y[j]),theweight);
+				      hchi2pv->Fill(PrimVertexCand_chi2[j]/PrimVertexCand_ndof[j],theweight);
                                       Double_t muemetdphi = MuE_phi-Etmiss_phi; 
 				      if(muemetdphi > 3.14159)
 					muemetdphi = (2.0*3.14159)-muemetdphi;
@@ -2195,6 +2254,12 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
 					{
 					  hptextra->Fill(TrackCand_pt[k],theweight);
 					  hetaextra->Fill(TrackCand_eta[k],theweight);
+                                          hdzextra->Fill(TrackCand_vtxZ[k],theweight); 
+                                          hdxyextra->Fill(TrackCand_vtxT[k],theweight); 
+                                          hchi2extra->Fill(TrackCand_chi2[k]/TrackCand_ndof[k],theweight); 
+                                          hhitsextra->Fill(TrackCand_nhits[k],theweight); 
+                                          hpurityextra->Fill(TrackCand_purity[k],theweight); 
+
 					  sumpttracks += TrackCand_pt[k];
 					  sumpztracks += TrackCand_pz[k];
 					  sumptracks += TrackCand_p[k];
@@ -2228,13 +2293,18 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
    hemudist->SetFillColor(fillcolor); 
    hsumptextra->SetFillColor(fillcolor);
    hsumpzextra->SetFillColor(fillcolor); 
+   hdzextra->SetFillColor(fillcolor);  
+   hdxyextra->SetFillColor(fillcolor);  
+   hchi2extra->SetFillColor(fillcolor); 
+   hhitsextra->SetFillColor(fillcolor); 
+   hpurityextra->SetFillColor(fillcolor); 
    hmupt->SetFillColor(fillcolor);
    hmueta->SetFillColor(fillcolor); 
    hept->SetFillColor(fillcolor); 
    heeta->SetFillColor(fillcolor); 
    hleadpt->SetFillColor(fillcolor);
    htrailpt->SetFillColor(fillcolor);
-
+   hchi2pv->SetFillColor(fillcolor);
 
    hmll->SetLineColor(linecolor);  
    hdphi->SetLineColor(linecolor);  
@@ -2251,13 +2321,18 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
    hemudist->SetLineColor(linecolor); 
    hsumptextra->SetLineColor(linecolor);
    hsumpzextra->SetLineColor(linecolor); 
+   hdzextra->SetLineColor(linecolor); 
+   hdxyextra->SetLineColor(linecolor); 
+   hchi2extra->SetLineColor(linecolor); 
+   hhitsextra->SetLineColor(linecolor); 
+   hpurityextra->SetFillColor(fillcolor); 
    hmupt->SetLineColor(linecolor); 
    hmueta->SetLineColor(linecolor);  
    hept->SetLineColor(linecolor);  
    heeta->SetLineColor(linecolor);  
    hleadpt->SetLineColor(linecolor); 
    htrailpt->SetLineColor(linecolor); 
-
+   hchi2pv->SetLineColor(linecolor);
 
    hmll->SetLineWidth(linewidth);   
    hdphi->SetLineWidth(linewidth);   
@@ -2274,12 +2349,18 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
    hemudist->SetLineWidth(linewidth);
    hsumptextra->SetLineWidth(linewidth);
    hsumpzextra->SetLineWidth(linewidth); 
+   hdzextra->SetLineWidth(linewidth);
+   hdxyextra->SetLineWidth(linewidth); 
+   hchi2extra->SetLineColor(linecolor);   
+   hhitsextra->SetLineColor(linecolor);   
+   hpurityextra->SetLineColor(linecolor);    
    hmupt->SetLineWidth(linewidth); 
    hmueta->SetLineWidth(linewidth);  
    hept->SetLineWidth(linewidth);  
    heeta->SetLineWidth(linewidth);  
    hleadpt->SetLineWidth(linewidth); 
    htrailpt->SetLineWidth(linewidth); 
+   hchi2pv->SetLineWidth(linewidth);
 
    hmll->SetLineStyle(linestyle);    
    hdphi->SetLineStyle(linestyle);    
@@ -2296,13 +2377,18 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
    hemudist->SetLineStyle(linestyle); 
    hsumptextra->SetLineStyle(linestyle); 
    hsumpzextra->SetLineStyle(linestyle);  
+   hdzextra->SetLineStyle(linestyle);   
+   hdxyextra->SetLineStyle(linestyle);    
+   hchi2extra->SetLineStyle(linestyle);   
+   hhitsextra->SetLineStyle(linestyle);   
+   hpurityextra->SetLineStyle(linestyle);    
    hmupt->SetLineStyle(linestyle);  
    hmueta->SetLineStyle(linestyle);   
    hept->SetLineStyle(linestyle);   
    heeta->SetLineStyle(linestyle);   
    hleadpt->SetLineStyle(linestyle);  
    htrailpt->SetLineStyle(linestyle);  
-
+   hchi2pv->SetLineStyle(linestyle);
 
    hmll->Sumw2();   
    hdphi->Sumw2();   
@@ -2319,12 +2405,18 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
    hemudist->Sumw2();
    hsumptextra->Sumw2();
    hsumpzextra->Sumw2(); 
+   hdzextra->Sumw2();  
+   hdxyextra->Sumw2();   
+   hchi2extra->Sumw2(); 
+   hhitsextra->Sumw2(); 
+   hpurityextra->Sumw2(); 
    hmupt->Sumw2(); 
    hmueta->Sumw2();  
    hept->Sumw2();  
    heeta->Sumw2();  
    hleadpt->Sumw2();
    htrailpt->Sumw2();
+   hchi2pv->Sumw2();
 
    hmll->Scale(xsec);    
    hdphi->Scale(xsec);    
@@ -2341,51 +2433,92 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
    hemudist->Scale(xsec);
    hsumptextra->Scale(xsec);
    hsumpzextra->Scale(xsec); 
+   hdzextra->Scale(xsec);  
+   hdxyextra->Scale(xsec);   
+   hchi2extra->Scale(xsec);
+   hhitsextra->Scale(xsec);
+   hpurityextra->Scale(xsec);
    hmupt->Scale(xsec);  
    hmueta->Scale(xsec);   
    hept->Scale(xsec);   
    heeta->Scale(xsec);   
    hleadpt->Scale(xsec);
    htrailpt->Scale(xsec);
+   hchi2pv->Scale(xsec);
 
   if(plotvar == 1)
     {
       hntrk->SetXTitle("N(extra tracks, e#mu vertex)"); 
+      hntrk->SetYTitle("Events");
       return hntrk;  
     }
   if(plotvar == 2) 
     {
       hmll->SetXTitle("m(e#mu) [GeV]"); 
-      return hmll; 
+      if(thecuts < 777)
+        hmll->SetYTitle("Events/6 GeV"); 
+      if(thecuts == 3)
+	hmll->SetYTitle("Events/12 GeV");
+      if(thecuts == 777)
+        hmll->SetYTitle("Events/30 GeV"); 
+      if(thecuts > 777)
+        hmll->SetYTitle("Events/100 GeV");  
+       return hmll; 
     }
   if(plotvar == 3) 
     {
       hdphi->SetXTitle("1 - |#Delta #phi(e#mu)/#pi|"); 
-      return hdphi; 
+      if(thecuts < 777) 
+        hdphi->SetYTitle("Events/0.02");  
+      if(thecuts == 3) 
+        hdphi->SetYTitle("Events/0.1"); 
+      if(thecuts == 777) 
+        hdphi->SetYTitle("Events/0.05");  
+      if(thecuts > 777) 
+        hdphi->SetYTitle("Events/0.2");   
+     return hdphi; 
     }
   if(plotvar == 4) 
     {
       hdpt->SetXTitle("#Delta p_{T}(e#mu) [GeV]");  
+      if(thecuts < 777) 
+	hdpt->SetYTitle("Events/2 GeV");
+      if(thecuts == 777)
+	hdpt->SetYTitle("Events/5 GeV");
+      if(thecuts > 777) 
+        hdpt->SetYTitle("Events/10 GeV"); 
       return hdpt; 
     }
   if(plotvar == 5) 
     {
       hpt->SetXTitle("p_{T}(e#mu) [GeV]");  
+      if(thecuts < 777)
+	hpt->SetYTitle("Events/6 GeV");
+      if(thecuts >= 777)
+        hpt->SetYTitle("Events/20 GeV"); 
       return hpt; 
     }
   if(plotvar == 6) 
     {
       hmet->SetXTitle("PF MET [GeV]");  
+      if(thecuts < 777)
+	hmet->SetYTitle("Events/6 GeV");
+      if(thecuts == 777)
+	hmet->SetYTitle("Events/60 GeV");
+      if(thecuts > 777)
+	hmet->SetYTitle("Events/30 GeV");
       return hmet; 
     }
   if(plotvar == 7) 
     {
       hnvrt->SetXTitle("N(primary vertices)");  
+      hnvrt->SetYTitle("Events");
       return hnvrt; 
     }
   if(plotvar == 8)
     {
       hvtxz->SetXTitle("z position of e#mu vertex [cm]");   
+      hvtxz->SetYTitle("Events/2 cm"); 
       return hvtxz;
     }
   if(plotvar == 9)
@@ -2406,36 +2539,63 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
   if(plotvar == 12) 
     { 
       hmupt->SetXTitle("p_{T} (#mu) [GeV]"); 
+      if(thecuts == 6)
+	hmupt->SetYTitle("Events/5 GeV"); 
+      if((thecuts < 777) && (thecuts != 6))
+        hmupt->SetYTitle("Events/10 GeV");  
+      if(thecuts >= 777)
+        hmupt->SetYTitle("Events/50 GeV");   
       return hmupt; 
     } 
   if(plotvar == 13)  
     {  
       hept->SetXTitle("E_{T} (e) [GeV]");  
+      if(thecuts == 6) 
+        hept->SetYTitle("Events/5 GeV");  
+      if((thecuts < 777) && (thecuts != 6)) 
+        hept->SetYTitle("Events/10 GeV");   
+      if(thecuts >= 777) 
+        hept->SetYTitle("Events/50 GeV");    
       return hept;  
     }  
   if(plotvar == 14)  
     {  
       hmueta->SetXTitle("#eta (#mu)");  
+      if(thecuts == 6) 
+        hmueta->SetYTitle("Events/0.2");  
+      if((thecuts < 777) && (thecuts != 6)) 
+        hmueta->SetYTitle("Events/0.4");   
+      if(thecuts >= 777) 
+        hmueta->SetYTitle("Events/1.0");    
       return hmueta;  
     }  
   if(plotvar == 15)   
     {   
       heeta->SetXTitle("#eta (e)");   
+      if(thecuts == 6)  
+        heeta->SetYTitle("Events/0.2");   
+      if((thecuts < 777) && (thecuts != 6))  
+        heeta->SetYTitle("Events/0.4");    
+      if(thecuts >= 777)  
+        heeta->SetYTitle("Events/1.0");     
       return heeta;   
     }   
   if(plotvar == 16) 
     {
       hptextra->SetXTitle("Extra tracks p_{T} [GeV]");     
+      hptextra->SetYTitle("Tracks/0.4 GeV");
       return hptextra; 
     }
   if(plotvar == 17) 
     {
       hetaextra->SetXTitle("Extra tracks #eta");      
+      hetaextra->SetYTitle("Tracks/0.12"); 
       return hetaextra; 
     }
   if(plotvar == 18)
     {
       hsumptextra->SetXTitle("#Sigma p_{T} (extra tracks) [GeV]");
+      hsumptextra->SetYTitle("Events/4 GeV");
       return hsumptextra;
     }
   if(plotvar == 19) 
@@ -2460,7 +2620,36 @@ TH1F *GetMuEHist(Int_t plotvar = 1,Int_t physsample = 1, Int_t thecuts, bool sav
       //      hptntrackcorr->Draw("col2z");
       return hptntrackcorr;
     }  
-
+  if(plotvar == 24)
+    {
+      hdzextra->SetXTitle("#Delta z (extra tracks) [mm]");
+      return hdzextra;
+    }
+  if(plotvar == 25)
+    {
+      hdxyextra->SetXTitle("#Delta xy (extra tracks) [mm]"); 
+      return hdxyextra; 
+    }
+  if(plotvar == 26)   
+    {   
+      hchi2extra->SetXTitle("#chi^{2}/ndof (extra tracks)");    
+      return hchi2extra;    
+    }   
+  if(plotvar == 27)   
+    {   
+      hhitsextra->SetXTitle("Hits (extra tracks)");    
+      return hhitsextra;    
+    }   
+  if(plotvar == 28)   
+    {   
+      hpurityextra->SetXTitle("High purity (extra tracks)");    
+      return hpurityextra;    
+    }   
+  if(plotvar == 29)
+    {
+      hchi2pv->SetXTitle("#chi^{2}/ndof (primary vertex)");
+      return hchi2pv;
+    }
 }
 
 
