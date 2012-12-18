@@ -315,6 +315,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int PrimVertexCand_mumuTwoTracks[20];
   int PrimVertexCand_mumuExactlyTwoTracks[20]; 
   int PrimVertexCand_mumuTwoTracksMap; 
+  int PrimVertexCand_mumuId;
 
   int nTrackCand;
   int nQualityTrackCand;

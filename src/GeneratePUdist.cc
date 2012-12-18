@@ -13,7 +13,7 @@
 //
 // Original Author:  Laurent Forthomme,40 4-B20,+41227671567,
 //         Created:  Wed Jan 25 18:52:33 CET 2012
-// $Id$
+// $Id: GeneratePUdist.cc,v 1.1 2012/04/10 14:23:35 lforthom Exp $
 //
 //
 
@@ -82,8 +82,7 @@ GeneratePUdist::GeneratePUdist(const edm::ParameterSet& pset)
   TNPUTrue_ = fs->make<TH1D>("TNPUTrue","True pileup interactions",40,0.,40.);
   TNPVIcount_ = fs->make<TH1D>("TNPVIcount","No. PVI",40,0.,40.);
   TNVTX_ = fs->make<TH1D>("TNVTX","No. reconstructed vertices",40,0.,40.);
-
-
+  TPU_ = fs->make<TH1D>("TPU","Debug",40,0.,40.);
 
 }
 
@@ -112,7 +111,8 @@ GeneratePUdist::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
    
    std::vector<PileupSummaryInfo>::const_iterator PVI;
 
-   int npv = -1;
+   int npv = 0;
+   int ni = 0;
    int npvtrue = -1;
    int npvm1true = 0;
    int npv0true = 0;
@@ -124,20 +124,23 @@ GeneratePUdist::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
    for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
      int BX = PVI->getBunchCrossing();
-     if(BX == -1) {
-       npvm1true++;
-       nm1 = PVI->getPU_NumInteractions();
+     if(abs(BX)<=1) {
+       if(BX == -1) {
+	 npvm1true++;
+	 nm1 = PVI->getPU_NumInteractions();
+       }
+       if(BX == 0) {
+	 npv0true++;
+	 npT = PVI->getTrueNumInteractions();
+	 n0 = PVI->getPU_NumInteractions();      
+       }
+       if(BX == 1) {
+	 npvp1true++;
+	 np1 = PVI->getPU_NumInteractions();
+       }
+       npv += PVI->getPU_NumInteractions();
+       ni++;
      }
-     if(BX == 0) {
-       npv0true++;
-       npT = PVI->getTrueNumInteractions();
-       n0 = PVI->getPU_NumInteractions();      
-     }
-     if(BX == 1) {
-       npvp1true++;
-       np1 = PVI->getPU_NumInteractions();
-     }
-     npv = PVI->getPU_NumInteractions();
      npvtrue = PVI->getTrueNumInteractions();
    }
 
@@ -149,6 +152,7 @@ GeneratePUdist::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
    TNVTX_->Fill(float(NVtx));
    TNPUTrue_->Fill(npT);
    TNPUInTime_->Fill(n0);
+   if (npv>=0) TPU_->Fill(float(npv)/float(ni));
 }
 
 

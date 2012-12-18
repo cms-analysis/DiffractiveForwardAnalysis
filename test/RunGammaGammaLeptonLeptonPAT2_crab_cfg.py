@@ -23,7 +23,10 @@ process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True),
 # source
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-    				'data.root'
+#    				'data.root'
+#    'rfio:/castor/cern.ch/user/j/jjhollar/ExclWW/GamGamWW_SM_WithFF_START44_Fall11PU_RECO.root',
+#    'file:/tmp/lforthom/MuMuAnalyzer_withPU_ElElMu-15GeV_0010.root',
+    'file:/tmp/lforthom/step2_RAW2DIGI_L1Reco_RECO_InelElmumu15GeV_0087.root',
                                ),
 			    duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
                             )
@@ -95,8 +98,6 @@ process.offlinePrimaryVerticesDA = process.offlinePrimaryVertices.clone()
 
 #process.output.outputCommands.extend(AODEventContent.outputCommands)
 
-pileupReweighting = True
-
 # Set to True if running on MC  
 process.gamgammumuanalysis.ReadMCEffCorrections = False
 process.gamgammumuanalysis.ReadMCEffCorrectionsByCharge = False
@@ -107,15 +108,31 @@ process.gamgammumuanalysis.maxExtraTracks = cms.untracked.int32(15)
 process.gamgammumuanalysis.runningOnData = cms.untracked.bool(False)
 #===================================================================
 
-#process.genPUdist
-
-if (pileupReweighting):
+if (process.gamgammumuanalysis.runningOnData == False):
     print "Including the computation of the PU weights"
-    process.gamgammumuanalysis.mcpufile = cms.string("PileupHistos_genPU-Fall11.root")
-    process.gamgammumuanalysis.mcpupath = cms.untracked.string("genPUdist/TNPUTrue")
-    process.gamgammumuanalysis.datapufile = cms.string("PileupHistos_data-2011.root")
-    process.gamgammumuanalysis.datapufileA = cms.string("PileupHistos_data-2011A.root")
-    process.gamgammumuanalysis.datapufileB = cms.string("PileupHistos_data-2011B.root")
+    #process.gamgammumuanalysis.mcpufile = cms.string("PileupHistos_genPU-Fall11_0110.root")
+    #process.gamgammumuanalysis.mcpupath = cms.untracked.string("genPUdist/TNPUTrue")
+    #process.gamgammumuanalysis.mcpupath = cms.untracked.string("genPUdist/TPU")
+    #process.gamgammumuanalysis.mcpupath = cms.untracked.string("genPUdist/TNVTX")
+    #process.gamgammumuanalysis.mcpufile = cms.string("PU_MC-Fall11_1110.root")
+    #process.gamgammumuanalysis.mcpupath = cms.untracked.string("pu")
+    #process.gamgammumuanalysis.datapufile = cms.string("PileupHistos_data-2011.root")
+    #process.gamgammumuanalysis.datapufileA = cms.string("PileupHistos_data-2011A.root")
+    #process.gamgammumuanalysis.datapufileB = cms.string("PileupHistos_data-2011B.root")
+    #process.gamgammumuanalysis.datapufile = cms.string("PileupHistos_data-2011_HNTruth.root")
+    #process.gamgammumuanalysis.datapufileA = cms.string("PileupHistos_data-2011A_HNTruth.root")
+    #process.gamgammumuanalysis.datapufileB = cms.string("PileupHistos_data-2011B_HNTruth.root")
+    #process.gamgammumuanalysis.datapufile = cms.string("PileupHistos_data-2011_HNnonTruth.root")
+    #process.gamgammumuanalysis.datapufileA = cms.string("PileupHistos_data-2011A_HNnonTruth.root")
+    #process.gamgammumuanalysis.datapufileB = cms.string("PileupHistos_data-2011B_HNnonTruth.root")
+    #process.gamgammumuanalysis.datapufile = cms.string("MyDataPileupHistogram.root")
+    #process.gamgammumuanalysis.datapufileA = cms.string("MyDataPileupHistogramA.root")
+    #process.gamgammumuanalysis.datapufileB = cms.string("MyDataPileupHistogramB.root")
+    process.gamgammumuanalysis.mcpufile = cms.string("PU_MC-Fall11_1710.root")
+    process.gamgammumuanalysis.mcpupath = cms.untracked.string("pileup")
+    process.gamgammumuanalysis.datapufile = cms.string("Cert_160404-178078_7TeV_Collisions11_JSON_v3.pileupTruth_v2_finebin.root")
+    process.gamgammumuanalysis.datapufileA = cms.string("Cert_160404-173692_7TeV_Collisions11_JSON_v3.pileupTruth_v2_finebin.root")
+    process.gamgammumuanalysis.datapufileB = cms.string("Cert_175832-178078_7TeV_Collisions11_JSON_v3.pileupTruth_v2_finebin.root")
     process.gamgammumuanalysis.datapupath = cms.untracked.string("pileup")
 
 else:

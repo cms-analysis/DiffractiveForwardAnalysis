@@ -13,7 +13,7 @@
 //
 // Original Author:  Jonathan Hollar
 //         Created:  Wed Sep 20 10:08:38 BST 2006
-// $Id: GammaGammaMuMu.cc,v 1.110 2012/04/02 07:51:31 jjhollar Exp $
+// $Id: GammaGammaMuMu.cc,v 1.111 2012/08/31 14:35:02 lforthom Exp $
 //
 //
 
@@ -192,6 +192,10 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   rootfilename       = pset.getUntrackedParameter<std::string>("outfilename","test.root");
 
   runningOnData      = pset.getUntrackedParameter<bool>("runningOnData", true);
+
+  std::cout << "dataPileupFile : " << dataPileupFile << std::endl;
+  std::cout << "dataPileupFileA : " << dataPileupFileA << std::endl;
+  std::cout << "dataPileupFileB : " << dataPileupFileB << std::endl;
 
   // no Pileup reweighting while working on data
   if (dataPileupFile != "") {
@@ -466,6 +470,7 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("PrimVertexCand_mumuTwoTracks",&PrimVertexCand_mumuTwoTracks,"PrimVertexCand_mumuTwoTracks[nPrimVertexCand]/I"); 
   thetree->Branch("PrimVertexCand_mumuExactlyTwoTracks",&PrimVertexCand_mumuExactlyTwoTracks,"PrimVertexCand_mumuExactlyTwoTracks[nPrimVertexCand]/I");  
   thetree->Branch("PrimVertexCand_mumuTwoTracksMap",&PrimVertexCand_mumuTwoTracksMap,"PrimVertexCand_mumuTwoTracksMap/I");  
+  thetree->Branch("PrimVertexCand_mumuId",&PrimVertexCand_mumuId,"PrimVertexCand_mumuId/I");
 
   thetree->Branch("LowPt_pt",LowPt_pt,"LowPt_pt[nMuonCand]/D");
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
@@ -761,9 +766,9 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
   const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&event);
 
-  Weight3D = 1.;
-  Weight3DRun2011A = 1.;
-  Weight3DRun2011B = 1.;
+  Weight3D = -999.;
+  Weight3DRun2011A = -999.;
+  Weight3DRun2011B = -999.;
   if (!runningOnData) {
     Weight3D = LumiWeights->weight3D(*iEventB);
     Weight3DRun2011A = LumiWeightsA->weight3D(*iEventB);
@@ -911,13 +916,13 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     double minimal_distance(999); 
     for(int k=0; k<nMuonCand; k++) {
       for(int l=k+1; l<nMuonCand; l++) {
-	      if((MuonCand_charge[k]*MuonCand_charge[l]<0) || (keepsamesign == true)) {
-	        found_pair=true;
-	        double muonsDist=sqrt(pow(MuonCand_vtxx[k]-MuonCand_vtxx[l],2)
-				      +pow(MuonCand_vtxy[k]-MuonCand_vtxy[l],2)
-				      +pow(MuonCand_vtxz[k]-MuonCand_vtxz[l],2));
-	        if(muonsDist<minimal_distance){minimal_distance=muonsDist; MuonPairCand[0]=k; MuonPairCand[1]=l;}
-	      }
+	if((MuonCand_charge[k]*MuonCand_charge[l]<0) || (keepsamesign == true)) {
+	  found_pair=true;
+	  double muonsDist=sqrt(pow(MuonCand_vtxx[k]-MuonCand_vtxx[l],2)
+				+pow(MuonCand_vtxy[k]-MuonCand_vtxy[l],2)
+				+pow(MuonCand_vtxz[k]-MuonCand_vtxz[l],2));
+	  if(muonsDist<minimal_distance){minimal_distance=muonsDist; MuonPairCand[0]=k; MuonPairCand[1]=l;}
+	}
       }
     }
   }
@@ -975,7 +980,6 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       PrimVertexCand_x[nPrimVertexCand] = vertex_i->x();
       PrimVertexCand_y[nPrimVertexCand] = vertex_i->y();
       PrimVertexCand_z[nPrimVertexCand] = vertex_i->z();
-      if (vertex_i->tracksSize()>(double)maxNumExtraTracks) continue;
       PrimVertexCand_tracks[nPrimVertexCand] = (vertex_i->tracksSize()>0) ? vertex_i->tracksSize() : 0;
       PrimVertexCand_chi2[nPrimVertexCand] = vertex_i->chi2();
       PrimVertexCand_ndof[nPrimVertexCand] = vertex_i->ndof();
@@ -989,24 +993,26 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       PrimVertexCand_mumuTwoTracksMap = -1;
       
       if((PrimVertexCand_tracks[nPrimVertexCand] >= 2) && found_pair) {
-	      for (reco::Vertex::trackRef_iterator vertex_curTrack = vertex_i->tracks_begin(); vertex_curTrack!=vertex_i->tracks_end(); vertex_curTrack++) {
-	        if((fabs((*vertex_curTrack)->p()-MuonCandTrack_p[MuonPairCand[0]])<1.e-2   || fabs((*vertex_curTrack)->pt()-MuonCand_pt[MuonPairCand[1]])<1.e-2) &&
-	           (fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuonPairCand[0]])<1.e-2 || fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuonPairCand[1]])<1.e-2) &&
-	           (fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuonPairCand[0]])<1.e-2 || fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuonPairCand[1]])<1.e-2))
-            track_match_muon++;
-	      }
+	for (reco::Vertex::trackRef_iterator vertex_curTrack = vertex_i->tracks_begin(); vertex_curTrack!=vertex_i->tracks_end(); vertex_curTrack++) {
+	  if((fabs((*vertex_curTrack)->p()-MuonCandTrack_p[MuonPairCand[0]])<1.e-2   || fabs((*vertex_curTrack)->pt()-MuonCand_pt[MuonPairCand[1]])<1.e-2) &&
+	     (fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuonPairCand[0]])<1.e-2 || fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuonPairCand[1]])<1.e-2) &&
+	     (fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuonPairCand[0]])<1.e-2 || fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuonPairCand[1]])<1.e-2))
+            track_match_muon++;	  
+	}
       }
       
       if((PrimVertexCand_tracks[nPrimVertexCand] >= 2) && found_pair && track_match_muon>=2) {
-	      PrimVertexCand_mumuTwoTracks[nPrimVertexCand] = 1;
-	      mumuprimvtxx = PrimVertexCand_x[nPrimVertexCand];
-	      mumuprimvtxy = PrimVertexCand_y[nPrimVertexCand]; 
-	      mumuprimvtxz = PrimVertexCand_z[nPrimVertexCand]; 
-	      if(PrimVertexCand_tracks[nPrimVertexCand] == 2) {
-	        PrimVertexCand_mumuExactlyTwoTracks[nPrimVertexCand] = 1;
-	        PrimVertexCand_mumuTwoTracksMap = nPrimVertexCand;
-	      }
-	      found_mumuvertex = true;
+	PrimVertexCand_mumuTwoTracks[nPrimVertexCand] = 1;
+	mumuprimvtxx = PrimVertexCand_x[nPrimVertexCand];
+	mumuprimvtxy = PrimVertexCand_y[nPrimVertexCand]; 
+	mumuprimvtxz = PrimVertexCand_z[nPrimVertexCand]; 
+	if(PrimVertexCand_tracks[nPrimVertexCand] == 2) {
+	  PrimVertexCand_mumuExactlyTwoTracks[nPrimVertexCand] = 1;
+	  PrimVertexCand_mumuTwoTracksMap = nPrimVertexCand;
+	}
+	if (vertex_i->tracksSize()>(double)maxNumExtraTracks+2) continue;
+	PrimVertexCand_mumuId = nPrimVertexCand;
+	found_mumuvertex = true;
       }
       nPrimVertexCand++;
     }

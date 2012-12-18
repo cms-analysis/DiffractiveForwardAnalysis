@@ -46,6 +46,7 @@ class GeneratePUdist : public edm::EDAnalyzer {
   TH1D *TNPUTrue_;
   TH1D *TNVTX_;
   TH1D *TNPVIcount_;
+  TH1D *TPU_;
 };
 
 #endif

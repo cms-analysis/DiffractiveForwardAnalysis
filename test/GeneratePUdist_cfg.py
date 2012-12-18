@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('GeneratePUdist')
 
-process.load("DiffractiveForwardAnalysis.GeneratePUdist.generatepudist_cfi")
+process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.GeneratePUdist_cfi")
 
 process.scrapingVeto = cms.EDFilter("FilterOutScraping",
                                     applyfilter = cms.untracked.bool(True),
@@ -34,7 +34,7 @@ process.source = cms.Source("PoolSource",
                             )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("PUHistos.root"),
+                                   fileName = cms.string("PileupDist_DYtoMuMu.root"),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
