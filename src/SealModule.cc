@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaMuMu.h"
+#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaMuEMC.h"
 //#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaMuE.h" 
 //#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/CosmicsMuMu.h"
 //#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/CollisionsMuMu.h"
@@ -10,6 +11,7 @@
 
 //DEFINE_SEAL_MODULE();
 DEFINE_FWK_MODULE(GammaGammaMuMu);
+DEFINE_FWK_MODULE(GammaGammaMuEMC);
 //DEFINE_FWK_MODULE(GammaGammaMuE); 
 //DEFINE_FWK_MODULE(CosmicsMuMu);
 //DEFINE_FWK_MODULE(CollisionsMuMu);
