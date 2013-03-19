@@ -15,14 +15,14 @@ observation 0
 bin              1        1   
 process          aaWWBSM  aaWWSM
 process          0        1   
-rate             1.0      0.12  
+rate             1.0     0.14  
 
 ------------
 lumi     lnN      1.022 1.022      lumi affects both signal and bkg (data-driven). lnN = lognormal
-lepton   lnN      1.016 1.016      lepton trigger and id uncertainty
+lepton   lnN      1.042 1.042      lepton trigger and id uncertainty
 vtx      lnN      1.01  1.01       vertex uncertainty
 pu       lnN      1.10  1.10       PU uncertainty 
 i_scale  lnN      -     1.20       Inelastic scale factor uncertainty 
-eff_var  lnN      1.06  -          Model-dependent efficiency
+eff_var  lnN      1.10  -          Model-dependent efficiency
 aaWW_norm  gmN 27 -     0.004      MC statistical uncertainty
 
