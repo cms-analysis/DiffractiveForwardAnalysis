@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ggll")
 
+runOnMC = False
+
 #########################
 #    General options    #
 #########################
@@ -21,7 +23,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
       '/store/data/Run2012A/MuEG/AOD/20Nov2012-v2/00000/2ED48DC8-CA34-E211-86FF-003048FFCBFC.root',
-    )
+    ),
+    firstEvent = cms.untracked.uint32(540)
 )
 
 #########################
@@ -83,7 +86,6 @@ process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
 from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFMuonIso
 process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
 process.pfiso = cms.Sequence(process.pfParticleSelectionSequence + process.eleIsoSequence)
-
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *',
@@ -91,11 +93,21 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_*Muons*_*_*',
         'keep *_*Electrons*_*_*',
         #'keep *_*Photons*_*_*',
-        #'keep *_*Jets*_*_*',
+        'keep *_*Jets*_*_*',
+        'keep *_*MET*_*_*',
+        'keep recoPFCandidates_particleFlow_*_*',
+        #*patEventContentNoCleaning
     ),
 )
 
-#removeCleaning(process)
+# Particle flow
+from PhysicsTools.PatAlgos.tools.pfTools import *
+postfix = "PFlow"
+jetAlgo="AK5" 
+#usePFBRECO(process,runPFBRECO=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix) 
+usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix)
+useGsfElectrons(process,postfix)
+removeCleaning(process)
 removeMCMatching(process, ['All'])
 
 #########################
@@ -113,7 +125,7 @@ process.ggll.GlobalMuonCollectionLabel = cms.untracked.InputTag("selectedPatMuon
 #process.ggll.GlobalEleCollectionLabel = cms.untracked.InputTag("gsfElectrons") # RECO
 #process.ggll.GlobalEleCollectionLabel = cms.untracked.InputTag("selectedPatElectronsPFlow") # PAT (particle flow)
 process.ggll.GlobalEleCollectionLabel = cms.untracked.InputTag("selectedPatElectrons") # PAT
-process.ggll.RunOnMC = cms.untracked.bool(False)
+process.ggll.RunOnMC = cms.untracked.bool(runOnMC)
 process.ggll.outfilename = cms.untracked.string('output.root')
 
 process.p = cms.Path(
@@ -122,5 +134,7 @@ process.p = cms.Path(
     process.pfiso+
     process.primaryVertexFilter+
     process.patDefaultSequence+
+    getattr(process,"patPF2PATSequence"+postfix)+
     process.ggll
 )
+getattr(process,"pfNoElectron"+postfix).enable = True

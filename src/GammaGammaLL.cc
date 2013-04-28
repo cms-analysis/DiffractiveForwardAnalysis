@@ -13,7 +13,7 @@
 //
 // Original Author:  Laurent Forthomme,40 4-B20,+41227671567,
 //         Created:  Thu Sep 13 15:17:14 CET 2012
-// $Id: GammaGammaLL.cc,v 1.1 2013/03/20 17:56:13 lforthom Exp $
+// $Id: GammaGammaLL.cc,v 1.2 2013/04/05 10:11:40 lforthom Exp $
 //
 //
 
@@ -47,10 +47,10 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
   _fetchElectrons = false;
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outfilename", "output.root");
   
-	hltMenuLabel_ = iConfig.getParameter<std::string>("HLTMenuLabel");
-	triggersList_ = iConfig.getParameter<std::vector<std::string> >("TriggersList");
-	_hlts = new HLTmatches(triggersList_);
-	nHLT = triggersList_.size();
+  hltMenuLabel_ = iConfig.getParameter<std::string>("HLTMenuLabel");
+  triggersList_ = iConfig.getParameter<std::vector<std::string> >("TriggersList");
+  _hlts = new HLTmatches(triggersList_);
+  nHLT = triggersList_.size();
 	
   recoVertexLabel_ = iConfig.getParameter<edm::InputTag>("RecoVertexLabel");
   
@@ -77,10 +77,17 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
   }
   muonLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("GlobalMuonCollectionLabel", std::string("muons"));
   eleLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("GlobalEleCollectionLabel", std::string("gsfElectrons"));
-  isoValInputTag_ = iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags"); 
-  beamSpotInputTag_ = iConfig.getParameter<edm::InputTag>("beamSpotInputTag");
-  conversionsInputTag_ = iConfig.getParameter<edm::InputTag>("conversionsInputTag");
-  rhoIsoInputTag_ = iConfig.getParameter<edm::InputTag>("rhoIsoInputTag"); 
+  isoValLabel_ = iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags");
+  beamSpotLabel_ = iConfig.getParameter<edm::InputTag>("beamSpotInputTag");
+  conversionsLabel_ = iConfig.getParameter<edm::InputTag>("conversionsInputTag");
+  rhoIsoLabel_ = iConfig.getParameter<edm::InputTag>("rhoIsoInputTag");
+  
+  // Particle flow input tag
+  pflowLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("PFLabel", std::string("particleFlow"));
+  
+  // Jets/MET input tags
+  jetLabel_ = iConfig.getParameter<edm::InputTag>("JetCollectionLabel");
+  metLabel_ = iConfig.getParameter<edm::InputTag>("MetLabel");
   
   file = new TFile(outputFile_.c_str(), "recreate");
   file->cd();
@@ -123,7 +130,7 @@ GammaGammaLL::~GammaGammaLL()
   file->Write();
   file->Close();
 
-	delete _hlts;
+  delete _hlts;
   delete tree;
 
 }
@@ -136,24 +143,24 @@ GammaGammaLL::~GammaGammaLL()
 void
 GammaGammaLL::LookAtTriggers(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-	Int_t trigNum;
+  Int_t trigNum;
 	
   // Get the trigger information from the event
   iEvent.getByLabel(edm::InputTag("TriggerResults","",hltMenuLabel_),hltResults_) ; 
   const edm::TriggerNames & trigNames = iEvent.triggerNames(*hltResults_);
 
   for (unsigned int i=0; i<trigNames.size(); i++) {
-  	//std::cout << "--> " << trigNames.triggerNames().at(i) << std::endl;
-  	trigNum = _hlts->TriggerNum(trigNames.triggerNames().at(i));
-  	if (trigNum==-1) continue; // Trigger didn't match the interesting ones
-  	HLT_Accept[trigNum] = hltResults_->accept(i) ? 1 : 0;
-  	HLT_Prescl[trigNum] = hltConfig_.prescaleValue(iEvent, iSetup, trigNames.triggerNames().at(i));
-  	
-  	//LF FIXME need to think about that implementation...
-  	/*if (trigNames.triggerNames().at(i).find("CaloIdL")) {} // Leading lepton
-  	else if (trigNames.triggerNames().at(i).find("CaloIdT")) {} // Trailing lepton*/
-  	//std::cout << "*-------> " << trigNames.triggerNames().at(i).substr(0, trigNames.triggerNames().at(i).find_last_of("_"));
-  	//HLT_LeadingLepton_Prescl[] = hltConfig_.prescaleValue(event, iSetup, "HLT_Mu8Ele17L");  
+    //std::cout << "--> " << trigNames.triggerNames().at(i) << std::endl;
+    trigNum = _hlts->TriggerNum(trigNames.triggerNames().at(i));
+    if (trigNum==-1) continue; // Trigger didn't match the interesting ones
+    HLT_Accept[trigNum] = hltResults_->accept(i) ? 1 : 0;
+    HLT_Prescl[trigNum] = hltConfig_.prescaleValue(iEvent, iSetup, trigNames.triggerNames().at(i));
+    
+    //LF FIXME need to think about that implementation...
+    /*if (trigNames.triggerNames().at(i).find("CaloIdL")) {} // Leading lepton
+      else if (trigNames.triggerNames().at(i).find("CaloIdT")) {} // Trailing lepton*/
+    //std::cout << "*-------> " << trigNames.triggerNames().at(i).substr(0, trigNames.triggerNames().at(i).find_last_of("_"));
+    //HLT_LeadingLepton_Prescl[] = hltConfig_.prescaleValue(event, iSetup, "HLT_Mu8Ele17L");  
   }
 }
 
@@ -162,26 +169,29 @@ void
 GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
+  //std::cout << "Beginning First init" << std::endl;
 
   // First initialization of the variables
   nPrimVertexCand = nFilteredPrimVertexCand = 0;
   nMuonCand = nEleCand = nLeptonCand = 0;
   nExtraTracks = nQualityExtraTrack = 0;
+  nJetCand = 0;
   nGenMuonCand = nGenMuonCandOutOfAccept = 0;
   nGenEleCand = nGenEleCandOutOfAccept = 0;
+  nPFPhotonCand = 0;
   
   HPS_acc420b1 = HPS_acc220b1 = HPS_acc420and220b1 = HPS_acc420or220b1 = -1;
   HPS_acc420b2 = HPS_acc220b2 = HPS_acc420and220b2 = HPS_acc420or220b2 = -1;
   GenPair_p = GenPair_pt = GenPair_mass = GenPair_phi = GenPair_eta = -999.;
   GenPair_dphi = GenPair_dpt = GenPair_3Dangle = 0.;
-  for (i=0; i<MAX_MUONS; i++) {
+
+  closesttrkdxyz = closesthighpuritytrkdxyz = 999.;
+  for (i=0; i<MAX_LL; i++) {
     MuonCand_p[i] = MuonCand_px[i] = MuonCand_py[i] = MuonCand_pz[i] = -999.;
     MuonCand_pt[i] = MuonCand_eta[i] = MuonCand_phi[i] = -999.;
     MuonCand_charge[i] = -999;
     MuonCand_vtxx[i] = MuonCand_vtxy[i] = MuonCand_vtxz[i] = -999.;
     MuonCand_isglobal[i] = MuonCand_istracker[i] = MuonCand_isstandalone[i] = -999;
-  }
-  for (i=0; i<MAX_ELE; i++) {
     EleCand_e[i] = EleCand_et[i] = EleCand_px[i] = EleCand_py[i] = EleCand_pz[i] = -999.;
     EleCand_p[i] = EleCand_phi[i] = EleCand_eta[i] = -999.;
     EleCand_charge[i] = -999;
@@ -194,21 +204,41 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     EleCand_wp80[i] = EleCand_mediumID[i] = EleCand_looseID[i] = -1;
   }
   for (i=0; i<MAX_ET; i++) {
-  	ExtraTrack_p[i] = ExtraTrack_px[i] = ExtraTrack_py[i] = ExtraTrack_pz[i] = -999.;
-  	ExtraTrack_pt[i] = ExtraTrack_eta[i] = ExtraTrack_phi[i] = -999.;
-  	ExtraTrack_charge[etind] = -999;
-  	ExtraTrack_chi2[i] = ExtraTrack_ndof[i] = ExtraTrack_vtxdxyz[i] = -999.;
+    ExtraTrack_p[i] = ExtraTrack_px[i] = ExtraTrack_py[i] = ExtraTrack_pz[i] = -999.;
+    ExtraTrack_pt[i] = ExtraTrack_eta[i] = ExtraTrack_phi[i] = -999.;
+    ExtraTrack_charge[i] = ExtraTrack_ndof[i] = -999;
+    ExtraTrack_chi2[i] = ExtraTrack_vtxdxyz[i] = -999.;
     ExtraTrack_vtxT[i] = ExtraTrack_vtxZ[i] = -999.;
     ExtraTrack_x[i] = ExtraTrack_y[i] = ExtraTrack_z[i] = -999.;
   }
-  for (i=0; i<MAX_VTX; i++) {
-    Pair_candidates[i][0] = Pair_candidates[vtxind][1] = PrimVertexCand_id[i] = -1;
-    PrimVertexCand_tracks[i] = PrimVertexCand_matchedtracks[i] = PrimVertexCand_unmatchedtracks[i] = 0;
+  for (i=0; i<MAX_PAIRS; i++) {
+    Pair_candidates[i][0] = Pair_candidates[i][1] = -1;
     Pair_mindist[i] = Pair_p[i] = Pair_pt[i] = Pair_mass[i] = Pair_phi[i] = Pair_eta[i] = -999.;
     Pair_dphi[i] = Pair_dpt[i] = Pair_3Dangle[i] = -999.;
-    PrimVertexCand_x[i] = PrimVertexCand_y[vtxind] = PrimVertexCand_z[vtxind] = -999.;
+    Pair_extratracks1mm[i] = Pair_extratracks2mm[i] = Pair_extratracks3mm[i] = 0;
+    Pair_extratracks4mm[i] = Pair_extratracks5mm[i] = Pair_extratracks1cm[i] = 0;
+    Pair_extratracks2cm[i] = Pair_extratracks3cm[i] = Pair_extratracks4cm[i] = 0;
+    Pair_extratracks5cm[i] = Pair_extratracks10cm[i] = 0;    
+  }
+  for (i=0; i<MAX_VTX; i++) {
+    PrimVertexCand_id[i] = -1;
+    PrimVertexCand_tracks[i] = PrimVertexCand_matchedtracks[i] = PrimVertexCand_unmatchedtracks[i] = 0;
+    PrimVertexCand_x[i] = PrimVertexCand_y[i] = PrimVertexCand_z[i] = -999.;
     PrimVertexCand_chi2[i] = PrimVertexCand_ndof[i] = -999.;
   }
+  for (i=0; i<MAX_PHO; i++) { 
+    PFPhotonCand_p[i] = PFPhotonCand_pt[i] = -999.;
+    PFPhotonCand_px[i] = PFPhotonCand_py[i] = PFPhotonCand_pz[i] = -999.;
+    PFPhotonCand_eta[i] = PFPhotonCand_phi[i] = -999.;
+    PFPhotonCand_detatrue[i] = PFPhotonCand_dphitrue[i] = PFPhotonCand_drtrue[i] = -999.;
+  }
+  for (i=0; i<MAX_JETS; i++) {
+    JetCand_px[i] = JetCand_py[i] = JetCand_pz[i] = -999.;
+    JetCand_e[i] = JetCand_phi[i] = JetCand_eta[i] = -999;
+  }
+  HighestJet_e = HighestJet_eta = HighestJet_phi = -999.;
+  HEJet_e = SumJet_e = totalJetEnergy = 0.;
+  Etmiss = Etmiss_x = Etmiss_y = Etmiss_z = Etmiss_significance = -999.;
   
   Weight3D = 1.;
   
@@ -220,6 +250,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   _leptonptmp = new TLorentzVector();
   
+  //std::cout << "Passed First init of the variables" << std::endl;
+
   // Run and BX information
   BX = iEvent.bunchCrossing();
   Run = iEvent.id().run();
@@ -230,7 +262,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   LookAtTriggers(iEvent, iSetup);
   
   // beam spot information
-  iEvent.getByLabel(beamSpotInputTag_, beamspot_h);
+  iEvent.getByLabel(beamSpotLabel_, beamspot_h);
   const reco::BeamSpot &beamSpot = *(beamspot_h.product());
 
   // Get the vertex collection from the event
@@ -238,8 +270,10 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   const reco::VertexCollection* vertices = recoVertexColl.product();
 
   // rho for isolation 
-  iEvent.getByLabel(rhoIsoInputTag_, rhoIso_h); 
+  iEvent.getByLabel(rhoIsoLabel_, rhoIso_h); 
   rhoIso = *(rhoIso_h.product()); 
+  
+  //std::cout << "Passed Isolation" << std::endl;
 
   // Generator level information
   if (runOnMC_) {
@@ -249,6 +283,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (genPart->pt()<minPtMC_ || (minEtaMC_!=-1. && fabs(genPart->eta())>minEtaMC_)) {
         if (fabs(genPart->pdgId())==13) nGenMuonCandOutOfAccept += 1;
         if (fabs(genPart->pdgId())==11) nGenEleCandOutOfAccept += 1;
+        if (fabs(genPart->pdgId())==22) nGenPhotCandOutOfAccept += 1;
         continue;
       }
       if (genPart->pdgId()!=2212 && genPart->status()!=1) continue;
@@ -274,7 +309,14 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         nGenEleCand += 1;
       }
-      foundGenCandPairInEvent = true;
+      if (fabs(genPart->pdgId())==22 && nGenPhotCand<MAX_GENPHO) {
+        GenPhotCand_pt[nGenPhotCand] = genPart->pt();
+        GenPhotCand_eta[nGenPhotCand] = genPart->eta();
+        GenPhotCand_phi[nGenPhotCand] = genPart->phi();
+        
+        nGenPhotCand += 1;
+      }
+      foundGenCandPairInEvent = false;
     	if (_fetchElectrons && _fetchMuons) { // Looks at electron+muon
         if(nGenMuonCand!=1 || nGenEleCand!=1) continue; // FIXME maybe a bit tight according to the newer PU conditions?
         l1.SetXYZM(GenMuonCand_px[0], GenMuonCand_py[0], GenMuonCand_pz[0], MASS_MU);
@@ -356,6 +398,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&iEvent);
     Weight3D = LumiWeights->weight3D(*iEventB);
   }
+  
+  //std::cout << "Passed Pileup" << std::endl;
 
   // Get the muons collection from the event
   if (_fetchMuons) {
@@ -385,18 +429,20 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
   
+  //std::cout << "Passed Muon" << std::endl;
+
   // Get the electrons collection from the event
   if (_fetchElectrons) {
     iEvent.getByLabel(eleLabel_, eleColl);
     // RECO electrons
     iEvent.getByLabel(InputTag("gsfElectrons"), eleCollRECO);
     // iso deposits
-    IsoDepositVals isoVals(isoValInputTag_.size());
+    IsoDepositVals isoVals(isoValLabel_.size());
     // New 2012 electron ID variables conversions
-    iEvent.getByLabel(conversionsInputTag_, conversions_h);
+    iEvent.getByLabel(conversionsLabel_, conversions_h);
 
-    for (size_t j = 0; j<isoValInputTag_.size(); j++) { 
-      iEvent.getByLabel(isoValInputTag_[j], isoVals[j]); 
+    for (size_t j = 0; j<isoValLabel_.size(); j++) { 
+      iEvent.getByLabel(isoValLabel_[j], isoVals[j]); 
     }
         
     for (electron=eleColl->begin(); electron!=eleColl->end() && nEleCand<MAX_ELE; electron++) {
@@ -480,90 +526,160 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(selectmedium) EleCand_mediumID[nEleCand] = 1;
       if(selectloose) EleCand_looseID[nEleCand] = 1;
       
-  	  nEleCand++;
+      nEleCand++;
     }
   }
-  
+
   delete _leptonptmp;
   
   nLeptonCand += (_fetchMuons) ? nMuonCand : 0;
   nLeptonCand += (_fetchElectrons) ? nEleCand : 0;
-	vtxind = 0;
+  
+  //std::cout << "Passed Electron" << std::endl;
+  
+  // Get the PFlow collection from the event
+  iEvent.getByLabel(pflowLabel_, pflowColl);
+  for(pflow=pflowColl->begin(); pflow!=pflowColl->end(); pflow++) { 
+    parttype = reco::PFCandidate::ParticleType(pflow->particleId()); 
+    if(parttype==4 && nPFPhotonCand<MAX_PHO) { 
+      if(nPFPhotonCand==0) { 
+        leadingphotpx = pflow->px(); 
+        leadingphotpy = pflow->py();  
+        leadingphotpz = pflow->pz();  
+        leadingphotp = pflow->p();  
+      } 
+      PFPhotonCand_p[nPFPhotonCand] = pflow->p();
+      PFPhotonCand_px[nPFPhotonCand] = pflow->px();
+      PFPhotonCand_py[nPFPhotonCand] = pflow->py();
+      PFPhotonCand_pz[nPFPhotonCand] = pflow->pz();
+      PFPhotonCand_pt[nPFPhotonCand] = pflow->pt();
+      PFPhotonCand_eta[nPFPhotonCand] = pflow->eta();
+      PFPhotonCand_phi[nPFPhotonCand] = pflow->phi();
+      PFPhotonCand_drtrue[nPFPhotonCand] = -999.;
+      PFPhotonCand_detatrue[nPFPhotonCand] = -999.;
+      PFPhotonCand_dphitrue[nPFPhotonCand] = -999.;
+      photdr = 999.;
+      endphotdr = endphotdeta = endphotdphi = 999.;
+      if (runOnMC_) {
+	for (Int_t j=0; j<nGenPhotCand; j++) { // matching with the 'true' photon object from MC
+	  photdeta = (PFPhotonCand_eta[nPFPhotonCand]-GenPhotCand_eta[j]);
+	  photdphi = (PFPhotonCand_phi[nPFPhotonCand]-GenPhotCand_phi[j]);
+	  photdr = sqrt(std::pow(photdeta, 2)+std::pow(photdphi, 2));
+	  if (photdr<endphotdr) {
+	    endphotdr = photdr;
+	    endphotdeta = photdeta;
+	    endphotdphi = photdphi;
+	  }
+	}
+	PFPhotonCand_detatrue[nPFPhotonCand] = endphotdeta;
+	PFPhotonCand_dphitrue[nPFPhotonCand] = endphotdphi;
+	PFPhotonCand_drtrue[nPFPhotonCand] = endphotdr;
+      }
+      nPFPhotonCand += 1;
+    } 
+  }
+  //std::cout << "Passed PF photons" << std::endl;
 
+  vtxind = 0;
   if (nLeptonCand>=2) {
     // Enough leptons candidates to go deeper and analyze the primary vertices
-        
-	  _leptonType = new TString();
-
-		nPrimVertexCand = vertices->size();
-		
+    
+    _leptonType = new TString();
+    
+    nPrimVertexCand = vertices->size();
     for (vertex=vertices->begin(); vertex!=vertices->end() && vtxind<MAX_VTX; vertex++) {
+      PrimaryVertex *_vtx;
+
       nLeptonsInPrimVertex = 0;
       nExtraTracks = 0;
       nQualityExtraTrack = 0;
       foundPairOnVertex = false;
       etind = 0;
       
-      PrimaryVertex* _vtx = new PrimaryVertex(leptonsType_, muonsMomenta, electronsMomenta);
+      _vtx = new PrimaryVertex(leptonsType_, muonsMomenta, electronsMomenta);
       _vtx->SetPosition(vertex->x(), vertex->y(), vertex->z());
 
       // Loop on all the tracks matched with this vertex    
       reco::Vertex::trackRef_iterator _track;
-    	for (_track=vertex->tracks_begin(); _track!=vertex->tracks_end() && nExtraTracks<MAX_ET; _track++) {
-    	  Int_t leptonId_ = _vtx->AddTrack((*_track).castTo<reco::TrackRef>(), *_leptonType);
-        if (leptonId_==-1) { // Track was not matched to any of the leptons in the collection
-        	ExtraTrack_purity[etind] = (*_track)->quality(reco::TrackBase::highPurity);
-        	ExtraTrack_nhits[etind] = (*_track)->numberOfValidHits();
-        	if (ExtraTrack_purity[etind]==1 && ExtraTrack_nhits[etind]>=3) {
-        		nQualityExtraTrack += 1;
-        	}
-        	ExtraTrack_p[etind] = (*_track)->p();
-        	ExtraTrack_px[etind] = (*_track)->px();
-        	ExtraTrack_py[etind] = (*_track)->py();
-        	ExtraTrack_pz[etind] = (*_track)->pz();
-        	ExtraTrack_pt[etind] = (*_track)->pt();
-        	ExtraTrack_eta[etind] = (*_track)->eta();
-        	ExtraTrack_phi[etind] = (*_track)->phi();
-        	ExtraTrack_charge[etind] = (*_track)->charge();
-        	ExtraTrack_chi2[etind] = (*_track)->chi2();
-        	ExtraTrack_ndof[etind] = (*_track)->ndof();
-          ExtraTrack_vtxdxyz[etind] = sqrt(std::pow(((*_track)->vertex().x()-_vtx->Position.X()),2)
-                                         + std::pow(((*_track)->vertex().y()-_vtx->Position.Y()),2)
-                                         + std::pow(((*_track)->vertex().z()-_vtx->Position.Z()),2));
-          ExtraTrack_vtxT[etind] = sqrt(std::pow((*_track)->vertex().x()-_vtx->Position.X(),2)
-                                      + std::pow((*_track)->vertex().y()-_vtx->Position.Y(),2));
+      for (_track=vertex->tracks_begin(); _track!=vertex->tracks_end() && nExtraTracks<MAX_ET; _track++) {
+	Int_t leptonId_ = _vtx->AddTrack((*_track).castTo<reco::TrackRef>(), *_leptonType);
+	if (leptonId_==-1) { // Track was not matched to any of the leptons in the collection
+	  vtxdst = sqrt(std::pow(((*_track)->vertex().x()-_vtx->Position.X()),2)+
+			std::pow(((*_track)->vertex().y()-_vtx->Position.Y()),2)+
+			std::pow(((*_track)->vertex().z()-_vtx->Position.Z()),2));
+	  
+	  ExtraTrack_purity[etind] = (*_track)->quality(reco::TrackBase::highPurity);
+	  ExtraTrack_nhits[etind] = (*_track)->numberOfValidHits();
+	  
+	  ExtraTrack_p[etind] = (*_track)->p();
+	  ExtraTrack_px[etind] = (*_track)->px();
+	  ExtraTrack_py[etind] = (*_track)->py();
+	  ExtraTrack_pz[etind] = (*_track)->pz();
+	  ExtraTrack_pt[etind] = (*_track)->pt();
+	  ExtraTrack_eta[etind] = (*_track)->eta();
+	  ExtraTrack_phi[etind] = (*_track)->phi();
+	  ExtraTrack_charge[etind] = (*_track)->charge();
+	  ExtraTrack_chi2[etind] = (*_track)->chi2();
+	  ExtraTrack_ndof[etind] = (*_track)->ndof();
+          ExtraTrack_vtxdxyz[etind] = vtxdst;
+          ExtraTrack_vtxT[etind] = sqrt(std::pow((*_track)->vertex().x()-_vtx->Position.X(),2)+
+					std::pow((*_track)->vertex().y()-_vtx->Position.Y(),2));
           ExtraTrack_vtxZ[etind] = fabs((*_track)->vertex().z()-_vtx->Position.Z());
           ExtraTrack_x[etind] = (*_track)->vertex().x();
           ExtraTrack_y[etind] = (*_track)->vertex().y();
           ExtraTrack_z[etind] = (*_track)->vertex().z();
-        	etind += 1;
+          
+          if (vtxdst<0.1) Pair_extratracks1mm[vtxind] += 1;
+          if (vtxdst<0.2) Pair_extratracks2mm[vtxind] += 1;
+          if (vtxdst<0.3) Pair_extratracks3mm[vtxind] += 1;
+          if (vtxdst<0.4) Pair_extratracks4mm[vtxind] += 1;
+          if (vtxdst<0.5) Pair_extratracks5mm[vtxind] += 1;
+          if (vtxdst<1.0) Pair_extratracks1cm[vtxind] += 1;
+          if (vtxdst<2.0) Pair_extratracks2cm[vtxind] += 1;
+          if (vtxdst<3.0) Pair_extratracks3cm[vtxind] += 1;
+          if (vtxdst<4.0) Pair_extratracks4cm[vtxind] += 1;
+          if (vtxdst<5.0) Pair_extratracks5cm[vtxind] += 1;
+          if (vtxdst<10.) Pair_extratracks10cm[vtxind] += 1;
+          if (vtxdst<closesttrkdxyz) {
+            closesttrkdxyz = vtxdst;
+          }
+          
+	  if (ExtraTrack_purity[etind]==1 && ExtraTrack_nhits[etind]>=3) {
+	    nQualityExtraTrack += 1;
+	    if (vtxdst<closesthighpuritytrkdxyz) {
+	      closesthighpuritytrkdxyz = vtxdst;
+	    }
+	  }
+          etind += 1;
         }
+        ClosestExtraTrack_vtxdxyz = closesttrkdxyz;
+        ClosestHighPurityExtraTrack_vtxdxyz = closesthighpuritytrkdxyz;
         nExtraTracks = etind;
         nLeptonsInPrimVertex += 1;
-    	}
-    	if (nLeptonsInPrimVertex<2) continue;
-    	
-    	// At this stage we have at least two matched leptons track on the vertex
+      }
+      if (nLeptonsInPrimVertex<2) continue;
+      
+      // At this stage we have at least two matched leptons track on the vertex
       Pair_candidates[vtxind][0] = -1;
       Pair_candidates[vtxind][1] = -1;
-
-    	if (_fetchElectrons && _fetchMuons) { // Looks at electron+muon
-    	  // Not enough muons or electrons candidates on the vertex
-    	  if (_vtx->MatchedElectrons.size()==0 or _vtx->MatchedMuons.size()==0) {
-    	    continue;
-    	  }
-        minDist = 999.;
-        for(UInt_t i=0; i<_vtx->MatchedMuons.size(); i++) {
-          lep1 = _vtx->MatchedMuons[i];
-          for(UInt_t j=0; j<_vtx->MatchedElectrons.size(); j++) {
+      
+      if (_fetchElectrons && _fetchMuons) { // Looks at electron+muon
+	// Not enough muons or electrons candidates on the vertex
+	if (_vtx->MatchedElectrons.size()==0 or _vtx->MatchedMuons.size()==0) {
+	  continue;
+	}
+	minDist = 999.;
+	for(UInt_t i=0; i<_vtx->MatchedMuons.size(); i++) {
+	  lep1 = _vtx->MatchedMuons[i];
+	  for(UInt_t j=0; j<_vtx->MatchedElectrons.size(); j++) {
             lep2 = _vtx->MatchedElectrons[j];
             if (MuonCand_charge[lep1]*EleCand_charge[lep2]>0) {
               continue;
             }
             foundPairOnVertex = true;
-            leptonsDist=sqrt(pow(MuonCand_vtxx[lep1]-EleCand_vtxx[lep2],2)
-                            +pow(MuonCand_vtxy[lep1]-EleCand_vtxy[lep2],2)
-                            +pow(MuonCand_vtxz[lep1]-EleCand_vtxz[lep2],2));
+            leptonsDist=sqrt(pow(MuonCand_vtxx[lep1]-EleCand_vtxx[lep2],2)+
+			     pow(MuonCand_vtxy[lep1]-EleCand_vtxy[lep2],2)+
+			     pow(MuonCand_vtxz[lep1]-EleCand_vtxz[lep2],2));
             if (leptonsDist<minDist) {
               minDist = leptonsDist;
               Pair_candidates[vtxind][0] = lep1;
@@ -583,9 +699,9 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    EleCand_pz[Pair_candidates[vtxind][1]],
                    MASS_E);
       }    	  
-    	else if (_fetchElectrons) { // Looks at dielectrons
-    	  // Not enough electrons candidates on the vertex
-    	  if (_vtx->MatchedElectrons.size()<2) continue;
+      else if (_fetchElectrons) { // Looks at dielectrons
+	// Not enough electrons candidates on the vertex
+	if (_vtx->MatchedElectrons.size()<2) continue;
         minDist = 999.;
         for(UInt_t i=0; i<_vtx->MatchedElectrons.size(); i++) {
           lep1 = _vtx->MatchedElectrons[i];
@@ -595,9 +711,9 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               continue;
             }
             foundPairOnVertex = true;
-            leptonsDist=sqrt(pow(EleCand_vtxx[lep1]-EleCand_vtxx[lep2],2)
-                            +pow(EleCand_vtxy[lep1]-EleCand_vtxy[lep2],2)
-                            +pow(EleCand_vtxz[lep1]-EleCand_vtxz[lep2],2));
+            leptonsDist=sqrt(pow(EleCand_vtxx[lep1]-EleCand_vtxx[lep2],2)+
+			     pow(EleCand_vtxy[lep1]-EleCand_vtxy[lep2],2)+
+			     pow(EleCand_vtxz[lep1]-EleCand_vtxz[lep2],2));
             if (leptonsDist<minDist) {
               minDist = leptonsDist;
               Pair_candidates[vtxind][0] = lep1;
@@ -616,10 +732,10 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    EleCand_py[Pair_candidates[vtxind][1]],
                    EleCand_pz[Pair_candidates[vtxind][1]],
                    MASS_E);
-    	}
-    	else if (_fetchMuons) { // Looks at dimuons
-    	  // Not enough muons candidates on the vertex
-    	  if (_vtx->MatchedMuons.size()<2) continue;
+      }
+      else if (_fetchMuons) { // Looks at dimuons
+	// Not enough muons candidates on the vertex
+	if (_vtx->MatchedMuons.size()<2) continue;
         minDist = 999.;
         for(UInt_t i=0; i<_vtx->MatchedMuons.size(); i++) {
           lep1 = _vtx->MatchedMuons[i];
@@ -629,9 +745,9 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               continue;
             }
             foundPairOnVertex = true;
-            leptonsDist=sqrt(pow(MuonCand_vtxx[lep1]-MuonCand_vtxx[lep2],2)
-                            +pow(MuonCand_vtxy[lep1]-MuonCand_vtxy[lep2],2)
-                            +pow(MuonCand_vtxz[lep1]-MuonCand_vtxz[lep2],2));
+            leptonsDist=sqrt(pow(MuonCand_vtxx[lep1]-MuonCand_vtxx[lep2],2)+
+			     pow(MuonCand_vtxy[lep1]-MuonCand_vtxy[lep2],2)+
+			     pow(MuonCand_vtxz[lep1]-MuonCand_vtxz[lep2],2));
             if (leptonsDist<minDist) {
               minDist = leptonsDist;
               Pair_candidates[vtxind][0] = lep1;
@@ -651,14 +767,14 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    MuonCand_pz[Pair_candidates[vtxind][1]],
                    MASS_MU);
       }
-
+      
       if (foundPairOnVertex) {
         std::cout << "Pair : ("
                   << Pair_candidates[vtxind][0] << ", "
                   << Pair_candidates[vtxind][1]
                   << ") at distance " << minDist
                   << std::endl;
-	      Pair_mindist[vtxind] = minDist;
+	Pair_mindist[vtxind] = minDist;
 #ifdef DEBUG
       	std::cout << "Matched muons : " << std::endl;
       	for (i=0; i<_vtx->MatchedMuons.size(); i++) {
@@ -680,29 +796,82 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         Pair_dpt[vtxind] = fabs(l1.Pt()-l2.Pt());
         Pair_3Dangle[vtxind] = (l1.Angle(l2.Vect()))/pi;
         
+        for (Int_t j=0; j<nPFPhotonCand; j++) {
+          pairgmass = sqrt(std::pow(l1.P() +l2.P() +PFPhotonCand_p[j], 2)-
+			   std::pow(l1.Px()+l2.Px()+PFPhotonCand_px[j], 2)-
+			   std::pow(l1.Py()+l2.Py()+PFPhotonCand_py[j], 2)-
+			   std::pow(l1.Pz()+l2.Pz()+PFPhotonCand_pz[j], 2));
+          //std::cout << "Photon " << j << " added to give a mass = " << pairgmass << std::endl;
+          PairGamma_mass[vtxind][j] = pairgmass;
+        }
+        
         PrimVertexCand_id[vtxind] = vtxind;
         PrimVertexCand_x[vtxind] = _vtx->Position.X();
         PrimVertexCand_y[vtxind] = _vtx->Position.Y();
         PrimVertexCand_z[vtxind] = _vtx->Position.Z();
-				PrimVertexCand_tracks[vtxind] = _vtx->nTracks;
+	PrimVertexCand_tracks[vtxind] = _vtx->nTracks;
         PrimVertexCand_matchedtracks[vtxind] = _vtx->nMatchedTracks;
         PrimVertexCand_unmatchedtracks[vtxind] = _vtx->nUnmatchedTracks;
         PrimVertexCand_chi2[vtxind] = vertex->chi2();
         PrimVertexCand_ndof[vtxind] = vertex->ndof();
         
-		    nCandidates += 1;
+	nCandidates += 1;
         foundPairInEvent = true;
       }
       
       vtxind += 1;
-
+      
       delete _vtx;
     }
     nFilteredPrimVertexCand = vtxind;
+    //std::cout << "end of the loop on the vertices : vtxind = " << vtxind << std::endl;
     delete _leptonType;
   }
   
+  //std::cout << "Passed Loop on vertices" << std::endl;
+  
+  // Get the Jet collection from the event
+  // PAT
+  iEvent.getByLabel(jetLabel_, jetColl);
+  for (jet=jetColl->begin(); jet!=jetColl->end() && nJetCand<MAX_JETS; jet++) {
+    JetCand_e[nJetCand] = jet->energy();
+    JetCand_px[nJetCand] = jet->px();
+    JetCand_py[nJetCand] = jet->py();
+    JetCand_pz[nJetCand] = jet->pz();
+    JetCand_phi[nJetCand] = jet->phi();
+    JetCand_eta[nJetCand] = jet->eta();
+    totalJetEnergy += JetCand_e[nJetCand];
+    // Find kinematics quantities associated to the highest energy jet
+    if(JetCand_e[nJetCand]>HEJet_e) {
+      HEJet_e = JetCand_e[nJetCand];
+      HEJet_eta = JetCand_eta[nJetCand];
+      HEJet_phi = JetCand_phi[nJetCand];
+    }
+    nJetCand += 1;
+  }
+  HighestJet_e = HEJet_e;
+  HighestJet_eta = HEJet_eta;
+  HighestJet_phi = HEJet_phi;
+  SumJet_e = totalJetEnergy;
+
+  //std::cout << "Passed Loop on jets" << std::endl;
+
+  // Missing ET
+  iEvent.getByLabel(metLabel_, MET); 
+  const reco::PFMETCollection* metColl = MET.product(); 
+  met = metColl->begin();
+  
+  Etmiss = met->et();
+  Etmiss_phi = met->phi();
+  Etmiss_x = met->px();
+  Etmiss_y = met->py();
+  Etmiss_z = met->pz();
+  Etmiss_significance = met->significance();
+
+  //std::cout << "Passed MET" << std::endl;
+
   if (foundPairInEvent) {
+    std::cout << "filling the TTree" << std::endl;
     tree->Fill();
   }
 }
@@ -794,6 +963,18 @@ GammaGammaLL::beginJob()
     tree->Branch("GenEleCand_eta", GenEleCand_eta, "GenEleCand_eta[nGenEleCand]/D");
     tree->Branch("GenEleCand_phi", GenEleCand_phi, "GenEleCand_phi[nGenEleCand]/D");
   }
+  tree->Branch("nPFPhotonCand", &nPFPhotonCand, "nPFPhotonCand/I");
+  tree->Branch("PFPhotonCand_pt", PFPhotonCand_pt, "PFPhotonCand_pt[nPFPhotonCand]/D");
+  tree->Branch("PFPhotonCand_eta", PFPhotonCand_eta, "PFPhotonCand_eta[nPFPhotonCand]/D");
+  tree->Branch("PFPhotonCand_phi", PFPhotonCand_phi, "PFPhotonCand_phi[nPFPhotonCand]/D");
+  tree->Branch("PFPhotonCand_drtrue", PFPhotonCand_drtrue, "PFPhotonCand_drtrue[nPFPhotonCand]/D"); 
+  tree->Branch("PFPhotonCand_detatrue", PFPhotonCand_detatrue, "PFPhotonCand_detatrue[nPFPhotonCand]/D"); 
+  tree->Branch("PFPhotonCand_dphitrue", PFPhotonCand_dphitrue, "PFPhotonCand_dphitrue[nPFPhotonCand]/D"); 
+  tree->Branch("nGenPhotCand", &nGenPhotCand, "nGenPhotCand/I");    
+  tree->Branch("nGenPhotCandOutOfAccept", &nGenPhotCandOutOfAccept, "nGenPhotCandOutOfAccept/I");    
+  tree->Branch("GenPhotCand_pt", GenPhotCand_pt, "GenPhotCand_pt[nGenPhotCand]/D");
+  tree->Branch("GenPhotCand_eta", GenPhotCand_eta, "GenPhotCand_eta[nGenPhotCand]/D");
+  tree->Branch("GenPhotCand_phi", GenPhotCand_phi, "GenPhotCand_phi[nGenPhotCand]/D");
   
 	// Primary vertices' information
   tree->Branch("nPrimVertexCand", &nPrimVertexCand, "nPrimVertexCand/I");
@@ -819,6 +1000,18 @@ GammaGammaLL::beginJob()
   tree->Branch("Pair_phi", Pair_phi, "Pair_phi[nPrimVertexCand]/D");
   tree->Branch("Pair_dphi", Pair_dphi, "Pair_dphi[nPrimVertexCand]/D");
   tree->Branch("Pair_3Dangle", Pair_3Dangle, "Pair_3Dangle[nPrimVertexCand]/D");
+  tree->Branch("Pair_extratracks1mm", Pair_extratracks1mm, "Pair_extratracks1mm[nPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks2mm", Pair_extratracks2mm, "Pair_extratracks2mm[nPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks3mm", Pair_extratracks3mm, "Pair_extratracks3mm[nPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks4mm", Pair_extratracks4mm, "Pair_extratracks4mm[nPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks5mm", Pair_extratracks5mm, "Pair_extratracks5mm[nPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks1cm", Pair_extratracks1cm, "Pair_extratracks1cm[nPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks2cm", Pair_extratracks2cm, "Pair_extratracks2cm[nPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks3cm", Pair_extratracks3cm, "Pair_extratracks3cm[nPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks4cm", Pair_extratracks4cm, "Pair_extratracks4cm[nPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks5cm", Pair_extratracks5cm, "Pair_extratracks5cm[nPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks10cm", Pair_extratracks10cm, "Pair_extratracks10cm[nPrimVertexCand]/I");
+  tree->Branch("PairGamma_mass", PairGamma_mass, "PairGamma_mass[nPrimVertexCand][nPFPhotonCand]/D");
   tree->Branch("GenPair_p", &GenPair_p, "GenPair_p/D");
   tree->Branch("GenPair_pt", &GenPair_pt, "GenPair_pt/D");
   tree->Branch("GenPair_dpt", &GenPair_dpt, "GenPair_dpt/D");
@@ -857,6 +1050,27 @@ GammaGammaLL::beginJob()
   tree->Branch("ExtraTrack_y", ExtraTrack_y, "ExtraTrack_y[nExtraTracks]/D");
   tree->Branch("ExtraTrack_z", ExtraTrack_z, "ExtraTrack_z[nExtraTracks]/D");
   tree->Branch("nQualityExtraTrack", &nQualityExtraTrack, "nQualityExtraTrack/I");
+  tree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D");
+  tree->Branch("ClosestHighPurityExtraTrack_vtxdxyz",&ClosestHighPurityExtraTrack_vtxdxyz,"ClosestHighPurityExtraTrack_vtxdxyz/D");
+  
+  // Jets/MET information
+  /*tree->Branch("nJetCand", &nJetCand, "nJetCand/I");
+  tree->Branch("JetCand_px", JetCand_px, "JetCand_px[nJetCand]/D");
+  tree->Branch("JetCand_py", JetCand_py, "JetCand_py[nJetCand]/D");
+  tree->Branch("JetCand_pz", JetCand_pz, "JetCand_pz[nJetCand]/D");
+  tree->Branch("JetCand_e", JetCand_e, "JetCand_e[nJetCand]/D");
+  tree->Branch("JetCand_eta", JetCand_eta, "JetCand_eta[nJetCand]/D");
+  tree->Branch("JetCand_phi", JetCand_phi, "JetCand_phi[nJetCand]/D");
+  tree->Branch("HighestJet_e", &HighestJet_e, "HighestJet_e/D");
+  tree->Branch("HighestJet_eta", &HighestJet_eta, "HighestJet_eta/D");
+  tree->Branch("HighestJet_phi", &HighestJet_phi, "HighestJet_phi/D");
+  tree->Branch("SumJet_e", &SumJet_e, "SumJet_e/D");
+  tree->Branch("Etmiss", &Etmiss, "Etmiss/D");
+  tree->Branch("Etmiss_phi", &Etmiss_phi, "Etmiss_phi/D");
+  tree->Branch("Etmiss_x", &Etmiss_x, "Etmiss_x/D");
+  tree->Branch("Etmiss_y", &Etmiss_y, "Etmiss_y/D");
+  tree->Branch("Etmiss_z", &Etmiss_z, "Etmiss_z/D"); 
+  tree->Branch("Etmiss_significance", &Etmiss_significance, "Etmiss_significance/D");*/
 
   // Pileup reweighting
   tree->Branch("nTruePUforPUWeight",&nTruePUforPUWeight,"nTruePUforPUWeight/I");
@@ -877,7 +1091,7 @@ GammaGammaLL::beginJob()
 void 
 GammaGammaLL::endJob() 
 {
-	std::cout << "==> number of candidates in the dataset : " << nCandidates << std::endl;
+  std::cout << "==> number of candidates in the dataset : " << nCandidates << std::endl;
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -898,7 +1112,8 @@ GammaGammaLL::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
         if (triggerIndex>=n) {
           std::cout << "GammaGammaMuMu::analyze:"
                     << " TriggerName " << triggerName_ 
-                    << " not available in (new) config!" << std::endl;
+                    << " not available in (new) config!"
+		    << std::endl;
           //std::cout << "Available TriggerNames are: " << std::endl;
           //hltConfig_.dump("Triggers");
         }
@@ -912,7 +1127,8 @@ GammaGammaLL::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
   else {
     std::cout << "GammaGammaMuMu::beginRun:"
               << " config extraction failure with process name "
-              << hltMenuLabel_ << std::endl;
+              << hltMenuLabel_
+	      << std::endl;
   }
 }
 
@@ -1018,13 +1234,13 @@ PrimaryVertex::AddTrack(const reco::TrackRef& _track, TString& _leptonType) {
 
 HLTmatches::HLTmatches(std::vector<std::string> _HLTlist)
 {
-	for (i=0; i<_HLTlist.size(); i++) {
-		HLTnames.push_back(_HLTlist[i].substr(0, _HLTlist[i].find_first_of("*")));
-	}
+  for (i=0; i<_HLTlist.size(); i++) {
+    HLTnames.push_back(_HLTlist[i].substr(0, _HLTlist[i].find_first_of("*")));
+  }
 #ifdef DEBUG
-	for (i=0; i<HLTnames.size(); i++) {
-		std::cout << i << " ==> " << HLTnames[i] << std::endl;
-	}
+  for (i=0; i<HLTnames.size(); i++) {
+    std::cout << i << " ==> " << HLTnames[i] << std::endl;
+  }
 #endif
 }
 
@@ -1035,10 +1251,10 @@ HLTmatches::~HLTmatches()
 Int_t
 HLTmatches::TriggerNum(std::string _trigName)
 {
-	for (i=0; i<HLTnames.size(); i++) {
-		if (_trigName.find(HLTnames[i])!=std::string::npos) return i;
-	}
-	return -1;
+  for (i=0; i<HLTnames.size(); i++) {
+    if (_trigName.find(HLTnames[i])!=std::string::npos) return i;
+  }
+  return -1;
 }
 
 //define this as a plug-in

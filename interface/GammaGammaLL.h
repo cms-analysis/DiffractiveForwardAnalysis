@@ -49,11 +49,21 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
+// Particle flow collection
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
 // Vertices collection
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/RefToBase.h" 
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+
+// Jets/MET collection
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 // HPS acceptance
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
@@ -67,11 +77,14 @@
 #define MAX_LL     50 // Maximum number of leptons per event
 #define MAX_MUONS  25 // Maximum number of muons per event
 #define MAX_ELE    25 // Maximum number of electrons per event
+#define MAX_PHO    50 // Maximum number of photons per event
 #define MAX_PAIRS  25 // Maximum number of leptons pairs per event
 #define MAX_VTX    10 // Maximum number of primary vertices per event
 #define MAX_ET     25 // Maximum number of extra tracks per event
 #define MAX_GENMU  25 // Maximum number of generator level muons per event
 #define MAX_GENELE 25 // Maximum number of generator level electrons per event
+#define MAX_GENPHO 10 // Maximum number of generator level photons per event
+#define MAX_JETS   30 // Maximum nulber of jets per event
 
 #define MASS_MU 0.1057
 #define MASS_E  0.000511
@@ -135,15 +148,24 @@ class GammaGammaLL : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       UInt_t i;
       Int_t lep1, lep2;
+      Double_t vtxdst;
+      Double_t closesttrkdxyz, closesthighpuritytrkdxyz;
+      Int_t parttype;
+      Double_t leadingphotpx, leadingphotpy, leadingphotpz, leadingphotp;
+      Double_t photdeta, photdphi, photdr;
+      Double_t endphotdeta, endphotdphi, endphotdr;
+      Double_t pairgmass;
       
       // Input tags
       std::string hltMenuLabel_, outputFile_;
       std::vector<std::string> triggersList_, leptonsType_;
-      edm::InputTag beamSpotInputTag_, recoVertexLabel_;
+      edm::InputTag beamSpotLabel_, recoVertexLabel_;
       edm::InputTag genLabel_, muonLabel_, eleLabel_;
-      edm::InputTag conversionsInputTag_, rhoIsoInputTag_;
+      edm::InputTag conversionsLabel_, rhoIsoLabel_;
       edm::InputTag pileupLabel_;
-      std::vector<edm::InputTag> isoValInputTag_; 
+      edm::InputTag pflowLabel_;
+      edm::InputTag jetLabel_, metLabel_;
+      std::vector<edm::InputTag> isoValLabel_; 
       bool runOnMC_;
       Double_t minPtMC_, minEtaMC_;
       Double_t sqrts_;
@@ -213,6 +235,18 @@ class GammaGammaLL : public edm::EDAnalyzer {
     	
     	TLorentzVector pair;
       Double_t dphi;
+      
+      // Particle Flow
+      edm::Handle<reco::PFCandidateCollection> pflowColl;
+      reco::PFCandidateCollection::const_iterator pflow;
+      
+      // Jets/MET
+      edm::Handle<edm::View<pat::Jet> > jetColl;
+      edm::View<pat::Jet>::const_iterator jet;
+      edm::Handle<reco::PFMETCollection> MET; 
+      reco::PFMETCollection::const_iterator met; 
+      Double_t HEJet_e, HEJet_eta, HEJet_phi;
+      Double_t totalJetEnergy;
 
       ////// Tree contents //////
       
@@ -243,6 +277,8 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t GenPair_p, GenPair_pt, GenPair_mass;
       Double_t GenPair_phi, GenPair_eta;
       Double_t GenPair_dphi, GenPair_dpt, GenPair_3Dangle;
+      Int_t nGenPhotCand, nGenPhotCandOutOfAccept;
+      Double_t GenPhotCand_pt[MAX_GENPHO], GenPhotCand_eta[MAX_GENPHO], GenPhotCand_phi[MAX_GENPHO];
 
       // HPS quantities
       Double_t xi, t;
@@ -287,12 +323,27 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Int_t EleCand_wp80[MAX_LL];
       Int_t EleCand_mediumID[MAX_LL], EleCand_looseID[MAX_LL];
       
+      // PF Photon quantities
+      Int_t nPFPhotonCand;
+      Double_t PFPhotonCand_px[MAX_PHO], PFPhotonCand_py[MAX_PHO], PFPhotonCand_pz[MAX_PHO];
+      Double_t PFPhotonCand_p[MAX_PHO], PFPhotonCand_pt[MAX_PHO];
+      Double_t PFPhotonCand_eta[MAX_PHO], PFPhotonCand_phi[MAX_PHO];
+      Double_t PFPhotonCand_drtrue[MAX_PHO], PFPhotonCand_detatrue[MAX_PHO], PFPhotonCand_dphitrue[MAX_PHO];
+      
       // Pair quantities
       Int_t Pair_candidates[MAX_PAIRS][2];
       Double_t Pair_mindist[MAX_PAIRS];
       Double_t Pair_p[MAX_PAIRS], Pair_pt[MAX_PAIRS], Pair_dpt[MAX_PAIRS];
       Double_t Pair_mass[MAX_PAIRS], Pair_dphi[MAX_PAIRS];
       Double_t Pair_eta[MAX_PAIRS], Pair_phi[MAX_PAIRS], Pair_3Dangle[MAX_PAIRS];
+      Double_t PairGamma_mass[MAX_PAIRS][MAX_PHO];
+      // Extra tracks
+      Int_t Pair_extratracks1mm[MAX_PAIRS], Pair_extratracks2mm[MAX_PAIRS];
+      Int_t Pair_extratracks3mm[MAX_PAIRS], Pair_extratracks4mm[MAX_PAIRS];
+      Int_t Pair_extratracks5mm[MAX_PAIRS], Pair_extratracks1cm[MAX_PAIRS];
+      Int_t Pair_extratracks2cm[MAX_PAIRS], Pair_extratracks3cm[MAX_PAIRS];
+      Int_t Pair_extratracks4cm[MAX_PAIRS], Pair_extratracks5cm[MAX_PAIRS];
+      Int_t Pair_extratracks10cm[MAX_PAIRS];
       
       // Vertex quantities
       Int_t nPrimVertexCand;
@@ -314,7 +365,16 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t ExtraTrack_vtxdxyz[MAX_ET];
       Double_t ExtraTrack_vtxT[MAX_ET], ExtraTrack_vtxZ[MAX_ET];
       Double_t ExtraTrack_x[MAX_ET], ExtraTrack_y[MAX_ET], ExtraTrack_z[MAX_ET];
+      Double_t ClosestExtraTrack_vtxdxyz, ClosestHighPurityExtraTrack_vtxdxyz;
       Int_t nQualityExtraTrack;
+
+      // Jets/MET quantities
+      int nJetCand;
+      Double_t JetCand_px[MAX_JETS], JetCand_py[MAX_JETS], JetCand_pz[MAX_JETS];
+      Double_t JetCand_e[MAX_JETS], JetCand_eta[MAX_JETS], JetCand_phi[MAX_JETS];
+      Double_t HighestJet_e, HighestJet_eta, HighestJet_phi;
+      Double_t SumJet_e;
+      Double_t Etmiss, Etmiss_phi, Etmiss_x, Etmiss_y, Etmiss_z, Etmiss_significance;
 
 };
 
