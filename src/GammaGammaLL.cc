@@ -13,7 +13,7 @@
 //
 // Original Author:  Laurent Forthomme,40 4-B20,+41227671567,
 //         Created:  Thu Sep 13 15:17:14 CET 2012
-// $Id: GammaGammaLL.cc,v 1.2 2013/04/05 10:11:40 lforthom Exp $
+// $Id: GammaGammaLL.cc,v 1.3 2013/04/28 08:40:45 lforthom Exp $
 //
 //
 
@@ -67,7 +67,6 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
   mcPileupPath_ = iConfig.getUntrackedParameter<std::string>("mcpupath", "pileup");
   dataPileupFile_ = iConfig.getUntrackedParameter<std::string>("datapufile", "PUHistos_duplicated.root");
   dataPileupPath_ = iConfig.getUntrackedParameter<std::string>("datapupath", "pileup");
-  outPileupFile_ = iConfig.getUntrackedParameter<std::string>("outpufilename", "test.root");
   
   // Leptons input tags
   leptonsType_ = iConfig.getParameter< std::vector<std::string> >("LeptonsType");
@@ -112,8 +111,7 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
     helper420a220beam1.Init(*f, "a420a220");
     helper420a220beam2.Init(*f, "a420a220_b2");
     
-    LumiWeights = new edm::Lumi3DReWeighting(mcPileupFile_, dataPileupFile_, mcPileupPath_, dataPileupPath_, outPileupFile_);
-    LumiWeights->weight3D_init(1.0); 
+    LumiWeights = new edm::LumiReWeighting(mcPileupFile_, dataPileupFile_, mcPileupPath_, dataPileupPath_);
   }
 
 }
@@ -178,6 +176,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   nJetCand = 0;
   nGenMuonCand = nGenMuonCandOutOfAccept = 0;
   nGenEleCand = nGenEleCandOutOfAccept = 0;
+  nGenPhotCand = nGenPhotCandOutOfAccept = 0;
   nPFPhotonCand = 0;
   
   HPS_acc420b1 = HPS_acc220b1 = HPS_acc420and220b1 = HPS_acc420or220b1 = -1;
@@ -240,7 +239,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   HEJet_e = SumJet_e = totalJetEnergy = 0.;
   Etmiss = Etmiss_x = Etmiss_y = Etmiss_z = Etmiss_significance = -999.;
   
-  Weight3D = 1.;
+  Weight = 1.;
   
   foundPairInEvent = false;
   foundGenCandPairInEvent = false;
@@ -317,25 +316,25 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         nGenPhotCand += 1;
       }
       foundGenCandPairInEvent = false;
-    	if (_fetchElectrons && _fetchMuons) { // Looks at electron+muon
+      if (_fetchElectrons && _fetchMuons) { // Looks at electron+muon
         if(nGenMuonCand!=1 || nGenEleCand!=1) continue; // FIXME maybe a bit tight according to the newer PU conditions?
         l1.SetXYZM(GenMuonCand_px[0], GenMuonCand_py[0], GenMuonCand_pz[0], MASS_MU);
         l2.SetXYZM(GenEleCand_px[0], GenEleCand_py[0], GenEleCand_pz[0], MASS_E);
         foundGenCandPairInEvent = true;
       }
-    	else if (_fetchElectrons) { // Looks at dielectrons
+      else if (_fetchElectrons) { // Looks at dielectrons
         if(nGenEleCand!=2) continue; // FIXME maybe a bit tight according to the newer PU conditions?
         l1.SetXYZM(GenEleCand_px[0], GenEleCand_py[0], GenEleCand_pz[0], MASS_E);      	
         l2.SetXYZM(GenEleCand_px[1], GenEleCand_py[1], GenEleCand_pz[1], MASS_E);      	
         foundGenCandPairInEvent = true;      	
-    	}
-    	else if (_fetchMuons) { // Looks at dimuons
+      }
+      else if (_fetchMuons) { // Looks at dimuons
         if(nGenMuonCand!=2) continue; // FIXME maybe a bit tight according to the newer PU conditions?
         l1.SetXYZM(GenMuonCand_px[0], GenMuonCand_py[0], GenMuonCand_pz[0], MASS_MU);      	
         l2.SetXYZM(GenMuonCand_px[1], GenMuonCand_py[1], GenMuonCand_pz[1], MASS_MU);      	
         foundGenCandPairInEvent = true;      	
-    	}
-    	if (foundGenCandPairInEvent) {
+      }
+      if (foundGenCandPairInEvent) {
         pair = l1+l2;
         GenPair_p = pair.P();
         GenPair_pt = pair.Pt();
@@ -346,7 +345,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         GenPair_dphi = (dphi<pi) ? dphi : 2.*pi-dphi; // dphi lies in [-pi, pi]
         GenPair_dpt = fabs(l1.Pt()-l2.Pt());
         GenPair_3Dangle = (l1.Angle(l2.Vect()))/pi;
-    	}
+      }
       if(genPart->pdgId()==2212 && fabs(genPart->pz())>3000.) {
         // Kinematic quantities computation
         // xi = fractional momentum loss
@@ -396,7 +395,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //
     
     const edm::EventBase* iEventB = dynamic_cast<const edm::EventBase*>(&iEvent);
-    Weight3D = LumiWeights->weight3D(*iEventB);
+    Weight = LumiWeights->weight(*iEventB);
   }
   
   //std::cout << "Passed Pileup" << std::endl;
@@ -871,7 +870,6 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //std::cout << "Passed MET" << std::endl;
 
   if (foundPairInEvent) {
-    std::cout << "filling the TTree" << std::endl;
     tree->Fill();
   }
 }
@@ -907,15 +905,17 @@ GammaGammaLL::beginJob()
     tree->Branch("MuonCand_vtxx", MuonCand_vtxx, "MuonCand_vtxx[nMuonCand]/D");
     tree->Branch("MuonCand_vtxy", MuonCand_vtxy, "MuonCand_vtxy[nMuonCand]/D");
     tree->Branch("MuonCand_vtxz", MuonCand_vtxz, "MuonCand_vtxz[nMuonCand]/D");
-    tree->Branch("nGenMuonCand", &nGenMuonCand, "nGenMuonCand/I");
-    tree->Branch("nGenMuonCandOutOfAccept", &nGenMuonCandOutOfAccept, "nGenMuonCandOutOfAccept/I");    
-    tree->Branch("GenMuonCand_p", GenMuonCand_p, "GenMuonCand_p[nGenMuonCand]/D");
-    tree->Branch("GenMuonCand_px", GenMuonCand_px, "GenMuonCand_px[nGenMuonCand]/D");
-    tree->Branch("GenMuonCand_py", GenMuonCand_py, "GenMuonCand_py[nGenMuonCand]/D");
-    tree->Branch("GenMuonCand_pz", GenMuonCand_pz, "GenMuonCand_pz[nGenMuonCand]/D");
-    tree->Branch("GenMuonCand_pt", GenMuonCand_pt, "GenMuonCand_pt[nGenMuonCand]/D");
-    tree->Branch("GenMuonCand_eta", GenMuonCand_eta, "GenMuonCand_eta[nGenMuonCand]/D");
-    tree->Branch("GenMuonCand_phi", GenMuonCand_phi, "GenMuonCand_phi[nGenMuonCand]/D");
+    if (runOnMC_) {
+      tree->Branch("nGenMuonCand", &nGenMuonCand, "nGenMuonCand/I");
+      tree->Branch("nGenMuonCandOutOfAccept", &nGenMuonCandOutOfAccept, "nGenMuonCandOutOfAccept/I");    
+      tree->Branch("GenMuonCand_p", GenMuonCand_p, "GenMuonCand_p[nGenMuonCand]/D");
+      tree->Branch("GenMuonCand_px", GenMuonCand_px, "GenMuonCand_px[nGenMuonCand]/D");
+      tree->Branch("GenMuonCand_py", GenMuonCand_py, "GenMuonCand_py[nGenMuonCand]/D");
+      tree->Branch("GenMuonCand_pz", GenMuonCand_pz, "GenMuonCand_pz[nGenMuonCand]/D");
+      tree->Branch("GenMuonCand_pt", GenMuonCand_pt, "GenMuonCand_pt[nGenMuonCand]/D");
+      tree->Branch("GenMuonCand_eta", GenMuonCand_eta, "GenMuonCand_eta[nGenMuonCand]/D");
+      tree->Branch("GenMuonCand_phi", GenMuonCand_phi, "GenMuonCand_phi[nGenMuonCand]/D");
+    }
   }
   
   if (_fetchElectrons) {
@@ -953,15 +953,17 @@ GammaGammaLL::beginJob()
     /*tree->Branch("EleCand_looseid", EleCand_looseid,"EleCand_looseid[nEleCand]/I");
     tree->Branch("EleCand_likelihoodid", EleCand_likelihoodid,"EleCand_likelihoodid[nEleCand]/D");
     tree->Branch("EleCand_robustid", EleCand_robustid,"EleCand_robustid[nEleCand]/I");*/
-    tree->Branch("nGenEleCand", &nGenEleCand, "nGenEleCand/I");
-    tree->Branch("nGenEleCandOutOfAccept", &nGenEleCandOutOfAccept, "nGenEleCandOutOfAccept/I");    
-    tree->Branch("GenEleCand_p", GenEleCand_p, "GenEleCand_p[nGenEleCand]/D");
-    tree->Branch("GenEleCand_px", GenEleCand_px, "GenEleCand_px[nGenEleCand]/D");
-    tree->Branch("GenEleCand_py", GenEleCand_py, "GenEleCand_py[nGenEleCand]/D");
-    tree->Branch("GenEleCand_pz", GenEleCand_pz, "GenEleCand_pz[nGenEleCand]/D");
-    tree->Branch("GenEleCand_pt", GenEleCand_pt, "GenEleCand_pt[nGenEleCand]/D");
-    tree->Branch("GenEleCand_eta", GenEleCand_eta, "GenEleCand_eta[nGenEleCand]/D");
-    tree->Branch("GenEleCand_phi", GenEleCand_phi, "GenEleCand_phi[nGenEleCand]/D");
+    if (runOnMC_) {
+      tree->Branch("nGenEleCand", &nGenEleCand, "nGenEleCand/I");
+      tree->Branch("nGenEleCandOutOfAccept", &nGenEleCandOutOfAccept, "nGenEleCandOutOfAccept/I");    
+      tree->Branch("GenEleCand_p", GenEleCand_p, "GenEleCand_p[nGenEleCand]/D");
+      tree->Branch("GenEleCand_px", GenEleCand_px, "GenEleCand_px[nGenEleCand]/D");
+      tree->Branch("GenEleCand_py", GenEleCand_py, "GenEleCand_py[nGenEleCand]/D");
+      tree->Branch("GenEleCand_pz", GenEleCand_pz, "GenEleCand_pz[nGenEleCand]/D");
+      tree->Branch("GenEleCand_pt", GenEleCand_pt, "GenEleCand_pt[nGenEleCand]/D");
+      tree->Branch("GenEleCand_eta", GenEleCand_eta, "GenEleCand_eta[nGenEleCand]/D");
+      tree->Branch("GenEleCand_phi", GenEleCand_phi, "GenEleCand_phi[nGenEleCand]/D");
+    }
   }
   tree->Branch("nPFPhotonCand", &nPFPhotonCand, "nPFPhotonCand/I");
   tree->Branch("PFPhotonCand_pt", PFPhotonCand_pt, "PFPhotonCand_pt[nPFPhotonCand]/D");
@@ -970,11 +972,13 @@ GammaGammaLL::beginJob()
   tree->Branch("PFPhotonCand_drtrue", PFPhotonCand_drtrue, "PFPhotonCand_drtrue[nPFPhotonCand]/D"); 
   tree->Branch("PFPhotonCand_detatrue", PFPhotonCand_detatrue, "PFPhotonCand_detatrue[nPFPhotonCand]/D"); 
   tree->Branch("PFPhotonCand_dphitrue", PFPhotonCand_dphitrue, "PFPhotonCand_dphitrue[nPFPhotonCand]/D"); 
-  tree->Branch("nGenPhotCand", &nGenPhotCand, "nGenPhotCand/I");    
-  tree->Branch("nGenPhotCandOutOfAccept", &nGenPhotCandOutOfAccept, "nGenPhotCandOutOfAccept/I");    
-  tree->Branch("GenPhotCand_pt", GenPhotCand_pt, "GenPhotCand_pt[nGenPhotCand]/D");
-  tree->Branch("GenPhotCand_eta", GenPhotCand_eta, "GenPhotCand_eta[nGenPhotCand]/D");
-  tree->Branch("GenPhotCand_phi", GenPhotCand_phi, "GenPhotCand_phi[nGenPhotCand]/D");
+  if (runOnMC_) {
+    tree->Branch("nGenPhotCand", &nGenPhotCand, "nGenPhotCand/I");    
+    tree->Branch("nGenPhotCandOutOfAccept", &nGenPhotCandOutOfAccept, "nGenPhotCandOutOfAccept/I");    
+    tree->Branch("GenPhotCand_pt", GenPhotCand_pt, "GenPhotCand_pt[nGenPhotCand]/D");
+    tree->Branch("GenPhotCand_eta", GenPhotCand_eta, "GenPhotCand_eta[nGenPhotCand]/D");
+    tree->Branch("GenPhotCand_phi", GenPhotCand_phi, "GenPhotCand_phi[nGenPhotCand]/D");
+  }
   
 	// Primary vertices' information
   tree->Branch("nPrimVertexCand", &nPrimVertexCand, "nPrimVertexCand/I");
@@ -1012,23 +1016,24 @@ GammaGammaLL::beginJob()
   tree->Branch("Pair_extratracks5cm", Pair_extratracks5cm, "Pair_extratracks5cm[nPrimVertexCand]/I");
   tree->Branch("Pair_extratracks10cm", Pair_extratracks10cm, "Pair_extratracks10cm[nPrimVertexCand]/I");
   tree->Branch("PairGamma_mass", PairGamma_mass, "PairGamma_mass[nPrimVertexCand][nPFPhotonCand]/D");
-  tree->Branch("GenPair_p", &GenPair_p, "GenPair_p/D");
-  tree->Branch("GenPair_pt", &GenPair_pt, "GenPair_pt/D");
-  tree->Branch("GenPair_dpt", &GenPair_dpt, "GenPair_dpt/D");
-  tree->Branch("GenPair_mass", &GenPair_mass, "GenPair_mass/D");
-  tree->Branch("GenPair_eta", &GenPair_eta, "GenPair_eta/D");
-  tree->Branch("GenPair_phi", &GenPair_phi, "GenPair_phi/D");
-  tree->Branch("GenPair_dphi", &GenPair_dphi, "GenPair_dphi/D");
-  tree->Branch("GenPair_3Dangle", &GenPair_3Dangle, "GenPair_3Dangle[nPrimVertexCand]/D");
-  tree->Branch("HPS_acc420b1", &HPS_acc420b1, "HPS_acc420b1/D");
-  tree->Branch("HPS_acc220b1", &HPS_acc220b1, "HPS_acc220b1/D");
-  tree->Branch("HPS_acc420and220b1", &HPS_acc420and220b1, "HPS_acc420and220b1/D");
-  tree->Branch("HPS_acc420or220b1", &HPS_acc420or220b1, "HPS_acc420or220b1/D");
-  tree->Branch("HPS_acc420b2", &HPS_acc420b2, "HPS_acc420b2/D");
-  tree->Branch("HPS_acc220b2", &HPS_acc220b2, "HPS_acc220b2/D");
-  tree->Branch("HPS_acc420and220b2", &HPS_acc420and220b2, "HPS_acc420and220b2/D");
-  tree->Branch("HPS_acc420or220b2", &HPS_acc420or220b2, "HPS_acc420or220b2/D");
-
+  if (runOnMC_) {
+    tree->Branch("GenPair_p", &GenPair_p, "GenPair_p/D");
+    tree->Branch("GenPair_pt", &GenPair_pt, "GenPair_pt/D");
+    tree->Branch("GenPair_dpt", &GenPair_dpt, "GenPair_dpt/D");
+    tree->Branch("GenPair_mass", &GenPair_mass, "GenPair_mass/D");
+    tree->Branch("GenPair_eta", &GenPair_eta, "GenPair_eta/D");
+    tree->Branch("GenPair_phi", &GenPair_phi, "GenPair_phi/D");
+    tree->Branch("GenPair_dphi", &GenPair_dphi, "GenPair_dphi/D");
+    tree->Branch("GenPair_3Dangle", &GenPair_3Dangle, "GenPair_3Dangle[nPrimVertexCand]/D");
+    tree->Branch("HPS_acc420b1", &HPS_acc420b1, "HPS_acc420b1/D");
+    tree->Branch("HPS_acc220b1", &HPS_acc220b1, "HPS_acc220b1/D");
+    tree->Branch("HPS_acc420and220b1", &HPS_acc420and220b1, "HPS_acc420and220b1/D");
+    tree->Branch("HPS_acc420or220b1", &HPS_acc420or220b1, "HPS_acc420or220b1/D");
+    tree->Branch("HPS_acc420b2", &HPS_acc420b2, "HPS_acc420b2/D");
+    tree->Branch("HPS_acc220b2", &HPS_acc220b2, "HPS_acc220b2/D");
+    tree->Branch("HPS_acc420and220b2", &HPS_acc420and220b2, "HPS_acc420and220b2/D");
+    tree->Branch("HPS_acc420or220b2", &HPS_acc420or220b2, "HPS_acc420or220b2/D");
+  }
   // Extra tracks on vertex's information
   tree->Branch("nExtraTracks", &nExtraTracks, "nExtraTracks/I");
   tree->Branch("ExtraTrack_purity", ExtraTrack_purity, "ExtraTrack_purity[nExtraTracks]/I");
@@ -1054,7 +1059,7 @@ GammaGammaLL::beginJob()
   tree->Branch("ClosestHighPurityExtraTrack_vtxdxyz",&ClosestHighPurityExtraTrack_vtxdxyz,"ClosestHighPurityExtraTrack_vtxdxyz/D");
   
   // Jets/MET information
-  /*tree->Branch("nJetCand", &nJetCand, "nJetCand/I");
+  tree->Branch("nJetCand", &nJetCand, "nJetCand/I");
   tree->Branch("JetCand_px", JetCand_px, "JetCand_px[nJetCand]/D");
   tree->Branch("JetCand_py", JetCand_py, "JetCand_py[nJetCand]/D");
   tree->Branch("JetCand_pz", JetCand_pz, "JetCand_pz[nJetCand]/D");
@@ -1070,7 +1075,7 @@ GammaGammaLL::beginJob()
   tree->Branch("Etmiss_x", &Etmiss_x, "Etmiss_x/D");
   tree->Branch("Etmiss_y", &Etmiss_y, "Etmiss_y/D");
   tree->Branch("Etmiss_z", &Etmiss_z, "Etmiss_z/D"); 
-  tree->Branch("Etmiss_significance", &Etmiss_significance, "Etmiss_significance/D");*/
+  tree->Branch("Etmiss_significance", &Etmiss_significance, "Etmiss_significance/D");
 
   // Pileup reweighting
   tree->Branch("nTruePUforPUWeight",&nTruePUforPUWeight,"nTruePUforPUWeight/I");
@@ -1081,7 +1086,7 @@ GammaGammaLL::beginJob()
   tree->Branch("nTruePUafterPUWeightBXP1", &nTruePUafterPUWeightBXP1, "nTruePUafterPUWeightBXP1/D"); 
   tree->Branch("nTruePUforPUWeightBX0", &nTruePUforPUWeightBX0, "nTruePUforPUWeightBX0/I");
   tree->Branch("nTruePUafterPUWeightBX0", &nTruePUafterPUWeightBX0, "nTruePUafterPUWeightBX0/D");
-  tree->Branch("Weight3D", &Weight3D, "Weight3D/D");
+  tree->Branch("Weight", &Weight, "Weight/D");
   tree->Branch("PUWeightTrue", &PUWeightTrue, "PUWeightTrue/D");
 
   nCandidates = 0;

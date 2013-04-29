@@ -32,7 +32,6 @@
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
 
 // Muons collection
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -189,13 +188,12 @@ class GammaGammaLL : public edm::EDAnalyzer {
      	edm::Handle<edm::TriggerResults> hltResults_;
 
       // Pileup information
-      edm::Lumi3DReWeighting *LumiWeights; 
+      edm::LumiReWeighting *LumiWeights; 
       edm::Handle<std::vector< PileupSummaryInfo > >  pileupInfo;
       std::vector<PileupSummaryInfo>::const_iterator PVI;
       Int_t sum_nvtx, beamXing;
       Int_t npv, npvtrue, npvm1true, npvp1true, npv0true, npv0;
       std::string mcPileupFile_, mcPileupPath_, dataPileupFile_, dataPileupPath_;
-      std::string outPileupFile_;
       
       bool _fetchMuons, _fetchElectrons;
       
@@ -293,7 +291,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t PUWeightTrue;
       Int_t nTruePUforPUWeight;
       Int_t nTruePUforPUWeightBXM1, nTruePUforPUWeightBXP1, nTruePUforPUWeightBX0;
-      Double_t Weight3D;
+      Double_t Weight;
 
       // Muon quantities
       Int_t nMuonCand;
