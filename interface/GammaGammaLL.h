@@ -44,7 +44,8 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"  
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"   
-#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
+//#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
+#include "EgammaAnalysis/ElectronTools/interface/EGammaCutBasedEleId.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
