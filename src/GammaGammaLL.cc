@@ -192,7 +192,12 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     MuonCand_pt[i] = MuonCand_eta[i] = MuonCand_phi[i] = -999.;
     MuonCand_charge[i] = -999;
     MuonCand_vtxx[i] = MuonCand_vtxy[i] = MuonCand_vtxz[i] = -999.;
-    MuonCand_isglobal[i] = MuonCand_istracker[i] = MuonCand_isstandalone[i] = -999;
+    MuonCand_npxlhits[i] = MuonCand_nstatseg[i] = MuonCand_ntrklayers[i] = -999;
+    MuonCand_dxy[i] = MuonCand_dz[i] = -999.;
+    MuonCand_isglobal[i] = MuonCand_istracker[i] = MuonCand_isstandalone[i] = MuonCand_ispfmuon[i] = -999;
+    MuonCand_istight[i] = -999;
+    MuonCandTrack_nmuchits[i] = -999;
+    MuonCandTrack_chisq[i] = -999.;
     EleCand_e[i] = EleCand_et[i] = EleCand_px[i] = EleCand_py[i] = EleCand_pz[i] = -999.;
     EleCand_p[i] = EleCand_phi[i] = EleCand_eta[i] = -999.;
     EleCand_charge[i] = -999;
@@ -959,6 +964,7 @@ GammaGammaLL::beginJob()
     tree->Branch("MuonCand_dxy", MuonCand_dxy, "MuonCand_dxy[nMuonCand]/D");
     tree->Branch("MuonCand_dz", MuonCand_dz, "MuonCand_dz[nMuonCand]/D");
     tree->Branch("MuonCand_nstatseg", MuonCand_nstatseg, "MuonCand_nstatseg[nMuonCand]/I");
+    tree->Branch("MuonCand_ntrklayers", MuonCand_ntrklayers, "MuonCand_ntrklayers[nMuonCand]/I");
     tree->Branch("MuonCand_npxlhits", MuonCand_npxlhits, "MuonCand_npxlhits[nMuonCand]/I");
     tree->Branch("MuonCand_isglobal", MuonCand_isglobal, "MuonCand_isglobal[nMuonCand]/I");
     tree->Branch("MuonCand_istracker", MuonCand_istracker, "MuonCand_istracker[nMuonCand]/I");
@@ -1276,10 +1282,10 @@ PrimaryVertex::AddTrack(const reco::TrackRef& _track, TString& _leptonType)
   nTracks++; // total number of tracks matched with the vertex
   std::map<Int_t,TLorentzVector>::iterator lep;
   for (lep=MuonMomenta.begin(); lep!=MuonMomenta.end(); lep++) {
-    if (fabs(_track->p()-lep->second.P())>.1) continue;
-    if (fabs(_track->pt()-lep->second.Pt())>.1) continue;
-    if (fabs(_track->eta()-lep->second.Eta())>.1) continue;
-    if (fabs(_track->phi()-lep->second.Phi())>.1) continue;
+    if (fabs(_track->p()-lep->second.P())>.01) continue;
+    if (fabs(_track->pt()-lep->second.Pt())>.01) continue;
+    if (fabs(_track->eta()-lep->second.Eta())>.01) continue;
+    if (fabs(_track->phi()-lep->second.Phi())>.01) continue;
     _leptonType = "muon";
     MatchedMuons.push_back(lep->first);
     nMatchedMuons++;
@@ -1287,10 +1293,10 @@ PrimaryVertex::AddTrack(const reco::TrackRef& _track, TString& _leptonType)
     return lep->first;
   }
   for (lep=ElectronMomenta.begin(); lep!=ElectronMomenta.end(); lep++) {
-    if (fabs(_track->p()-lep->second.P())>.1) continue;
-    if (fabs(_track->pt()-lep->second.Pt())>.1) continue;
-    if (fabs(_track->eta()-lep->second.Eta())>.1) continue;
-    if (fabs(_track->phi()-lep->second.Phi())>.1) continue;
+    if (fabs(_track->p()-lep->second.P())>.01) continue;
+    if (fabs(_track->pt()-lep->second.Pt())>.01) continue;
+    if (fabs(_track->eta()-lep->second.Eta())>.01) continue;
+    if (fabs(_track->phi()-lep->second.Phi())>.01) continue;
     _leptonType = "electron";
     MatchedElectrons.push_back(lep->first);
     nMatchedElectrons++;
