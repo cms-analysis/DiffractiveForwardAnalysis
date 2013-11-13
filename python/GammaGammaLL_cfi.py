@@ -19,4 +19,5 @@ ggll = cms.EDAnalyzer(
     MCAcceptPtCut = cms.untracked.double(0.),
     MCAcceptEtaCut = cms.untracked.double(-1.),
     GenParticlesCollectionLabel = cms.InputTag('genParticles'),
+    PrintCandidates = cms.untracked.bool(False),
 )
