@@ -303,7 +303,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t MuonCand_p[MAX_LL], MuonCand_pt[MAX_LL];
       Double_t MuonCand_eta[MAX_LL], MuonCand_phi[MAX_LL];
       Double_t MuonCand_vtxx[MAX_LL], MuonCand_vtxy[MAX_LL], MuonCand_vtxz[MAX_LL];
-      Double_t MuonCand_charge[MAX_LL];
+      Int_t MuonCand_charge[MAX_LL];
       Double_t MuonCand_dxy[MAX_LL], MuonCand_dz[MAX_LL];
       Int_t MuonCand_nstatseg[MAX_LL], MuonCand_npxlhits[MAX_LL], MuonCand_ntrklayers[MAX_LL];
       Double_t MuonCand_[MAX_LL];
@@ -318,7 +318,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t EleCand_p[MAX_LL], EleCand_e[MAX_LL], EleCand_et[MAX_LL];
       Double_t EleCand_eta[MAX_LL], EleCand_phi[MAX_LL];
       Double_t EleCand_vtxx[MAX_LL], EleCand_vtxy[MAX_LL], EleCand_vtxz[MAX_LL];
-      Double_t EleCand_charge[MAX_LL];
+      Int_t EleCand_charge[MAX_LL];
       Double_t EleCandTrack_p[MAX_LL], EleCandTrack_pt[MAX_LL];
       Double_t EleCandTrack_eta[MAX_LL], EleCandTrack_phi[MAX_LL];
       Double_t EleCandTrack_vtxz[MAX_LL]; 

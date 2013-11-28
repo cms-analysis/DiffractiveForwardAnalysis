@@ -18,7 +18,7 @@
 <use   name="DataFormats/Luminosity"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1Trigger"/>
-<use   name="EgammaAnalysis/ElectronTools"/>
+<use   name="EGamma/EGammaAnalysisTools"/>
 <use   name="Geometry/HcalTowerAlgo"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/Records"/>
