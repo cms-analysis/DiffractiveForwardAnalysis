@@ -45,6 +45,7 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"  
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"   
 #include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
+//#include "EgammaAnalysis/ElectronTools/interface/EGammaCutBasedEleId.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
@@ -79,7 +80,7 @@
 #define MAX_PHO    50 // Maximum number of photons per event
 #define MAX_PAIRS  25 // Maximum number of leptons pairs per event
 #define MAX_VTX    10 // Maximum number of primary vertices per event
-#define MAX_ET     25 // Maximum number of extra tracks per event
+#define MAX_ET     100// Maximum number of extra tracks per event
 #define MAX_GENMU  25 // Maximum number of generator level muons per event
 #define MAX_GENELE 25 // Maximum number of generator level electrons per event
 #define MAX_GENPHO 10 // Maximum number of generator level photons per event
@@ -102,10 +103,12 @@ class PrimaryVertex : public reco::Vertex {
     ~PrimaryVertex();
     void SetPosition(Double_t, Double_t, Double_t);
     Int_t AddTrack(const reco::TrackRef&, TString&);
+    inline Int_t Electrons() { return nMatchedElectrons; }
+    inline Int_t Muons() { return nMatchedMuons; }
+    Double_t dZ(TVector3, Int_t);
     TVector3 Position;
     Int_t nTracks, nMatchedTracks, nUnmatchedTracks;
     std::vector<Int_t> MatchedMuons, MatchedElectrons;
-    
   private:
     UInt_t i;
     Int_t nMatchedMuons, nMatchedElectrons;
@@ -154,6 +157,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t photdeta, photdphi, photdr;
       Double_t endphotdeta, endphotdphi, endphotdr;
       Double_t pairgmass;
+      bool istight;
       
       // Input tags
       std::string hltMenuLabel_, outputFile_;
@@ -165,7 +169,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       edm::InputTag pflowLabel_;
       edm::InputTag jetLabel_, metLabel_;
       std::vector<edm::InputTag> isoValLabel_; 
-      bool runOnMC_;
+      bool runOnMC_, printCandidates_;
       Double_t minPtMC_, minEtaMC_;
       Double_t sqrts_;
 
@@ -185,7 +189,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       // Trigger information
       HLTmatches *_hlts;
       HLTConfigProvider hltConfig_;
-     	edm::Handle<edm::TriggerResults> hltResults_;
+      edm::Handle<edm::TriggerResults> hltResults_;
 
       // Pileup information
       edm::LumiReWeighting *LumiWeights; 
@@ -200,7 +204,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       // Two-leptons matching
       bool foundPairInEvent, foundPairOnVertex;
       bool foundGenCandPairInEvent;
-  	  Double_t leptonsDist, minDist; 
+      Double_t leptonsDist, minDist; 
       TLorentzVector* _leptonptmp;
       TLorentzVector l1, l2;
       std::map<Int_t, TLorentzVector> muonsMomenta, electronsMomenta;
@@ -208,8 +212,8 @@ class GammaGammaLL : public edm::EDAnalyzer {
       // Isolation
       Double_t rhoIso;
       Double_t iso_ch, iso_em, iso_nh; // Electron isolation quantities
-    	Int_t vtxind; // Primary vertex index (used in loop over vertices)
-    	Int_t etind; // Extra tracks on vertex index (used in loop over tracks)
+      Int_t vtxind; // Primary vertex index (used in loop over vertices)
+      Int_t etind; // Extra tracks on vertex index (used in loop over tracks)
 
       // Vertices
       edm::Handle<reco::VertexCollection> recoVertexColl;
@@ -283,7 +287,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t HPS_acc420b1, HPS_acc220b1, HPS_acc420and220b1, HPS_acc420or220b1; // beam 1 (clockwise)  
       Double_t HPS_acc420b2, HPS_acc220b2, HPS_acc420and220b2, HPS_acc420or220b2; // beam 2 (anti-clockwise)  
 
-      Int_t nLeptonCand, nLeptonsInPrimVertex, nCandidates;
+      Int_t nLeptonCand, nLeptonsInPrimVertex, nCandidates, nCandidatesInEvent;
 
       // Pileup reweighting quantities
       Double_t nTruePUafterPUWeight;
@@ -299,8 +303,14 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t MuonCand_p[MAX_LL], MuonCand_pt[MAX_LL];
       Double_t MuonCand_eta[MAX_LL], MuonCand_phi[MAX_LL];
       Double_t MuonCand_vtxx[MAX_LL], MuonCand_vtxy[MAX_LL], MuonCand_vtxz[MAX_LL];
-      Double_t MuonCand_charge[MAX_LL];
-      Int_t MuonCand_isglobal[MAX_LL], MuonCand_istracker[MAX_LL], MuonCand_isstandalone[MAX_LL];
+      Int_t MuonCand_charge[MAX_LL];
+      Double_t MuonCand_dxy[MAX_LL], MuonCand_dz[MAX_LL];
+      Int_t MuonCand_nstatseg[MAX_LL], MuonCand_npxlhits[MAX_LL], MuonCand_ntrklayers[MAX_LL];
+      Double_t MuonCand_[MAX_LL];
+      Int_t MuonCandTrack_nmuchits[MAX_LL];
+      Double_t MuonCandTrack_chisq[MAX_LL];
+      Int_t MuonCand_isglobal[MAX_LL], MuonCand_istracker[MAX_LL], MuonCand_isstandalone[MAX_LL], MuonCand_ispfmuon[MAX_LL];
+      Int_t MuonCand_istight[MAX_LL];
 
       // Electron quantities
       Int_t nEleCand;
@@ -308,9 +318,9 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t EleCand_p[MAX_LL], EleCand_e[MAX_LL], EleCand_et[MAX_LL];
       Double_t EleCand_eta[MAX_LL], EleCand_phi[MAX_LL];
       Double_t EleCand_vtxx[MAX_LL], EleCand_vtxy[MAX_LL], EleCand_vtxz[MAX_LL];
-      Double_t EleCand_charge[MAX_LL];
-		  Double_t EleCandTrack_p[MAX_LL], EleCandTrack_pt[MAX_LL];
-		  Double_t EleCandTrack_eta[MAX_LL], EleCandTrack_phi[MAX_LL];
+      Int_t EleCand_charge[MAX_LL];
+      Double_t EleCandTrack_p[MAX_LL], EleCandTrack_pt[MAX_LL];
+      Double_t EleCandTrack_eta[MAX_LL], EleCandTrack_phi[MAX_LL];
       Double_t EleCandTrack_vtxz[MAX_LL]; 
       Double_t EleCand_deltaPhi[MAX_LL], EleCand_deltaEta[MAX_LL];
       Double_t EleCand_HoverE[MAX_LL];
@@ -353,9 +363,9 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Int_t nFilteredPrimVertexCand;
       
       // Extra tracks on vertex quantities
-    	Int_t nExtraTracks;
-      Int_t	ExtraTrack_purity[MAX_ET], ExtraTrack_nhits[MAX_ET];
-      Int_t	ExtraTrack_charge[MAX_ET], ExtraTrack_ndof[MAX_ET];
+      Int_t nExtraTracks;
+      Int_t ExtraTrack_purity[MAX_ET], ExtraTrack_nhits[MAX_ET];
+      Int_t ExtraTrack_charge[MAX_ET], ExtraTrack_ndof[MAX_ET];
       Double_t ExtraTrack_p[MAX_ET], ExtraTrack_pt[MAX_ET];
       Double_t ExtraTrack_px[MAX_ET], ExtraTrack_py[MAX_ET], ExtraTrack_pz[MAX_ET];
       Double_t ExtraTrack_eta[MAX_ET], ExtraTrack_phi[MAX_ET];

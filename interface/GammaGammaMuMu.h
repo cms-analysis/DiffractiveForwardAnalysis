@@ -318,6 +318,7 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   int PrimVertexCand_mumuId;
 
   int nTrackCand;
+  int nExtraTrackCand;
   int nQualityTrackCand;
   int TRACKMAX;
   double TrackCand_purity[500];

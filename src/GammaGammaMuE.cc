@@ -112,7 +112,8 @@
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
-#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h" 
+//#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h" 
+#include "EgammaAnalysis/ElectronTools/interface/EGammaCutBasedEleId.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h" 
 
 // Vertexing 
