@@ -1010,7 +1010,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           continue;
         }
 
-	std::cout << "Vertex " << nPrimVertexCand << " has " << vertex_i->tracksSize() << " extra tracks" << std::endl;
+	//std::cout << "Vertex " << nPrimVertexCand << " has " << vertex_i->tracksSize() << " extra tracks" << std::endl;
 
 	int et_vtx = 0;
         reco::Vertex::trackRef_iterator vertex_curTrack;
@@ -1283,7 +1283,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     //  if(ClosestHighPurityExtraTrack_vtxdxyz < minmumuvtxd) {passed = false;}
     // "Exclusivity" cuts
     if(passed == true){
-      cout << "Filling the tree!" << endl;
+      //cout << "Filling the tree!" << endl;
       thetree->Fill();
     }
 
