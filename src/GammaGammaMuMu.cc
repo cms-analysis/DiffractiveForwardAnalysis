@@ -382,15 +382,6 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("MuMu_KalmanvtxT",&MuMu_KalmanvtxT,"MuMu_KalmanvtxT/D"); 
   thetree->Branch("MuMu_Kalmanvtxchi2dof",&MuMu_Kalmanvtxchi2dof,"MuMu_Kalmanvtxchi2dof/D");
   thetree->Branch("MuMu_Kalmanvtxisvalid",&MuMu_Kalmanvtxisvalid,"MuMu_Kalmanvtxisvalid/I");
-  thetree->Branch("MuMu_extratracks1mm",&MuMu_extratracks1mm,"MuMu_extratracks1mm/I");
-  thetree->Branch("MuMu_extratracks2mm",&MuMu_extratracks2mm,"MuMu_extratracks2mm/I"); 
-  thetree->Branch("MuMu_extratracks3mm",&MuMu_extratracks3mm,"MuMu_extratracks3mm/I");
-  thetree->Branch("MuMu_extratracks4mm",&MuMu_extratracks4mm,"MuMu_extratracks4mm/I"); 
-  thetree->Branch("MuMu_extratracks5mm",&MuMu_extratracks5mm,"MuMu_extratracks5mm/I");
-  thetree->Branch("MuMu_extratracks1cm",&MuMu_extratracks1cm,"MuMu_extratracks1cm/I");
-  thetree->Branch("MuMu_extratracks3cm",&MuMu_extratracks3cm,"MuMu_extratracks3cm/I");
-  thetree->Branch("MuMu_extratracks5cm",&MuMu_extratracks5cm,"MuMu_extratracks5cm/I"); 
-  thetree->Branch("MuMu_extratracks10cm",&MuMu_extratracks10cm,"MuMu_extratracks10cm/I"); 
   thetree->Branch("MuMuGamma_mass",MuMuGamma_mass,"MuMuGamma_mass[nPFPhotonCand]/D"); 
   
   thetree->Branch("nGenPhotCand",&nGenPhotCand,"nGenPhotCand/I"); 
@@ -448,28 +439,39 @@ GammaGammaMuMu::GammaGammaMuMu(const edm::ParameterSet& pset)
   thetree->Branch("PrimVertexCand_mumuTwoTracksMap",&PrimVertexCand_mumuTwoTracksMap,"PrimVertexCand_mumuTwoTracksMap/I");  
   thetree->Branch("PrimVertexCand_mumuId",&PrimVertexCand_mumuId,"PrimVertexCand_mumuId/I");
 
-  thetree->Branch("nExtraTrackCand",nExtraTrackCand,"nExtraTrackCand[nPrimVertexCand]/I");
-  thetree->Branch("nQualityExtraTrackCand",nQualityExtraTrackCand,"nQualityExtraTrackCand[nPrimVertexCand]/I"); 
-  thetree->Branch("TrackCand_px",TrackCand_px,"TrackCand_px[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_py",TrackCand_py,"TrackCand_py[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_pz",TrackCand_pz,"TrackCand_pz[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_p",TrackCand_p,"TrackCand_p[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_pt",TrackCand_pt,"TrackCand_pt[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_eta",TrackCand_eta,"TrackCand_eta[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_phi",TrackCand_phi,"TrackCand_phi[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_vtxdxyz",TrackCand_vtxdxyz,"TrackCand_vtxdxyz[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_charge",TrackCand_charge,"TrackCand_charge[nPrimVertexCand][nExtraTrackCand]/D"); 
-  thetree->Branch("TrackCand_purity",TrackCand_purity,"TrackCand_purity[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_nhits",TrackCand_nhits,"TrackCand_nhits[nPrimVertexCand][nExtraTrackCand]/I");
-  thetree->Branch("TrackCand_chi2",TrackCand_chi2,"TrackCand_chi2[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_ndof",TrackCand_ndof,"TrackCand_ndof[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_vtxZ",TrackCand_vtxZ,"TrackCand_vtxZ[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_vtxT",TrackCand_vtxT,"TrackCand_vtxT[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_X",TrackCand_X,"TrackCand_X[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_Y",TrackCand_Y,"TrackCand_Y[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("TrackCand_Z",TrackCand_Z,"TrackCand_Z[nPrimVertexCand][nExtraTrackCand]/D");
-  thetree->Branch("ClosestExtraTrack_vtxdxyz",ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz[nPrimVertexCand]/D");
-  thetree->Branch("ClosestHighPurityExtraTrack_vtxdxyz",ClosestHighPurityExtraTrack_vtxdxyz,"ClosestHighPurityExtraTrack_vtxdxyz[nPrimVertexCand]/D");
+  thetree->Branch("nExtraTrackCand",&nExtraTrackCand,"nExtraTrackCand/I");
+  thetree->Branch("nExtraTrackCandByVtx",nExtraTrackCandByVtx,"nExtraTrackCandByVtx[nPrimVertexCand]/I");
+  thetree->Branch("nQualityExtraTrackCand",&nQualityExtraTrackCand,"nQualityExtraTrackCand/I"); 
+  thetree->Branch("ExtraTrackCand_vertexId",ExtraTrackCand_vertexId,"ExtraTrackCand_vertexId[nExtraTrackCand]/I");
+  thetree->Branch("ExtraTrackCand_px",ExtraTrackCand_px,"ExtraTrackCand_px[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_py",ExtraTrackCand_py,"ExtraTrackCand_py[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_pz",ExtraTrackCand_pz,"ExtraTrackCand_pz[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_p",ExtraTrackCand_p,"ExtraTrackCand_p[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_pt",ExtraTrackCand_pt,"ExtraTrackCand_pt[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_eta",ExtraTrackCand_eta,"ExtraTrackCand_eta[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_phi",ExtraTrackCand_phi,"ExtraTrackCand_phi[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_vtxdxyz",ExtraTrackCand_vtxdxyz,"ExtraTrackCand_vtxdxyz[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_charge",ExtraTrackCand_charge,"ExtraTrackCand_charge[nExtraTrackCand]/D"); 
+  thetree->Branch("ExtraTrackCand_purity",ExtraTrackCand_purity,"ExtraTrackCand_purity[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_nhits",ExtraTrackCand_nhits,"ExtraTrackCand_nhits[nExtraTrackCand]/I");
+  thetree->Branch("ExtraTrackCand_chi2",ExtraTrackCand_chi2,"ExtraTrackCand_chi2[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_ndof",ExtraTrackCand_ndof,"ExtraTrackCand_ndof[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_vtxZ",ExtraTrackCand_vtxZ,"ExtraTrackCand_vtxZ[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_vtxT",ExtraTrackCand_vtxT,"ExtraTrackCand_vtxT[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_X",ExtraTrackCand_X,"ExtraTrackCand_X[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_Y",ExtraTrackCand_Y,"ExtraTrackCand_Y[nExtraTrackCand]/D");
+  thetree->Branch("ExtraTrackCand_Z",ExtraTrackCand_Z,"ExtraTrackCand_Z[nExtraTrackCand]/D");
+  thetree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D");
+  thetree->Branch("ClosestHighPurityExtraTrack_vtxdxyz",&ClosestHighPurityExtraTrack_vtxdxyz,"ClosestHighPurityExtraTrack_vtxdxyz/D");
+  thetree->Branch("MuMu_extratracks1mm",&MuMu_extratracks1mm,"MuMu_extratracks1mm/I");
+  thetree->Branch("MuMu_extratracks2mm",&MuMu_extratracks2mm,"MuMu_extratracks2mm/I");
+  thetree->Branch("MuMu_extratracks3mm",&MuMu_extratracks3mm,"MuMu_extratracks3mm/I");
+  thetree->Branch("MuMu_extratracks4mm",&MuMu_extratracks4mm,"MuMu_extratracks4mm/I");
+  thetree->Branch("MuMu_extratracks5mm",&MuMu_extratracks5mm,"MuMu_extratracks5mm/I");
+  thetree->Branch("MuMu_extratracks1cm",&MuMu_extratracks1cm,"MuMu_extratracks1cm/I");
+  thetree->Branch("MuMu_extratracks3cm",&MuMu_extratracks3cm,"MuMu_extratracks3cm/I");
+  thetree->Branch("MuMu_extratracks5cm",&MuMu_extratracks5cm,"MuMu_extratracks5cm/I");
+  thetree->Branch("MuMu_extratracks10cm",&MuMu_extratracks10cm,"MuMu_extratracks10cm/I");
 
   thetree->Branch("LowPt_pt",LowPt_pt,"LowPt_pt[nMuonCand]/D");
   thetree->Branch("LowPt_eta",LowPt_eta,"LowPt_eta[nMuonCand]/D");
@@ -532,18 +534,11 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   MuMu_pt = -1;
   MuMu_phi = -999.;
   MuMu_3Dangle = -999.; 
-  MuMu_extratracks1mm = 0; 
-  MuMu_extratracks2mm = 0;  
-  MuMu_extratracks3mm = 0; 
-  MuMu_extratracks4mm = 0;  
-  MuMu_extratracks5mm = 0; 
-  MuMu_extratracks1cm = 0; 
-  MuMu_extratracks3cm = 0;
-  MuMu_extratracks5cm = 0;
-  MuMu_extratracks10cm = 0;
   double mumuprimvtxx = 0.0; 
   double mumuprimvtxy = 0.0; 
   double mumuprimvtxz = 0.0; 
+
+  for (int i=0; i<MAXPVC; i++) nExtraTrackCandByVtx[i] = -1;
 
   HLT_DoubleMu4Acoplanarity = -999;
   HLT_DoubleMu4Acoplanarity_Prescl = -999;
@@ -969,6 +964,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
     event.getByLabel(recVertexLabel, recoVertexs);
     const VertexCollection* vertexs = recoVertexs.product();
     VertexCollection::const_iterator vertex_i;
+    et = 0;
     
     for (vertex_i = vertexs->begin(); vertex_i != vertexs->end(); vertex_i++){
       PrimVertexCand_x[nPrimVertexCand] = vertex_i->x();
@@ -978,10 +974,10 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       PrimVertexCand_chi2[nPrimVertexCand] = vertex_i->chi2();
       PrimVertexCand_ndof[nPrimVertexCand] = vertex_i->ndof();
 
-      nExtraTrackCand[nPrimVertexCand] = -1;
-      nQualityExtraTrackCand[nPrimVertexCand] = -1;
-      ClosestExtraTrack_vtxdxyz[nPrimVertexCand] = 999.;
-      ClosestHighPurityExtraTrack_vtxdxyz[nPrimVertexCand] = 999.;
+      nExtraTrackCand = -1;
+      nQualityExtraTrackCand = -1;
+      ClosestExtraTrack_vtxdxyz = 999.;
+      ClosestHighPurityExtraTrack_vtxdxyz = 999.;
       // Now check if a primary vertex is consistent with having exactly 2 muons 
       // and no other tracks
       
@@ -1000,6 +996,7 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       }
       
       if((PrimVertexCand_tracks[nPrimVertexCand] >= 2) && found_pair && track_match_muon>=2) {
+	MuMu_extratracks1mm = MuMu_extratracks2mm = MuMu_extratracks3mm = MuMu_extratracks4mm = MuMu_extratracks5mm = MuMu_extratracks1cm = MuMu_extratracks3cm = MuMu_extratracks5cm = MuMu_extratracks10cm = 0;
       	PrimVertexCand_mumuTwoTracks[nPrimVertexCand] = 1;
       	mumuprimvtxx = PrimVertexCand_x[nPrimVertexCand];
       	mumuprimvtxy = PrimVertexCand_y[nPrimVertexCand]; 
@@ -1013,10 +1010,12 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
           continue;
         }
 
+	//std::cout << "Vertex " << nPrimVertexCand << " has " << vertex_i->tracksSize() << " extra tracks" << std::endl;
+
+	int et_vtx = 0;
         reco::Vertex::trackRef_iterator vertex_curTrack;
-        et = 0;
 	for (vertex_curTrack =vertex_i->tracks_begin();
-             vertex_curTrack!=vertex_i->tracks_end();
+             vertex_curTrack!=vertex_i->tracks_end() && et<MAXET;
              vertex_curTrack++) {
           if (fabs((*vertex_curTrack)->p()-MuonCandTrack_p[MuonPairCand[0]])<1.e-2 ||
               fabs((*vertex_curTrack)->p()-MuonCandTrack_p[MuonPairCand[1]])<1.e-2) continue;
@@ -1026,53 +1025,56 @@ GammaGammaMuMu::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
               fabs((*vertex_curTrack)->eta()-MuonCand_eta[MuonPairCand[1]])<1.e-2) continue;
           if (fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuonPairCand[0]])<1.e-2 ||
               fabs((*vertex_curTrack)->phi()-MuonCand_phi[MuonPairCand[1]])<1.e-2) continue;
-          TrackCand_purity[nPrimVertexCand][et] = (*vertex_curTrack)->quality(TrackBase::highPurity);
-          TrackCand_p[nPrimVertexCand][et] = (*vertex_curTrack)->p();
-          TrackCand_pt[nPrimVertexCand][et] = (*vertex_curTrack)->pt();
-          TrackCand_px[nPrimVertexCand][et] = (*vertex_curTrack)->px();  
-          TrackCand_py[nPrimVertexCand][et] = (*vertex_curTrack)->py();  
-          TrackCand_pz[nPrimVertexCand][et] = (*vertex_curTrack)->pz();
-          TrackCand_eta[nPrimVertexCand][et] = (*vertex_curTrack)->eta();  
-          TrackCand_phi[nPrimVertexCand][et] = (*vertex_curTrack)->phi();  
-          TrackCand_charge[nPrimVertexCand][et] = (*vertex_curTrack)->charge(); 
-          TrackCand_nhits[nPrimVertexCand][et] = (*vertex_curTrack)->numberOfValidHits(); 
-          TrackCand_chi2[nPrimVertexCand][et] = (*vertex_curTrack)->chi2(); 
-          TrackCand_ndof[nPrimVertexCand][et] = (*vertex_curTrack)->ndof();
-          TrackCand_vtxT[nPrimVertexCand][et] = sqrt(pow((*vertex_curTrack)->vertex().x()-mumuprimvtxx, 2)
+	  ExtraTrackCand_vertexId[et] = nPrimVertexCand;
+          ExtraTrackCand_purity[et] = (*vertex_curTrack)->quality(TrackBase::highPurity);
+          ExtraTrackCand_p[et] = (*vertex_curTrack)->p();
+          ExtraTrackCand_pt[et] = (*vertex_curTrack)->pt();
+          ExtraTrackCand_px[et] = (*vertex_curTrack)->px();  
+          ExtraTrackCand_py[et] = (*vertex_curTrack)->py();  
+          ExtraTrackCand_pz[et] = (*vertex_curTrack)->pz();
+          ExtraTrackCand_eta[et] = (*vertex_curTrack)->eta();  
+          ExtraTrackCand_phi[et] = (*vertex_curTrack)->phi();  
+          ExtraTrackCand_charge[et] = (*vertex_curTrack)->charge(); 
+          ExtraTrackCand_nhits[et] = (*vertex_curTrack)->numberOfValidHits(); 
+          ExtraTrackCand_chi2[et] = (*vertex_curTrack)->chi2(); 
+          ExtraTrackCand_ndof[et] = (*vertex_curTrack)->ndof();
+          ExtraTrackCand_vtxT[et] = sqrt(pow((*vertex_curTrack)->vertex().x()-mumuprimvtxx, 2)
                                                                  +pow((*vertex_curTrack)->vertex().y()-mumuprimvtxy, 2));
-          TrackCand_vtxZ[nPrimVertexCand][et] = fabs((*vertex_curTrack)->vertex().z()-mumuprimvtxz);
-          TrackCand_vtxdxyz[nPrimVertexCand][et] = sqrt(pow(TrackCand_vtxT[nPrimVertexCand][et], 2)+pow(TrackCand_vtxZ[nPrimVertexCand][et], 2));
-          TrackCand_X[nPrimVertexCand][et] = (*vertex_curTrack)->vertex().x(); 
-          TrackCand_Y[nPrimVertexCand][et] = (*vertex_curTrack)->vertex().y(); 
-          TrackCand_Z[nPrimVertexCand][et] = (*vertex_curTrack)->vertex().z();
+          ExtraTrackCand_vtxZ[et] = fabs((*vertex_curTrack)->vertex().z()-mumuprimvtxz);
+          ExtraTrackCand_vtxdxyz[et] = sqrt(pow(ExtraTrackCand_vtxT[et], 2)+pow(ExtraTrackCand_vtxZ[et], 2));
+          ExtraTrackCand_X[et] = (*vertex_curTrack)->vertex().x(); 
+          ExtraTrackCand_Y[et] = (*vertex_curTrack)->vertex().y(); 
+          ExtraTrackCand_Z[et] = (*vertex_curTrack)->vertex().z();
 
-          if((TrackCand_purity[nPrimVertexCand][et] == 1) && (TrackCand_nhits[nPrimVertexCand][et] >= 3)) {
-            nQualityExtraTrackCand[nPrimVertexCand]++;
+          if((ExtraTrackCand_purity[et] == 1) && (ExtraTrackCand_nhits[et] >= 3)) {
+            nQualityExtraTrackCand++;
           }
 
-          if(TrackCand_vtxdxyz[nPrimVertexCand][et] < 0.1) MuMu_extratracks1mm++;
-          if(TrackCand_vtxdxyz[nPrimVertexCand][et] < 0.2) MuMu_extratracks2mm++;
-          if(TrackCand_vtxdxyz[nPrimVertexCand][et] < 0.3) MuMu_extratracks3mm++;
-          if(TrackCand_vtxdxyz[nPrimVertexCand][et] < 0.4) MuMu_extratracks4mm++;
-          if(TrackCand_vtxdxyz[nPrimVertexCand][et] < 0.5) MuMu_extratracks5mm++;
-          if(TrackCand_vtxdxyz[nPrimVertexCand][et] < 1.0) MuMu_extratracks1cm++;
-          if(TrackCand_vtxdxyz[nPrimVertexCand][et] < 3.0) MuMu_extratracks3cm++;
-          if(TrackCand_vtxdxyz[nPrimVertexCand][et] < 5.0) MuMu_extratracks5cm++;
-          if(TrackCand_vtxdxyz[nPrimVertexCand][et] < 10.) MuMu_extratracks10cm++;
-          if(TrackCand_vtxdxyz[nPrimVertexCand][et] < ClosestExtraTrack_vtxdxyz[nPrimVertexCand])
-            ClosestExtraTrack_vtxdxyz[nPrimVertexCand] = TrackCand_vtxdxyz[nPrimVertexCand][et];
-          if((TrackCand_vtxdxyz[nPrimVertexCand][et] < ClosestHighPurityExtraTrack_vtxdxyz[nPrimVertexCand]) && 
-	     (TrackCand_purity[nPrimVertexCand][et] == 1) && 
-	     (TrackCand_nhits[nPrimVertexCand][et] >= 3))
-	    ClosestHighPurityExtraTrack_vtxdxyz[nPrimVertexCand] = TrackCand_vtxdxyz[nPrimVertexCand][et];
-          et++;
-	} 
-        nExtraTrackCand[nPrimVertexCand] = et;
+          if(ExtraTrackCand_vtxdxyz[et] < 0.1) MuMu_extratracks1mm++;
+          if(ExtraTrackCand_vtxdxyz[et] < 0.2) MuMu_extratracks2mm++;
+          if(ExtraTrackCand_vtxdxyz[et] < 0.3) MuMu_extratracks3mm++;
+          if(ExtraTrackCand_vtxdxyz[et] < 0.4) MuMu_extratracks4mm++;
+          if(ExtraTrackCand_vtxdxyz[et] < 0.5) MuMu_extratracks5mm++;
+          if(ExtraTrackCand_vtxdxyz[et] < 1.0) MuMu_extratracks1cm++;
+          if(ExtraTrackCand_vtxdxyz[et] < 3.0) MuMu_extratracks3cm++;
+          if(ExtraTrackCand_vtxdxyz[et] < 5.0) MuMu_extratracks5cm++;
+          if(ExtraTrackCand_vtxdxyz[et] < 10.) MuMu_extratracks10cm++;
+          if(ExtraTrackCand_vtxdxyz[et] < ClosestExtraTrack_vtxdxyz)
+            ClosestExtraTrack_vtxdxyz = ExtraTrackCand_vtxdxyz[et];
+          if((ExtraTrackCand_vtxdxyz[et] < ClosestHighPurityExtraTrack_vtxdxyz) && 
+	     (ExtraTrackCand_purity[et] == 1) && 
+	     (ExtraTrackCand_nhits[et] >= 3))
+	    ClosestHighPurityExtraTrack_vtxdxyz = ExtraTrackCand_vtxdxyz[et];
+	  et++;
+	  et_vtx++;
+	}
+	nExtraTrackCandByVtx[nPrimVertexCand] = et_vtx;
       	PrimVertexCand_mumuId = nPrimVertexCand;
       	found_mumuvertex = true;
       }
       nPrimVertexCand++;
     }
+    nExtraTrackCand = et;
     //cout << "Passed the nExtraTracks>=2 step!" << endl;
     
     

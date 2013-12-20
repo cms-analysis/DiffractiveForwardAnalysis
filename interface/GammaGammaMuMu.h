@@ -27,6 +27,9 @@
 #include <TLorentzVector.h>
 #include <fstream>
 
+#define MAXPVC 75
+#define MAXET  500
+
 class GammaGammaMuMu : public edm::EDAnalyzer {
  public:
   explicit GammaGammaMuMu(const edm::ParameterSet&);
@@ -201,9 +204,9 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   double MuMu_Kalmanvtxchi2dof;
   int MuMu_Kalmanvtxisvalid;
   int MuMu_extratracks1mm;
-  int MuMu_extratracks2mm; 
+  int MuMu_extratracks2mm;
   int MuMu_extratracks3mm;
-  int MuMu_extratracks4mm; 
+  int MuMu_extratracks4mm;
   int MuMu_extratracks5mm;
   int MuMu_extratracks1cm;
   int MuMu_extratracks3cm;
@@ -306,41 +309,43 @@ class GammaGammaMuMu : public edm::EDAnalyzer {
   //double CASTORsumRecHitsE;
 
   int nPrimVertexCand;
-  double PrimVertexCand_x[75];
-  double PrimVertexCand_y[75];
-  double PrimVertexCand_z[75];
-  double PrimVertexCand_tracks[75];
-  double PrimVertexCand_chi2[75];
-  double PrimVertexCand_ndof[75];
-  int PrimVertexCand_mumuTwoTracks[75];
-  int PrimVertexCand_mumuExactlyTwoTracks[75]; 
+  double PrimVertexCand_x[MAXPVC];
+  double PrimVertexCand_y[MAXPVC];
+  double PrimVertexCand_z[MAXPVC];
+  double PrimVertexCand_tracks[MAXPVC];
+  double PrimVertexCand_chi2[MAXPVC];
+  double PrimVertexCand_ndof[MAXPVC];
+  int PrimVertexCand_mumuTwoTracks[MAXPVC];
+  int PrimVertexCand_mumuExactlyTwoTracks[MAXPVC]; 
   int PrimVertexCand_mumuTwoTracksMap; 
   int PrimVertexCand_mumuId;
 
   int et;
-  int nExtraTrackCand[75];
-  int nQualityExtraTrackCand[75];
+  int nExtraTrackCand;
+  int nExtraTrackCandByVtx[MAXPVC];
+  int nQualityExtraTrackCand;
   int TRACKMAX;
-  double TrackCand_purity[75][500];
-  int TrackCand_nhits[75][500];
-  double TrackCand_chi2[75][500];
-  double TrackCand_ndof[75][500];
-  double TrackCand_px[75][500];
-  double TrackCand_py[75][500];
-  double TrackCand_pz[75][500];
-  double TrackCand_p[75][500];
-  double TrackCand_eta[75][500];
-  double TrackCand_pt[75][500];
-  double TrackCand_phi[75][500];
-  double TrackCand_vtxdxyz[75][500];
-  double TrackCand_vtxT[75][500];
-  double TrackCand_vtxZ[75][500];
-  double TrackCand_X[75][500];
-  double TrackCand_Y[75][500];
-  double TrackCand_Z[75][500];
-  int TrackCand_charge[75][500];
-  double ClosestExtraTrack_vtxdxyz[75];
-  double ClosestHighPurityExtraTrack_vtxdxyz[75];
+  double ExtraTrackCand_purity[MAXET];
+  int ExtraTrackCand_nhits[MAXET];
+  int ExtraTrackCand_vertexId[MAXET];
+  double ExtraTrackCand_chi2[MAXET];
+  double ExtraTrackCand_ndof[MAXET];
+  double ExtraTrackCand_px[MAXET];
+  double ExtraTrackCand_py[MAXET];
+  double ExtraTrackCand_pz[MAXET];
+  double ExtraTrackCand_p[MAXET];
+  double ExtraTrackCand_eta[MAXET];
+  double ExtraTrackCand_pt[MAXET];
+  double ExtraTrackCand_phi[MAXET];
+  double ExtraTrackCand_vtxdxyz[MAXET];
+  double ExtraTrackCand_vtxT[MAXET];
+  double ExtraTrackCand_vtxZ[MAXET];
+  double ExtraTrackCand_X[MAXET];
+  double ExtraTrackCand_Y[MAXET];
+  double ExtraTrackCand_Z[MAXET];
+  int ExtraTrackCand_charge[MAXET];
+  double ClosestExtraTrack_vtxdxyz;
+  double ClosestHighPurityExtraTrack_vtxdxyz;
 
   int nPFPhotonCand;  
   int PHOTONMAX;
