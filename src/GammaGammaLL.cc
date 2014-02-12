@@ -422,7 +422,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       MuonCand_dxy[nMuonCand] = muon->dB();
       MuonCand_nstatseg[nMuonCand] = muon->numberOfMatchedStations();
       
-      _leptonptmp->SetXYZM(muon->px(), muon->py(), muon->pz(), muon->mass());
+      _leptonptmp->SetXYZM(muon->innerTrack()->px(), muon->innerTrack()->py(), muon->innerTrack()->pz(), muon->mass());
       muonsMomenta.insert(std::pair<Int_t,TLorentzVector>(nMuonCand, *_leptonptmp));
       
       MuonCand_vtxx[nMuonCand] = muon->vertex().x();
