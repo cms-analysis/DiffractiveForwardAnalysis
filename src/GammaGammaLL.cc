@@ -421,10 +421,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       MuonCand_charge[nMuonCand] = muon->charge();
       MuonCand_dxy[nMuonCand] = muon->dB();
       MuonCand_nstatseg[nMuonCand] = muon->numberOfMatchedStations();
-      
-      _leptonptmp->SetXYZM(muon->innerTrack()->px(), muon->innerTrack()->py(), muon->innerTrack()->pz(), muon->mass());
-      muonsMomenta.insert(std::pair<Int_t,TLorentzVector>(nMuonCand, *_leptonptmp));
-      
+            
       MuonCand_vtxx[nMuonCand] = muon->vertex().x();
       MuonCand_vtxy[nMuonCand] = muon->vertex().y();
       MuonCand_vtxz[nMuonCand] = muon->vertex().z();
@@ -437,7 +434,12 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (MuonCand_istracker[nMuonCand]) {
 	MuonCand_npxlhits[nMuonCand] = muon->innerTrack()->hitPattern().numberOfValidPixelHits();
 	MuonCand_ntrklayers[nMuonCand] = muon->innerTrack()->hitPattern().trackerLayersWithMeasurement();
+	_leptonptmp->SetXYZM(muon->innerTrack()->px(), muon->innerTrack()->py(), muon->innerTrack()->pz(), muon->mass());
       }
+      else {
+	_leptonptmp->SetXYZM(muon->px(), muon->py(), muon->pz(), muon->mass());
+      }
+      muonsMomenta.insert(std::pair<Int_t,TLorentzVector>(nMuonCand, *_leptonptmp));
 
       if (MuonCand_isglobal[nMuonCand] && MuonCand_istracker[nMuonCand]) {
 	MuonCandTrack_nmuchits[nMuonCand] = muon->globalTrack()->hitPattern().numberOfValidMuonHits();
@@ -631,7 +633,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       _vtx = new PrimaryVertex(leptonsType_, muonsMomenta, electronsMomenta);
       _vtx->SetPosition(vertex->x(), vertex->y(), vertex->z());
 
-      // Loop on all the tracks matched with this vertex    
+      // Loop on all the tracks matched with this vertex
       reco::Vertex::trackRef_iterator _track;
       for (_track=vertex->tracks_begin(); _track!=vertex->tracks_end() && etind<MAX_ET; _track++) {
 	leptonId_ = _vtx->AddTrack((*_track).castTo<reco::TrackRef>(), *_leptonType);
