@@ -1,6 +1,3 @@
-DiffractiveForwardAnalysis-GammaGammaLeptonLepton
-=================================================
-
 Ntuplers for the search of exclusive two-photon produced events at CMS
 
 IMPORTANT NOTE
