@@ -130,7 +130,7 @@ GammaGammaLL::~GammaGammaLL()
   file_->Close();
 
   delete _hlts;
-  delete tree;
+  delete tree_;
 
 }
 
