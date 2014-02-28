@@ -158,6 +158,9 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t endphotdeta, endphotdphi, endphotdr;
       Double_t pairgmass;
       bool istight;
+
+      TFile* file_;
+      TTree* tree_;
       
       // Input tags
       std::string hltMenuLabel_, outputFile_;
@@ -393,7 +396,5 @@ class GammaGammaLL : public edm::EDAnalyzer {
 //
 // static data member definitions
 //
-TFile* file;
-TTree* tree;
 
 #endif
