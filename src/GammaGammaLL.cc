@@ -216,6 +216,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     ExtraTrack_chi2[i] = ExtraTrack_vtxdxyz[i] = -999.;
     ExtraTrack_vtxT[i] = ExtraTrack_vtxZ[i] = -999.;
     ExtraTrack_x[i] = ExtraTrack_y[i] = ExtraTrack_z[i] = -999.;
+    ExtraTrack_vtxId[i] = -1;
   }
   for (i=0; i<MAX_PAIRS; i++) {
     Pair_candidates[i][0] = Pair_candidates[i][1] = -1;
@@ -619,6 +620,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     _leptonType = new TString();
     
+    etind = 0;
     nPrimVertexCand = vertices->size();
     for (vertex=vertices->begin(); vertex!=vertices->end() && vtxind<MAX_VTX; ++vertex, ++vtxind) {
       PrimaryVertex *_vtx;
@@ -628,16 +630,17 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       nExtraTracks = 0;
       nQualityExtraTrack = 0;
       foundPairOnVertex = false;
-      etind = 0;
       
       _vtx = new PrimaryVertex(leptonsType_, muonsMomenta, electronsMomenta);
       _vtx->SetPosition(vertex->x(), vertex->y(), vertex->z());
 
+      closesttrkid = closesthighpuritytrkid = -1;
       // Loop on all the tracks matched with this vertex
       reco::Vertex::trackRef_iterator _track;
       for (_track=vertex->tracks_begin(); _track!=vertex->tracks_end() && etind<MAX_ET; _track++) {
 	leptonId_ = _vtx->AddTrack((*_track).castTo<reco::TrackRef>(), *_leptonType);
 	if (leptonId_==-1) { // Track was not matched to any of the leptons in the collection
+          ExtraTrack_vtxId[etind] = vtxind;
 	  vtxdst = sqrt(std::pow(((*_track)->vertex().x()-_vtx->Position.X()),2)+
 			std::pow(((*_track)->vertex().y()-_vtx->Position.Y()),2)+
 			std::pow(((*_track)->vertex().z()-_vtx->Position.Z()),2));
@@ -676,12 +679,14 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           if (vtxdst<10.) Pair_extratracks10cm[vtxind]++;
           if (vtxdst<closesttrkdxyz) {
             closesttrkdxyz = vtxdst;
+            closesttrkid = etind;
           }
           
 	  if (ExtraTrack_purity[etind]==1 && ExtraTrack_nhits[etind]>=3) {
 	    nQualityExtraTrack++;
 	    if (vtxdst<closesthighpuritytrkdxyz) {
 	      closesthighpuritytrkdxyz = vtxdst;
+              closesthighpuritytrkid = etind;
 	    }
 	  }
           etind++;
@@ -693,9 +698,11 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           nLeptonsInPrimVertex++;
         }
       }
-      ClosestExtraTrack_vtxdxyz = closesttrkdxyz;
-      ClosestHighPurityExtraTrack_vtxdxyz = closesthighpuritytrkdxyz;
-      nExtraTracks = etind;
+      ClosestExtraTrack_vtxdxyz[vtxind] = closesttrkdxyz;
+      ClosestExtraTrack_id[vtxind] = closesttrkid;
+      ClosestHighPurityExtraTrack_vtxdxyz[vtxind] = closesthighpuritytrkdxyz;
+      ClosestHighPurityExtraTrack_id[vtxind] = closesttrkid;
+      
       if (nLeptonsInPrimVertex<2) continue;
       
       // At this stage we have at least two matched leptons track on the vertex
@@ -881,6 +888,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //std::cout << "end of the loop on the vertices : vtxind = " << vtxind << std::endl;
     delete _leptonType;
   }
+  nExtraTracks = etind;
   
   //std::cout << "Passed Loop on vertices" << std::endl;
   
@@ -1106,6 +1114,7 @@ GammaGammaLL::beginJob()
   }
   // Extra tracks on vertex's information
   tree->Branch("nExtraTracks", &nExtraTracks, "nExtraTracks/I");
+  tree->Branch("ExtraTrack_vtxId", ExtraTrack_vtxId, "ExtraTrack_vtxId[nExtraTracks]/I");
   tree->Branch("ExtraTrack_purity", ExtraTrack_purity, "ExtraTrack_purity[nExtraTracks]/I");
   tree->Branch("ExtraTrack_nhits", ExtraTrack_nhits, "ExtraTrack_nhits[nExtraTracks]/I");
   tree->Branch("ExtraTrack_charge", ExtraTrack_charge, "ExtraTrack_charge[nExtraTracks]/I");
@@ -1125,8 +1134,10 @@ GammaGammaLL::beginJob()
   tree->Branch("ExtraTrack_y", ExtraTrack_y, "ExtraTrack_y[nExtraTracks]/D");
   tree->Branch("ExtraTrack_z", ExtraTrack_z, "ExtraTrack_z[nExtraTracks]/D");
   tree->Branch("nQualityExtraTrack", &nQualityExtraTrack, "nQualityExtraTrack/I");
-  tree->Branch("ClosestExtraTrack_vtxdxyz",&ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz/D");
-  tree->Branch("ClosestHighPurityExtraTrack_vtxdxyz",&ClosestHighPurityExtraTrack_vtxdxyz,"ClosestHighPurityExtraTrack_vtxdxyz/D");
+  tree->Branch("ClosestExtraTrack_vtxdxyz",ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz[nPrimVertexCand]/D");
+  tree->Branch("ClosestExtraTrack_id",ClosestExtraTrack_id,"ClosestExtraTrack_id[nPrimVertexCand]/I");
+  tree->Branch("ClosestHighPurityExtraTrack_vtxdxyz",ClosestHighPurityExtraTrack_vtxdxyz,"ClosestHighPurityExtraTrack_vtxdxyz[nPrimVertexCand]/D");
+  tree->Branch("ClosestHighPurityExtraTrack_id",ClosestHighPurityExtraTrack_id,"ClosestHighPurityExtraTrack_id[nPrimVertexCand]/I");
   
   // Jets/MET information
   tree->Branch("nJetCand", &nJetCand, "nJetCand/I");
