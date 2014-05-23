@@ -2,6 +2,7 @@
 #define DiffractiveForwardAnalysis_GammaGammaLL8TeV_h
 
 // system include files
+#include <fstream>
 #include <memory>
 #include <map>
 
@@ -72,19 +73,20 @@
 #include <TTree.h>
 #include <TVector3.h>
 #include <TLorentzVector.h>
+#include <TH1D.h>
 
-#define MAX_HLT    10  // Maximum number of HLT to check
-#define MAX_LL     50  // Maximum number of leptons per event
-#define MAX_MUONS  25  // Maximum number of muons per event
-#define MAX_ELE    25  // Maximum number of electrons per event
-#define MAX_PHO    50  // Maximum number of photons per event
-#define MAX_PAIRS  25  // Maximum number of leptons pairs per event
-#define MAX_VTX    10  // Maximum number of primary vertices per event
+#define MAX_HLT    10   // Maximum number of HLT to check
+#define MAX_LL     50   // Maximum number of leptons per event
+#define MAX_MUONS  25   // Maximum number of muons per event
+#define MAX_ELE    25   // Maximum number of electrons per event
+#define MAX_PHO    50   // Maximum number of photons per event
+#define MAX_PAIRS  25   // Maximum number of leptons pairs per event
+#define MAX_VTX    1000 // Maximum number of primary vertices per event
 #define MAX_ET     10000// Maximum number of extra tracks per event
-#define MAX_GENMU  25  // Maximum number of generator level muons per event
-#define MAX_GENELE 25  // Maximum number of generator level electrons per event
-#define MAX_GENPHO 10  // Maximum number of generator level photons per event
-#define MAX_JETS   30  // Maximum nulber of jets per event
+#define MAX_GENMU  25   // Maximum number of generator level muons per event
+#define MAX_GENELE 25   // Maximum number of generator level electrons per event
+#define MAX_GENPHO 10   // Maximum number of generator level photons per event
+#define MAX_JETS   30   // Maximum number of jets per event
 
 #define MASS_MU 0.1057
 #define MASS_E  0.000511
@@ -159,6 +161,8 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t endphotdeta, endphotdphi, endphotdr;
       Double_t pairgmass;
       bool istight;
+
+      std::ofstream *logfile;
       
       // Input tags
       std::string hltMenuLabel_, outputFile_;
@@ -356,7 +360,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       
       // Vertex quantities
       Int_t nPrimVertexCand;
-      Int_t PrimVertexCand_id[MAX_VTX];
+      Int_t PrimVertexCand_id[MAX_VTX], PrimVertexCand_hasdil[MAX_VTX];
       Double_t PrimVertexCand_x[MAX_VTX], PrimVertexCand_y[MAX_VTX], PrimVertexCand_z[MAX_VTX];
       Int_t PrimVertexCand_tracks[MAX_VTX], PrimVertexCand_matchedtracks[MAX_VTX], PrimVertexCand_unmatchedtracks[MAX_VTX];
       Double_t PrimVertexCand_chi2[MAX_VTX];
@@ -386,7 +390,6 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t HighestJet_e, HighestJet_eta, HighestJet_phi;
       Double_t SumJet_e;
       Double_t Etmiss, Etmiss_phi, Etmiss_x, Etmiss_y, Etmiss_z, Etmiss_significance;
-
 };
 
 //

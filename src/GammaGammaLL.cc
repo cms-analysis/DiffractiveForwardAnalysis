@@ -94,6 +94,9 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
   // tree definition
   tree = new TTree("ntp1", "ntp1");
 
+  //log_hist = new TH1D("log", "", 500, -25., 25.);
+  logfile = new std::ofstream("log_file.out");
+      
   // HPS acceptance file readout definition
   if (runOnMC_) {
     // edm::FileInPath myDataFile("FastSimulation/ProtonTaggers/data/acceptance_420_220.root");  
@@ -111,7 +114,7 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
     helper220beam2.Init(*f, "a220_b2");
     helper420a220beam1.Init(*f, "a420a220");
     helper420a220beam2.Init(*f, "a420a220_b2");
-    
+
     LumiWeights = new edm::LumiReWeighting(mcPileupFile_, dataPileupFile_, mcPileupPath_, dataPileupPath_);
   }
 
@@ -128,6 +131,8 @@ GammaGammaLL::~GammaGammaLL()
   list->Add(new TObjString(pset.dump().c_str()));
   file->Write();
   file->Close();
+
+  logfile->close();
 
   delete _hlts;
   delete tree;
@@ -172,7 +177,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // First initialization of the variables
   nCandidatesInEvent = 0;
-  nPrimVertexCand = nFilteredPrimVertexCand = 0;
+  nPrimVertexCand = nFilteredPrimVertexCand = -1;
   nMuonCand = nEleCand = nLeptonCand = 0;
   nExtraTracks = nQualityExtraTrack = 0;
   nJetCand = 0;
@@ -229,7 +234,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   for (i=0; i<MAX_VTX; i++) {
     PrimVertexCand_id[i] = -1;
-    PrimVertexCand_tracks[i] = PrimVertexCand_matchedtracks[i] = PrimVertexCand_unmatchedtracks[i] = 0;
+    PrimVertexCand_tracks[i] = PrimVertexCand_matchedtracks[i] = PrimVertexCand_unmatchedtracks[i] = PrimVertexCand_hasdil[i] = 0;
     PrimVertexCand_x[i] = PrimVertexCand_y[i] = PrimVertexCand_z[i] = -999.;
     PrimVertexCand_chi2[i] = PrimVertexCand_ndof[i] = -999.;
   }
@@ -622,9 +627,12 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     etind = 0;
     nPrimVertexCand = vertices->size();
+
     for (vertex=vertices->begin(); vertex!=vertices->end() && vtxind<MAX_VTX; ++vertex, ++vtxind) {
       PrimaryVertex *_vtx;
       Int_t leptonId_;
+
+      //(*logfile) << vertex->z() << std::endl;
 
       nLeptonsInPrimVertex = 0;
       nExtraTracks = 0;
@@ -634,6 +642,13 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       _vtx = new PrimaryVertex(leptonsType_, muonsMomenta, electronsMomenta);
       _vtx->SetPosition(vertex->x(), vertex->y(), vertex->z());
 
+      PrimVertexCand_id[vtxind] = vtxind;
+      PrimVertexCand_x[vtxind] = _vtx->Position.X();
+      PrimVertexCand_y[vtxind] = _vtx->Position.Y();
+      PrimVertexCand_z[vtxind] = _vtx->Position.Z();
+      PrimVertexCand_chi2[vtxind] = vertex->chi2();
+      PrimVertexCand_ndof[vtxind] = vertex->ndof();
+      
       closesttrkid = closesthighpuritytrkid = -1;
       // Loop on all the tracks matched with this vertex
       reco::Vertex::trackRef_iterator _track;
@@ -703,6 +718,10 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       ClosestHighPurityExtraTrack_vtxdxyz[vtxind] = closesthighpuritytrkdxyz;
       ClosestHighPurityExtraTrack_id[vtxind] = closesttrkid;
       
+      PrimVertexCand_tracks[vtxind] = _vtx->nTracks;
+      PrimVertexCand_matchedtracks[vtxind] = _vtx->nMatchedTracks;
+      PrimVertexCand_unmatchedtracks[vtxind] = _vtx->nUnmatchedTracks;
+
       if (nLeptonsInPrimVertex<2) continue;
       
       // At this stage we have at least two matched leptons track on the vertex
@@ -866,16 +885,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           //std::cout << "Photon " << j << " added to give a mass = " << pairgmass << std::endl;
           PairGamma_mass[vtxind][j] = pairgmass;
         }
-        
-        PrimVertexCand_id[vtxind] = vtxind;
-        PrimVertexCand_x[vtxind] = _vtx->Position.X();
-        PrimVertexCand_y[vtxind] = _vtx->Position.Y();
-        PrimVertexCand_z[vtxind] = _vtx->Position.Z();
-	PrimVertexCand_tracks[vtxind] = _vtx->nTracks;
-        PrimVertexCand_matchedtracks[vtxind] = _vtx->nMatchedTracks;
-        PrimVertexCand_unmatchedtracks[vtxind] = _vtx->nUnmatchedTracks;
-        PrimVertexCand_chi2[vtxind] = vertex->chi2();
-        PrimVertexCand_ndof[vtxind] = vertex->ndof();
+        PrimVertexCand_hasdil[vtxind] = 1;
         
 	nCandidatesInEvent++;
 	nCandidates++;
@@ -934,7 +944,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if (foundPairInEvent) {
     if (printCandidates_) {
-      std::cout << "Event " << Run << ":" << EventNum << " has " << nCandidatesInEvent << " leptons pair(s) candidate(s)" << std::endl;
+      std::cout << "Event " << Run << ":" << EventNum << " has " << nCandidatesInEvent << " leptons pair(s) candidate(s) (vertex mult. : " << nPrimVertexCand << ")" << std::endl;
     }
     tree->Fill();
   }
@@ -1060,7 +1070,9 @@ GammaGammaLL::beginJob()
   
 	// Primary vertices' information
   tree->Branch("nPrimVertexCand", &nPrimVertexCand, "nPrimVertexCand/I");
+  tree->Branch("nFilteredPrimVertexCand", &nFilteredPrimVertexCand, "nPrimVertexCand/I");
   tree->Branch("PrimVertexCand_id", PrimVertexCand_id, "PrimVertexCand_id[nPrimVertexCand]/I");
+  tree->Branch("PrimVertexCand_hasdil", PrimVertexCand_hasdil, "PrimVertexCand_hasdil[nPrimVertexCand]/I");
   tree->Branch("PrimVertexCand_x", PrimVertexCand_x, "PrimVertexCand_x[nPrimVertexCand]/D");
   tree->Branch("PrimVertexCand_y", PrimVertexCand_y, "PrimVertexCand_y[nPrimVertexCand]/D");
   tree->Branch("PrimVertexCand_z", PrimVertexCand_z, "PrimVertexCand_z[nPrimVertexCand]/D");
@@ -1069,7 +1081,6 @@ GammaGammaLL::beginJob()
   tree->Branch("PrimVertexCand_unmatchedtracks", PrimVertexCand_unmatchedtracks, "PrimVertexCand_unmatchedtracks[nPrimVertexCand]/I");
   tree->Branch("PrimVertexCand_chi2", PrimVertexCand_chi2, "PrimVertexCand_chi2[nPrimVertexCand]/D");
   tree->Branch("PrimVertexCand_ndof", PrimVertexCand_ndof, "PrimVertexCand_ndof[nPrimVertexCand]/I");
-  tree->Branch("nFilteredPrimVertexCand", &nFilteredPrimVertexCand, "nFilteredPrimVertexCand/I");
 
   // Lepton pairs' information
   tree->Branch("Pair_candidates", Pair_candidates, "Pair_candidates[nPrimVertexCand][2]/I");
