@@ -2,6 +2,7 @@
 #define DiffractiveForwardAnalysis_GammaGammaLL8TeV_h
 
 // system include files
+#include <fstream>
 #include <memory>
 #include <map>
 
@@ -44,7 +45,8 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"  
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"   
-#include "EgammaAnalysis/ElectronTools/interface/EGammaCutBasedEleId.h"
+//#include "EgammaAnalysis/ElectronTools/interface/EGammaCutBasedEleId.h"
+#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
@@ -71,19 +73,20 @@
 #include <TTree.h>
 #include <TVector3.h>
 #include <TLorentzVector.h>
+#include <TH1D.h>
 
-#define MAX_HLT    10 // Maximum number of HLT to check
-#define MAX_LL     50 // Maximum number of leptons per event
-#define MAX_MUONS  25 // Maximum number of muons per event
-#define MAX_ELE    25 // Maximum number of electrons per event
-#define MAX_PHO    50 // Maximum number of photons per event
-#define MAX_PAIRS  25 // Maximum number of leptons pairs per event
-#define MAX_VTX    10 // Maximum number of primary vertices per event
-#define MAX_ET     100// Maximum number of extra tracks per event
-#define MAX_GENMU  25 // Maximum number of generator level muons per event
-#define MAX_GENELE 25 // Maximum number of generator level electrons per event
-#define MAX_GENPHO 10 // Maximum number of generator level photons per event
-#define MAX_JETS   30 // Maximum nulber of jets per event
+#define MAX_HLT    10   // Maximum number of HLT to check
+#define MAX_LL     50   // Maximum number of leptons per event
+#define MAX_MUONS  25   // Maximum number of muons per event
+#define MAX_ELE    25   // Maximum number of electrons per event
+#define MAX_PHO    50   // Maximum number of photons per event
+#define MAX_PAIRS  25   // Maximum number of leptons pairs per event
+#define MAX_VTX    1000 // Maximum number of primary vertices per event
+#define MAX_ET     10000// Maximum number of extra tracks per event
+#define MAX_GENMU  25   // Maximum number of generator level muons per event
+#define MAX_GENELE 25   // Maximum number of generator level electrons per event
+#define MAX_GENPHO 10   // Maximum number of generator level photons per event
+#define MAX_JETS   30   // Maximum number of jets per event
 
 #define MASS_MU 0.1057
 #define MASS_E  0.000511
@@ -151,6 +154,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Int_t lep1, lep2;
       Double_t vtxdst;
       Double_t closesttrkdxyz, closesthighpuritytrkdxyz;
+      Int_t closesttrkid, closesthighpuritytrkid;
       Int_t parttype;
       Double_t leadingphotpx, leadingphotpy, leadingphotpz, leadingphotp;
       Double_t photdeta, photdphi, photdr;
@@ -158,8 +162,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t pairgmass;
       bool istight;
 
-      TFile* file_;
-      TTree* tree_;
+      std::ofstream *logfile;
       
       // Input tags
       std::string hltMenuLabel_, outputFile_;
@@ -357,7 +360,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       
       // Vertex quantities
       Int_t nPrimVertexCand;
-      Int_t PrimVertexCand_id[MAX_VTX];
+      Int_t PrimVertexCand_id[MAX_VTX], PrimVertexCand_hasdil[MAX_VTX];
       Double_t PrimVertexCand_x[MAX_VTX], PrimVertexCand_y[MAX_VTX], PrimVertexCand_z[MAX_VTX];
       Int_t PrimVertexCand_tracks[MAX_VTX], PrimVertexCand_matchedtracks[MAX_VTX], PrimVertexCand_unmatchedtracks[MAX_VTX];
       Double_t PrimVertexCand_chi2[MAX_VTX];
@@ -368,6 +371,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Int_t nExtraTracks;
       Int_t ExtraTrack_purity[MAX_ET], ExtraTrack_nhits[MAX_ET];
       Int_t ExtraTrack_charge[MAX_ET], ExtraTrack_ndof[MAX_ET];
+      Int_t ExtraTrack_vtxId[MAX_ET];
       Double_t ExtraTrack_p[MAX_ET], ExtraTrack_pt[MAX_ET];
       Double_t ExtraTrack_px[MAX_ET], ExtraTrack_py[MAX_ET], ExtraTrack_pz[MAX_ET];
       Double_t ExtraTrack_eta[MAX_ET], ExtraTrack_phi[MAX_ET];
@@ -375,7 +379,8 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t ExtraTrack_vtxdxyz[MAX_ET];
       Double_t ExtraTrack_vtxT[MAX_ET], ExtraTrack_vtxZ[MAX_ET];
       Double_t ExtraTrack_x[MAX_ET], ExtraTrack_y[MAX_ET], ExtraTrack_z[MAX_ET];
-      Double_t ClosestExtraTrack_vtxdxyz, ClosestHighPurityExtraTrack_vtxdxyz;
+      Double_t ClosestExtraTrack_vtxdxyz[MAX_VTX], ClosestHighPurityExtraTrack_vtxdxyz[MAX_VTX];
+      Int_t ClosestExtraTrack_id[MAX_VTX], ClosestHighPurityExtraTrack_id[MAX_VTX];
       Int_t nQualityExtraTrack;
 
       // Jets/MET quantities
@@ -385,7 +390,6 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t HighestJet_e, HighestJet_eta, HighestJet_phi;
       Double_t SumJet_e;
       Double_t Etmiss, Etmiss_phi, Etmiss_x, Etmiss_y, Etmiss_z, Etmiss_significance;
-
 };
 
 //
@@ -395,5 +399,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
 //
 // static data member definitions
 //
+TFile* file_;
+TTree* tree_;
 
 #endif
