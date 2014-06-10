@@ -620,15 +620,16 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //std::cout << "Passed PF photons" << std::endl;
 
   vtxind = 0;
+  nPrimVertexCand = vertices->size();
+
   if (nLeptonCand>=2) {
     // Enough leptons candidates to go deeper and analyze the primary vertices
     
     _leptonType = new TString();
     
     etind = 0;
-    nPrimVertexCand = vertices->size();
 
-    for (vertex=vertices->begin(); vertex!=vertices->end() && vtxind<MAX_VTX; ++vertex, ++vtxind) {
+    for (vertex=vertices->begin(); vertex!=vertices->end() && vtxind<MAX_VTX; ++vertex) {
       PrimaryVertex *_vtx;
       Int_t leptonId_;
 
@@ -891,7 +892,9 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	nCandidates++;
         foundPairInEvent = true;
       }
-      
+
+      vtxind++;
+
       delete _vtx;
     }
     nFilteredPrimVertexCand = vtxind;
@@ -1068,43 +1071,43 @@ GammaGammaLL::beginJob()
     tree->Branch("GenPhotCand_phi", GenPhotCand_phi, "GenPhotCand_phi[nGenPhotCand]/D");
   }
   
-	// Primary vertices' information
+  // Primary vertices' information
   tree->Branch("nPrimVertexCand", &nPrimVertexCand, "nPrimVertexCand/I");
-  tree->Branch("nFilteredPrimVertexCand", &nFilteredPrimVertexCand, "nPrimVertexCand/I");
-  tree->Branch("PrimVertexCand_id", PrimVertexCand_id, "PrimVertexCand_id[nPrimVertexCand]/I");
-  tree->Branch("PrimVertexCand_hasdil", PrimVertexCand_hasdil, "PrimVertexCand_hasdil[nPrimVertexCand]/I");
-  tree->Branch("PrimVertexCand_x", PrimVertexCand_x, "PrimVertexCand_x[nPrimVertexCand]/D");
-  tree->Branch("PrimVertexCand_y", PrimVertexCand_y, "PrimVertexCand_y[nPrimVertexCand]/D");
-  tree->Branch("PrimVertexCand_z", PrimVertexCand_z, "PrimVertexCand_z[nPrimVertexCand]/D");
-  tree->Branch("PrimVertexCand_tracks", PrimVertexCand_tracks, "PrimVertexCand_tracks[nPrimVertexCand]/I");
-  tree->Branch("PrimVertexCand_matchedtracks", PrimVertexCand_matchedtracks, "PrimVertexCand_matchedtracks[nPrimVertexCand]/I");
-  tree->Branch("PrimVertexCand_unmatchedtracks", PrimVertexCand_unmatchedtracks, "PrimVertexCand_unmatchedtracks[nPrimVertexCand]/I");
-  tree->Branch("PrimVertexCand_chi2", PrimVertexCand_chi2, "PrimVertexCand_chi2[nPrimVertexCand]/D");
-  tree->Branch("PrimVertexCand_ndof", PrimVertexCand_ndof, "PrimVertexCand_ndof[nPrimVertexCand]/I");
+  tree->Branch("nFilteredPrimVertexCand", &nFilteredPrimVertexCand, "nFilteredPrimVertexCand/I");
+  tree->Branch("PrimVertexCand_id", PrimVertexCand_id, "PrimVertexCand_id[nFilteredPrimVertexCand]/I");
+  tree->Branch("PrimVertexCand_hasdil", PrimVertexCand_hasdil, "PrimVertexCand_hasdil[nFilteredPrimVertexCand]/I");
+  tree->Branch("PrimVertexCand_x", PrimVertexCand_x, "PrimVertexCand_x[nFilteredPrimVertexCand]/D");
+  tree->Branch("PrimVertexCand_y", PrimVertexCand_y, "PrimVertexCand_y[nFilteredPrimVertexCand]/D");
+  tree->Branch("PrimVertexCand_z", PrimVertexCand_z, "PrimVertexCand_z[nFilteredPrimVertexCand]/D");
+  tree->Branch("PrimVertexCand_tracks", PrimVertexCand_tracks, "PrimVertexCand_tracks[nFilteredPrimVertexCand]/I");
+  tree->Branch("PrimVertexCand_matchedtracks", PrimVertexCand_matchedtracks, "PrimVertexCand_matchedtracks[nFilteredPrimVertexCand]/I");
+  tree->Branch("PrimVertexCand_unmatchedtracks", PrimVertexCand_unmatchedtracks, "PrimVertexCand_unmatchedtracks[nFilteredPrimVertexCand]/I");
+  tree->Branch("PrimVertexCand_chi2", PrimVertexCand_chi2, "PrimVertexCand_chi2[nFilteredPrimVertexCand]/D");
+  tree->Branch("PrimVertexCand_ndof", PrimVertexCand_ndof, "PrimVertexCand_ndof[nFilteredPrimVertexCand]/I");
 
   // Lepton pairs' information
-  tree->Branch("Pair_candidates", Pair_candidates, "Pair_candidates[nPrimVertexCand][2]/I");
-  tree->Branch("Pair_mindist", Pair_mindist, "Pair_mindist[nPrimVertexCand]/D");
-  tree->Branch("Pair_p", Pair_p, "Pair_p[nPrimVertexCand]/D");
-  tree->Branch("Pair_pt", Pair_pt, "Pair_pt[nPrimVertexCand]/D");
-  tree->Branch("Pair_dpt", Pair_dpt, "Pair_dpt[nPrimVertexCand]/D");
-  tree->Branch("Pair_mass", Pair_mass, "Pair_mass[nPrimVertexCand]/D");
-  tree->Branch("Pair_eta", Pair_eta, "Pair_eta[nPrimVertexCand]/D");
-  tree->Branch("Pair_phi", Pair_phi, "Pair_phi[nPrimVertexCand]/D");
-  tree->Branch("Pair_dphi", Pair_dphi, "Pair_dphi[nPrimVertexCand]/D");
-  tree->Branch("Pair_3Dangle", Pair_3Dangle, "Pair_3Dangle[nPrimVertexCand]/D");
-  tree->Branch("Pair_extratracks1mm", Pair_extratracks1mm, "Pair_extratracks1mm[nPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks2mm", Pair_extratracks2mm, "Pair_extratracks2mm[nPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks3mm", Pair_extratracks3mm, "Pair_extratracks3mm[nPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks4mm", Pair_extratracks4mm, "Pair_extratracks4mm[nPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks5mm", Pair_extratracks5mm, "Pair_extratracks5mm[nPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks1cm", Pair_extratracks1cm, "Pair_extratracks1cm[nPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks2cm", Pair_extratracks2cm, "Pair_extratracks2cm[nPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks3cm", Pair_extratracks3cm, "Pair_extratracks3cm[nPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks4cm", Pair_extratracks4cm, "Pair_extratracks4cm[nPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks5cm", Pair_extratracks5cm, "Pair_extratracks5cm[nPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks10cm", Pair_extratracks10cm, "Pair_extratracks10cm[nPrimVertexCand]/I");
-  tree->Branch("PairGamma_mass", PairGamma_mass, "PairGamma_mass[nPrimVertexCand][nPFPhotonCand]/D");
+  tree->Branch("Pair_candidates", Pair_candidates, "Pair_candidates[nFilteredPrimVertexCand][2]/I");
+  tree->Branch("Pair_mindist", Pair_mindist, "Pair_mindist[nFilteredPrimVertexCand]/D");
+  tree->Branch("Pair_p", Pair_p, "Pair_p[nFilteredPrimVertexCand]/D");
+  tree->Branch("Pair_pt", Pair_pt, "Pair_pt[nFilteredPrimVertexCand]/D");
+  tree->Branch("Pair_dpt", Pair_dpt, "Pair_dpt[nFilteredPrimVertexCand]/D");
+  tree->Branch("Pair_mass", Pair_mass, "Pair_mass[nFilteredPrimVertexCand]/D");
+  tree->Branch("Pair_eta", Pair_eta, "Pair_eta[nFilteredPrimVertexCand]/D");
+  tree->Branch("Pair_phi", Pair_phi, "Pair_phi[nFilteredPrimVertexCand]/D");
+  tree->Branch("Pair_dphi", Pair_dphi, "Pair_dphi[nFilteredPrimVertexCand]/D");
+  tree->Branch("Pair_3Dangle", Pair_3Dangle, "Pair_3Dangle[nFilteredPrimVertexCand]/D");
+  tree->Branch("Pair_extratracks1mm", Pair_extratracks1mm, "Pair_extratracks1mm[nFilteredPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks2mm", Pair_extratracks2mm, "Pair_extratracks2mm[nFilteredPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks3mm", Pair_extratracks3mm, "Pair_extratracks3mm[nFilteredPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks4mm", Pair_extratracks4mm, "Pair_extratracks4mm[nFilteredPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks5mm", Pair_extratracks5mm, "Pair_extratracks5mm[nFilteredPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks1cm", Pair_extratracks1cm, "Pair_extratracks1cm[nFilteredPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks2cm", Pair_extratracks2cm, "Pair_extratracks2cm[nFilteredPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks3cm", Pair_extratracks3cm, "Pair_extratracks3cm[nFilteredPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks4cm", Pair_extratracks4cm, "Pair_extratracks4cm[nFilteredPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks5cm", Pair_extratracks5cm, "Pair_extratracks5cm[nFilteredPrimVertexCand]/I");
+  tree->Branch("Pair_extratracks10cm", Pair_extratracks10cm, "Pair_extratracks10cm[nFilteredPrimVertexCand]/I");
+  tree->Branch("PairGamma_mass", PairGamma_mass, "PairGamma_mass[nFilteredPrimVertexCand][nPFPhotonCand]/D");
   if (runOnMC_) {
     tree->Branch("GenPair_p", &GenPair_p, "GenPair_p/D");
     tree->Branch("GenPair_pt", &GenPair_pt, "GenPair_pt/D");
@@ -1113,7 +1116,7 @@ GammaGammaLL::beginJob()
     tree->Branch("GenPair_eta", &GenPair_eta, "GenPair_eta/D");
     tree->Branch("GenPair_phi", &GenPair_phi, "GenPair_phi/D");
     tree->Branch("GenPair_dphi", &GenPair_dphi, "GenPair_dphi/D");
-    tree->Branch("GenPair_3Dangle", &GenPair_3Dangle, "GenPair_3Dangle[nPrimVertexCand]/D");
+    tree->Branch("GenPair_3Dangle", &GenPair_3Dangle, "GenPair_3Dangle[nFilteredPrimVertexCand]/D");
     tree->Branch("HPS_acc420b1", &HPS_acc420b1, "HPS_acc420b1/D");
     tree->Branch("HPS_acc220b1", &HPS_acc220b1, "HPS_acc220b1/D");
     tree->Branch("HPS_acc420and220b1", &HPS_acc420and220b1, "HPS_acc420and220b1/D");
@@ -1145,10 +1148,10 @@ GammaGammaLL::beginJob()
   tree->Branch("ExtraTrack_y", ExtraTrack_y, "ExtraTrack_y[nExtraTracks]/D");
   tree->Branch("ExtraTrack_z", ExtraTrack_z, "ExtraTrack_z[nExtraTracks]/D");
   tree->Branch("nQualityExtraTrack", &nQualityExtraTrack, "nQualityExtraTrack/I");
-  tree->Branch("ClosestExtraTrack_vtxdxyz",ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz[nPrimVertexCand]/D");
-  tree->Branch("ClosestExtraTrack_id",ClosestExtraTrack_id,"ClosestExtraTrack_id[nPrimVertexCand]/I");
-  tree->Branch("ClosestHighPurityExtraTrack_vtxdxyz",ClosestHighPurityExtraTrack_vtxdxyz,"ClosestHighPurityExtraTrack_vtxdxyz[nPrimVertexCand]/D");
-  tree->Branch("ClosestHighPurityExtraTrack_id",ClosestHighPurityExtraTrack_id,"ClosestHighPurityExtraTrack_id[nPrimVertexCand]/I");
+  tree->Branch("ClosestExtraTrack_vtxdxyz",ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz[nFilteredPrimVertexCand]/D");
+  tree->Branch("ClosestExtraTrack_id",ClosestExtraTrack_id,"ClosestExtraTrack_id[nFilteredPrimVertexCand]/I");
+  tree->Branch("ClosestHighPurityExtraTrack_vtxdxyz",ClosestHighPurityExtraTrack_vtxdxyz,"ClosestHighPurityExtraTrack_vtxdxyz[nFilteredPrimVertexCand]/D");
+  tree->Branch("ClosestHighPurityExtraTrack_id",ClosestHighPurityExtraTrack_id,"ClosestHighPurityExtraTrack_id[nFilteredPrimVertexCand]/I");
   
   // Jets/MET information
   tree->Branch("nJetCand", &nJetCand, "nJetCand/I");
