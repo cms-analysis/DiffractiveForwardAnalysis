@@ -184,6 +184,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   nGenMuonCand = nGenMuonCandOutOfAccept = 0;
   nGenEleCand = nGenEleCandOutOfAccept = 0;
   nGenPhotCand = nGenPhotCandOutOfAccept = 0;
+  nGenProtCand = 0;
   nPFPhotonCand = 0;
 
   HPS_acc420b1 = HPS_acc220b1 = HPS_acc420and220b1 = HPS_acc420or220b1 = -1;
@@ -298,7 +299,18 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         if (fabs(genPart->pdgId())==22) nGenPhotCandOutOfAccept++;
         continue;
       }
-      if (genPart->pdgId()!=2212 && genPart->status()!=1) continue;
+      if (genPart->pdgId()==2212 && nGenProtCand<MAX_GENPRO) {
+        GenProtCand_p[nGenProtCand] = genPart->p();
+        GenProtCand_px[nGenProtCand] = genPart->px();
+        GenProtCand_py[nGenProtCand] = genPart->py();
+        GenProtCand_pz[nGenProtCand] = genPart->pz();
+        GenProtCand_pt[nGenProtCand] = genPart->pt();
+        GenProtCand_eta[nGenProtCand] = genPart->eta();
+        GenProtCand_phi[nGenProtCand] = genPart->phi();
+	GenProtCand_status[nGenProtCand] = genPart->status();
+
+        nGenProtCand++;
+      }
       if (fabs(genPart->pdgId())==13 && nGenMuonCand<MAX_GENMU) {
         GenMuonCand_p[nGenMuonCand] = genPart->p();
         GenMuonCand_px[nGenMuonCand] = genPart->px();
@@ -321,7 +333,9 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         nGenEleCand++;
       }
-      if (fabs(genPart->pdgId())==22 && nGenPhotCand<MAX_GENPHO) {
+      if (genPart->pdgId()==22 && nGenPhotCand<MAX_GENPHO) {
+        GenPhotCand_e[nGenPhotCand] = genPart->energy();
+        GenPhotCand_p[nGenPhotCand] = genPart->p();
         GenPhotCand_pt[nGenPhotCand] = genPart->pt();
         GenPhotCand_eta[nGenPhotCand] = genPart->eta();
         GenPhotCand_phi[nGenPhotCand] = genPart->phi();
@@ -1063,9 +1077,20 @@ GammaGammaLL::beginJob()
   if (runOnMC_) {
     tree_->Branch("nGenPhotCand", &nGenPhotCand, "nGenPhotCand/I");    
     tree_->Branch("nGenPhotCandOutOfAccept", &nGenPhotCandOutOfAccept, "nGenPhotCandOutOfAccept/I");    
+    tree_->Branch("GenPhotCand_e", GenPhotCand_e, "GenPhotCand_e[nGenPhotCand]/D");
+    tree_->Branch("GenPhotCand_p", GenPhotCand_p, "GenPhotCand_p[nGenPhotCand]/D");
     tree_->Branch("GenPhotCand_pt", GenPhotCand_pt, "GenPhotCand_pt[nGenPhotCand]/D");
     tree_->Branch("GenPhotCand_eta", GenPhotCand_eta, "GenPhotCand_eta[nGenPhotCand]/D");
     tree_->Branch("GenPhotCand_phi", GenPhotCand_phi, "GenPhotCand_phi[nGenPhotCand]/D");
+    tree_->Branch("nGenProtCand", &nGenProtCand, "nGenProtCand/I");    
+    tree_->Branch("GenProtCand_p", GenProtCand_p, "GenProtCand_p[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_px", GenProtCand_px, "GenProtCand_px[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_py", GenProtCand_py, "GenProtCand_py[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_pz", GenProtCand_pz, "GenProtCand_pz[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_pt", GenProtCand_pt, "GenProtCand_pt[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_eta", GenProtCand_eta, "GenProtCand_eta[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_phi", GenProtCand_phi, "GenProtCand_phi[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_status", GenProtCand_status, "GenProtCand_status[nGenProtCand]/I");
   }
   
 	// Primary vertices' information

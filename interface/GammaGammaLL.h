@@ -86,6 +86,7 @@
 #define MAX_GENMU  25   // Maximum number of generator level muons per event
 #define MAX_GENELE 25   // Maximum number of generator level electrons per event
 #define MAX_GENPHO 10   // Maximum number of generator level photons per event
+#define MAX_GENPRO 8    // Maximum number of generator level protons per event
 #define MAX_JETS   30   // Maximum number of jets per event
 
 #define MASS_MU 0.1057
@@ -285,7 +286,12 @@ class GammaGammaLL : public edm::EDAnalyzer {
       Double_t GenPair_phi, GenPair_eta;
       Double_t GenPair_dphi, GenPair_dpt, GenPair_3Dangle;
       Int_t nGenPhotCand, nGenPhotCandOutOfAccept;
+      Double_t GenPhotCand_p[MAX_GENPHO], GenPhotCand_e[MAX_GENPHO];
       Double_t GenPhotCand_pt[MAX_GENPHO], GenPhotCand_eta[MAX_GENPHO], GenPhotCand_phi[MAX_GENPHO];
+      Int_t nGenProtCand;
+      Double_t GenProtCand_p[MAX_GENPRO], GenProtCand_px[MAX_GENPRO], GenProtCand_py[MAX_GENPRO], GenProtCand_pz[MAX_GENPRO];
+      Double_t GenProtCand_pt[MAX_GENPRO], GenProtCand_eta[MAX_GENPRO], GenProtCand_phi[MAX_GENPRO];
+      Int_t GenProtCand_status[MAX_GENPRO];
 
       // HPS quantities
       Double_t xi, t;
