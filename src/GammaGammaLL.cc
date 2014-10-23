@@ -136,6 +136,8 @@ GammaGammaLL::~GammaGammaLL()
 
   logfile->close();
 
+  logfile->close();
+
   delete _hlts;
   delete tree_;
 
@@ -217,7 +219,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     EleCand_convDist[i] = EleCand_convDcot[i] = EleCand_ecalDriven[i] = -999.;
     EleCand_wp80[i] = EleCand_mediumID[i] = EleCand_looseID[i] = -1;
   }
-  for (i=0; i<MAX_ET && i<(UInt_t)maxExTrkVtx_; i++) {
+  for (i=0; i<MAX_ET && i<maxExTrkVtx_; i++) {
     ExtraTrack_p[i] = ExtraTrack_px[i] = ExtraTrack_py[i] = ExtraTrack_pz[i] = -999.;
     ExtraTrack_pt[i] = ExtraTrack_eta[i] = ExtraTrack_phi[i] = -999.;
     ExtraTrack_charge[i] = ExtraTrack_ndof[i] = -999;
@@ -668,7 +670,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       closesttrkid = closesthighpuritytrkid = -1;
       // Loop on all the tracks matched with this vertex
       reco::Vertex::trackRef_iterator _track;
-      for (_track=vertex->tracks_begin(); _track!=vertex->tracks_end() && etind<MAX_ET; _track++) {
+      for (_track=vertex->tracks_begin(); _track!=vertex->tracks_end() && etind<MAX_ET && etind<(Int_t)maxExTrkVtx_; _track++) {
 	leptonId_ = _vtx->AddTrack((*_track).castTo<reco::TrackRef>(), *_leptonType);
 	if (leptonId_==-1) { // Track was not matched to any of the leptons in the collection
           ExtraTrack_vtxId[etind] = vtxind;
@@ -744,6 +746,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       Pair_candidates[vtxind][0] = -1;
       Pair_candidates[vtxind][1] = -1;
       
+      if (PrimVertexCand_unmatchedtracks[vtxind]>(Int_t)maxExTrkVtx_) continue; // cut on the upper number of extra tracks
+
       if (_fetchElectrons && _fetchMuons) { // Looks at electron+muon
 	// Not enough muons or electrons candidates on the vertex
 	if (_vtx->Electrons()==0 or _vtx->Muons()==0) {
@@ -1095,7 +1099,7 @@ GammaGammaLL::beginJob()
     tree_->Branch("GenProtCand_status", GenProtCand_status, "GenProtCand_status[nGenProtCand]/I");
   }
   
-	// Primary vertices' information
+  // Primary vertices' information
   tree_->Branch("nPrimVertexCand", &nPrimVertexCand, "nPrimVertexCand/I");
   tree_->Branch("nFilteredPrimVertexCand", &nFilteredPrimVertexCand, "nPrimVertexCand/I");
   tree_->Branch("PrimVertexCand_id", PrimVertexCand_id, "PrimVertexCand_id[nPrimVertexCand]/I");
