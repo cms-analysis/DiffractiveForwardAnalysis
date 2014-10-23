@@ -18,14 +18,15 @@
 <use   name="DataFormats/Luminosity"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1Trigger"/>
-<use   name="EGamma/EGammaAnalysisTools"/>
+<use   name="RecoEgamma/ElectronIdentification"/>
 <use   name="Geometry/HcalTowerAlgo"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="PhysicsTools/Utilities"/>
 <use   name="HLTrigger/HLTcore"/>
-<use   name="RecoEgamma/EgammaTools"/>
+<use   name="EgammaAnalysis/ElectronTools"/>
+<use   name="RecoEgamma/ElectronIdentification/"/>
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="RecoVertex/VertexTools"/>
 <use   name="RecoVertex/KalmanVertexFit"/>

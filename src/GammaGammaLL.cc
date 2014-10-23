@@ -53,6 +53,8 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
   nHLT = triggersList_.size();
 	
   recoVertexLabel_ = iConfig.getParameter<edm::InputTag>("RecoVertexLabel");
+
+  maxExTrkVtx_ = iConfig.getUntrackedParameter<UInt_t>("maxExtraTracks", 1000);
   
   // Generator level
   sqrts_ = iConfig.getParameter<Double_t>("SqrtS");
@@ -215,7 +217,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     EleCand_convDist[i] = EleCand_convDcot[i] = EleCand_ecalDriven[i] = -999.;
     EleCand_wp80[i] = EleCand_mediumID[i] = EleCand_looseID[i] = -1;
   }
-  for (i=0; i<MAX_ET; i++) {
+  for (i=0; i<MAX_ET && i<(UInt_t)maxExTrkVtx_; i++) {
     ExtraTrack_p[i] = ExtraTrack_px[i] = ExtraTrack_py[i] = ExtraTrack_pz[i] = -999.;
     ExtraTrack_pt[i] = ExtraTrack_eta[i] = ExtraTrack_phi[i] = -999.;
     ExtraTrack_charge[i] = ExtraTrack_ndof[i] = -999;
@@ -573,8 +575,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       iso_nh = (*(isoVals)[2])[ele];
 
       if(PassTriggerCuts(EgammaCutBasedEleId::TRIGGERTIGHT, ele) == true) {
-        selectmedium = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, recoVertexColl, iso_ch, iso_em, iso_nh, rhoIso);
-        selectloose = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele, conversions_h, beamSpot, recoVertexColl, iso_ch, iso_em, iso_nh, rhoIso);
+        selectmedium = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, recoVertexColl, iso_ch, iso_em, iso_nh, rhoIso, ElectronEffectiveArea::kEleEAData2012);
+        selectloose = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele, conversions_h, beamSpot, recoVertexColl, iso_ch, iso_em, iso_nh, rhoIso, ElectronEffectiveArea::kEleEAData2012);
       }
       if(selectmedium) EleCand_mediumID[nEleCand] = 1;
       if(selectloose) EleCand_looseID[nEleCand] = 1;

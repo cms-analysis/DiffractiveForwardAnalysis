@@ -45,8 +45,8 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"  
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"   
-//#include "EgammaAnalysis/ElectronTools/interface/EGammaCutBasedEleId.h"
-#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
+#include "EgammaAnalysis/ElectronTools/interface/EGammaCutBasedEleId.h"
+//#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
@@ -178,6 +178,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       bool runOnMC_, printCandidates_;
       Double_t minPtMC_, minEtaMC_;
       Double_t sqrts_;
+      UInt_t maxExTrkVtx_;
 
       // Beam spot
       edm::Handle<reco::BeamSpot> beamspot_h;
