@@ -5,6 +5,7 @@ ggll = cms.EDAnalyzer(
     SqrtS = cms.double(8000.),
     HLTMenuLabel = cms.string("HLT"),
     LeptonsType = cms.InputTag('electron', 'muon'),
+    maxExtraTracks = cms.untracked.uint32(10000),
     isoValInputTags = cms.VInputTag(
         cms.InputTag('elPFIsoValueCharged03PFIdPFIso'),
         cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),

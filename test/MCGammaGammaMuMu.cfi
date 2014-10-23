@@ -1,4 +1,0 @@
-module mcgamgammumuanalysis = GammaGammaMuMuMC {
-  bool FillAllMCParticles                      = false
-  untracked string   outfilename               = "mumu.genlevel.root"
-}

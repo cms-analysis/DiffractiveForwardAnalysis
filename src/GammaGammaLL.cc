@@ -53,6 +53,8 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
   nHLT = triggersList_.size();
 	
   recoVertexLabel_ = iConfig.getParameter<edm::InputTag>("RecoVertexLabel");
+
+  maxExTrkVtx_ = iConfig.getUntrackedParameter<UInt_t>("maxExtraTracks", 1000);
   
   // Generator level
   sqrts_ = iConfig.getParameter<Double_t>("SqrtS");
@@ -89,10 +91,10 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
   jetLabel_ = iConfig.getParameter<edm::InputTag>("JetCollectionLabel");
   metLabel_ = iConfig.getParameter<edm::InputTag>("MetLabel");
   
-  file = new TFile(outputFile_.c_str(), "recreate");
-  file->cd();
+  file_ = new TFile(outputFile_.c_str(), "recreate");
+  file_->cd();
   // tree definition
-  tree = new TTree("ntp1", "ntp1");
+  tree_ = new TTree("ntp1", "ntp1");
 
   //log_hist = new TH1D("log", "", 500, -25., 25.);
   logfile = new std::ofstream("log_file.out");
@@ -127,15 +129,17 @@ GammaGammaLL::~GammaGammaLL()
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
   const edm::ParameterSet& pset = edm::getProcessParameterSet();
-  TList *list = tree->GetUserInfo();
+  TList *list = tree_->GetUserInfo();
   list->Add(new TObjString(pset.dump().c_str()));
-  file->Write();
-  file->Close();
+  file_->Write();
+  file_->Close();
+
+  logfile->close();
 
   logfile->close();
 
   delete _hlts;
-  delete tree;
+  delete tree_;
 
 }
 
@@ -184,6 +188,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   nGenMuonCand = nGenMuonCandOutOfAccept = 0;
   nGenEleCand = nGenEleCandOutOfAccept = 0;
   nGenPhotCand = nGenPhotCandOutOfAccept = 0;
+  nGenProtCand = 0;
   nPFPhotonCand = 0;
 
   HPS_acc420b1 = HPS_acc220b1 = HPS_acc420and220b1 = HPS_acc420or220b1 = -1;
@@ -214,7 +219,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     EleCand_convDist[i] = EleCand_convDcot[i] = EleCand_ecalDriven[i] = -999.;
     EleCand_wp80[i] = EleCand_mediumID[i] = EleCand_looseID[i] = -1;
   }
-  for (i=0; i<MAX_ET; i++) {
+  for (i=0; i<MAX_ET && i<maxExTrkVtx_; i++) {
     ExtraTrack_p[i] = ExtraTrack_px[i] = ExtraTrack_py[i] = ExtraTrack_pz[i] = -999.;
     ExtraTrack_pt[i] = ExtraTrack_eta[i] = ExtraTrack_phi[i] = -999.;
     ExtraTrack_charge[i] = ExtraTrack_ndof[i] = -999;
@@ -298,7 +303,18 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         if (fabs(genPart->pdgId())==22) nGenPhotCandOutOfAccept++;
         continue;
       }
-      if (genPart->pdgId()!=2212 && genPart->status()!=1) continue;
+      if (genPart->pdgId()==2212 && nGenProtCand<MAX_GENPRO) {
+        GenProtCand_p[nGenProtCand] = genPart->p();
+        GenProtCand_px[nGenProtCand] = genPart->px();
+        GenProtCand_py[nGenProtCand] = genPart->py();
+        GenProtCand_pz[nGenProtCand] = genPart->pz();
+        GenProtCand_pt[nGenProtCand] = genPart->pt();
+        GenProtCand_eta[nGenProtCand] = genPart->eta();
+        GenProtCand_phi[nGenProtCand] = genPart->phi();
+	GenProtCand_status[nGenProtCand] = genPart->status();
+
+        nGenProtCand++;
+      }
       if (fabs(genPart->pdgId())==13 && nGenMuonCand<MAX_GENMU) {
         GenMuonCand_p[nGenMuonCand] = genPart->p();
         GenMuonCand_px[nGenMuonCand] = genPart->px();
@@ -321,7 +337,9 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         nGenEleCand++;
       }
-      if (fabs(genPart->pdgId())==22 && nGenPhotCand<MAX_GENPHO) {
+      if (genPart->pdgId()==22 && nGenPhotCand<MAX_GENPHO) {
+        GenPhotCand_e[nGenPhotCand] = genPart->energy();
+        GenPhotCand_p[nGenPhotCand] = genPart->p();
         GenPhotCand_pt[nGenPhotCand] = genPart->pt();
         GenPhotCand_eta[nGenPhotCand] = genPart->eta();
         GenPhotCand_phi[nGenPhotCand] = genPart->phi();
@@ -559,8 +577,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       iso_nh = (*(isoVals)[2])[ele];
 
       if(PassTriggerCuts(EgammaCutBasedEleId::TRIGGERTIGHT, ele) == true) {
-        selectmedium = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, recoVertexColl, iso_ch, iso_em, iso_nh, rhoIso);
-        selectloose = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele, conversions_h, beamSpot, recoVertexColl, iso_ch, iso_em, iso_nh, rhoIso);
+        selectmedium = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, recoVertexColl, iso_ch, iso_em, iso_nh, rhoIso, ElectronEffectiveArea::kEleEAData2012);
+        selectloose = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele, conversions_h, beamSpot, recoVertexColl, iso_ch, iso_em, iso_nh, rhoIso, ElectronEffectiveArea::kEleEAData2012);
       }
       if(selectmedium) EleCand_mediumID[nEleCand] = 1;
       if(selectloose) EleCand_looseID[nEleCand] = 1;
@@ -653,7 +671,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       closesttrkid = closesthighpuritytrkid = -1;
       // Loop on all the tracks matched with this vertex
       reco::Vertex::trackRef_iterator _track;
-      for (_track=vertex->tracks_begin(); _track!=vertex->tracks_end() && etind<MAX_ET; _track++) {
+      for (_track=vertex->tracks_begin(); _track!=vertex->tracks_end() && etind<MAX_ET && etind<(Int_t)maxExTrkVtx_; _track++) {
 	leptonId_ = _vtx->AddTrack((*_track).castTo<reco::TrackRef>(), *_leptonType);
 	if (leptonId_==-1) { // Track was not matched to any of the leptons in the collection
           ExtraTrack_vtxId[etind] = vtxind;
@@ -729,6 +747,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       Pair_candidates[vtxind][0] = -1;
       Pair_candidates[vtxind][1] = -1;
       
+      if (PrimVertexCand_unmatchedtracks[vtxind]>(Int_t)maxExTrkVtx_) continue; // cut on the upper number of extra tracks
+
       if (_fetchElectrons && _fetchMuons) { // Looks at electron+muon
 	// Not enough muons or electrons candidates on the vertex
 	if (_vtx->Electrons()==0 or _vtx->Muons()==0) {
@@ -949,7 +969,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (printCandidates_) {
       std::cout << "Event " << Run << ":" << EventNum << " has " << nCandidatesInEvent << " leptons pair(s) candidate(s) (vertex mult. : " << nPrimVertexCand << ")" << std::endl;
     }
-    tree->Fill();
+    tree_->Fill();
   }
 }
 
@@ -960,229 +980,240 @@ GammaGammaLL::beginJob()
 {
   // Booking the ntuple
 
-  tree->Branch("Run", &Run, "Run/I");
-  tree->Branch("LumiSection", &LumiSection, "LumiSection/I");
-  tree->Branch("BX", &BX, "BX/I");
-  tree->Branch("EventNum", &EventNum, "EventNum/I");
-  /*tree->Branch("AvgInstDelLumi", &AvgInstDelLumi, "AvgInstDelLumi/D");
-  tree->Branch("BunchInstLumi", &BunchInstLumi, "BunchInstLumi[3]/D");*/
+  tree_->Branch("Run", &Run, "Run/I");
+  tree_->Branch("LumiSection", &LumiSection, "LumiSection/I");
+  tree_->Branch("BX", &BX, "BX/I");
+  tree_->Branch("EventNum", &EventNum, "EventNum/I");
+  /*tree_->Branch("AvgInstDelLumi", &AvgInstDelLumi, "AvgInstDelLumi/D");
+  tree_->Branch("BunchInstLumi", &BunchInstLumi, "BunchInstLumi[3]/D");*/
 
-  tree->Branch("nHLT", &nHLT, "nHLT/I");
-  tree->Branch("HLT_Accept", HLT_Accept, "HLT_Prescl[nHLT]/I");
-  tree->Branch("HLT_Prescl", HLT_Prescl, "HLT_Prescl[nHLT]/I");
+  tree_->Branch("nHLT", &nHLT, "nHLT/I");
+  tree_->Branch("HLT_Accept", HLT_Accept, "HLT_Prescl[nHLT]/I");
+  tree_->Branch("HLT_Prescl", HLT_Prescl, "HLT_Prescl[nHLT]/I");
   
   if (_fetchMuons) {
-    tree->Branch("nMuonCand", &nMuonCand, "nMuonCand/I");
-    tree->Branch("MuonCand_px", MuonCand_px, "MuonCand_px[nMuonCand]/D");
-    tree->Branch("MuonCand_py", MuonCand_py, "MuonCand_py[nMuonCand]/D");
-    tree->Branch("MuonCand_pz", MuonCand_pz, "MuonCand_pz[nMuonCand]/D");
-    tree->Branch("MuonCand_p", MuonCand_p, "MuonCand_p[nMuonCand]/D");
-    tree->Branch("MuonCand_pt", MuonCand_pt, "MuonCand_pt[nMuonCand]/D");
-    tree->Branch("MuonCand_eta", MuonCand_eta, "MuonCand_eta[nMuonCand]/D");
-    tree->Branch("MuonCand_phi", MuonCand_phi, "MuonCand_phi[nMuonCand]/D");
-    tree->Branch("MuonCand_charge", MuonCand_charge, "MuonCand_charge[nMuonCand]/I");
-    tree->Branch("MuonCand_vtxx", MuonCand_vtxx, "MuonCand_vtxx[nMuonCand]/D");
-    tree->Branch("MuonCand_vtxy", MuonCand_vtxy, "MuonCand_vtxy[nMuonCand]/D");
-    tree->Branch("MuonCand_vtxz", MuonCand_vtxz, "MuonCand_vtxz[nMuonCand]/D");
-    tree->Branch("MuonCand_dxy", MuonCand_dxy, "MuonCand_dxy[nMuonCand]/D");
-    tree->Branch("MuonCand_dz", MuonCand_dz, "MuonCand_dz[nMuonCand]/D");
-    tree->Branch("MuonCand_nstatseg", MuonCand_nstatseg, "MuonCand_nstatseg[nMuonCand]/I");
-    tree->Branch("MuonCand_ntrklayers", MuonCand_ntrklayers, "MuonCand_ntrklayers[nMuonCand]/I");
-    tree->Branch("MuonCand_npxlhits", MuonCand_npxlhits, "MuonCand_npxlhits[nMuonCand]/I");
-    tree->Branch("MuonCand_isglobal", MuonCand_isglobal, "MuonCand_isglobal[nMuonCand]/I");
-    tree->Branch("MuonCand_istracker", MuonCand_istracker, "MuonCand_istracker[nMuonCand]/I");
-    tree->Branch("MuonCand_isstandalone", MuonCand_isstandalone, "MuonCand_isstandalone[nMuonCand]/I");
-    tree->Branch("MuonCand_ispfmuon", MuonCand_ispfmuon, "MuonCand_ispfmuon[nMuonCand]/I");
-    tree->Branch("MuonCand_istight", MuonCand_istight, "MuonCand_istight[nMuonCand]/I");
-    tree->Branch("MuonCandTrack_nmuchits", MuonCandTrack_nmuchits, "MuonCandTrack_nmuchits[nMuonCand]/I");
-    tree->Branch("MuonCandTrack_chisq", MuonCandTrack_chisq, "MuonCandTrack_chisq[nMuonCand]/D");
+    tree_->Branch("nMuonCand", &nMuonCand, "nMuonCand/I");
+    tree_->Branch("MuonCand_px", MuonCand_px, "MuonCand_px[nMuonCand]/D");
+    tree_->Branch("MuonCand_py", MuonCand_py, "MuonCand_py[nMuonCand]/D");
+    tree_->Branch("MuonCand_pz", MuonCand_pz, "MuonCand_pz[nMuonCand]/D");
+    tree_->Branch("MuonCand_p", MuonCand_p, "MuonCand_p[nMuonCand]/D");
+    tree_->Branch("MuonCand_pt", MuonCand_pt, "MuonCand_pt[nMuonCand]/D");
+    tree_->Branch("MuonCand_eta", MuonCand_eta, "MuonCand_eta[nMuonCand]/D");
+    tree_->Branch("MuonCand_phi", MuonCand_phi, "MuonCand_phi[nMuonCand]/D");
+    tree_->Branch("MuonCand_charge", MuonCand_charge, "MuonCand_charge[nMuonCand]/I");
+    tree_->Branch("MuonCand_vtxx", MuonCand_vtxx, "MuonCand_vtxx[nMuonCand]/D");
+    tree_->Branch("MuonCand_vtxy", MuonCand_vtxy, "MuonCand_vtxy[nMuonCand]/D");
+    tree_->Branch("MuonCand_vtxz", MuonCand_vtxz, "MuonCand_vtxz[nMuonCand]/D");
+    tree_->Branch("MuonCand_dxy", MuonCand_dxy, "MuonCand_dxy[nMuonCand]/D");
+    tree_->Branch("MuonCand_dz", MuonCand_dz, "MuonCand_dz[nMuonCand]/D");
+    tree_->Branch("MuonCand_nstatseg", MuonCand_nstatseg, "MuonCand_nstatseg[nMuonCand]/I");
+    tree_->Branch("MuonCand_ntrklayers", MuonCand_ntrklayers, "MuonCand_ntrklayers[nMuonCand]/I");
+    tree_->Branch("MuonCand_npxlhits", MuonCand_npxlhits, "MuonCand_npxlhits[nMuonCand]/I");
+    tree_->Branch("MuonCand_isglobal", MuonCand_isglobal, "MuonCand_isglobal[nMuonCand]/I");
+    tree_->Branch("MuonCand_istracker", MuonCand_istracker, "MuonCand_istracker[nMuonCand]/I");
+    tree_->Branch("MuonCand_isstandalone", MuonCand_isstandalone, "MuonCand_isstandalone[nMuonCand]/I");
+    tree_->Branch("MuonCand_ispfmuon", MuonCand_ispfmuon, "MuonCand_ispfmuon[nMuonCand]/I");
+    tree_->Branch("MuonCand_istight", MuonCand_istight, "MuonCand_istight[nMuonCand]/I");
+    tree_->Branch("MuonCandTrack_nmuchits", MuonCandTrack_nmuchits, "MuonCandTrack_nmuchits[nMuonCand]/I");
+    tree_->Branch("MuonCandTrack_chisq", MuonCandTrack_chisq, "MuonCandTrack_chisq[nMuonCand]/D");
     if (runOnMC_) {
-      tree->Branch("nGenMuonCand", &nGenMuonCand, "nGenMuonCand/I");
-      tree->Branch("nGenMuonCandOutOfAccept", &nGenMuonCandOutOfAccept, "nGenMuonCandOutOfAccept/I");    
-      tree->Branch("GenMuonCand_p", GenMuonCand_p, "GenMuonCand_p[nGenMuonCand]/D");
-      tree->Branch("GenMuonCand_px", GenMuonCand_px, "GenMuonCand_px[nGenMuonCand]/D");
-      tree->Branch("GenMuonCand_py", GenMuonCand_py, "GenMuonCand_py[nGenMuonCand]/D");
-      tree->Branch("GenMuonCand_pz", GenMuonCand_pz, "GenMuonCand_pz[nGenMuonCand]/D");
-      tree->Branch("GenMuonCand_pt", GenMuonCand_pt, "GenMuonCand_pt[nGenMuonCand]/D");
-      tree->Branch("GenMuonCand_eta", GenMuonCand_eta, "GenMuonCand_eta[nGenMuonCand]/D");
-      tree->Branch("GenMuonCand_phi", GenMuonCand_phi, "GenMuonCand_phi[nGenMuonCand]/D");
+      tree_->Branch("nGenMuonCand", &nGenMuonCand, "nGenMuonCand/I");
+      tree_->Branch("nGenMuonCandOutOfAccept", &nGenMuonCandOutOfAccept, "nGenMuonCandOutOfAccept/I");    
+      tree_->Branch("GenMuonCand_p", GenMuonCand_p, "GenMuonCand_p[nGenMuonCand]/D");
+      tree_->Branch("GenMuonCand_px", GenMuonCand_px, "GenMuonCand_px[nGenMuonCand]/D");
+      tree_->Branch("GenMuonCand_py", GenMuonCand_py, "GenMuonCand_py[nGenMuonCand]/D");
+      tree_->Branch("GenMuonCand_pz", GenMuonCand_pz, "GenMuonCand_pz[nGenMuonCand]/D");
+      tree_->Branch("GenMuonCand_pt", GenMuonCand_pt, "GenMuonCand_pt[nGenMuonCand]/D");
+      tree_->Branch("GenMuonCand_eta", GenMuonCand_eta, "GenMuonCand_eta[nGenMuonCand]/D");
+      tree_->Branch("GenMuonCand_phi", GenMuonCand_phi, "GenMuonCand_phi[nGenMuonCand]/D");
     }
   }
   
   if (_fetchElectrons) {
-    tree->Branch("nEleCand", &nEleCand, "nEleCand/I");
-    tree->Branch("EleCand_px", EleCand_px, "EleCand_px[nEleCand]/D");
-    tree->Branch("EleCand_py", EleCand_py, "EleCand_py[nEleCand]/D");
-    tree->Branch("EleCand_pz", EleCand_pz, "EleCand_pz[nEleCand]/D");
-    tree->Branch("EleCand_p", EleCand_p, "EleCand_p[nEleCand]/D");
-    tree->Branch("EleCand_e", EleCand_e, "EleCand_e[nEleCand]/D");
-    tree->Branch("EleCand_et", EleCand_et, "EleCand_et[nEleCand]/D");
-    tree->Branch("EleCand_eta", EleCand_eta, "EleCand_eta[nEleCand]/D");
-    tree->Branch("EleCand_phi", EleCand_phi, "EleCand_phi[nEleCand]/D");
-    tree->Branch("EleCand_charge", EleCand_charge, "EleCand_charge[nEleCand]/I");
-    tree->Branch("EleCand_vtxx", EleCand_vtxx, "EleCand_vtxx[nEleCand]/D");
-    tree->Branch("EleCand_vtxy", EleCand_vtxy, "EleCand_vtxy[nEleCand]/D");
-    tree->Branch("EleCand_vtxz", EleCand_vtxz, "EleCand_vtxz[nEleCand]/D");
-    tree->Branch("EleCandTrack_p", EleCandTrack_p, "EleCandTrack_p[nEleCand]/D");
-    tree->Branch("EleCandTrack_pt", EleCandTrack_pt, "EleCandTrack_pt[nEleCand]/D");
-    tree->Branch("EleCandTrack_eta", EleCandTrack_eta, "EleCandTrack_eta[nEleCand]/D");
-    tree->Branch("EleCandTrack_phi", EleCandTrack_phi, "EleCandTrack_phi[nEleCand]/D");
-    tree->Branch("EleCandTrack_vtxz", EleCandTrack_vtxz, "EleCandTrack_vtxz[nEleCand]/D");
-    tree->Branch("EleCand_deltaPhi", EleCand_deltaPhi, "EleCand_deltaPhi[nEleCand]/D"); 
-    tree->Branch("EleCand_deltaEta", EleCand_deltaEta, "EleCand_deltaEta[nEleCand]/D"); 
-    tree->Branch("EleCand_HoverE", EleCand_HoverE, "EleCand_HoverE[nEleCand]/D"); 
-    tree->Branch("EleCand_trackiso", EleCand_trackiso, "EleCand_trackiso[nEleCand]/D"); 
-    tree->Branch("EleCand_ecaliso", EleCand_ecaliso," EleCand_ecaliso[nEleCand]/D"); 
-    tree->Branch("EleCand_hcaliso", EleCand_hcaliso," EleCand_hcaliso[nEleCand]/D"); 
-    tree->Branch("EleCand_sigmaIetaIeta", EleCand_sigmaIetaIeta, "EleCand_sigmaIetaIeta[nEleCand]/D"); 
-    tree->Branch("EleCand_convDist", EleCand_convDist, "EleCand_convDist[nEleCand]/D"); 
-    tree->Branch("EleCand_convDcot", EleCand_convDcot, "EleCand_convDcot[nEleCand]/D"); 
-    tree->Branch("EleCand_ecalDriven", EleCand_ecalDriven, "EleCand_ecalDriven[nEleCand]/D");  
-    tree->Branch("EleCand_wp80", EleCand_wp80, "EleCand_wp80[nEleCand]/I");   
-    tree->Branch("EleCand_mediumID", EleCand_mediumID, "EleCand_mediumID[nEleCand]/I");    
-    tree->Branch("EleCand_looseID", EleCand_looseID, "EleCand_looseID[nEleCand]/I");   
-    /*tree->Branch("EleCand_looseid", EleCand_looseid,"EleCand_looseid[nEleCand]/I");
-    tree->Branch("EleCand_likelihoodid", EleCand_likelihoodid,"EleCand_likelihoodid[nEleCand]/D");
-    tree->Branch("EleCand_robustid", EleCand_robustid,"EleCand_robustid[nEleCand]/I");*/
+    tree_->Branch("nEleCand", &nEleCand, "nEleCand/I");
+    tree_->Branch("EleCand_px", EleCand_px, "EleCand_px[nEleCand]/D");
+    tree_->Branch("EleCand_py", EleCand_py, "EleCand_py[nEleCand]/D");
+    tree_->Branch("EleCand_pz", EleCand_pz, "EleCand_pz[nEleCand]/D");
+    tree_->Branch("EleCand_p", EleCand_p, "EleCand_p[nEleCand]/D");
+    tree_->Branch("EleCand_e", EleCand_e, "EleCand_e[nEleCand]/D");
+    tree_->Branch("EleCand_et", EleCand_et, "EleCand_et[nEleCand]/D");
+    tree_->Branch("EleCand_eta", EleCand_eta, "EleCand_eta[nEleCand]/D");
+    tree_->Branch("EleCand_phi", EleCand_phi, "EleCand_phi[nEleCand]/D");
+    tree_->Branch("EleCand_charge", EleCand_charge, "EleCand_charge[nEleCand]/I");
+    tree_->Branch("EleCand_vtxx", EleCand_vtxx, "EleCand_vtxx[nEleCand]/D");
+    tree_->Branch("EleCand_vtxy", EleCand_vtxy, "EleCand_vtxy[nEleCand]/D");
+    tree_->Branch("EleCand_vtxz", EleCand_vtxz, "EleCand_vtxz[nEleCand]/D");
+    tree_->Branch("EleCandTrack_p", EleCandTrack_p, "EleCandTrack_p[nEleCand]/D");
+    tree_->Branch("EleCandTrack_pt", EleCandTrack_pt, "EleCandTrack_pt[nEleCand]/D");
+    tree_->Branch("EleCandTrack_eta", EleCandTrack_eta, "EleCandTrack_eta[nEleCand]/D");
+    tree_->Branch("EleCandTrack_phi", EleCandTrack_phi, "EleCandTrack_phi[nEleCand]/D");
+    tree_->Branch("EleCandTrack_vtxz", EleCandTrack_vtxz, "EleCandTrack_vtxz[nEleCand]/D");
+    tree_->Branch("EleCand_deltaPhi", EleCand_deltaPhi, "EleCand_deltaPhi[nEleCand]/D"); 
+    tree_->Branch("EleCand_deltaEta", EleCand_deltaEta, "EleCand_deltaEta[nEleCand]/D"); 
+    tree_->Branch("EleCand_HoverE", EleCand_HoverE, "EleCand_HoverE[nEleCand]/D"); 
+    tree_->Branch("EleCand_trackiso", EleCand_trackiso, "EleCand_trackiso[nEleCand]/D"); 
+    tree_->Branch("EleCand_ecaliso", EleCand_ecaliso," EleCand_ecaliso[nEleCand]/D"); 
+    tree_->Branch("EleCand_hcaliso", EleCand_hcaliso," EleCand_hcaliso[nEleCand]/D"); 
+    tree_->Branch("EleCand_sigmaIetaIeta", EleCand_sigmaIetaIeta, "EleCand_sigmaIetaIeta[nEleCand]/D"); 
+    tree_->Branch("EleCand_convDist", EleCand_convDist, "EleCand_convDist[nEleCand]/D"); 
+    tree_->Branch("EleCand_convDcot", EleCand_convDcot, "EleCand_convDcot[nEleCand]/D"); 
+    tree_->Branch("EleCand_ecalDriven", EleCand_ecalDriven, "EleCand_ecalDriven[nEleCand]/D");  
+    tree_->Branch("EleCand_wp80", EleCand_wp80, "EleCand_wp80[nEleCand]/I");   
+    tree_->Branch("EleCand_mediumID", EleCand_mediumID, "EleCand_mediumID[nEleCand]/I");    
+    tree_->Branch("EleCand_looseID", EleCand_looseID, "EleCand_looseID[nEleCand]/I");   
+    /*tree_->Branch("EleCand_looseid", EleCand_looseid,"EleCand_looseid[nEleCand]/I");
+    tree_->Branch("EleCand_likelihoodid", EleCand_likelihoodid,"EleCand_likelihoodid[nEleCand]/D");
+    tree_->Branch("EleCand_robustid", EleCand_robustid,"EleCand_robustid[nEleCand]/I");*/
     if (runOnMC_) {
-      tree->Branch("nGenEleCand", &nGenEleCand, "nGenEleCand/I");
-      tree->Branch("nGenEleCandOutOfAccept", &nGenEleCandOutOfAccept, "nGenEleCandOutOfAccept/I");    
-      tree->Branch("GenEleCand_p", GenEleCand_p, "GenEleCand_p[nGenEleCand]/D");
-      tree->Branch("GenEleCand_px", GenEleCand_px, "GenEleCand_px[nGenEleCand]/D");
-      tree->Branch("GenEleCand_py", GenEleCand_py, "GenEleCand_py[nGenEleCand]/D");
-      tree->Branch("GenEleCand_pz", GenEleCand_pz, "GenEleCand_pz[nGenEleCand]/D");
-      tree->Branch("GenEleCand_pt", GenEleCand_pt, "GenEleCand_pt[nGenEleCand]/D");
-      tree->Branch("GenEleCand_eta", GenEleCand_eta, "GenEleCand_eta[nGenEleCand]/D");
-      tree->Branch("GenEleCand_phi", GenEleCand_phi, "GenEleCand_phi[nGenEleCand]/D");
+      tree_->Branch("nGenEleCand", &nGenEleCand, "nGenEleCand/I");
+      tree_->Branch("nGenEleCandOutOfAccept", &nGenEleCandOutOfAccept, "nGenEleCandOutOfAccept/I");    
+      tree_->Branch("GenEleCand_p", GenEleCand_p, "GenEleCand_p[nGenEleCand]/D");
+      tree_->Branch("GenEleCand_px", GenEleCand_px, "GenEleCand_px[nGenEleCand]/D");
+      tree_->Branch("GenEleCand_py", GenEleCand_py, "GenEleCand_py[nGenEleCand]/D");
+      tree_->Branch("GenEleCand_pz", GenEleCand_pz, "GenEleCand_pz[nGenEleCand]/D");
+      tree_->Branch("GenEleCand_pt", GenEleCand_pt, "GenEleCand_pt[nGenEleCand]/D");
+      tree_->Branch("GenEleCand_eta", GenEleCand_eta, "GenEleCand_eta[nGenEleCand]/D");
+      tree_->Branch("GenEleCand_phi", GenEleCand_phi, "GenEleCand_phi[nGenEleCand]/D");
     }
   }
-  tree->Branch("nPFPhotonCand", &nPFPhotonCand, "nPFPhotonCand/I");
-  tree->Branch("PFPhotonCand_pt", PFPhotonCand_pt, "PFPhotonCand_pt[nPFPhotonCand]/D");
-  tree->Branch("PFPhotonCand_eta", PFPhotonCand_eta, "PFPhotonCand_eta[nPFPhotonCand]/D");
-  tree->Branch("PFPhotonCand_phi", PFPhotonCand_phi, "PFPhotonCand_phi[nPFPhotonCand]/D");
-  tree->Branch("PFPhotonCand_drtrue", PFPhotonCand_drtrue, "PFPhotonCand_drtrue[nPFPhotonCand]/D"); 
-  tree->Branch("PFPhotonCand_detatrue", PFPhotonCand_detatrue, "PFPhotonCand_detatrue[nPFPhotonCand]/D"); 
-  tree->Branch("PFPhotonCand_dphitrue", PFPhotonCand_dphitrue, "PFPhotonCand_dphitrue[nPFPhotonCand]/D"); 
+  tree_->Branch("nPFPhotonCand", &nPFPhotonCand, "nPFPhotonCand/I");
+  tree_->Branch("PFPhotonCand_pt", PFPhotonCand_pt, "PFPhotonCand_pt[nPFPhotonCand]/D");
+  tree_->Branch("PFPhotonCand_eta", PFPhotonCand_eta, "PFPhotonCand_eta[nPFPhotonCand]/D");
+  tree_->Branch("PFPhotonCand_phi", PFPhotonCand_phi, "PFPhotonCand_phi[nPFPhotonCand]/D");
+  tree_->Branch("PFPhotonCand_drtrue", PFPhotonCand_drtrue, "PFPhotonCand_drtrue[nPFPhotonCand]/D"); 
+  tree_->Branch("PFPhotonCand_detatrue", PFPhotonCand_detatrue, "PFPhotonCand_detatrue[nPFPhotonCand]/D"); 
+  tree_->Branch("PFPhotonCand_dphitrue", PFPhotonCand_dphitrue, "PFPhotonCand_dphitrue[nPFPhotonCand]/D"); 
   if (runOnMC_) {
-    tree->Branch("nGenPhotCand", &nGenPhotCand, "nGenPhotCand/I");    
-    tree->Branch("nGenPhotCandOutOfAccept", &nGenPhotCandOutOfAccept, "nGenPhotCandOutOfAccept/I");    
-    tree->Branch("GenPhotCand_pt", GenPhotCand_pt, "GenPhotCand_pt[nGenPhotCand]/D");
-    tree->Branch("GenPhotCand_eta", GenPhotCand_eta, "GenPhotCand_eta[nGenPhotCand]/D");
-    tree->Branch("GenPhotCand_phi", GenPhotCand_phi, "GenPhotCand_phi[nGenPhotCand]/D");
+    tree_->Branch("nGenPhotCand", &nGenPhotCand, "nGenPhotCand/I");    
+    tree_->Branch("nGenPhotCandOutOfAccept", &nGenPhotCandOutOfAccept, "nGenPhotCandOutOfAccept/I");    
+    tree_->Branch("GenPhotCand_e", GenPhotCand_e, "GenPhotCand_e[nGenPhotCand]/D");
+    tree_->Branch("GenPhotCand_p", GenPhotCand_p, "GenPhotCand_p[nGenPhotCand]/D");
+    tree_->Branch("GenPhotCand_pt", GenPhotCand_pt, "GenPhotCand_pt[nGenPhotCand]/D");
+    tree_->Branch("GenPhotCand_eta", GenPhotCand_eta, "GenPhotCand_eta[nGenPhotCand]/D");
+    tree_->Branch("GenPhotCand_phi", GenPhotCand_phi, "GenPhotCand_phi[nGenPhotCand]/D");
+    tree_->Branch("nGenProtCand", &nGenProtCand, "nGenProtCand/I");    
+    tree_->Branch("GenProtCand_p", GenProtCand_p, "GenProtCand_p[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_px", GenProtCand_px, "GenProtCand_px[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_py", GenProtCand_py, "GenProtCand_py[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_pz", GenProtCand_pz, "GenProtCand_pz[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_pt", GenProtCand_pt, "GenProtCand_pt[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_eta", GenProtCand_eta, "GenProtCand_eta[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_phi", GenProtCand_phi, "GenProtCand_phi[nGenProtCand]/D");
+    tree_->Branch("GenProtCand_status", GenProtCand_status, "GenProtCand_status[nGenProtCand]/I");
   }
   
   // Primary vertices' information
-  tree->Branch("nPrimVertexCand", &nPrimVertexCand, "nPrimVertexCand/I");
-  tree->Branch("nFilteredPrimVertexCand", &nFilteredPrimVertexCand, "nFilteredPrimVertexCand/I");
-  tree->Branch("PrimVertexCand_id", PrimVertexCand_id, "PrimVertexCand_id[nFilteredPrimVertexCand]/I");
-  tree->Branch("PrimVertexCand_hasdil", PrimVertexCand_hasdil, "PrimVertexCand_hasdil[nFilteredPrimVertexCand]/I");
-  tree->Branch("PrimVertexCand_x", PrimVertexCand_x, "PrimVertexCand_x[nFilteredPrimVertexCand]/D");
-  tree->Branch("PrimVertexCand_y", PrimVertexCand_y, "PrimVertexCand_y[nFilteredPrimVertexCand]/D");
-  tree->Branch("PrimVertexCand_z", PrimVertexCand_z, "PrimVertexCand_z[nFilteredPrimVertexCand]/D");
-  tree->Branch("PrimVertexCand_tracks", PrimVertexCand_tracks, "PrimVertexCand_tracks[nFilteredPrimVertexCand]/I");
-  tree->Branch("PrimVertexCand_matchedtracks", PrimVertexCand_matchedtracks, "PrimVertexCand_matchedtracks[nFilteredPrimVertexCand]/I");
-  tree->Branch("PrimVertexCand_unmatchedtracks", PrimVertexCand_unmatchedtracks, "PrimVertexCand_unmatchedtracks[nFilteredPrimVertexCand]/I");
-  tree->Branch("PrimVertexCand_chi2", PrimVertexCand_chi2, "PrimVertexCand_chi2[nFilteredPrimVertexCand]/D");
-  tree->Branch("PrimVertexCand_ndof", PrimVertexCand_ndof, "PrimVertexCand_ndof[nFilteredPrimVertexCand]/I");
+  tree_->Branch("nPrimVertexCand", &nPrimVertexCand, "nPrimVertexCand/I");
+  tree_->Branch("nFilteredPrimVertexCand", &nFilteredPrimVertexCand, "nPrimVertexCand/I");
+  tree_->Branch("PrimVertexCand_id", PrimVertexCand_id, "PrimVertexCand_id[nPrimVertexCand]/I");
+  tree_->Branch("PrimVertexCand_hasdil", PrimVertexCand_hasdil, "PrimVertexCand_hasdil[nPrimVertexCand]/I");
+  tree_->Branch("PrimVertexCand_x", PrimVertexCand_x, "PrimVertexCand_x[nPrimVertexCand]/D");
+  tree_->Branch("PrimVertexCand_y", PrimVertexCand_y, "PrimVertexCand_y[nPrimVertexCand]/D");
+  tree_->Branch("PrimVertexCand_z", PrimVertexCand_z, "PrimVertexCand_z[nPrimVertexCand]/D");
+  tree_->Branch("PrimVertexCand_tracks", PrimVertexCand_tracks, "PrimVertexCand_tracks[nPrimVertexCand]/I");
+  tree_->Branch("PrimVertexCand_matchedtracks", PrimVertexCand_matchedtracks, "PrimVertexCand_matchedtracks[nPrimVertexCand]/I");
+  tree_->Branch("PrimVertexCand_unmatchedtracks", PrimVertexCand_unmatchedtracks, "PrimVertexCand_unmatchedtracks[nPrimVertexCand]/I");
+  tree_->Branch("PrimVertexCand_chi2", PrimVertexCand_chi2, "PrimVertexCand_chi2[nPrimVertexCand]/D");
+  tree_->Branch("PrimVertexCand_ndof", PrimVertexCand_ndof, "PrimVertexCand_ndof[nPrimVertexCand]/I");
 
   // Lepton pairs' information
-  tree->Branch("Pair_candidates", Pair_candidates, "Pair_candidates[nFilteredPrimVertexCand][2]/I");
-  tree->Branch("Pair_mindist", Pair_mindist, "Pair_mindist[nFilteredPrimVertexCand]/D");
-  tree->Branch("Pair_p", Pair_p, "Pair_p[nFilteredPrimVertexCand]/D");
-  tree->Branch("Pair_pt", Pair_pt, "Pair_pt[nFilteredPrimVertexCand]/D");
-  tree->Branch("Pair_dpt", Pair_dpt, "Pair_dpt[nFilteredPrimVertexCand]/D");
-  tree->Branch("Pair_mass", Pair_mass, "Pair_mass[nFilteredPrimVertexCand]/D");
-  tree->Branch("Pair_eta", Pair_eta, "Pair_eta[nFilteredPrimVertexCand]/D");
-  tree->Branch("Pair_phi", Pair_phi, "Pair_phi[nFilteredPrimVertexCand]/D");
-  tree->Branch("Pair_dphi", Pair_dphi, "Pair_dphi[nFilteredPrimVertexCand]/D");
-  tree->Branch("Pair_3Dangle", Pair_3Dangle, "Pair_3Dangle[nFilteredPrimVertexCand]/D");
-  tree->Branch("Pair_extratracks1mm", Pair_extratracks1mm, "Pair_extratracks1mm[nFilteredPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks2mm", Pair_extratracks2mm, "Pair_extratracks2mm[nFilteredPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks3mm", Pair_extratracks3mm, "Pair_extratracks3mm[nFilteredPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks4mm", Pair_extratracks4mm, "Pair_extratracks4mm[nFilteredPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks5mm", Pair_extratracks5mm, "Pair_extratracks5mm[nFilteredPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks1cm", Pair_extratracks1cm, "Pair_extratracks1cm[nFilteredPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks2cm", Pair_extratracks2cm, "Pair_extratracks2cm[nFilteredPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks3cm", Pair_extratracks3cm, "Pair_extratracks3cm[nFilteredPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks4cm", Pair_extratracks4cm, "Pair_extratracks4cm[nFilteredPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks5cm", Pair_extratracks5cm, "Pair_extratracks5cm[nFilteredPrimVertexCand]/I");
-  tree->Branch("Pair_extratracks10cm", Pair_extratracks10cm, "Pair_extratracks10cm[nFilteredPrimVertexCand]/I");
-  tree->Branch("PairGamma_mass", PairGamma_mass, "PairGamma_mass[nFilteredPrimVertexCand][nPFPhotonCand]/D");
+  tree_->Branch("Pair_candidates", Pair_candidates, "Pair_candidates[nPrimVertexCand][2]/I");
+  tree_->Branch("Pair_mindist", Pair_mindist, "Pair_mindist[nPrimVertexCand]/D");
+  tree_->Branch("Pair_p", Pair_p, "Pair_p[nPrimVertexCand]/D");
+  tree_->Branch("Pair_pt", Pair_pt, "Pair_pt[nPrimVertexCand]/D");
+  tree_->Branch("Pair_dpt", Pair_dpt, "Pair_dpt[nPrimVertexCand]/D");
+  tree_->Branch("Pair_mass", Pair_mass, "Pair_mass[nPrimVertexCand]/D");
+  tree_->Branch("Pair_eta", Pair_eta, "Pair_eta[nPrimVertexCand]/D");
+  tree_->Branch("Pair_phi", Pair_phi, "Pair_phi[nPrimVertexCand]/D");
+  tree_->Branch("Pair_dphi", Pair_dphi, "Pair_dphi[nPrimVertexCand]/D");
+  tree_->Branch("Pair_3Dangle", Pair_3Dangle, "Pair_3Dangle[nPrimVertexCand]/D");
+  tree_->Branch("Pair_extratracks1mm", Pair_extratracks1mm, "Pair_extratracks1mm[nPrimVertexCand]/I");
+  tree_->Branch("Pair_extratracks2mm", Pair_extratracks2mm, "Pair_extratracks2mm[nPrimVertexCand]/I");
+  tree_->Branch("Pair_extratracks3mm", Pair_extratracks3mm, "Pair_extratracks3mm[nPrimVertexCand]/I");
+  tree_->Branch("Pair_extratracks4mm", Pair_extratracks4mm, "Pair_extratracks4mm[nPrimVertexCand]/I");
+  tree_->Branch("Pair_extratracks5mm", Pair_extratracks5mm, "Pair_extratracks5mm[nPrimVertexCand]/I");
+  tree_->Branch("Pair_extratracks1cm", Pair_extratracks1cm, "Pair_extratracks1cm[nPrimVertexCand]/I");
+  tree_->Branch("Pair_extratracks2cm", Pair_extratracks2cm, "Pair_extratracks2cm[nPrimVertexCand]/I");
+  tree_->Branch("Pair_extratracks3cm", Pair_extratracks3cm, "Pair_extratracks3cm[nPrimVertexCand]/I");
+  tree_->Branch("Pair_extratracks4cm", Pair_extratracks4cm, "Pair_extratracks4cm[nPrimVertexCand]/I");
+  tree_->Branch("Pair_extratracks5cm", Pair_extratracks5cm, "Pair_extratracks5cm[nPrimVertexCand]/I");
+  tree_->Branch("Pair_extratracks10cm", Pair_extratracks10cm, "Pair_extratracks10cm[nPrimVertexCand]/I");
+  tree_->Branch("PairGamma_mass", PairGamma_mass, "PairGamma_mass[nPrimVertexCand][nPFPhotonCand]/D");
   if (runOnMC_) {
-    tree->Branch("GenPair_p", &GenPair_p, "GenPair_p/D");
-    tree->Branch("GenPair_pt", &GenPair_pt, "GenPair_pt/D");
-    tree->Branch("GenPair_dpt", &GenPair_dpt, "GenPair_dpt/D");
-    tree->Branch("GenPair_mass", &GenPair_mass, "GenPair_mass/D");
-    tree->Branch("GenPair_eta", &GenPair_eta, "GenPair_eta/D");
-    tree->Branch("GenPair_phi", &GenPair_phi, "GenPair_phi/D");
-    tree->Branch("GenPair_dphi", &GenPair_dphi, "GenPair_dphi/D");
-    tree->Branch("GenPair_3Dangle", &GenPair_3Dangle, "GenPair_3Dangle[nFilteredPrimVertexCand]/D");
-    tree->Branch("HPS_acc420b1", &HPS_acc420b1, "HPS_acc420b1/D");
-    tree->Branch("HPS_acc220b1", &HPS_acc220b1, "HPS_acc220b1/D");
-    tree->Branch("HPS_acc420and220b1", &HPS_acc420and220b1, "HPS_acc420and220b1/D");
-    tree->Branch("HPS_acc420or220b1", &HPS_acc420or220b1, "HPS_acc420or220b1/D");
-    tree->Branch("HPS_acc420b2", &HPS_acc420b2, "HPS_acc420b2/D");
-    tree->Branch("HPS_acc220b2", &HPS_acc220b2, "HPS_acc220b2/D");
-    tree->Branch("HPS_acc420and220b2", &HPS_acc420and220b2, "HPS_acc420and220b2/D");
-    tree->Branch("HPS_acc420or220b2", &HPS_acc420or220b2, "HPS_acc420or220b2/D");
+    tree_->Branch("GenPair_p", &GenPair_p, "GenPair_p/D");
+    tree_->Branch("GenPair_pt", &GenPair_pt, "GenPair_pt/D");
+    tree_->Branch("GenPair_dpt", &GenPair_dpt, "GenPair_dpt/D");
+    tree_->Branch("GenPair_mass", &GenPair_mass, "GenPair_mass/D");
+    tree_->Branch("GenPair_eta", &GenPair_eta, "GenPair_eta/D");
+    tree_->Branch("GenPair_phi", &GenPair_phi, "GenPair_phi/D");
+    tree_->Branch("GenPair_dphi", &GenPair_dphi, "GenPair_dphi/D");
+    tree_->Branch("GenPair_3Dangle", &GenPair_3Dangle, "GenPair_3Dangle[nPrimVertexCand]/D");
+    tree_->Branch("HPS_acc420b1", &HPS_acc420b1, "HPS_acc420b1/D");
+    tree_->Branch("HPS_acc220b1", &HPS_acc220b1, "HPS_acc220b1/D");
+    tree_->Branch("HPS_acc420and220b1", &HPS_acc420and220b1, "HPS_acc420and220b1/D");
+    tree_->Branch("HPS_acc420or220b1", &HPS_acc420or220b1, "HPS_acc420or220b1/D");
+    tree_->Branch("HPS_acc420b2", &HPS_acc420b2, "HPS_acc420b2/D");
+    tree_->Branch("HPS_acc220b2", &HPS_acc220b2, "HPS_acc220b2/D");
+    tree_->Branch("HPS_acc420and220b2", &HPS_acc420and220b2, "HPS_acc420and220b2/D");
+    tree_->Branch("HPS_acc420or220b2", &HPS_acc420or220b2, "HPS_acc420or220b2/D");
   }
   // Extra tracks on vertex's information
-  tree->Branch("nExtraTracks", &nExtraTracks, "nExtraTracks/I");
-  tree->Branch("ExtraTrack_vtxId", ExtraTrack_vtxId, "ExtraTrack_vtxId[nExtraTracks]/I");
-  tree->Branch("ExtraTrack_purity", ExtraTrack_purity, "ExtraTrack_purity[nExtraTracks]/I");
-  tree->Branch("ExtraTrack_nhits", ExtraTrack_nhits, "ExtraTrack_nhits[nExtraTracks]/I");
-  tree->Branch("ExtraTrack_charge", ExtraTrack_charge, "ExtraTrack_charge[nExtraTracks]/I");
-  tree->Branch("ExtraTrack_ndof", ExtraTrack_ndof, "ExtraTrack_ndof[nExtraTracks]/I");
-  tree->Branch("ExtraTrack_p", ExtraTrack_p, "ExtraTrack_p[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_pt", ExtraTrack_pt, "ExtraTrack_pt[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_px", ExtraTrack_px, "ExtraTrack_px[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_py", ExtraTrack_py, "ExtraTrack_py[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_pz", ExtraTrack_pz, "ExtraTrack_pz[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_eta", ExtraTrack_eta, "ExtraTrack_eta[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_phi", ExtraTrack_phi, "ExtraTrack_phi[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_chi2", ExtraTrack_chi2, "ExtraTrack_chi2[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_vtxdxyz", ExtraTrack_vtxdxyz, "ExtraTrack_vtxdxyz[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_vtxT", ExtraTrack_vtxT, "ExtraTrack_vtxT[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_vtxZ", ExtraTrack_vtxZ, "ExtraTrack_vtxZ[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_x", ExtraTrack_x, "ExtraTrack_x[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_y", ExtraTrack_y, "ExtraTrack_y[nExtraTracks]/D");
-  tree->Branch("ExtraTrack_z", ExtraTrack_z, "ExtraTrack_z[nExtraTracks]/D");
-  tree->Branch("nQualityExtraTrack", &nQualityExtraTrack, "nQualityExtraTrack/I");
-  tree->Branch("ClosestExtraTrack_vtxdxyz",ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz[nFilteredPrimVertexCand]/D");
-  tree->Branch("ClosestExtraTrack_id",ClosestExtraTrack_id,"ClosestExtraTrack_id[nFilteredPrimVertexCand]/I");
-  tree->Branch("ClosestHighPurityExtraTrack_vtxdxyz",ClosestHighPurityExtraTrack_vtxdxyz,"ClosestHighPurityExtraTrack_vtxdxyz[nFilteredPrimVertexCand]/D");
-  tree->Branch("ClosestHighPurityExtraTrack_id",ClosestHighPurityExtraTrack_id,"ClosestHighPurityExtraTrack_id[nFilteredPrimVertexCand]/I");
+  tree_->Branch("nExtraTracks", &nExtraTracks, "nExtraTracks/I");
+  tree_->Branch("ExtraTrack_vtxId", ExtraTrack_vtxId, "ExtraTrack_vtxId[nExtraTracks]/I");
+  tree_->Branch("ExtraTrack_purity", ExtraTrack_purity, "ExtraTrack_purity[nExtraTracks]/I");
+  tree_->Branch("ExtraTrack_nhits", ExtraTrack_nhits, "ExtraTrack_nhits[nExtraTracks]/I");
+  tree_->Branch("ExtraTrack_charge", ExtraTrack_charge, "ExtraTrack_charge[nExtraTracks]/I");
+  tree_->Branch("ExtraTrack_ndof", ExtraTrack_ndof, "ExtraTrack_ndof[nExtraTracks]/I");
+  tree_->Branch("ExtraTrack_p", ExtraTrack_p, "ExtraTrack_p[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_pt", ExtraTrack_pt, "ExtraTrack_pt[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_px", ExtraTrack_px, "ExtraTrack_px[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_py", ExtraTrack_py, "ExtraTrack_py[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_pz", ExtraTrack_pz, "ExtraTrack_pz[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_eta", ExtraTrack_eta, "ExtraTrack_eta[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_phi", ExtraTrack_phi, "ExtraTrack_phi[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_chi2", ExtraTrack_chi2, "ExtraTrack_chi2[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_vtxdxyz", ExtraTrack_vtxdxyz, "ExtraTrack_vtxdxyz[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_vtxT", ExtraTrack_vtxT, "ExtraTrack_vtxT[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_vtxZ", ExtraTrack_vtxZ, "ExtraTrack_vtxZ[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_x", ExtraTrack_x, "ExtraTrack_x[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_y", ExtraTrack_y, "ExtraTrack_y[nExtraTracks]/D");
+  tree_->Branch("ExtraTrack_z", ExtraTrack_z, "ExtraTrack_z[nExtraTracks]/D");
+  tree_->Branch("nQualityExtraTrack", &nQualityExtraTrack, "nQualityExtraTrack/I");
+  tree_->Branch("ClosestExtraTrack_vtxdxyz",ClosestExtraTrack_vtxdxyz,"ClosestExtraTrack_vtxdxyz[nPrimVertexCand]/D");
+  tree_->Branch("ClosestExtraTrack_id",ClosestExtraTrack_id,"ClosestExtraTrack_id[nPrimVertexCand]/I");
+  tree_->Branch("ClosestHighPurityExtraTrack_vtxdxyz",ClosestHighPurityExtraTrack_vtxdxyz,"ClosestHighPurityExtraTrack_vtxdxyz[nPrimVertexCand]/D");
+  tree_->Branch("ClosestHighPurityExtraTrack_id",ClosestHighPurityExtraTrack_id,"ClosestHighPurityExtraTrack_id[nPrimVertexCand]/I");
   
   // Jets/MET information
-  tree->Branch("nJetCand", &nJetCand, "nJetCand/I");
-  tree->Branch("JetCand_px", JetCand_px, "JetCand_px[nJetCand]/D");
-  tree->Branch("JetCand_py", JetCand_py, "JetCand_py[nJetCand]/D");
-  tree->Branch("JetCand_pz", JetCand_pz, "JetCand_pz[nJetCand]/D");
-  tree->Branch("JetCand_e", JetCand_e, "JetCand_e[nJetCand]/D");
-  tree->Branch("JetCand_eta", JetCand_eta, "JetCand_eta[nJetCand]/D");
-  tree->Branch("JetCand_phi", JetCand_phi, "JetCand_phi[nJetCand]/D");
-  tree->Branch("HighestJet_e", &HighestJet_e, "HighestJet_e/D");
-  tree->Branch("HighestJet_eta", &HighestJet_eta, "HighestJet_eta/D");
-  tree->Branch("HighestJet_phi", &HighestJet_phi, "HighestJet_phi/D");
-  tree->Branch("SumJet_e", &SumJet_e, "SumJet_e/D");
-  tree->Branch("Etmiss", &Etmiss, "Etmiss/D");
-  tree->Branch("Etmiss_phi", &Etmiss_phi, "Etmiss_phi/D");
-  tree->Branch("Etmiss_x", &Etmiss_x, "Etmiss_x/D");
-  tree->Branch("Etmiss_y", &Etmiss_y, "Etmiss_y/D");
-  tree->Branch("Etmiss_z", &Etmiss_z, "Etmiss_z/D"); 
-  tree->Branch("Etmiss_significance", &Etmiss_significance, "Etmiss_significance/D");
+  tree_->Branch("nJetCand", &nJetCand, "nJetCand/I");
+  tree_->Branch("JetCand_px", JetCand_px, "JetCand_px[nJetCand]/D");
+  tree_->Branch("JetCand_py", JetCand_py, "JetCand_py[nJetCand]/D");
+  tree_->Branch("JetCand_pz", JetCand_pz, "JetCand_pz[nJetCand]/D");
+  tree_->Branch("JetCand_e", JetCand_e, "JetCand_e[nJetCand]/D");
+  tree_->Branch("JetCand_eta", JetCand_eta, "JetCand_eta[nJetCand]/D");
+  tree_->Branch("JetCand_phi", JetCand_phi, "JetCand_phi[nJetCand]/D");
+  tree_->Branch("HighestJet_e", &HighestJet_e, "HighestJet_e/D");
+  tree_->Branch("HighestJet_eta", &HighestJet_eta, "HighestJet_eta/D");
+  tree_->Branch("HighestJet_phi", &HighestJet_phi, "HighestJet_phi/D");
+  tree_->Branch("SumJet_e", &SumJet_e, "SumJet_e/D");
+  tree_->Branch("Etmiss", &Etmiss, "Etmiss/D");
+  tree_->Branch("Etmiss_phi", &Etmiss_phi, "Etmiss_phi/D");
+  tree_->Branch("Etmiss_x", &Etmiss_x, "Etmiss_x/D");
+  tree_->Branch("Etmiss_y", &Etmiss_y, "Etmiss_y/D");
+  tree_->Branch("Etmiss_z", &Etmiss_z, "Etmiss_z/D"); 
+  tree_->Branch("Etmiss_significance", &Etmiss_significance, "Etmiss_significance/D");
 
   // Pileup reweighting
-  tree->Branch("nTruePUforPUWeight",&nTruePUforPUWeight,"nTruePUforPUWeight/I");
-  tree->Branch("nTruePUafterPUWeight",&nTruePUafterPUWeight,"nTruePUafterPUWeight/D");
-  tree->Branch("nTruePUforPUWeightBXM1", &nTruePUforPUWeightBXM1, "nTruePUforPUWeightBXM1/I");
-  tree->Branch("nTruePUafterPUWeightBXM1", &nTruePUafterPUWeightBXM1, "nTruePUafterPUWeightBXM1/D");
-  tree->Branch("nTruePUforPUWeightBXP1", &nTruePUforPUWeightBXP1, "nTruePUforPUWeightBXP1/I"); 
-  tree->Branch("nTruePUafterPUWeightBXP1", &nTruePUafterPUWeightBXP1, "nTruePUafterPUWeightBXP1/D"); 
-  tree->Branch("nTruePUforPUWeightBX0", &nTruePUforPUWeightBX0, "nTruePUforPUWeightBX0/I");
-  tree->Branch("nTruePUafterPUWeightBX0", &nTruePUafterPUWeightBX0, "nTruePUafterPUWeightBX0/D");
-  tree->Branch("Weight", &Weight, "Weight/D");
-  tree->Branch("PUWeightTrue", &PUWeightTrue, "PUWeightTrue/D");
+  tree_->Branch("nTruePUforPUWeight",&nTruePUforPUWeight,"nTruePUforPUWeight/I");
+  tree_->Branch("nTruePUafterPUWeight",&nTruePUafterPUWeight,"nTruePUafterPUWeight/D");
+  tree_->Branch("nTruePUforPUWeightBXM1", &nTruePUforPUWeightBXM1, "nTruePUforPUWeightBXM1/I");
+  tree_->Branch("nTruePUafterPUWeightBXM1", &nTruePUafterPUWeightBXM1, "nTruePUafterPUWeightBXM1/D");
+  tree_->Branch("nTruePUforPUWeightBXP1", &nTruePUforPUWeightBXP1, "nTruePUforPUWeightBXP1/I"); 
+  tree_->Branch("nTruePUafterPUWeightBXP1", &nTruePUafterPUWeightBXP1, "nTruePUafterPUWeightBXP1/D"); 
+  tree_->Branch("nTruePUforPUWeightBX0", &nTruePUforPUWeightBX0, "nTruePUforPUWeightBX0/I");
+  tree_->Branch("nTruePUafterPUWeightBX0", &nTruePUafterPUWeightBX0, "nTruePUafterPUWeightBX0/D");
+  tree_->Branch("Weight", &Weight, "Weight/D");
+  tree_->Branch("PUWeightTrue", &PUWeightTrue, "PUWeightTrue/D");
 
   nCandidates = 0;
 }
