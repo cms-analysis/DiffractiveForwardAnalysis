@@ -17,30 +17,28 @@
 //
 //
 
-// WP80 cuts
-const float MAX_MissingHits      = 0.0;
-const float MIN_Dist             = 0.02;
-const float MIN_Dcot             = 0.02;
-const float cut_EB_trackRel03    = 0.09;
-const float cut_EB_ecalRel03     = 0.07;
-const float cut_EB_hcalRel03     = 0.10;
-const float cut_EB_sigmaIetaIeta = 0.01;
-const float cut_EB_deltaPhi      = 0.06;
-const float cut_EB_deltaEta      = 0.004;
-const float cut_EB_HoverE        = 0.04;
-const float cut_EE_trackRel03    = 0.04;
-const float cut_EE_ecalRel03     = 0.05;
-const float cut_EE_hcalRel03     = 0.025;
-const float cut_EE_sigmaIetaIeta = 0.03;
-const float cut_EE_deltaPhi      = 0.03;
-const float cut_EE_deltaEta      = 0.007; 
-const float cut_EE_HoverE        = 0.025;
+#include "GammaGammaLL.h"
 
-#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/GammaGammaLL.h"
 //
 // constructors and destructor
 //
-GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
+GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
+  //beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"))),
+  recoVertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("RecoVertexLabel"))),
+  //genToken_(0),
+  muonToken_          (consumes< edm::View<pat::Muon> >           (iConfig.getUntrackedParameter<edm::InputTag>("GlobalMuonCollectionLabel", std::string("muons")))),
+  eleToken_           (consumes< edm::View<pat::Electron> >       (iConfig.getUntrackedParameter<edm::InputTag>("GlobalEleCollectionLabel", std::string("gsfElectrons")))),
+  eleLooseIdMapToken_ (consumes< edm::ValueMap<bool> >            (iConfig.getParameter<edm::InputTag>("eleLooseIdMap"))),
+  eleMediumIdMapToken_(consumes< edm::ValueMap<bool> >            (iConfig.getParameter<edm::InputTag>("eleMediumIdMap"))),
+  eleTightIdMapToken_ (consumes< edm::ValueMap<bool> >            (iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
+  conversionsToken_   (consumes<reco::ConversionCollection>       (iConfig.getParameter<edm::InputTag>("conversionsInputTag"))),
+  pileupToken_        (consumes< std::vector<PileupSummaryInfo> > (iConfig.getUntrackedParameter<edm::InputTag>("pileupInfo", std::string("addPileupInfo")))),
+  pflowToken_         (consumes< edm::View<pat::PackedCandidate> >(iConfig.getUntrackedParameter<edm::InputTag>("PFLabel", std::string("particleFlow")))),
+  jetToken_           (consumes< edm::View<pat::Jet> >            (iConfig.getParameter<edm::InputTag>("JetCollectionLabel"))),
+  metToken_           (consumes< edm::View<pat::MET> >            (iConfig.getParameter<edm::InputTag>("MetLabel"))),
+  runOnMC_            (iConfig.getUntrackedParameter<bool>("RunOnMC", true)),
+  sqrts_              (iConfig.getParameter<double>("SqrtS")),
+  hltPrescale_        (iConfig, consumesCollector(), *this) 
 {
   //now do what ever initialization is needed
   _fetchMuons = false;
@@ -49,22 +47,19 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
   
   hltMenuLabel_ = iConfig.getParameter<std::string>("HLTMenuLabel");
   triggersList_ = iConfig.getParameter<std::vector<std::string> >("TriggersList");
-  _hlts = new HLTmatches(triggersList_);
+  _hlts = new HLTMatcher(triggersList_);
   nHLT = triggersList_.size();
 	
-  recoVertexLabel_ = iConfig.getParameter<edm::InputTag>("RecoVertexLabel");
-
-  maxExTrkVtx_ = iConfig.getUntrackedParameter<UInt_t>("maxExtraTracks", 1000);
+  maxExTrkVtx_ = iConfig.getUntrackedParameter<unsigned int>("maxExtraTracks", 1000);
   
   // Generator level
-  sqrts_ = iConfig.getParameter<Double_t>("SqrtS");
-  runOnMC_ = iConfig.getUntrackedParameter<bool>("RunOnMC", true);
-  genLabel_ = iConfig.getParameter<edm::InputTag>("GenParticlesCollectionLabel");
-  minPtMC_ = iConfig.getUntrackedParameter<Double_t>("MCAcceptPtCut", 20.);
-  minEtaMC_ = iConfig.getUntrackedParameter<Double_t>("MCAcceptEtaCut", 2.5);
+  if (runOnMC_) {
+    genToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("GenParticlesCollectionLabel"));
+  }
+  minPtMC_ = iConfig.getUntrackedParameter<double>("MCAcceptPtCut", 20.);
+  minEtaMC_ = iConfig.getUntrackedParameter<double>("MCAcceptEtaCut", 2.5);
   
   // Pileup input tags
-  pileupLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("pileupInfo", std::string("addPileupInfo"));
   mcPileupFile_ = iConfig.getUntrackedParameter<std::string>("mcpufile", "PUHistos.root");
   mcPileupPath_ = iConfig.getUntrackedParameter<std::string>("mcpupath", "pileup");
   dataPileupFile_ = iConfig.getUntrackedParameter<std::string>("datapufile", "PUHistos_duplicated.root");
@@ -76,20 +71,9 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
     if (leptonsType_[i]=="Muon") _fetchMuons = true;
     else if (leptonsType_[i]=="Electron") _fetchElectrons = true;
   }
-  muonLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("GlobalMuonCollectionLabel", std::string("muons"));
-  eleLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("GlobalEleCollectionLabel", std::string("gsfElectrons"));
-  isoValLabel_ = iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags");
-  beamSpotLabel_ = iConfig.getParameter<edm::InputTag>("beamSpotInputTag");
-  conversionsLabel_ = iConfig.getParameter<edm::InputTag>("conversionsInputTag");
-  rhoIsoLabel_ = iConfig.getParameter<edm::InputTag>("rhoIsoInputTag");
+  ///isoValToken_ = consumes<iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags");
+  
   printCandidates_ = iConfig.getUntrackedParameter<bool>("PrintCandidates", false);
-  
-  // Particle flow input tag
-  pflowLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("PFLabel", std::string("particleFlow"));
-  
-  // Jets/MET input tags
-  jetLabel_ = iConfig.getParameter<edm::InputTag>("JetCollectionLabel");
-  metLabel_ = iConfig.getParameter<edm::InputTag>("MetLabel");
   
   file_ = new TFile(outputFile_.c_str(), "recreate");
   file_->cd();
@@ -102,7 +86,7 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
   // HPS acceptance file readout definition
   if (runOnMC_) {
     // edm::FileInPath myDataFile("FastSimulation/ProtonTaggers/data/acceptance_420_220.root");  
-    myDataFile = new edm::FileInPath("FastSimulation/ForwardDetectors/data/acceptance_420_220.root");
+    /*myDataFile = new edm::FileInPath("FastSimulation/ForwardDetectors/data/acceptance_420_220.root");
     fullAcceptancePath = myDataFile->fullPath();
     std::cout << "Opening " << fullAcceptancePath << std::endl;
     f = new TFile(fullAcceptancePath.c_str());
@@ -115,7 +99,7 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig)
     helper220beam1.Init(*f, "a220");
     helper220beam2.Init(*f, "a220_b2");
     helper420a220beam1.Init(*f, "a420a220");
-    helper420a220beam2.Init(*f, "a420a220_b2");
+    helper420a220beam2.Init(*f, "a420a220_b2");*/
 
     LumiWeights = new edm::LumiReWeighting(mcPileupFile_, dataPileupFile_, mcPileupPath_, dataPileupPath_);
   }
@@ -128,9 +112,9 @@ GammaGammaLL::~GammaGammaLL()
  
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  const edm::ParameterSet& pset = edm::getProcessParameterSet();
+  /*const edm::ParameterSet& pset = edm::getProcessParameterSet();
   TList *list = tree_->GetUserInfo();
-  list->Add(new TObjString(pset.dump().c_str()));
+  list->Add(new TObjString(pset.dump().c_str()));*/
   file_->Write();
   file_->Close();
 
@@ -151,7 +135,7 @@ GammaGammaLL::~GammaGammaLL()
 void
 GammaGammaLL::LookAtTriggers(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  Int_t trigNum;
+  int trigNum;
 	
   // Get the trigger information from the event
   iEvent.getByLabel(edm::InputTag("TriggerResults","",hltMenuLabel_),hltResults_) ; 
@@ -162,7 +146,8 @@ GammaGammaLL::LookAtTriggers(const edm::Event& iEvent, const edm::EventSetup& iS
     trigNum = _hlts->TriggerNum(trigNames.triggerNames().at(i));
     if (trigNum==-1) continue; // Trigger didn't match the interesting ones
     HLT_Accept[trigNum] = hltResults_->accept(i) ? 1 : 0;
-    HLT_Prescl[trigNum] = hltConfig_.prescaleValue(iEvent, iSetup, trigNames.triggerNames().at(i));
+    int prescale_set = hltPrescale_.prescaleSet(iEvent, iSetup);
+    HLT_Prescl[trigNum] = hltConfig_.prescaleValue(prescale_set, trigNames.triggerNames().at(i));
     
     //LF FIXME need to think about that implementation...
     /*if (trigNames.triggerNames().at(i).find("CaloIdL")) {} // Leading lepton
@@ -217,7 +202,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     EleCand_deltaPhi[i] = EleCand_deltaEta[i] = EleCand_HoverE[i] = -999.;
     EleCand_trackiso[i] = EleCand_ecaliso[i] = EleCand_hcaliso[i] = EleCand_sigmaIetaIeta[i] = -999.;
     EleCand_convDist[i] = EleCand_convDcot[i] = EleCand_ecalDriven[i] = -999.;
-    EleCand_wp80[i] = EleCand_mediumID[i] = EleCand_looseID[i] = -1;
+    EleCand_tightID[i] = EleCand_mediumID[i] = EleCand_looseID[i] = -1;
   }
   for (i=0; i<MAX_ET && i<maxExTrkVtx_; i++) {
     ExtraTrack_p[i] = ExtraTrack_px[i] = ExtraTrack_py[i] = ExtraTrack_pz[i] = -999.;
@@ -279,22 +264,18 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   LookAtTriggers(iEvent, iSetup);
   
   // beam spot information
-  iEvent.getByLabel(beamSpotLabel_, beamspot_h);
-  const reco::BeamSpot &beamSpot = *(beamspot_h.product());
+  /*iEvent.getByToken(beamSpotToken_, beamspot_h);
+  const reco::BeamSpot &beamSpot = *(beamspot_h.product());*/
 
   // Get the vertex collection from the event
-  iEvent.getByLabel(recoVertexLabel_, recoVertexColl);
+  iEvent.getByToken(recoVertexToken_, recoVertexColl);
   const reco::VertexCollection* vertices = recoVertexColl.product();
 
-  // rho for isolation 
-  iEvent.getByLabel(rhoIsoLabel_, rhoIso_h); 
-  rhoIso = *(rhoIso_h.product()); 
-  
   //std::cout << "Passed Isolation" << std::endl;
 
   // Generator level information
   if (runOnMC_) {
-    iEvent.getByLabel(genLabel_, genPartColl);
+    iEvent.getByToken(genToken_, genPartColl);
     
     for (genPart=genPartColl->begin(); genPart!=genPartColl->end(); genPart++) {
       if (genPart->pt()<minPtMC_ || (minEtaMC_!=-1. && fabs(genPart->eta())>minEtaMC_)) {
@@ -403,7 +384,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Pileup information
   if (runOnMC_) {
-    iEvent.getByLabel(pileupLabel_, pileupInfo);
+    iEvent.getByToken(pileupToken_, pileupInfo);
 
     // This part is optional if the distributions are already generated
     sum_nvtx = 0;
@@ -433,7 +414,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Get the muons collection from the event
   if (_fetchMuons) {
-    iEvent.getByLabel(muonLabel_, muonColl);
+    iEvent.getByToken(muonToken_, muonColl);
     for (muon=muonColl->begin(); muon!=muonColl->end() && nMuonCand<MAX_MUONS; muon++) {
       MuonCand_p[nMuonCand] = muon->p();
       MuonCand_px[nMuonCand] = muon->px();
@@ -463,7 +444,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       else {
 	_leptonptmp->SetXYZM(muon->px(), muon->py(), muon->pz(), muon->mass());
       }
-      muonsMomenta.insert(std::pair<Int_t,TLorentzVector>(nMuonCand, *_leptonptmp));
+      muonsMomenta.insert(std::pair<int,TLorentzVector>(nMuonCand, *_leptonptmp));
 
       if (MuonCand_isglobal[nMuonCand] && MuonCand_istracker[nMuonCand]) {
 	MuonCandTrack_nmuchits[nMuonCand] = muon->globalTrack()->hitPattern().numberOfValidMuonHits();
@@ -487,19 +468,26 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Get the electrons collection from the event
   if (_fetchElectrons) {
-    iEvent.getByLabel(eleLabel_, eleColl);
+    iEvent.getByToken(eleToken_, eleColl);
     // RECO electrons
+    // //FIXME FIXME
     iEvent.getByLabel(InputTag("gsfElectrons"), eleCollRECO);
     // iso deposits
     IsoDepositVals isoVals(isoValLabel_.size());
     // New 2012 electron ID variables conversions
-    iEvent.getByLabel(conversionsLabel_, conversions_h);
+    iEvent.getByToken(conversionsToken_, conversions_h);
 
-    for (size_t j = 0; j<isoValLabel_.size(); j++) { 
-      iEvent.getByLabel(isoValLabel_[j], isoVals[j]); 
-    }
-        
-    for (electron=eleColl->begin(); electron!=eleColl->end() && nEleCand<MAX_ELE; electron++) {
+    edm::Handle<edm::ValueMap<bool> > loose_id_decisions;
+    iEvent.getByToken(eleLooseIdMapToken_, loose_id_decisions);
+    edm::Handle<edm::ValueMap<bool> > medium_id_decisions;
+    iEvent.getByToken(eleMediumIdMapToken_, medium_id_decisions);
+    edm::Handle<edm::ValueMap<bool> > tight_id_decisions; 
+    iEvent.getByToken(eleTightIdMapToken_, tight_id_decisions);
+
+    //for (electron=eleColl->begin(); electron!=eleColl->end() && nEleCand<MAX_ELE; electron++) {
+    for (unsigned int j=0; j<eleColl->size(); j++) {
+      const auto electron = eleColl->ptrAt(i);
+
       EleCand_e[nEleCand] = electron->energy();
       EleCand_et[nEleCand] = electron->et();
       EleCand_px[nEleCand] = electron->px();
@@ -525,7 +513,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	_leptonptmp->SetPtEtaPhiM(EleCandTrack_pt[nEleCand], EleCandTrack_eta[nEleCand], EleCandTrack_phi[nEleCand], electron->mass());
       }
 
-      electronsMomenta.insert(std::pair<Int_t,TLorentzVector>(nEleCand, *_leptonptmp));
+      electronsMomenta.insert(std::pair<int,TLorentzVector>(nEleCand, *_leptonptmp));
 
       EleCand_deltaPhi[nEleCand] = electron->deltaPhiSuperClusterTrackAtVtx();
       EleCand_deltaEta[nEleCand] = electron->deltaEtaSuperClusterTrackAtVtx();
@@ -538,51 +526,11 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       EleCand_convDcot[nEleCand] = fabs(electron->convDcot()); 
       EleCand_ecalDriven[nEleCand] = electron->ecalDrivenSeed();
 
-      EleCand_wp80[nEleCand] = 0;
-      EleCand_mediumID[nEleCand] = 0;
-      EleCand_looseID[nEleCand] = 0;
-      bool select = false;
-      bool selectmedium = false;
-      bool selectloose = false;
-      if (electron->ecalDrivenSeed()==1)  select = true;
-      if (EleCand_convDist[nEleCand]>=MIN_Dist or EleCand_convDcot[nEleCand]>=MIN_Dcot) select = true;
-      if (electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits()<=MAX_MissingHits) select = true;
-      if(select) {
-        if(electron->isEB()) {
-          if (fabs(EleCand_deltaPhi[nEleCand])>cut_EB_deltaPhi) select = false;
-          if (fabs(EleCand_deltaEta[nEleCand])>cut_EB_deltaEta) select = false;
-          if (EleCand_HoverE[nEleCand]>cut_EB_HoverE) select = false;
-          if (EleCand_trackiso[nEleCand]>cut_EB_trackRel03) select = false;
-          if (EleCand_ecaliso[nEleCand]>cut_EB_ecalRel03) select = false;
-          if (EleCand_hcaliso[nEleCand]>cut_EB_hcalRel03) select = false;
-          if (EleCand_sigmaIetaIeta[nEleCand] > cut_EB_sigmaIetaIeta) select = false;
-        }
-        else if(electron->isEE()) {
-          if (fabs(EleCand_deltaPhi[nEleCand])>cut_EE_deltaPhi) select = false;
-          if (fabs(EleCand_deltaEta[nEleCand])>cut_EE_deltaEta) select = false;
-          if (EleCand_HoverE[nEleCand]>cut_EE_HoverE) select = false;
-          if (EleCand_trackiso[nEleCand]>cut_EE_trackRel03) select = false;
-          if (EleCand_ecaliso[nEleCand]>cut_EE_ecalRel03) select = false;
-          if (EleCand_hcaliso[nEleCand]>cut_EE_hcalRel03) select = false;
-          if (EleCand_sigmaIetaIeta[nEleCand] > cut_EE_sigmaIetaIeta) select = false;
-        }
-      }
-      if(select) EleCand_wp80[nEleCand] = 1;
-      
-      // get reference to RECO electron
-      reco::GsfElectronRef ele(eleCollRECO, nEleCand);
-      
-      iso_ch =  (*(isoVals)[0])[ele];
-      iso_em = (*(isoVals)[1])[ele];
-      iso_nh = (*(isoVals)[2])[ele];
-
-      if(PassTriggerCuts(EgammaCutBasedEleId::TRIGGERTIGHT, ele) == true) {
-        selectmedium = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, recoVertexColl, iso_ch, iso_em, iso_nh, rhoIso, ElectronEffectiveArea::kEleEAData2012);
-        selectloose = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele, conversions_h, beamSpot, recoVertexColl, iso_ch, iso_em, iso_nh, rhoIso, ElectronEffectiveArea::kEleEAData2012);
-      }
-      if(selectmedium) EleCand_mediumID[nEleCand] = 1;
-      if(selectloose) EleCand_looseID[nEleCand] = 1;
-      
+      //reco::GsfElectron* electron 
+      EleCand_looseID[nEleCand] = (*loose_id_decisions)[electron];
+      EleCand_mediumID[nEleCand] = (*medium_id_decisions)[electron];
+      EleCand_tightID[nEleCand] = (*tight_id_decisions)[electron];
+ 
       nEleCand++;
     }
   }
@@ -595,7 +543,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //std::cout << "Passed Electron" << std::endl;
   
   // Get the PFlow collection from the event
-  iEvent.getByLabel(pflowLabel_, pflowColl);
+  iEvent.getByToken(pflowToken_, pflowColl);
   for(pflow=pflowColl->begin(); pflow!=pflowColl->end(); pflow++) { 
     parttype = reco::PFCandidate::ParticleType(pflow->particleId()); 
     if(parttype==4 && nPFPhotonCand<MAX_PHO) { 
@@ -618,7 +566,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       photdr = 999.;
       endphotdr = endphotdeta = endphotdphi = 999.;
       if (runOnMC_) {
-	for (Int_t j=0; j<nGenPhotCand; j++) { // matching with the 'true' photon object from MC
+	for (int j=0; j<nGenPhotCand; j++) { // matching with the 'true' photon object from MC
 	  photdeta = (PFPhotonCand_eta[nPFPhotonCand]-GenPhotCand_eta[j]);
 	  photdphi = (PFPhotonCand_phi[nPFPhotonCand]-GenPhotCand_phi[j]);
 	  photdr = sqrt(std::pow(photdeta, 2)+std::pow(photdphi, 2));
@@ -648,8 +596,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     etind = 0;
 
     for (vertex=vertices->begin(); vertex!=vertices->end() && vtxind<MAX_VTX; ++vertex) {
-      PrimaryVertex *_vtx;
-      Int_t leptonId_;
+      PrimaryVertexSelector vtx(leptonsType_, muonsMomenta, electronsMomenta);
+      int leptonId_;
 
       //(*logfile) << vertex->z() << std::endl;
 
@@ -658,26 +606,25 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       nQualityExtraTrack = 0;
       foundPairOnVertex = false;
       
-      _vtx = new PrimaryVertex(leptonsType_, muonsMomenta, electronsMomenta);
-      _vtx->SetPosition(vertex->x(), vertex->y(), vertex->z());
+      vtx.SetPosition(vertex->x(), vertex->y(), vertex->z());
 
       PrimVertexCand_id[vtxind] = vtxind;
-      PrimVertexCand_x[vtxind] = _vtx->Position.X();
-      PrimVertexCand_y[vtxind] = _vtx->Position.Y();
-      PrimVertexCand_z[vtxind] = _vtx->Position.Z();
+      PrimVertexCand_x[vtxind] = vtx.Position.X();
+      PrimVertexCand_y[vtxind] = vtx.Position.Y();
+      PrimVertexCand_z[vtxind] = vtx.Position.Z();
       PrimVertexCand_chi2[vtxind] = vertex->chi2();
       PrimVertexCand_ndof[vtxind] = vertex->ndof();
       
       closesttrkid = closesthighpuritytrkid = -1;
       // Loop on all the tracks matched with this vertex
       reco::Vertex::trackRef_iterator _track;
-      for (_track=vertex->tracks_begin(); _track!=vertex->tracks_end() && etind<MAX_ET && etind<(Int_t)maxExTrkVtx_; _track++) {
-	leptonId_ = _vtx->AddTrack((*_track).castTo<reco::TrackRef>(), *_leptonType);
+      for (_track=vertex->tracks_begin(); _track!=vertex->tracks_end() && etind<MAX_ET && etind<(int)maxExTrkVtx_; _track++) {
+	leptonId_ = vtx.AddTrack((*_track).castTo<reco::TrackRef>(), *_leptonType);
 	if (leptonId_==-1) { // Track was not matched to any of the leptons in the collection
           ExtraTrack_vtxId[etind] = vtxind;
-	  vtxdst = sqrt(std::pow(((*_track)->vertex().x()-_vtx->Position.X()),2)+
-			std::pow(((*_track)->vertex().y()-_vtx->Position.Y()),2)+
-			std::pow(((*_track)->vertex().z()-_vtx->Position.Z()),2));
+	  vtxdst = sqrt(std::pow(((*_track)->vertex().x()-vtx.Position.X()),2)+
+			std::pow(((*_track)->vertex().y()-vtx.Position.Y()),2)+
+			std::pow(((*_track)->vertex().z()-vtx.Position.Z()),2));
 	  
 	  ExtraTrack_purity[etind] = (*_track)->quality(reco::TrackBase::highPurity);
 	  ExtraTrack_nhits[etind] = (*_track)->numberOfValidHits();
@@ -693,9 +640,9 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  ExtraTrack_chi2[etind] = (*_track)->chi2();
 	  ExtraTrack_ndof[etind] = (*_track)->ndof();
           ExtraTrack_vtxdxyz[etind] = vtxdst;
-          ExtraTrack_vtxT[etind] = sqrt(std::pow((*_track)->vertex().x()-_vtx->Position.X(),2)+
-					std::pow((*_track)->vertex().y()-_vtx->Position.Y(),2));
-          ExtraTrack_vtxZ[etind] = fabs((*_track)->vertex().z()-_vtx->Position.Z());
+          ExtraTrack_vtxT[etind] = sqrt(std::pow((*_track)->vertex().x()-vtx.Position.X(),2)+
+					std::pow((*_track)->vertex().y()-vtx.Position.Y(),2));
+          ExtraTrack_vtxZ[etind] = fabs((*_track)->vertex().z()-vtx.Position.Z());
           ExtraTrack_x[etind] = (*_track)->vertex().x();
           ExtraTrack_y[etind] = (*_track)->vertex().y();
           ExtraTrack_z[etind] = (*_track)->vertex().z();
@@ -737,9 +684,9 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       ClosestHighPurityExtraTrack_vtxdxyz[vtxind] = closesthighpuritytrkdxyz;
       ClosestHighPurityExtraTrack_id[vtxind] = closesttrkid;
       
-      PrimVertexCand_tracks[vtxind] = _vtx->nTracks;
-      PrimVertexCand_matchedtracks[vtxind] = _vtx->nMatchedTracks;
-      PrimVertexCand_unmatchedtracks[vtxind] = _vtx->nUnmatchedTracks;
+      PrimVertexCand_tracks[vtxind] = vtx.nTracks;
+      PrimVertexCand_matchedtracks[vtxind] = vtx.nMatchedTracks;
+      PrimVertexCand_unmatchedtracks[vtxind] = vtx.nUnmatchedTracks;
 
       if (nLeptonsInPrimVertex<2) continue;
       
@@ -747,26 +694,26 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       Pair_candidates[vtxind][0] = -1;
       Pair_candidates[vtxind][1] = -1;
       
-      if (PrimVertexCand_unmatchedtracks[vtxind]>(Int_t)maxExTrkVtx_) continue; // cut on the upper number of extra tracks
+      if (PrimVertexCand_unmatchedtracks[vtxind]>(int)maxExTrkVtx_) continue; // cut on the upper number of extra tracks
 
       if (_fetchElectrons && _fetchMuons) { // Looks at electron+muon
 	// Not enough muons or electrons candidates on the vertex
-	if (_vtx->Electrons()==0 or _vtx->Muons()==0) {
+	if (vtx.Electrons()==0 or vtx.Muons()==0) {
 #ifdef DEBUG
-          std::cout << "Not enough electrons (" << _vtx->Electrons() << ") or muons (" << _vtx->Muons() << ") arising from the primary vertex !" << std::endl;
+          std::cout << "Not enough electrons (" << vtx.Electrons() << ") or muons (" << vtx.Muons() << ") arising from the primary vertex !" << std::endl;
 #endif
 	  continue;
 	}
 	minDist = 999.;
-	for(UInt_t i=0; i<_vtx->MatchedMuons.size(); i++) {
-	  lep1 = _vtx->MatchedMuons[i];
+	for(unsigned int i=0; i<vtx.MatchedMuons.size(); i++) {
+	  lep1 = vtx.MatchedMuons[i];
 
 	  TVector3 vtxlep1(MuonCand_vtxx[lep1], MuonCand_vtxy[lep1], MuonCand_vtxz[lep1]);
-	  MuonCand_dz[lep1] = _vtx->dZ(vtxlep1, lep1);
+	  MuonCand_dz[lep1] = vtx.dZ(vtxlep1, lep1);
 	  MuonCand_istight[lep1]&= (MuonCand_dz[lep1]<.5);
 
-	  for(UInt_t j=0; j<_vtx->MatchedElectrons.size(); j++) {
-            lep2 = _vtx->MatchedElectrons[j];
+	  for(unsigned int j=0; j<vtx.MatchedElectrons.size(); j++) {
+            lep2 = vtx.MatchedElectrons[j];
             if (MuonCand_charge[lep1]*EleCand_charge[lep2]>0) {
               continue;
             }
@@ -795,12 +742,12 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       else if (_fetchElectrons) { // Looks at dielectrons
 	// Not enough electrons candidates on the vertex
-	if (_vtx->MatchedElectrons.size()<2) continue;
+	if (vtx.MatchedElectrons.size()<2) continue;
         minDist = 999.;
-        for(UInt_t i=0; i<_vtx->MatchedElectrons.size(); i++) {
-          lep1 = _vtx->MatchedElectrons[i];
-          for(UInt_t j=i+1; j<_vtx->MatchedElectrons.size(); j++) {
-            lep2 = _vtx->MatchedElectrons[j];
+        for(unsigned int i=0; i<vtx.MatchedElectrons.size(); i++) {
+          lep1 = vtx.MatchedElectrons[i];
+          for(unsigned int j=i+1; j<vtx.MatchedElectrons.size(); j++) {
+            lep2 = vtx.MatchedElectrons[j];
             if (EleCand_charge[lep1]*EleCand_charge[lep2]>0) {
               continue;
             }
@@ -829,20 +776,20 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       else if (_fetchMuons) { // Looks at dimuons
 	// Not enough muons candidates on the vertex
-	if (_vtx->MatchedMuons.size()<2) continue;
+	if (vtx.MatchedMuons.size()<2) continue;
         minDist = 999.;
-        for(UInt_t i=0; i<_vtx->MatchedMuons.size(); i++) {
-          lep1 = _vtx->MatchedMuons[i];
+        for(unsigned int i=0; i<vtx.MatchedMuons.size(); i++) {
+          lep1 = vtx.MatchedMuons[i];
 
 	  TVector3 vtxlep1(MuonCand_vtxx[lep1], MuonCand_vtxy[lep1], MuonCand_vtxz[lep1]);
-	  MuonCand_dz[lep1] = _vtx->dZ(vtxlep1, lep1);
+	  MuonCand_dz[lep1] = vtx.dZ(vtxlep1, lep1);
 	  MuonCand_istight[lep1]&= (MuonCand_dz[lep1]<.5);
 
-          for(UInt_t j=i+1; j<_vtx->MatchedMuons.size(); j++) {
-            lep2 = _vtx->MatchedMuons[j];
+          for(unsigned int j=i+1; j<vtx.MatchedMuons.size(); j++) {
+            lep2 = vtx.MatchedMuons[j];
 
 	    TVector3 vtxlep2(MuonCand_vtxx[lep2], MuonCand_vtxy[lep2], MuonCand_vtxz[lep2]);
-	    MuonCand_dz[lep2] = _vtx->dZ(vtxlep2, lep2);
+	    MuonCand_dz[lep2] = vtx.dZ(vtxlep2, lep2);
 	    MuonCand_istight[lep2]&= (MuonCand_dz[lep2]<.5);
 
             if (MuonCand_charge[lep1]*MuonCand_charge[lep2]>0) {
@@ -879,12 +826,12 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	Pair_mindist[vtxind] = minDist;
 #ifdef DEBUG
       	std::cout << "Matched muons : " << std::endl;
-      	for (i=0; i<_vtx->MatchedMuons.size(); i++) {
-      	  std::cout << "-> " << _vtx->MatchedMuons[i] << std::endl;
+      	for (i=0; i<vtx.MatchedMuons.size(); i++) {
+      	  std::cout << "-> " << vtx.MatchedMuons[i] << std::endl;
       	}
       	std::cout << "Matched electrons : " << std::endl;
-      	for (i=0; i<_vtx->MatchedElectrons.size(); i++) {
-      	  std::cout << "-> " << _vtx->MatchedElectrons[i] << std::endl;
+      	for (i=0; i<vtx.MatchedElectrons.size(); i++) {
+      	  std::cout << "-> " << vtx.MatchedElectrons[i] << std::endl;
         }
 #endif
         pair = l1+l2;
@@ -898,7 +845,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         Pair_dpt[vtxind] = fabs(l1.Pt()-l2.Pt());
         Pair_3Dangle[vtxind] = (l1.Angle(l2.Vect()))/pi;
         
-        for (Int_t j=0; j<nPFPhotonCand; j++) {
+        for (int j=0; j<nPFPhotonCand; j++) {
           pairgmass = sqrt(std::pow(l1.P() +l2.P() +PFPhotonCand_p[j], 2)-
 			   std::pow(l1.Px()+l2.Px()+PFPhotonCand_px[j], 2)-
 			   std::pow(l1.Py()+l2.Py()+PFPhotonCand_py[j], 2)-
@@ -914,8 +861,6 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
 
       vtxind++;
-
-      delete _vtx;
     }
     nFilteredPrimVertexCand = vtxind;
     //std::cout << "end of the loop on the vertices : vtxind = " << vtxind << std::endl;
@@ -927,7 +872,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // Get the Jet collection from the event
   // PAT
-  iEvent.getByLabel(jetLabel_, jetColl);
+  iEvent.getByToken(jetToken_, jetColl);
   for (jet=jetColl->begin(); jet!=jetColl->end() && nJetCand<MAX_JETS; jet++) {
     JetCand_e[nJetCand] = jet->energy();
     JetCand_px[nJetCand] = jet->px();
@@ -952,7 +897,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //std::cout << "Passed Loop on jets" << std::endl;
 
   // Missing ET
-  iEvent.getByLabel(metLabel_, MET); 
+  iEvent.getByToken(metToken_, MET); 
   const reco::PFMETCollection* metColl = MET.product(); 
   met = metColl->begin();
   
@@ -1058,9 +1003,9 @@ GammaGammaLL::beginJob()
     tree_->Branch("EleCand_convDist", EleCand_convDist, "EleCand_convDist[nEleCand]/D"); 
     tree_->Branch("EleCand_convDcot", EleCand_convDcot, "EleCand_convDcot[nEleCand]/D"); 
     tree_->Branch("EleCand_ecalDriven", EleCand_ecalDriven, "EleCand_ecalDriven[nEleCand]/D");  
-    tree_->Branch("EleCand_wp80", EleCand_wp80, "EleCand_wp80[nEleCand]/I");   
     tree_->Branch("EleCand_mediumID", EleCand_mediumID, "EleCand_mediumID[nEleCand]/I");    
     tree_->Branch("EleCand_looseID", EleCand_looseID, "EleCand_looseID[nEleCand]/I");   
+    tree_->Branch("EleCand_tightID", EleCand_tightID, "EleCand_tightID[nEleCand]/I");   
     /*tree_->Branch("EleCand_looseid", EleCand_looseid,"EleCand_looseid[nEleCand]/I");
     tree_->Branch("EleCand_likelihoodid", EleCand_likelihoodid,"EleCand_likelihoodid[nEleCand]/D");
     tree_->Branch("EleCand_robustid", EleCand_robustid,"EleCand_robustid[nEleCand]/I");*/
@@ -1238,8 +1183,8 @@ GammaGammaLL::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
       // check if trigger name in (new) config
       triggerName_ = "HLT_DoubleMu0";
       if (triggerName_!="@") { // "@" means: analyze all triggers in config
-        const UInt_t n = hltConfig_.size();
-        const UInt_t triggerIndex = hltConfig_.triggerIndex(triggerName_);
+        const unsigned int n = hltConfig_.size();
+        const unsigned int triggerIndex = hltConfig_.triggerIndex(triggerName_);
         if (triggerIndex>=n) {
           std::cout << "GammaGammaMuMu::analyze:"
                     << " TriggerName " << triggerName_ 
@@ -1261,6 +1206,7 @@ GammaGammaLL::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
               << hltMenuLabel_
 	      << std::endl;
   }
+  hltPrescale_.init(iRun, iSetup, hltMenuLabel_, changed);
 }
 
 // ------------ method called when ending the processing of a run  ------------
@@ -1289,112 +1235,6 @@ GammaGammaLL::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
-}
-
-/// Class PrimaryVertex
-
-//
-// constructors and destructor
-//
-PrimaryVertex::PrimaryVertex(std::vector<std::string>& _leptonsType, std::map<Int_t,TLorentzVector>& _muonsMomenta, std::map<Int_t,TLorentzVector>& _electronsMomenta) :
-  nTracks(0),
-  nMatchedTracks(0),
-  nUnmatchedTracks(0),
-  nMatchedMuons(0),
-  nMatchedElectrons(0),
-  FetchMuons(false),
-  FetchElectrons(false)
-{
-  //LeptonsType = _leptonsType;
-  for (i=0; i<_leptonsType.size(); i++) {
-    if (_leptonsType[i]=="Muon") {
-      FetchMuons = true;
-    }
-    else if (_leptonsType[i]=="Electron") {
-      FetchElectrons = true;
-    }
-  }
-  MuonMomenta = _muonsMomenta;
-  ElectronMomenta = _electronsMomenta;
-}
-
-PrimaryVertex::~PrimaryVertex() {
-}
-
-void
-PrimaryVertex::SetPosition(Double_t _x, Double_t _y, Double_t _z)
-{
-  Position.SetXYZ(_x, _y, _z);
-#ifdef DEBUG
-  std::cout << "[PrimaryVertex] SetPosition :: Vertex located at (" << Position.x() << ", " << Position.y() << ", " << Position.z() << ")" << std::endl;
-#endif
-}
-
-/**
- * \brief Matches a track arising from the vertex with a lepton track from the
- *  internal collection
- */
-Int_t
-PrimaryVertex::AddTrack(const reco::TrackRef& _track, TString& _leptonType)
-{
-  nTracks++; // total number of tracks matched with the vertex
-  std::map<Int_t,TLorentzVector>::iterator lep;
-  for (lep=MuonMomenta.begin(); lep!=MuonMomenta.end(); lep++) {
-    if (fabs(_track->p()-lep->second.P())>.01) continue;
-    if (fabs(_track->pt()-lep->second.Pt())>.01) continue;
-    if (fabs(_track->eta()-lep->second.Eta())>.01) continue;
-    if (fabs(_track->phi()-lep->second.Phi())>.01) continue;
-    _leptonType = "muon";
-    MatchedMuons.push_back(lep->first);
-    nMatchedMuons++;
-    nMatchedTracks++;
-    return lep->first;
-  }
-  for (lep=ElectronMomenta.begin(); lep!=ElectronMomenta.end(); lep++) {
-    if (fabs(_track->p()-lep->second.P())>.01) continue;
-    if (fabs(_track->pt()-lep->second.Pt())>.01) continue;
-    if (fabs(_track->eta()-lep->second.Eta())>.01) continue;
-    if (fabs(_track->phi()-lep->second.Phi())>.01) continue;
-    _leptonType = "electron";
-    MatchedElectrons.push_back(lep->first);
-    nMatchedElectrons++;
-    nMatchedTracks++;
-    return lep->first;
-  }
-  nUnmatchedTracks++;
-  return -1;
-}
-
-Double_t
-PrimaryVertex::dZ(TVector3 _vmu, Int_t _muind)
-{
-  TLorentzVector m(MuonMomenta[_muind]);
-  return (_vmu.Z()-Position.Z())-((_vmu.X()-Position.X())*m.Px()+(_vmu.Y()-Position.Y())*m.Py())/m.Pt()*m.Pz()/m.Pt();
-}
-
-HLTmatches::HLTmatches(std::vector<std::string> _HLTlist)
-{
-  for (i=0; i<_HLTlist.size(); i++) {
-    HLTnames.push_back(_HLTlist[i].substr(0, _HLTlist[i].find_first_of("*")));
-  }
-#ifdef DEBUG
-  for (i=0; i<HLTnames.size(); i++) {
-    std::cout << i << " ==> " << HLTnames[i] << std::endl;
-  }
-#endif
-}
-
-HLTmatches::~HLTmatches()
-{
-}
-
-Int_t
-HLTmatches::TriggerNum(std::string _trigName)
-{
-  for (i=0; i<HLTnames.size(); i++) {
-    if (_trigName.find(HLTnames[i])!=std::string::npos) return i;
-  }
-  return -1;
 }
 
 //define this as a plug-in

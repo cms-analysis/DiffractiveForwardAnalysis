@@ -22,7 +22,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 #########################
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      '/store/data/Run2012A/SingleMu/AOD/22Jan2013-v1/20000/002F5062-346F-E211-BF00-1CC1DE04DF20.root',
+      #'/store/data/Run2012A/SingleMu/AOD/22Jan2013-v1/20000/002F5062-346F-E211-BF00-1CC1DE04DF20.root',
+      '/store/mc/Run2015D/DoubleEG/AOD/04Dec2015-v1/10000/04D11E1B-BB9E-E511-AC1A-047D7B881D62.root',
     ),
     firstEvent = cms.untracked.uint32(540)
 )
@@ -40,7 +41,10 @@ process.hltFilter.HLTPaths = ['HLT_Mu10_Ele10_CaloIdL_*', 'HLT_Mu8_Ele17_*', 'HL
 process.load("Configuration.StandardSequences.GeometryDB_cff") ## FIXME need to ensure that this is the good one
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = cms.string('START52_V9::All')
-process.GlobalTag.globaltag = cms.string('FT_R_53_V6::All')
+#process.GlobalTag.globaltag = cms.string('FT_R_53_V6::All')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data')
+
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
@@ -77,15 +81,15 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 #
 # rho value for isolation
 #
-from RecoJets.JetProducers.kt4PFJets_cfi import *
-process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
-process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
+#from RecoJets.JetProducers.kt4PFJets_cfi import *
+#process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+#process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
 #
 # Particle flow isolation
 #
-from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFMuonIso
-process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
-process.pfiso = cms.Sequence(process.pfParticleSelectionSequence + process.eleIsoSequence)
+#from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFMuonIso
+#process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
+#process.pfiso = cms.Sequence(process.pfParticleSelectionSequence + process.eleIsoSequence)
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *',
@@ -101,14 +105,22 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 # Particle flow
-from PhysicsTools.PatAlgos.tools.pfTools import *
-postfix = "PFlow"
-jetAlgo="AK5" 
-#usePFBRECO(process,runPFBRECO=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix) 
-usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix)
-useGsfElectrons(process,postfix)
-removeCleaning(process)
-removeMCMatching(process, ['All'])
+#from PhysicsTools.PatAlgos.tools.pfTools import *
+#postfix = "PFlow"
+#jetAlgo="AK5" 
+##usePFBRECO(process,runPFBRECO=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix) 
+#usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix)
+#useGsfElectrons(process,postfix)
+#removeCleaning(process)
+#removeMCMatching(process, ['All'])
+
+useAOD = False
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+
+if useAOD==True: dataFormat = DataFormat.AOD
+else:            dataFormat = DataFormat.MiniAOD
+switchOnVIDElectronIdProducer(process, dataFormat)
+setupAllVIDIdsInModule(process, 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff', setupVIDElectronSelection)
 
 #########################
 #       Analysis        #
@@ -129,12 +141,13 @@ process.ggll.RunOnMC = cms.untracked.bool(runOnMC)
 process.ggll.outfilename = cms.untracked.string('output.root')
 
 process.p = cms.Path(
+    process.egmGsfElectronIDSequence+
     #process.scrapingVeto+
-    process.kt6PFJetsForIsolation+
-    process.pfiso+
+    #process.kt6PFJetsForIsolation+
+    #process.pfiso+
     process.primaryVertexFilter+
     process.patDefaultSequence+
-    getattr(process,"patPF2PATSequence"+postfix)+
+    #getattr(process,"patPF2PATSequence"+postfix)+
     process.ggll
 )
-getattr(process,"pfNoElectron"+postfix).enable = True
+#getattr(process,"pfNoElectron"+postfix).enable = True
