@@ -137,7 +137,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       std::ofstream *logfile;
       
       // Input tags
-      std::string hltMenuLabel_, outputFile_;
+      std::string outputFile_, hltMenuLabel_;
       std::vector<std::string> triggersList_, leptonsType_;
       edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
       edm::EDGetTokenT<reco::VertexCollection> recoVertexToken_;

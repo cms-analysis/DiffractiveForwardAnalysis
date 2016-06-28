@@ -23,9 +23,11 @@
 // constructors and destructor
 //
 GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
+  outputFile_         (iConfig.getUntrackedParameter<std::string>("outfilename", "output.root")),
+  hltMenuLabel_       (iConfig.getParameter<std::string>("HLTMenuLabel")),
+  triggersList_       (iConfig.getParameter<std::vector<std::string> >("TriggersList")),
   //beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"))),
   recoVertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("RecoVertexLabel"))),
-  //genToken_(0),
   muonToken_          (consumes< edm::View<pat::Muon> >           (iConfig.getUntrackedParameter<edm::InputTag>("GlobalMuonCollectionLabel", std::string("muons")))),
   eleToken_           (consumes< edm::View<pat::Electron> >       (iConfig.getUntrackedParameter<edm::InputTag>("GlobalEleCollectionLabel", std::string("gsfElectrons")))),
   eleLooseIdMapToken_ (consumes< edm::ValueMap<bool> >            (iConfig.getParameter<edm::InputTag>("eleLooseIdMap"))),
@@ -36,36 +38,32 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
   pflowToken_         (consumes< edm::View<pat::PackedCandidate> >(iConfig.getUntrackedParameter<edm::InputTag>("PFLabel", std::string("particleFlow")))),
   jetToken_           (consumes< edm::View<pat::Jet> >            (iConfig.getParameter<edm::InputTag>("JetCollectionLabel"))),
   metToken_           (consumes< edm::View<pat::MET> >            (iConfig.getParameter<edm::InputTag>("MetLabel"))),
-  runOnMC_            (iConfig.getUntrackedParameter<bool>("RunOnMC", true)),
+  runOnMC_            (iConfig.getUntrackedParameter<bool>("RunOnMC", false)),
   sqrts_              (iConfig.getParameter<double>("SqrtS")),
+  maxExTrkVtx_        (iConfig.getUntrackedParameter<unsigned int>("maxExtraTracks", 1000)),
   hltPrescale_        (iConfig, consumesCollector(), *this) 
 {
   //now do what ever initialization is needed
-  _fetchMuons = false;
-  _fetchElectrons = false;
-  outputFile_ = iConfig.getUntrackedParameter<std::string>("outfilename", "output.root");
   
-  hltMenuLabel_ = iConfig.getParameter<std::string>("HLTMenuLabel");
-  triggersList_ = iConfig.getParameter<std::vector<std::string> >("TriggersList");
   _hlts = new HLTMatcher(triggersList_);
-  nHLT = triggersList_.size();
-	
-  maxExTrkVtx_ = iConfig.getUntrackedParameter<unsigned int>("maxExtraTracks", 1000);
+  nHLT = triggersList_.size();	
   
   // Generator level
   if (runOnMC_) {
     genToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("GenParticlesCollectionLabel"));
+    minPtMC_ = iConfig.getUntrackedParameter<double>("MCAcceptPtCut", 20.);
+    minEtaMC_ = iConfig.getUntrackedParameter<double>("MCAcceptEtaCut", 2.5);
+
+    // Pileup input tags
+    mcPileupFile_ = iConfig.getUntrackedParameter<std::string>("mcpufile", "PUHistos.root");
+    mcPileupPath_ = iConfig.getUntrackedParameter<std::string>("mcpupath", "pileup");
+    dataPileupFile_ = iConfig.getUntrackedParameter<std::string>("datapufile", "PUHistos_duplicated.root");
+    dataPileupPath_ = iConfig.getUntrackedParameter<std::string>("datapupath", "pileup");  
   }
-  minPtMC_ = iConfig.getUntrackedParameter<double>("MCAcceptPtCut", 20.);
-  minEtaMC_ = iConfig.getUntrackedParameter<double>("MCAcceptEtaCut", 2.5);
-  
-  // Pileup input tags
-  mcPileupFile_ = iConfig.getUntrackedParameter<std::string>("mcpufile", "PUHistos.root");
-  mcPileupPath_ = iConfig.getUntrackedParameter<std::string>("mcpupath", "pileup");
-  dataPileupFile_ = iConfig.getUntrackedParameter<std::string>("datapufile", "PUHistos_duplicated.root");
-  dataPileupPath_ = iConfig.getUntrackedParameter<std::string>("datapupath", "pileup");
   
   // Leptons input tags
+  _fetchMuons = false;
+  _fetchElectrons = false;
   leptonsType_ = iConfig.getParameter< std::vector<std::string> >("LeptonsType");
   for (i=0; i<leptonsType_.size(); i++) {
     if (leptonsType_[i]=="Muon") _fetchMuons = true;
@@ -103,7 +101,6 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
 
     LumiWeights = new edm::LumiReWeighting(mcPileupFile_, dataPileupFile_, mcPileupPath_, dataPileupPath_);
   }
-
 }
 
 
@@ -1174,39 +1171,19 @@ GammaGammaLL::endJob()
 void 
 GammaGammaLL::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
-  bool changed;
-  std::string triggerName_;
-  
-  changed = true;
-  if (hltConfig_.init(iRun, iSetup, hltMenuLabel_, changed)) {
-    if (changed) {
-      // check if trigger name in (new) config
-      triggerName_ = "HLT_DoubleMu0";
-      if (triggerName_!="@") { // "@" means: analyze all triggers in config
-        const unsigned int n = hltConfig_.size();
-        const unsigned int triggerIndex = hltConfig_.triggerIndex(triggerName_);
-        if (triggerIndex>=n) {
-          std::cout << "GammaGammaMuMu::analyze:"
-                    << " TriggerName " << triggerName_ 
-                    << " not available in (new) config!"
-		    << std::endl;
-          //std::cout << "Available TriggerNames are: " << std::endl;
-          //hltConfig_.dump("Triggers");
-        }
-      }
-      //hltConfig_.dump("Streams");
-      //hltConfig_.dump("Datasets");
-      //hltConfig_.dump("PrescaleTable");
-      //hltConfig_.dump("ProcessPSet");
-    }
-  }
-  else {
-    std::cout << "GammaGammaMuMu::beginRun:"
+  bool changed = true;
+  if (!hltConfig_.init(iRun, iSetup, hltMenuLabel_, changed)) {
+    std::cout << __PRETTY_FUNCTION__ << ":"
               << " config extraction failure with process name "
               << hltMenuLabel_
 	      << std::endl;
   }
-  hltPrescale_.init(iRun, iSetup, hltMenuLabel_, changed);
+  if (!hltPrescale_.init(iRun, iSetup, hltMenuLabel_, changed)) {
+    std::cout << __PRETTY_FUNCTION__ << ":"
+              << " prescales extraction failure with process name "
+              << hltMenuLabel_
+	      << std::endl;
+  }
 }
 
 // ------------ method called when ending the processing of a run  ------------
