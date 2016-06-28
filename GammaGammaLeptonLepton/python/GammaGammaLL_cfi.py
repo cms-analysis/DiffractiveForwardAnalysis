@@ -31,3 +31,13 @@ ggll = cms.EDAnalyzer(
     GenParticlesCollectionLabel = cms.InputTag('genParticles'),
     PrintCandidates = cms.untracked.bool(False),
 )
+
+ggll_miniaod = ggll.clone()
+ggll_miniaod.HLTMenuLabel = cms.string('TriggerResults')
+ggll_miniaod.RecoVertexLabel = cms.InputTag('offlineSlimmedPrimaryVertices')
+ggll_miniaod.GlobalMuonCollectionLabel = cms.untracked.InputTag("slimmedMuons") # PAT
+ggll_miniaod.GlobalEleCollectionLabel = cms.untracked.InputTag("slimmedElectrons") # PAT
+ggll_miniaod.JetCollectionLabel = cms.InputTag('slimmedJetsAK8')
+ggll_miniaod.MetLabel = cms.InputTag('slimmedMETs') # PAT
+ggll_miniaod.GenParticlesCollectionLabel = cms.InputTag('prunedGenParticles')
+ggll_miniaod.PFLabel = cms.untracked.InputTag('packedPFCandidates')

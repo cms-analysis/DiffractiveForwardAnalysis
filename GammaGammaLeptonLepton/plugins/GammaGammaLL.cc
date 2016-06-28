@@ -26,8 +26,9 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
   outputFile_         (iConfig.getUntrackedParameter<std::string>("outfilename", "output.root")),
   hltMenuLabel_       (iConfig.getParameter<std::string>("HLTMenuLabel")),
   triggersList_       (iConfig.getParameter<std::vector<std::string> >("TriggersList")),
-  //beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"))),
-  recoVertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("RecoVertexLabel"))),
+  //beamSpotToken_      (consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"))),
+  recoVertexToken_    (consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("RecoVertexLabel"))),
+  triggerResultsToken_(consumes<edm::TriggerResults>              (hltMenuLabel_)),
   muonToken_          (consumes< edm::View<pat::Muon> >           (iConfig.getUntrackedParameter<edm::InputTag>("GlobalMuonCollectionLabel", std::string("muons")))),
   eleToken_           (consumes< edm::View<pat::Electron> >       (iConfig.getUntrackedParameter<edm::InputTag>("GlobalEleCollectionLabel", std::string("gsfElectrons")))),
   eleLooseIdMapToken_ (consumes< edm::ValueMap<bool> >            (iConfig.getParameter<edm::InputTag>("eleLooseIdMap"))),
@@ -68,6 +69,11 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
   for (i=0; i<leptonsType_.size(); i++) {
     if (leptonsType_[i]=="Muon") _fetchMuons = true;
     else if (leptonsType_[i]=="Electron") _fetchElectrons = true;
+    else {
+      throw cms::Exception("GammaGammaLL") << "'LeptonsType' parameter should either be:\n"
+                                           << "   * ['Electron'], or ['Muon']  (for same-flavour leptons)\n"
+                                           << "   * ['Electron', 'Muon']       (for electron-muon pairs)";
+    }
   }
   ///isoValToken_ = consumes<iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags");
   
@@ -103,10 +109,8 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
   }
 }
 
-
 GammaGammaLL::~GammaGammaLL()
 {
- 
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
   /*const edm::ParameterSet& pset = edm::getProcessParameterSet();
@@ -117,13 +121,9 @@ GammaGammaLL::~GammaGammaLL()
 
   logfile->close();
 
-  logfile->close();
-
   delete _hlts;
   delete tree_;
-
 }
-
 
 //
 // member functions
@@ -135,8 +135,8 @@ GammaGammaLL::LookAtTriggers(const edm::Event& iEvent, const edm::EventSetup& iS
   int trigNum;
 	
   // Get the trigger information from the event
-  iEvent.getByLabel(edm::InputTag("TriggerResults","",hltMenuLabel_),hltResults_) ; 
-  const edm::TriggerNames & trigNames = iEvent.triggerNames(*hltResults_);
+  iEvent.getByToken(triggerResultsToken_, hltResults_);
+  const edm::TriggerNames& trigNames = iEvent.triggerNames(*hltResults_);
 
   for (unsigned int i=0; i<trigNames.size(); i++) {
     //std::cout << "--> " << trigNames.triggerNames().at(i) << std::endl;
@@ -145,6 +145,7 @@ GammaGammaLL::LookAtTriggers(const edm::Event& iEvent, const edm::EventSetup& iS
     HLT_Accept[trigNum] = hltResults_->accept(i) ? 1 : 0;
     int prescale_set = hltPrescale_.prescaleSet(iEvent, iSetup);
     HLT_Prescl[trigNum] = hltConfig_.prescaleValue(prescale_set, trigNames.triggerNames().at(i));
+    HLT_Name[trigNum] = trigNames.triggerNames().at(i);
     
     //LF FIXME need to think about that implementation...
     /*if (trigNames.triggerNames().at(i).find("CaloIdL")) {} // Leading lepton
@@ -162,83 +163,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //std::cout << "Beginning First init" << std::endl;
 
   // First initialization of the variables
-  nCandidatesInEvent = 0;
-  nPrimVertexCand = nFilteredPrimVertexCand = -1;
-  nMuonCand = nEleCand = nLeptonCand = 0;
-  nExtraTracks = nQualityExtraTrack = 0;
-  nJetCand = 0;
-  nGenMuonCand = nGenMuonCandOutOfAccept = 0;
-  nGenEleCand = nGenEleCandOutOfAccept = 0;
-  nGenPhotCand = nGenPhotCandOutOfAccept = 0;
-  nGenProtCand = 0;
-  nPFPhotonCand = 0;
+  clearTree();
 
-  HPS_acc420b1 = HPS_acc220b1 = HPS_acc420and220b1 = HPS_acc420or220b1 = -1;
-  HPS_acc420b2 = HPS_acc220b2 = HPS_acc420and220b2 = HPS_acc420or220b2 = -1;
-  GenPair_p = GenPair_pt = GenPair_mass = GenPair_phi = GenPair_eta = -999.;
-  GenPair_dphi = GenPair_dpt = GenPair_3Dangle = 0.;
-
-  closesttrkdxyz = closesthighpuritytrkdxyz = 999.;
-  for (i=0; i<MAX_LL; i++) {
-    MuonCand_p[i] = MuonCand_px[i] = MuonCand_py[i] = MuonCand_pz[i] = -999.;
-    MuonCand_pt[i] = MuonCand_eta[i] = MuonCand_phi[i] = -999.;
-    MuonCand_charge[i] = -999;
-    MuonCand_vtxx[i] = MuonCand_vtxy[i] = MuonCand_vtxz[i] = -999.;
-    MuonCand_npxlhits[i] = MuonCand_nstatseg[i] = MuonCand_ntrklayers[i] = -999;
-    MuonCand_dxy[i] = MuonCand_dz[i] = -999.;
-    MuonCand_isglobal[i] = MuonCand_istracker[i] = MuonCand_isstandalone[i] = MuonCand_ispfmuon[i] = -999;
-    MuonCand_istight[i] = -999;
-    MuonCandTrack_nmuchits[i] = -999;
-    MuonCandTrack_chisq[i] = -999.;
-    EleCand_e[i] = EleCand_et[i] = EleCand_px[i] = EleCand_py[i] = EleCand_pz[i] = -999.;
-    EleCand_p[i] = EleCand_phi[i] = EleCand_eta[i] = -999.;
-    EleCand_charge[i] = -999;
-    EleCand_vtxx[i] = EleCand_vtxy[i] = EleCand_vtxz[i] = -999.;
-    EleCandTrack_p[i] = EleCandTrack_pt[i] = EleCandTrack_eta[i] = EleCandTrack_phi[i] = -999.; 
-    EleCandTrack_vtxz[i] = -999.;
-    EleCand_deltaPhi[i] = EleCand_deltaEta[i] = EleCand_HoverE[i] = -999.;
-    EleCand_trackiso[i] = EleCand_ecaliso[i] = EleCand_hcaliso[i] = EleCand_sigmaIetaIeta[i] = -999.;
-    EleCand_convDist[i] = EleCand_convDcot[i] = EleCand_ecalDriven[i] = -999.;
-    EleCand_tightID[i] = EleCand_mediumID[i] = EleCand_looseID[i] = -1;
-  }
-  for (i=0; i<MAX_ET && i<maxExTrkVtx_; i++) {
-    ExtraTrack_p[i] = ExtraTrack_px[i] = ExtraTrack_py[i] = ExtraTrack_pz[i] = -999.;
-    ExtraTrack_pt[i] = ExtraTrack_eta[i] = ExtraTrack_phi[i] = -999.;
-    ExtraTrack_charge[i] = ExtraTrack_ndof[i] = -999;
-    ExtraTrack_chi2[i] = ExtraTrack_vtxdxyz[i] = -999.;
-    ExtraTrack_vtxT[i] = ExtraTrack_vtxZ[i] = -999.;
-    ExtraTrack_x[i] = ExtraTrack_y[i] = ExtraTrack_z[i] = -999.;
-    ExtraTrack_vtxId[i] = -1;
-  }
-  for (i=0; i<MAX_PAIRS; i++) {
-    Pair_candidates[i][0] = Pair_candidates[i][1] = -1;
-    Pair_mindist[i] = Pair_p[i] = Pair_pt[i] = Pair_mass[i] = Pair_phi[i] = Pair_eta[i] = -999.;
-    Pair_dphi[i] = Pair_dpt[i] = Pair_3Dangle[i] = -999.;
-    Pair_extratracks1mm[i] = Pair_extratracks2mm[i] = Pair_extratracks3mm[i] = 0;
-    Pair_extratracks4mm[i] = Pair_extratracks5mm[i] = Pair_extratracks1cm[i] = 0;
-    Pair_extratracks2cm[i] = Pair_extratracks3cm[i] = Pair_extratracks4cm[i] = 0;
-    Pair_extratracks5cm[i] = Pair_extratracks10cm[i] = 0;    
-  }
-  for (i=0; i<MAX_VTX; i++) {
-    PrimVertexCand_id[i] = -1;
-    PrimVertexCand_tracks[i] = PrimVertexCand_matchedtracks[i] = PrimVertexCand_unmatchedtracks[i] = PrimVertexCand_hasdil[i] = 0;
-    PrimVertexCand_x[i] = PrimVertexCand_y[i] = PrimVertexCand_z[i] = -999.;
-    PrimVertexCand_chi2[i] = PrimVertexCand_ndof[i] = -999.;
-  }
-  for (i=0; i<MAX_PHO; i++) { 
-    PFPhotonCand_p[i] = PFPhotonCand_pt[i] = -999.;
-    PFPhotonCand_px[i] = PFPhotonCand_py[i] = PFPhotonCand_pz[i] = -999.;
-    PFPhotonCand_eta[i] = PFPhotonCand_phi[i] = -999.;
-    PFPhotonCand_detatrue[i] = PFPhotonCand_dphitrue[i] = PFPhotonCand_drtrue[i] = -999.;
-  }
-  for (i=0; i<MAX_JETS; i++) {
-    JetCand_px[i] = JetCand_py[i] = JetCand_pz[i] = -999.;
-    JetCand_e[i] = JetCand_phi[i] = JetCand_eta[i] = -999;
-  }
-  HighestJet_e = HighestJet_eta = HighestJet_phi = -999.;
-  HEJet_e = SumJet_e = totalJetEnergy = 0.;
-  Etmiss = Etmiss_x = Etmiss_y = Etmiss_z = Etmiss_significance = -999.;
-  
   Weight = 1.;
   
   foundPairInEvent = false;
@@ -542,7 +468,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Get the PFlow collection from the event
   iEvent.getByToken(pflowToken_, pflowColl);
   for(pflow=pflowColl->begin(); pflow!=pflowColl->end(); pflow++) { 
-    parttype = reco::PFCandidate::ParticleType(pflow->particleId()); 
+    parttype = reco::PFCandidate::ParticleType(pflow->pdgId()); 
     if(parttype==4 && nPFPhotonCand<MAX_PHO) { 
       if(nPFPhotonCand==0) { 
         leadingphotpx = pflow->px(); 
@@ -895,7 +821,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Missing ET
   iEvent.getByToken(metToken_, MET); 
-  const reco::PFMETCollection* metColl = MET.product(); 
+  const edm::View<pat::MET>* metColl = MET.product(); 
   met = metColl->begin();
   
   Etmiss = met->et();
@@ -932,6 +858,7 @@ GammaGammaLL::beginJob()
   tree_->Branch("nHLT", &nHLT, "nHLT/I");
   tree_->Branch("HLT_Accept", HLT_Accept, "HLT_Prescl[nHLT]/I");
   tree_->Branch("HLT_Prescl", HLT_Prescl, "HLT_Prescl[nHLT]/I");
+  tree_->Branch("HLT_Name", HLT_Name);
   
   if (_fetchMuons) {
     tree_->Branch("nMuonCand", &nMuonCand, "nMuonCand/I");
@@ -1158,6 +1085,87 @@ GammaGammaLL::beginJob()
   tree_->Branch("PUWeightTrue", &PUWeightTrue, "PUWeightTrue/D");
 
   nCandidates = 0;
+}
+
+void
+GammaGammaLL::clearTree()
+{
+  nCandidatesInEvent = 0;
+  nPrimVertexCand = nFilteredPrimVertexCand = -1;
+  nMuonCand = nEleCand = nLeptonCand = 0;
+  nExtraTracks = nQualityExtraTrack = 0;
+  nJetCand = 0;
+  nGenMuonCand = nGenMuonCandOutOfAccept = 0;
+  nGenEleCand = nGenEleCandOutOfAccept = 0;
+  nGenPhotCand = nGenPhotCandOutOfAccept = 0;
+  nGenProtCand = 0;
+  nPFPhotonCand = 0;
+
+  HPS_acc420b1 = HPS_acc220b1 = HPS_acc420and220b1 = HPS_acc420or220b1 = -1;
+  HPS_acc420b2 = HPS_acc220b2 = HPS_acc420and220b2 = HPS_acc420or220b2 = -1;
+  GenPair_p = GenPair_pt = GenPair_mass = GenPair_phi = GenPair_eta = -999.;
+  GenPair_dphi = GenPair_dpt = GenPair_3Dangle = 0.;
+
+  closesttrkdxyz = closesthighpuritytrkdxyz = 999.;
+  for (i=0; i<MAX_LL; i++) {
+    MuonCand_p[i] = MuonCand_px[i] = MuonCand_py[i] = MuonCand_pz[i] = -999.;
+    MuonCand_pt[i] = MuonCand_eta[i] = MuonCand_phi[i] = -999.;
+    MuonCand_charge[i] = -999;
+    MuonCand_vtxx[i] = MuonCand_vtxy[i] = MuonCand_vtxz[i] = -999.;
+    MuonCand_npxlhits[i] = MuonCand_nstatseg[i] = MuonCand_ntrklayers[i] = -999;
+    MuonCand_dxy[i] = MuonCand_dz[i] = -999.;
+    MuonCand_isglobal[i] = MuonCand_istracker[i] = MuonCand_isstandalone[i] = MuonCand_ispfmuon[i] = -999;
+    MuonCand_istight[i] = -999;
+    MuonCandTrack_nmuchits[i] = -999;
+    MuonCandTrack_chisq[i] = -999.;
+    EleCand_e[i] = EleCand_et[i] = EleCand_px[i] = EleCand_py[i] = EleCand_pz[i] = -999.;
+    EleCand_p[i] = EleCand_phi[i] = EleCand_eta[i] = -999.;
+    EleCand_charge[i] = -999;
+    EleCand_vtxx[i] = EleCand_vtxy[i] = EleCand_vtxz[i] = -999.;
+    EleCandTrack_p[i] = EleCandTrack_pt[i] = EleCandTrack_eta[i] = EleCandTrack_phi[i] = -999.; 
+    EleCandTrack_vtxz[i] = -999.;
+    EleCand_deltaPhi[i] = EleCand_deltaEta[i] = EleCand_HoverE[i] = -999.;
+    EleCand_trackiso[i] = EleCand_ecaliso[i] = EleCand_hcaliso[i] = EleCand_sigmaIetaIeta[i] = -999.;
+    EleCand_convDist[i] = EleCand_convDcot[i] = EleCand_ecalDriven[i] = -999.;
+    EleCand_tightID[i] = EleCand_mediumID[i] = EleCand_looseID[i] = -1;
+  }
+  for (i=0; i<MAX_ET && i<maxExTrkVtx_; i++) {
+    ExtraTrack_p[i] = ExtraTrack_px[i] = ExtraTrack_py[i] = ExtraTrack_pz[i] = -999.;
+    ExtraTrack_pt[i] = ExtraTrack_eta[i] = ExtraTrack_phi[i] = -999.;
+    ExtraTrack_charge[i] = ExtraTrack_ndof[i] = -999;
+    ExtraTrack_chi2[i] = ExtraTrack_vtxdxyz[i] = -999.;
+    ExtraTrack_vtxT[i] = ExtraTrack_vtxZ[i] = -999.;
+    ExtraTrack_x[i] = ExtraTrack_y[i] = ExtraTrack_z[i] = -999.;
+    ExtraTrack_vtxId[i] = -1;
+  }
+  for (i=0; i<MAX_PAIRS; i++) {
+    Pair_candidates[i][0] = Pair_candidates[i][1] = -1;
+    Pair_mindist[i] = Pair_p[i] = Pair_pt[i] = Pair_mass[i] = Pair_phi[i] = Pair_eta[i] = -999.;
+    Pair_dphi[i] = Pair_dpt[i] = Pair_3Dangle[i] = -999.;
+    Pair_extratracks1mm[i] = Pair_extratracks2mm[i] = Pair_extratracks3mm[i] = 0;
+    Pair_extratracks4mm[i] = Pair_extratracks5mm[i] = Pair_extratracks1cm[i] = 0;
+    Pair_extratracks2cm[i] = Pair_extratracks3cm[i] = Pair_extratracks4cm[i] = 0;
+    Pair_extratracks5cm[i] = Pair_extratracks10cm[i] = 0;    
+  }
+  for (i=0; i<MAX_VTX; i++) {
+    PrimVertexCand_id[i] = -1;
+    PrimVertexCand_tracks[i] = PrimVertexCand_matchedtracks[i] = PrimVertexCand_unmatchedtracks[i] = PrimVertexCand_hasdil[i] = 0;
+    PrimVertexCand_x[i] = PrimVertexCand_y[i] = PrimVertexCand_z[i] = -999.;
+    PrimVertexCand_chi2[i] = PrimVertexCand_ndof[i] = -999.;
+  }
+  for (i=0; i<MAX_PHO; i++) { 
+    PFPhotonCand_p[i] = PFPhotonCand_pt[i] = -999.;
+    PFPhotonCand_px[i] = PFPhotonCand_py[i] = PFPhotonCand_pz[i] = -999.;
+    PFPhotonCand_eta[i] = PFPhotonCand_phi[i] = -999.;
+    PFPhotonCand_detatrue[i] = PFPhotonCand_dphitrue[i] = PFPhotonCand_drtrue[i] = -999.;
+  }
+  for (i=0; i<MAX_JETS; i++) {
+    JetCand_px[i] = JetCand_py[i] = JetCand_pz[i] = -999.;
+    JetCand_e[i] = JetCand_phi[i] = JetCand_eta[i] = -999;
+  }
+  HighestJet_e = HighestJet_eta = HighestJet_phi = -999.;
+  HEJet_e = SumJet_e = totalJetEnergy = 0.;
+  Etmiss = Etmiss_x = Etmiss_y = Etmiss_z = Etmiss_significance = -999.;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

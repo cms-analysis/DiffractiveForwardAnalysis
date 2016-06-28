@@ -50,8 +50,9 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 // Particle flow collection
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+//#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+//#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 // Vertices collection
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -120,6 +121,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       
       virtual void LookAtTriggers(const edm::Event&, const edm::EventSetup&);
+      void clearTree();
 
       // ----------member data ---------------------------
       unsigned int i;
@@ -137,10 +139,12 @@ class GammaGammaLL : public edm::EDAnalyzer {
       std::ofstream *logfile;
       
       // Input tags
-      std::string outputFile_, hltMenuLabel_;
+      std::string outputFile_;
+      std::string hltMenuLabel_;
       std::vector<std::string> triggersList_, leptonsType_;
       edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
       edm::EDGetTokenT<reco::VertexCollection> recoVertexToken_;
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
       edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
       edm::EDGetTokenT< edm::View<pat::Muon> > muonToken_;
       edm::EDGetTokenT< edm::View<pat::Electron> > eleToken_;
@@ -226,14 +230,16 @@ class GammaGammaLL : public edm::EDAnalyzer {
       double dphi;
       
       // Particle Flow
-      edm::Handle<reco::PFCandidateCollection> pflowColl;
-      reco::PFCandidateCollection::const_iterator pflow;
+      /*edm::Handle<reco::PFCandidateCollection> pflowColl;
+      reco::PFCandidateCollection::const_iterator pflow;*/
+      edm::Handle<edm::View<pat::PackedCandidate> > pflowColl;
+      edm::View<pat::PackedCandidate>::const_iterator pflow;
       
       // Jets/MET
       edm::Handle<edm::View<pat::Jet> > jetColl;
       edm::View<pat::Jet>::const_iterator jet;
-      edm::Handle<reco::PFMETCollection> MET; 
-      reco::PFMETCollection::const_iterator met; 
+      edm::Handle< edm::View<pat::MET> > MET; 
+      edm::View<pat::MET>::const_iterator met; 
       double HEJet_e, HEJet_eta, HEJet_phi;
       double totalJetEnergy;
 
@@ -246,6 +252,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       // HLT quantities
       int nHLT;
       int HLT_Accept[MAX_HLT], HLT_Prescl[MAX_HLT];
+      std::string HLT_Name[MAX_HLT];
       /*int nHLTLeptonCand[MAX_HLT];
       double HLTLeptonCand_pt[2][MAX_HLT];
       double HLTLeptonCand_eta[2][MAX_HLT];
