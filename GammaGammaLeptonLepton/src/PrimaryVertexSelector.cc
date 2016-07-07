@@ -61,7 +61,7 @@ PrimaryVertexSelector::SetPosition(double _x, double _y, double _z)
  *  internal collection
  */
 int
-PrimaryVertexSelector::AddTrack(const reco::TrackRef& _track, TString& _leptonType)
+PrimaryVertexSelector::AddTrack(const reco::TrackRef& _track, TString* _leptonType)
 {
   nTracks++; // total number of tracks matched with the vertex
   std::map<int,TLorentzVector>::iterator lep;
@@ -70,7 +70,7 @@ PrimaryVertexSelector::AddTrack(const reco::TrackRef& _track, TString& _leptonTy
     if (fabs(_track->pt()-lep->second.Pt())>.01) continue;
     if (fabs(_track->eta()-lep->second.Eta())>.01) continue;
     if (fabs(_track->phi()-lep->second.Phi())>.01) continue;
-    _leptonType = "muon";
+    *_leptonType = "muon";
     MatchedMuons.push_back(lep->first);
     nMatchedMuons++;
     nMatchedTracks++;
@@ -81,7 +81,7 @@ PrimaryVertexSelector::AddTrack(const reco::TrackRef& _track, TString& _leptonTy
     if (fabs(_track->pt()-lep->second.Pt())>.01) continue;
     if (fabs(_track->eta()-lep->second.Eta())>.01) continue;
     if (fabs(_track->phi()-lep->second.Phi())>.01) continue;
-    _leptonType = "electron";
+    *_leptonType = "electron";
     MatchedElectrons.push_back(lep->first);
     nMatchedElectrons++;
     nMatchedTracks++;

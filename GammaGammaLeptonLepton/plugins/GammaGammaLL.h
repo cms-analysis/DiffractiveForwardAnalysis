@@ -32,7 +32,8 @@
 // Pileup
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
-#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+//#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+#include "DiffractiveForwardAnalysis/Utilities/interface/LumiReWeighting.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 // Muons collection
@@ -120,11 +121,11 @@ class GammaGammaLL : public edm::EDAnalyzer {
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       
-      virtual void LookAtTriggers(const edm::Event&, const edm::EventSetup&);
+      virtual void lookAtTriggers(const edm::Event&, const edm::EventSetup&);
       void clearTree();
 
       // ----------member data ---------------------------
-      unsigned int i;
+      unsigned int verb_;
       int lep1, lep2;
       double vtxdst;
       double closesttrkdxyz, closesthighpuritytrkdxyz;
@@ -136,15 +137,15 @@ class GammaGammaLL : public edm::EDAnalyzer {
       double pairgmass;
       bool istight;
 
-      std::ofstream *logfile;
+      std::ofstream *logfile_;
       
       // Input tags
       std::string outputFile_;
       std::string hltMenuLabel_;
       std::vector<std::string> triggersList_, leptonsType_;
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
       edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
       edm::EDGetTokenT<reco::VertexCollection> recoVertexToken_;
-      edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
       edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
       edm::EDGetTokenT< edm::View<pat::Muon> > muonToken_;
       edm::EDGetTokenT< edm::View<pat::Electron> > eleToken_;
@@ -177,13 +178,12 @@ class GammaGammaLL : public edm::EDAnalyzer {
       AcceptanceTableHelper helper420beam2, helper220beam2, helper420a220beam2;
 
       // Trigger information
-      HLTMatcher* _hlts;
+      HLTMatcher* hlts_;
       HLTConfigProvider hltConfig_;
       HLTPrescaleProvider hltPrescale_;
-      edm::Handle<edm::TriggerResults> hltResults_;
 
       // Pileup information
-      edm::LumiReWeighting *LumiWeights; 
+      edm::LumiReWeighting *lumiWeights_; 
       edm::Handle< std::vector<PileupSummaryInfo> >  pileupInfo;
       std::vector<PileupSummaryInfo>::const_iterator PVI;
       int sum_nvtx, beamXing;
@@ -196,7 +196,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       bool foundPairInEvent, foundPairOnVertex;
       bool foundGenCandPairInEvent;
       double leptonsDist, minDist; 
-      TLorentzVector* _leptonptmp;
+      TLorentzVector leptonptmp_;
       TLorentzVector l1, l2;
       std::map<int, TLorentzVector> muonsMomenta, electronsMomenta;
       
@@ -209,7 +209,6 @@ class GammaGammaLL : public edm::EDAnalyzer {
       // Vertices
       edm::Handle<reco::VertexCollection> recoVertexColl;
       reco::VertexCollection::const_iterator vertex;
-      TString* _leptonType;
       
       // PAT muons
       edm::Handle<edm::View<pat::Muon> > muonColl;
