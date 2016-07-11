@@ -35,10 +35,11 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
   eleLooseIdMapToken_ (consumes< edm::ValueMap<bool> >            (iConfig.getParameter<edm::InputTag>("eleLooseIdMap"))),
   eleMediumIdMapToken_(consumes< edm::ValueMap<bool> >            (iConfig.getParameter<edm::InputTag>("eleMediumIdMap"))),
   eleTightIdMapToken_ (consumes< edm::ValueMap<bool> >            (iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
-  conversionsToken_   (consumes<reco::ConversionCollection>       (iConfig.getParameter<edm::InputTag>("conversionsLabel"))),
+  //conversionsToken_   (consumes<reco::ConversionCollection>       (iConfig.getParameter<edm::InputTag>("conversionsLabel"))),
   pileupToken_        (consumes< std::vector<PileupSummaryInfo> > (iConfig.getParameter<edm::InputTag>("pileupInfo"))),
   jetToken_           (consumes< edm::View<pat::Jet> >            (iConfig.getParameter<edm::InputTag>("JetCollectionLabel"))),
   metToken_           (consumes< edm::View<pat::MET> >            (iConfig.getParameter<edm::InputTag>("MetLabel"))),
+  totemRPHitToken_    (consumes< edm::DetSetVector<TotemRPLocalTrack> >(iConfig.getParameter<edm::InputTag>("totemRPLocalTrackLabel"))),
   runOnMC_            (iConfig.getUntrackedParameter<bool>("RunOnMC", false)),
   sqrts_              (iConfig.getParameter<double>("SqrtS")),
   maxExTrkVtx_        (iConfig.getUntrackedParameter<unsigned int>("maxExtraTracks", 1000)),
@@ -405,13 +406,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Get the electrons collection from the event
   if (_fetchElectrons) {
     iEvent.getByToken(eleToken_, eleColl);
-    // RECO electrons
-    // //FIXME FIXME
-    iEvent.getByLabel(InputTag("gsfElectrons"), eleCollRECO);
-    // iso deposits
-    IsoDepositVals isoVals(isoValLabel_.size());
     // New 2012 electron ID variables conversions
-    iEvent.getByToken(conversionsToken_, conversions_h);
+    //iEvent.getByToken(conversionsToken_, conversions_h);
 
     edm::Handle<edm::ValueMap<bool> > loose_id_decisions;
     iEvent.getByToken(eleLooseIdMapToken_, loose_id_decisions);
@@ -519,6 +515,58 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   if (verb_>1) edm::LogInfo("GammaGammaLL") << "Passed PF photons retrieval stage";
 
+  // Forward protons
+  edm::Handle< edm::DetSetVector<TotemRPLocalTrack> > rplocaltracks; 
+  iEvent.getByToken(totemRPHitToken_, rplocaltracks);
+
+  nLocalProtCand = 0;
+  nLocalProtPairCand = 0;
+  for (edm::DetSetVector<TotemRPLocalTrack>::const_iterator rplocaltrack=rplocaltracks->begin(); rplocaltrack!=rplocaltracks->end(); rplocaltrack++) {
+    const unsigned int det_id = rplocaltrack->detId();
+    const unsigned short arm = (det_id%100==2), // 0->F, 1->N (3/103->F, 2/102->N)
+                         side = (det_id/100); // 0->L, 1->R (2/3->L, 102/103->R)
+    for (edm::DetSet<TotemRPLocalTrack>::const_iterator proton=rplocaltrack->begin(); proton!=rplocaltrack->end(); proton++) {
+      if (!proton->isValid()) continue;
+      //std::cout << "---> proton with origin: (" << proton->getX0() << ", " << proton->getY0() << ", " << proton->getZ0() << ") reconstructed!" << std::endl;
+      LocalProtCand_x[nLocalProtCand] = (proton->getX0())/1.e3;
+      LocalProtCand_y[nLocalProtCand] = (proton->getY0())/1.e3;
+      LocalProtCand_z[nLocalProtCand] = (proton->getZ0())/1.e3;
+      LocalProtCand_xSigma[nLocalProtCand] = (proton->getX0Sigma())/1.e3;
+      LocalProtCand_ySigma[nLocalProtCand] = (proton->getY0Sigma())/1.e3;
+      LocalProtCand_Tx[nLocalProtCand] = proton->getTx();
+      LocalProtCand_Ty[nLocalProtCand] = proton->getTy();
+      LocalProtCand_TxSigma[nLocalProtCand] = proton->getTxSigma();
+      LocalProtCand_TySigma[nLocalProtCand] = proton->getTySigma();
+
+      TLorentzVector p1_p(proton->getX0()*1.e-3, proton->getY0()*1.e-3, proton->getZ0()*1.e-3, MASS_P);
+      ProtonKinematics pk1(Run, arm, side, *proton);
+      // "proton" pair quantities
+      // WARNING: very stupid approach!! does not include any optics effects...
+      for (edm::DetSetVector<TotemRPLocalTrack>::const_iterator rplocaltrack2=rplocaltrack+1; rplocaltrack2!=rplocaltracks->end(); rplocaltrack2++) {
+        const unsigned int det_id2 = rplocaltrack2->detId();
+        const unsigned short arm2 = (det_id2%100==2), // 0->F, 1->N (3/103->F, 2/102->N)
+                             side2 = (det_id2/100); // 0->L, 1->R (2/3->L, 102/103->R)
+        for (edm::DetSet<TotemRPLocalTrack>::const_iterator proton2=rplocaltrack2->begin(); proton2!=rplocaltrack2->end(); proton2++) {
+          if (!proton2->isValid()) continue;
+          if (proton->getZ0()*proton2->getZ0()>0.) continue; // only opposite-side arms
+          ProtonKinematics pk2(Run, arm2, side2, *proton2);
+          TLorentzVector p2_p(proton2->getX0()*1.e-3, proton2->getY0()*1.e-3, proton2->getZ0()*1.e-3, MASS_P);
+          //const double m = (p1_p+p2_p).M();
+          const double m = sqrts_*sqrt(pk1.getXi()*pk2.getXi());
+          const double pt = (p1_p+p2_p).Pt(), eta = (p1_p+p2_p).Eta();
+          //if ((p1_p+p2_p).M()<0.) continue; // FIXME need to investigate theses situations...
+          LocalProtPairCand_mass[nLocalProtPairCand] = m;
+          LocalProtPairCand_pt[nLocalProtPairCand] = pt;
+          LocalProtPairCand_eta[nLocalProtPairCand] = eta;
+          std::cout << "------> (" << nLocalProtPairCand << ") proton pair (m=" << m << ", pt=" << pt << ", eta=" << eta << std::endl;
+          nLocalProtPairCand++;
+        }
+      }
+      nLocalProtCand++;
+    }
+  }
+
+  // Vertex tracks multiplicity
   vtxind = 0;
   nPrimVertexCand = vertices->size();
 
@@ -1009,6 +1057,23 @@ GammaGammaLL::beginJob()
   tree_->Branch("Pair_extratracks5cm", Pair_extratracks5cm, "Pair_extratracks5cm[nPrimVertexCand]/I");
   tree_->Branch("Pair_extratracks10cm", Pair_extratracks10cm, "Pair_extratracks10cm[nPrimVertexCand]/I");
   tree_->Branch("PairGamma_mass", PairGamma_mass, "PairGamma_mass[nPrimVertexCand][nPFPhotonCand]/D");
+
+  tree_->Branch("nLocalProtCand", &nLocalProtCand, "nLocalProtCand/I");
+  tree_->Branch("LocalProtCand_x", LocalProtCand_x, "LocalProtCand_x[nLocalProtCand]/D");
+  tree_->Branch("LocalProtCand_y", LocalProtCand_y, "LocalProtCand_y[nLocalProtCand]/D"); 
+  tree_->Branch("LocalProtCand_z", LocalProtCand_z, "LocalProtCand_z[nLocalProtCand]/D"); 
+  tree_->Branch("LocalProtCand_xSigma", LocalProtCand_xSigma, "LocalProtCand_xSigma[nLocalProtCand]/D");
+  tree_->Branch("LocalProtCand_ySigma", LocalProtCand_ySigma, "LocalProtCand_ySigma[nLocalProtCand]/D"); 
+  tree_->Branch("LocalProtCand_Tx", LocalProtCand_Tx, "LocalProtCand_Tx[nLocalProtCand]/D");
+  tree_->Branch("LocalProtCand_Ty", LocalProtCand_Ty, "LocalProtCand_Ty[nLocalProtCand]/D"); 
+  tree_->Branch("LocalProtCand_TxSigma", LocalProtCand_TxSigma, "LocalProtCand_TxSigma[nLocalProtCand]/D"); 
+  tree_->Branch("LocalProtCand_TySigma", LocalProtCand_TySigma, "LocalProtCand_TySigma[nLocalProtCand]/D"); 
+
+  tree_->Branch("nLocalProtPairCand", &nLocalProtPairCand, "nLocalProtPairCand/I");
+  tree_->Branch("LocalProtPairCand_mass", LocalProtPairCand_mass, "LocalProtPairCand_mass[nLocalProtPairCand]/D]");
+  tree_->Branch("LocalProtPairCand_pt", LocalProtPairCand_pt, "LocalProtPairCand_pt[nLocalProtPairCand]/D]");
+  tree_->Branch("LocalProtPairCand_eta", LocalProtPairCand_eta, "LocalProtPairCand_eta[nLocalProtPairCand]/D]");
+
   if (runOnMC_) {
     tree_->Branch("GenPair_p", &GenPair_p, "GenPair_p/D");
     tree_->Branch("GenPair_pt", &GenPair_pt, "GenPair_pt/D");
@@ -1167,6 +1232,15 @@ GammaGammaLL::clearTree()
   HighestJet_e = HighestJet_eta = HighestJet_phi = -999.;
   HEJet_e = SumJet_e = totalJetEnergy = 0.;
   Etmiss = Etmiss_x = Etmiss_y = Etmiss_z = Etmiss_significance = -999.;
+  for (unsigned int i=0; i<MAX_LOCALPCAND; i++) {
+    LocalProtCand_x[i] = LocalProtCand_y[i] = LocalProtCand_z[i] = -999.;
+    LocalProtCand_xSigma[nLocalProtCand] = LocalProtCand_ySigma[nLocalProtCand] = -999.;
+    LocalProtCand_Tx[nLocalProtCand] = LocalProtCand_Ty[nLocalProtCand] = -999.;
+    LocalProtCand_TxSigma[nLocalProtCand] = LocalProtCand_TySigma[nLocalProtCand] = -999.;
+  }
+  for (unsigned int i=0; i<MAX_LOCALPPAIRCAND; i++) {
+    LocalProtPairCand_mass[i] = LocalProtPairCand_pt[i] = LocalProtPairCand_eta[i] = -999.;
+  }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

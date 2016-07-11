@@ -31,6 +31,7 @@ ggll_aod = cms.EDAnalyzer(
     #eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp80"),
     JetCollectionLabel = cms.InputTag('selectedPatJets'),
     MetLabel = cms.InputTag('patMETs'),
+    totemRPLocalTrackLabel = cms.InputTag('totemRPLocalTrackFitter'),
     RunOnMC = cms.untracked.bool(True),
     MCAcceptPtCut = cms.untracked.double(0.),
     MCAcceptEtaCut = cms.untracked.double(-1.),

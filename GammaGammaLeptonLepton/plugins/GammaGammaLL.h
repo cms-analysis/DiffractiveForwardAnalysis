@@ -67,6 +67,10 @@
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
+// CT-PPS objects
+#include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
+#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/ProtonKinematics.h"
+
 // HPS acceptance
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/PrimaryVertexSelector.h"
@@ -91,6 +95,8 @@
 #define MAX_GENPHO 10   // Maximum number of generator level photons per event
 #define MAX_GENPRO 8    // Maximum number of generator level protons per event
 #define MAX_JETS   30   // Maximum number of jets per event
+#define MAX_LOCALPCAND 10 // Maximum number of reconstructed local tracks in RPs
+#define MAX_LOCALPPAIRCAND 5 // Maximum number of reconstructed local tracks pairs in RPs
 
 #define MASS_MU 0.1057
 #define MASS_E  0.000511
@@ -157,6 +163,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       edm::EDGetTokenT< std::vector<PileupSummaryInfo> > pileupToken_;
       edm::EDGetTokenT< edm::View<pat::Jet> > jetToken_;
       edm::EDGetTokenT< edm::View<pat::MET> > metToken_;
+      edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > totemRPHitToken_;
       std::vector<edm::InputTag> isoValLabel_; 
       bool runOnMC_, printCandidates_;
       double minPtMC_, minEtaMC_;
@@ -383,6 +390,16 @@ class GammaGammaLL : public edm::EDAnalyzer {
       double HighestJet_e, HighestJet_eta, HighestJet_phi;
       double SumJet_e;
       double Etmiss, Etmiss_phi, Etmiss_x, Etmiss_y, Etmiss_z, Etmiss_significance;
+
+      // CTPPS quantities
+      int nLocalProtCand;
+      double LocalProtCand_x[MAX_LOCALPCAND], LocalProtCand_y[MAX_LOCALPCAND], LocalProtCand_z[MAX_LOCALPCAND];
+      double LocalProtCand_xSigma[MAX_LOCALPCAND], LocalProtCand_ySigma[MAX_LOCALPCAND];
+      double LocalProtCand_Tx[MAX_LOCALPCAND], LocalProtCand_Ty[MAX_LOCALPCAND];  
+      double LocalProtCand_TxSigma[MAX_LOCALPCAND], LocalProtCand_TySigma[MAX_LOCALPCAND]; 
+
+      int nLocalProtPairCand;
+      double LocalProtPairCand_mass[MAX_LOCALPPAIRCAND], LocalProtPairCand_pt[MAX_LOCALPPAIRCAND], LocalProtPairCand_eta[MAX_LOCALPPAIRCAND];
 };
 
 //
