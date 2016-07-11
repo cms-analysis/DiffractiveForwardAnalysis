@@ -28,23 +28,24 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
   hltMenuLabel_       (iConfig.getParameter<std::string>("HLTMenuLabel")),
   triggersList_       (iConfig.getParameter<std::vector<std::string> >("TriggersList")),
   triggerResultsToken_(consumes<edm::TriggerResults>              (iConfig.getParameter<edm::InputTag>("TriggerResults"))),
-  //beamSpotToken_      (consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"))),
+  //beamSpotToken_      (consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotLabel"))),
   recoVertexToken_    (consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("RecoVertexLabel"))),
   muonToken_          (consumes< edm::View<pat::Muon> >           (iConfig.getUntrackedParameter<edm::InputTag>("GlobalMuonCollectionLabel", std::string("muons")))),
   eleToken_           (consumes< edm::View<pat::Electron> >       (iConfig.getUntrackedParameter<edm::InputTag>("GlobalEleCollectionLabel", std::string("gsfElectrons")))),
   eleLooseIdMapToken_ (consumes< edm::ValueMap<bool> >            (iConfig.getParameter<edm::InputTag>("eleLooseIdMap"))),
   eleMediumIdMapToken_(consumes< edm::ValueMap<bool> >            (iConfig.getParameter<edm::InputTag>("eleMediumIdMap"))),
   eleTightIdMapToken_ (consumes< edm::ValueMap<bool> >            (iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
-  conversionsToken_   (consumes<reco::ConversionCollection>       (iConfig.getParameter<edm::InputTag>("conversionsInputTag"))),
+  conversionsToken_   (consumes<reco::ConversionCollection>       (iConfig.getParameter<edm::InputTag>("conversionsLabel"))),
   pileupToken_        (consumes< std::vector<PileupSummaryInfo> > (iConfig.getParameter<edm::InputTag>("pileupInfo"))),
-  pflowToken_         (consumes< edm::View<pat::PackedCandidate> >(iConfig.getUntrackedParameter<edm::InputTag>("PFLabel", std::string("particleFlow")))),
   jetToken_           (consumes< edm::View<pat::Jet> >            (iConfig.getParameter<edm::InputTag>("JetCollectionLabel"))),
   metToken_           (consumes< edm::View<pat::MET> >            (iConfig.getParameter<edm::InputTag>("MetLabel"))),
   runOnMC_            (iConfig.getUntrackedParameter<bool>("RunOnMC", false)),
   sqrts_              (iConfig.getParameter<double>("SqrtS")),
   maxExTrkVtx_        (iConfig.getUntrackedParameter<unsigned int>("maxExtraTracks", 1000)),
   hltPrescale_        (iConfig, consumesCollector(), *this),
-  lumiWeights_(0)
+  lumiWeights_(0),
+  pflowToken_         (consumes< edm::View<reco::PFCandidate> >(iConfig.getUntrackedParameter<edm::InputTag>("PFLabel", std::string("particleFlow")))) //FIXME will not work for miniAOD
+  //pflowToken_         (consumes< edm::View<pat::PackedCandidate> >(iConfig.getUntrackedParameter<edm::InputTag>("PFLabel", std::string("particleFlow"))))
 {
   //now do what ever initialization is needed
   

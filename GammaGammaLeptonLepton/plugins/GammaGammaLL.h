@@ -155,7 +155,6 @@ class GammaGammaLL : public edm::EDAnalyzer {
       edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
       // rhoIsoLabel_;
       edm::EDGetTokenT< std::vector<PileupSummaryInfo> > pileupToken_;
-      edm::EDGetTokenT< edm::View<pat::PackedCandidate> > pflowToken_;
       edm::EDGetTokenT< edm::View<pat::Jet> > jetToken_;
       edm::EDGetTokenT< edm::View<pat::MET> > metToken_;
       std::vector<edm::InputTag> isoValLabel_; 
@@ -229,10 +228,12 @@ class GammaGammaLL : public edm::EDAnalyzer {
       double dphi;
       
       // Particle Flow
-      /*edm::Handle<reco::PFCandidateCollection> pflowColl;
-      reco::PFCandidateCollection::const_iterator pflow;*/
+      edm::EDGetTokenT< edm::View<reco::PFCandidate> > pflowToken_;
+      edm::Handle<edm::View<reco::PFCandidate> > pflowColl;
+      edm::View<reco::PFCandidate>::const_iterator pflow; //FIXME will not work for miniAOD
+      /*edm::EDGetTokenT< edm::View<pat::PackedCandidate> > pflowToken_;
       edm::Handle<edm::View<pat::PackedCandidate> > pflowColl;
-      edm::View<pat::PackedCandidate>::const_iterator pflow;
+      edm::View<pat::PackedCandidate>::const_iterator pflow;*/
       
       // Jets/MET
       edm::Handle<edm::View<pat::Jet> > jetColl;
