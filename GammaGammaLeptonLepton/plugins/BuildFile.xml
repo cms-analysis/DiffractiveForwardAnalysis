@@ -32,6 +32,8 @@
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/Records"/>
+<use   name="CondFormats/RunInfo"/>
+<use   name="CondFormats/DataRecord"/>
 <use   name="rootcore"/>
 <use   name="root"/>
 <use   name="DiffractiveForwardAnalysis/GammaGammaLeptonLepton"/>

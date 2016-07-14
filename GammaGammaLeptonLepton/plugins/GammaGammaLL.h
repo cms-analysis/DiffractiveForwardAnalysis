@@ -32,8 +32,8 @@
 // Pileup
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
-//#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
-#include "DiffractiveForwardAnalysis/Utilities/interface/LumiReWeighting.h"
+#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+//#include "DiffractiveForwardAnalysis/Utilities/interface/LumiReWeighting.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 // Muons collection
@@ -75,6 +75,11 @@
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/PrimaryVertexSelector.h"
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/HLTMatcher.h"
+
+// LHC fill information
+//#include "DataFormats/Common/interface/ConditionsInEdm.h" // L1 method
+#include "CondFormats/RunInfo/interface/FillInfo.h"
+#include "CondFormats/DataRecord/interface/FillInfoRcd.h" // db method
 
 #include <TFile.h>
 #include <TTree.h>
@@ -170,6 +175,10 @@ class GammaGammaLL : public edm::EDAnalyzer {
       double sqrts_;
       unsigned int maxExTrkVtx_;
 
+      // Extended LHC run information
+      /*edm::EDGetTokenT<edm::ConditionsInRunBlock> condInRunToken_;
+      edm::Handle<edm::ConditionsInRunBlock> condInRunBlock_;*/
+
       // Beam spot
       edm::Handle<reco::BeamSpot> beamspot_h;
 
@@ -254,12 +263,15 @@ class GammaGammaLL : public edm::EDAnalyzer {
       
       // Run/event quantities
       int BX, Run, LumiSection, EventNum;
+      //int LHCFillNum, LHCBeamMode;
       //double AvgInstDelLumi, BunchInstLumi[3]; 
       
       // HLT quantities
       int nHLT;
       int HLT_Accept[MAX_HLT], HLT_Prescl[MAX_HLT];
-      std::string HLT_Name[MAX_HLT];
+      //char* HLT_Name[MAX_HLT];
+      std::vector<std::string>* HLT_Name;
+      //std::map<int,std::string>* HLT_Name;
       /*int nHLTLeptonCand[MAX_HLT];
       double HLTLeptonCand_pt[2][MAX_HLT];
       double HLTLeptonCand_eta[2][MAX_HLT];
@@ -344,7 +356,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       double PFPhotonCand_drtrue[MAX_PHO], PFPhotonCand_detatrue[MAX_PHO], PFPhotonCand_dphitrue[MAX_PHO];
       
       // Pair quantities
-      int Pair_candidates[MAX_PAIRS][2];
+      int Pair_candidates[MAX_PAIRS][2], Pair_lepton1[MAX_PAIRS], Pair_lepton2[MAX_PAIRS];
       double Pair_mindist[MAX_PAIRS];
       double Pair_p[MAX_PAIRS], Pair_pt[MAX_PAIRS], Pair_dpt[MAX_PAIRS];
       double Pair_mass[MAX_PAIRS], Pair_dphi[MAX_PAIRS];
@@ -395,11 +407,13 @@ class GammaGammaLL : public edm::EDAnalyzer {
       int nLocalProtCand;
       double LocalProtCand_x[MAX_LOCALPCAND], LocalProtCand_y[MAX_LOCALPCAND], LocalProtCand_z[MAX_LOCALPCAND];
       double LocalProtCand_xSigma[MAX_LOCALPCAND], LocalProtCand_ySigma[MAX_LOCALPCAND];
-      double LocalProtCand_Tx[MAX_LOCALPCAND], LocalProtCand_Ty[MAX_LOCALPCAND];  
-      double LocalProtCand_TxSigma[MAX_LOCALPCAND], LocalProtCand_TySigma[MAX_LOCALPCAND]; 
+      double LocalProtCand_xi[MAX_LOCALPCAND];
+      double LocalProtCand_Tx[MAX_LOCALPCAND], LocalProtCand_Ty[MAX_LOCALPCAND];
+      double LocalProtCand_TxSigma[MAX_LOCALPCAND], LocalProtCand_TySigma[MAX_LOCALPCAND];
+      int LocalProtCand_arm[MAX_LOCALPCAND], LocalProtCand_side[MAX_LOCALPCAND];
 
       int nLocalProtPairCand;
-      double LocalProtPairCand_mass[MAX_LOCALPPAIRCAND], LocalProtPairCand_pt[MAX_LOCALPPAIRCAND], LocalProtPairCand_eta[MAX_LOCALPPAIRCAND];
+      double LocalProtPairCand_mass[MAX_LOCALPPAIRCAND], LocalProtPairCand_pt[MAX_LOCALPPAIRCAND], LocalProtPairCand_y[MAX_LOCALPPAIRCAND];
 };
 
 //

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ggll_aod = cms.EDAnalyzer(
     'GammaGammaLL',
-    SqrtS = cms.double(8000.),
+    SqrtS = cms.double(13000.),
     HLTMenuLabel = cms.string('HLT'),
     TriggerResults = cms.InputTag('TriggerResults', '', 'HLT'),
     LeptonsType = cms.InputTag('electron', 'muon'),

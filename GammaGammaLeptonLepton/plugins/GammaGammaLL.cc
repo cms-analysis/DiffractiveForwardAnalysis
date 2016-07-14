@@ -43,6 +43,7 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
   runOnMC_            (iConfig.getUntrackedParameter<bool>("RunOnMC", false)),
   sqrts_              (iConfig.getParameter<double>("SqrtS")),
   maxExTrkVtx_        (iConfig.getUntrackedParameter<unsigned int>("maxExtraTracks", 1000)),
+  //condInRunToken_     (consumes<edm::ConditionsInRunBlock,edm::InRun>(iConfig.getUntrackedParameter<edm::InputTag>("CondInEdmInputTag", std::string("conditionsInEdm")))),
   hltPrescale_        (iConfig, consumesCollector(), *this),
   lumiWeights_(0),
   pflowToken_         (consumes< edm::View<reco::PFCandidate> >(iConfig.getUntrackedParameter<edm::InputTag>("PFLabel", std::string("particleFlow")))) //FIXME will not work for miniAOD
@@ -110,7 +111,7 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
     helper420a220beam2.Init(*f, "a420a220_b2");*/
 
     lumiWeights_ = new edm::LumiReWeighting(mcPileupFile_, dataPileupFile_, mcPileupPath_, dataPileupPath_);
-    lumiWeights_->setPileupSummaryInfoInputTag(iConfig.getParameter<edm::InputTag>("pileupInfo"));
+    //lumiWeights_->setPileupSummaryInfoInputTag(iConfig.getParameter<edm::InputTag>("pileupInfo"));
   }
 }
 
@@ -153,17 +154,11 @@ GammaGammaLL::lookAtTriggers(const edm::Event& iEvent, const edm::EventSetup& iS
     if (verb_>2) os << "--> " << trigNames.triggerNames().at(i) << std::endl;
     if (!hlts_) continue;
     trigNum = hlts_->TriggerNum(trigNames.triggerNames().at(i));
-    if (trigNum==-1) continue; // Trigger didn't match the interesting ones
+    if (trigNum<0) continue; // Trigger didn't match the interesting ones
     HLT_Accept[trigNum] = hltResults->accept(i) ? 1 : 0;
+    //if (runOnMC_) { HLT_Prescl[trigNum] = 1.; continue; } //FIXME
     int prescale_set = hltPrescale_.prescaleSet(iEvent, iSetup);
-    HLT_Prescl[trigNum] = hltConfig_.prescaleValue(prescale_set, trigNames.triggerNames().at(i));
-    HLT_Name[trigNum] = trigNames.triggerNames().at(i);
-    
-    //LF FIXME need to think about that implementation...
-    /*if (trigNames.triggerNames().at(i).find("CaloIdL")) {} // Leading lepton
-      else if (trigNames.triggerNames().at(i).find("CaloIdT")) {} // Trailing lepton*/
-    //std::cout << "*-------> " << trigNames.triggerNames().at(i).substr(0, trigNames.triggerNames().at(i).find_last_of("_"));
-    //HLT_LeadingLepton_Prescl[] = hltConfig_.prescaleValue(event, iSetup, "HLT_Mu8Ele17L");  
+    HLT_Prescl[trigNum] = (prescale_set<0) ? 0. : hltConfig_.prescaleValue(prescale_set, trigNames.triggerNames().at(i)); //FIXME
   }
   if (verb_>2) edm::LogInfo("GammaGammaLL") << os.str();
 }
@@ -194,6 +189,19 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Run = iEvent.id().run();
   LumiSection = iEvent.luminosityBlock();
   EventNum = iEvent.id().event();
+  //LHCFillNum = iEvent.eventAuxiliary().storeNumber(); //should be there, but it is not
+  /*edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("FillInfoRcd"));
+  if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
+    //record not found
+    std::cout <<"Record \"FillInfoRcd"<<"\" does not exist "<<std::endl;
+  }
+  edm::ESHandle<FillInfo> sum;
+  std::cout<<"got eshandle"<<std::endl;
+  iSetup.get<FillInfoRcd>().get(sum);
+  std::cout<<"got context"<<std::endl;
+  const FillInfo* summary=sum.product();
+  std::cout<<"got FillInfo* "<< std::endl;
+  std::cout << *summary;*/
   
   // High level trigger information retrieval  
   lookAtTriggers(iEvent, iSetup);
@@ -436,7 +444,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   	  
       leptonptmp_.SetXYZM(electron->px(), electron->py(), electron->pz(), electron->mass());
 
-      if(electron->closestCtfTrackRef().isNonnull()) { // Only for PAT::Electron
+      if(electron->closestCtfTrackRef().isNonnull()) { // Only for pat::Electron
         EleCandTrack_p[nEleCand] = electron->closestCtfTrackRef()->p(); 
         EleCandTrack_pt[nEleCand] = electron->closestCtfTrackRef()->pt();  
         EleCandTrack_eta[nEleCand] = electron->closestCtfTrackRef()->eta();  
@@ -476,7 +484,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(pflowToken_, pflowColl);
   for(pflow=pflowColl->begin(); pflow!=pflowColl->end(); pflow++) { 
     parttype = reco::PFCandidate::ParticleType(pflow->pdgId()); 
-    if(parttype==4 && nPFPhotonCand<MAX_PHO) { 
+    if(parttype==reco::PFCandidate::gamma && nPFPhotonCand<MAX_PHO) { 
       if(nPFPhotonCand==0) { 
         leadingphotpx = pflow->px(); 
         leadingphotpy = pflow->py();  
@@ -490,6 +498,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       PFPhotonCand_pt[nPFPhotonCand] = pflow->pt();
       PFPhotonCand_eta[nPFPhotonCand] = pflow->eta();
       PFPhotonCand_phi[nPFPhotonCand] = pflow->phi();
+
       PFPhotonCand_drtrue[nPFPhotonCand] = -999.;
       PFPhotonCand_detatrue[nPFPhotonCand] = -999.;
       PFPhotonCand_dphitrue[nPFPhotonCand] = -999.;
@@ -515,54 +524,60 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   if (verb_>1) edm::LogInfo("GammaGammaLL") << "Passed PF photons retrieval stage";
 
-  // Forward protons
-  edm::Handle< edm::DetSetVector<TotemRPLocalTrack> > rplocaltracks; 
-  iEvent.getByToken(totemRPHitToken_, rplocaltracks);
+  if (!runOnMC_) { //FIXME forward tracks only present in the data as from now
+    // Forward protons
+    edm::Handle< edm::DetSetVector<TotemRPLocalTrack> > rplocaltracks; 
+    iEvent.getByToken(totemRPHitToken_, rplocaltracks);
 
-  nLocalProtCand = 0;
-  nLocalProtPairCand = 0;
-  for (edm::DetSetVector<TotemRPLocalTrack>::const_iterator rplocaltrack=rplocaltracks->begin(); rplocaltrack!=rplocaltracks->end(); rplocaltrack++) {
-    const unsigned int det_id = rplocaltrack->detId();
-    const unsigned short arm = (det_id%100==2), // 0->F, 1->N (3/103->F, 2/102->N)
-                         side = (det_id/100); // 0->L, 1->R (2/3->L, 102/103->R)
-    for (edm::DetSet<TotemRPLocalTrack>::const_iterator proton=rplocaltrack->begin(); proton!=rplocaltrack->end(); proton++) {
-      if (!proton->isValid()) continue;
-      //std::cout << "---> proton with origin: (" << proton->getX0() << ", " << proton->getY0() << ", " << proton->getZ0() << ") reconstructed!" << std::endl;
-      LocalProtCand_x[nLocalProtCand] = (proton->getX0())/1.e3;
-      LocalProtCand_y[nLocalProtCand] = (proton->getY0())/1.e3;
-      LocalProtCand_z[nLocalProtCand] = (proton->getZ0())/1.e3;
-      LocalProtCand_xSigma[nLocalProtCand] = (proton->getX0Sigma())/1.e3;
-      LocalProtCand_ySigma[nLocalProtCand] = (proton->getY0Sigma())/1.e3;
-      LocalProtCand_Tx[nLocalProtCand] = proton->getTx();
-      LocalProtCand_Ty[nLocalProtCand] = proton->getTy();
-      LocalProtCand_TxSigma[nLocalProtCand] = proton->getTxSigma();
-      LocalProtCand_TySigma[nLocalProtCand] = proton->getTySigma();
+    nLocalProtCand = 0;
+    nLocalProtPairCand = 0;
+    for (edm::DetSetVector<TotemRPLocalTrack>::const_iterator rplocaltrack=rplocaltracks->begin(); rplocaltrack!=rplocaltracks->end(); rplocaltrack++) {
+      const unsigned int det_id = rplocaltrack->detId();
+      const unsigned short arm = (det_id%100==2), // 0->F, 1->N (3/103->F, 2/102->N)
+                           side = (det_id/100); // 0->L, 1->R (2/3->L, 102/103->R)
+      for (edm::DetSet<TotemRPLocalTrack>::const_iterator proton=rplocaltrack->begin(); proton!=rplocaltrack->end(); proton++) {
+        if (!proton->isValid()) continue;
+        //std::cout << "---> proton with origin: (" << proton->getX0() << ", " << proton->getY0() << ", " << proton->getZ0() << ") reconstructed!" << std::endl;
+        LocalProtCand_x[nLocalProtCand] = (proton->getX0())/1.e3;
+        LocalProtCand_y[nLocalProtCand] = (proton->getY0())/1.e3;
+        LocalProtCand_z[nLocalProtCand] = (proton->getZ0())/1.e3;
+        LocalProtCand_xSigma[nLocalProtCand] = (proton->getX0Sigma())/1.e3;
+        LocalProtCand_ySigma[nLocalProtCand] = (proton->getY0Sigma())/1.e3;
+        LocalProtCand_Tx[nLocalProtCand] = proton->getTx();
+        LocalProtCand_Ty[nLocalProtCand] = proton->getTy();
+        LocalProtCand_TxSigma[nLocalProtCand] = proton->getTxSigma();
+        LocalProtCand_TySigma[nLocalProtCand] = proton->getTySigma();
+        LocalProtCand_arm[nLocalProtCand] = arm;
+        LocalProtCand_side[nLocalProtCand] = side;
 
-      TLorentzVector p1_p(proton->getX0()*1.e-3, proton->getY0()*1.e-3, proton->getZ0()*1.e-3, MASS_P);
-      ProtonKinematics pk1(Run, arm, side, *proton);
-      // "proton" pair quantities
-      // WARNING: very stupid approach!! does not include any optics effects...
-      for (edm::DetSetVector<TotemRPLocalTrack>::const_iterator rplocaltrack2=rplocaltrack+1; rplocaltrack2!=rplocaltracks->end(); rplocaltrack2++) {
-        const unsigned int det_id2 = rplocaltrack2->detId();
-        const unsigned short arm2 = (det_id2%100==2), // 0->F, 1->N (3/103->F, 2/102->N)
-                             side2 = (det_id2/100); // 0->L, 1->R (2/3->L, 102/103->R)
-        for (edm::DetSet<TotemRPLocalTrack>::const_iterator proton2=rplocaltrack2->begin(); proton2!=rplocaltrack2->end(); proton2++) {
-          if (!proton2->isValid()) continue;
-          if (proton->getZ0()*proton2->getZ0()>0.) continue; // only opposite-side arms
-          ProtonKinematics pk2(Run, arm2, side2, *proton2);
-          TLorentzVector p2_p(proton2->getX0()*1.e-3, proton2->getY0()*1.e-3, proton2->getZ0()*1.e-3, MASS_P);
-          //const double m = (p1_p+p2_p).M();
-          const double m = sqrts_*sqrt(pk1.getXi()*pk2.getXi());
-          const double pt = (p1_p+p2_p).Pt(), eta = (p1_p+p2_p).Eta();
-          //if ((p1_p+p2_p).M()<0.) continue; // FIXME need to investigate theses situations...
-          LocalProtPairCand_mass[nLocalProtPairCand] = m;
-          LocalProtPairCand_pt[nLocalProtPairCand] = pt;
-          LocalProtPairCand_eta[nLocalProtPairCand] = eta;
-          std::cout << "------> (" << nLocalProtPairCand << ") proton pair (m=" << m << ", pt=" << pt << ", eta=" << eta << std::endl;
-          nLocalProtPairCand++;
+        TLorentzVector p1_p(proton->getX0()*1.e-3, proton->getY0()*1.e-3, proton->getZ0()*1.e-3, MASS_P);
+        ProtonKinematics pk1(Run, arm, side, *proton);
+        LocalProtCand_xi[nLocalProtCand] = pk1.getXi();
+        // "proton" pair quantities
+        for (edm::DetSetVector<TotemRPLocalTrack>::const_iterator rplocaltrack2=rplocaltrack+1; rplocaltrack2!=rplocaltracks->end(); rplocaltrack2++) {
+          const unsigned int det_id2 = rplocaltrack2->detId();
+          const unsigned short arm2 = (det_id2%100==2), // 0->F, 1->N (3/103->F, 2/102->N)
+                               side2 = (det_id2/100); // 0->L, 1->R (2/3->L, 102/103->R)
+          for (edm::DetSet<TotemRPLocalTrack>::const_iterator proton2=rplocaltrack2->begin(); proton2!=rplocaltrack2->end(); proton2++) {
+            if (!proton2->isValid()) continue;
+            if (proton->getZ0()*proton2->getZ0()>0.) continue; // only opposite-side arms
+            ProtonKinematics pk2(Run, arm2, side2, *proton2);
+            TLorentzVector p2_p(proton2->getX0()*1.e-3, proton2->getY0()*1.e-3, proton2->getZ0()*1.e-3, MASS_P);
+            //const double m = (p1_p+p2_p).M();
+            const double m = sqrts_*sqrt(pk1.getXi()*pk2.getXi()),
+                         y = log(pk2.getXi()/pk1.getXi())/2.;
+            LocalProtPairCand_mass[nLocalProtPairCand] = m;
+            LocalProtPairCand_y[nLocalProtPairCand] = y;
+            // WARNING: very stupid approach!! does not include any optics effects...
+            const double pt = (p1_p+p2_p).Pt();
+            //if ((p1_p+p2_p).M()<0.) continue; // FIXME need to investigate theses situations...
+            LocalProtPairCand_pt[nLocalProtPairCand] = pt;
+            //std::cout << "------> (" << nLocalProtPairCand << ") proton pair (m=" << m << ", pt=" << pt << ", y=" << y << std::endl;
+            nLocalProtPairCand++;
+          }
         }
+        nLocalProtCand++;
       }
-      nLocalProtCand++;
     }
   }
 
@@ -671,8 +686,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (nLeptonsInPrimVertex<2) continue;
       
       // At this stage we have at least two matched leptons track on the vertex
-      Pair_candidates[vtxind][0] = -1;
-      Pair_candidates[vtxind][1] = -1;
+      Pair_candidates[vtxind][0] = Pair_lepton1[vtxind] = -1;
+      Pair_candidates[vtxind][1] = Pair_lepton2[vtxind] = -1;
       
       if (PrimVertexCand_unmatchedtracks[vtxind]>(int)maxExTrkVtx_) continue; // cut on the upper number of extra tracks
 
@@ -701,8 +716,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			     pow(MuonCand_vtxz[lep1]-EleCand_vtxz[lep2],2));
             if (leptonsDist<minDist) {
               minDist = leptonsDist;
-              Pair_candidates[vtxind][0] = lep1;
-              Pair_candidates[vtxind][1] = lep2;
+              Pair_candidates[vtxind][0] = Pair_lepton1[vtxind] = lep1;
+              Pair_candidates[vtxind][1] = Pair_lepton2[vtxind] = lep2;
             }
           }
         }
@@ -735,8 +750,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			     pow(EleCand_vtxz[lep1]-EleCand_vtxz[lep2],2));
             if (leptonsDist<minDist) {
               minDist = leptonsDist;
-              Pair_candidates[vtxind][0] = lep1;
-              Pair_candidates[vtxind][1] = lep2;
+              Pair_candidates[vtxind][0] = Pair_lepton1[vtxind] = lep1;
+              Pair_candidates[vtxind][1] = Pair_lepton2[vtxind] = lep2;
             }
           }
         }
@@ -779,8 +794,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			     pow(MuonCand_vtxz[lep1]-MuonCand_vtxz[lep2],2));
             if (leptonsDist<minDist) {
               minDist = leptonsDist;
-              Pair_candidates[vtxind][0] = lep1;
-              Pair_candidates[vtxind][1] = lep2;
+              Pair_candidates[vtxind][0] = Pair_lepton1[vtxind] = lep1;
+              Pair_candidates[vtxind][1] = Pair_lepton2[vtxind] = lep2;
             }
           }
         }
@@ -901,13 +916,17 @@ GammaGammaLL::beginJob()
   tree_->Branch("LumiSection", &LumiSection, "LumiSection/I");
   tree_->Branch("BX", &BX, "BX/I");
   tree_->Branch("EventNum", &EventNum, "EventNum/I");
+  /*tree_->Branch("LHCFillNum", &LHCFillNum, "LHCFillNum/I");
+  tree_->Branch("LHCBeamMode", &LHCBeamMode, "LHCBeamMode/I");*/
   /*tree_->Branch("AvgInstDelLumi", &AvgInstDelLumi, "AvgInstDelLumi/D");
   tree_->Branch("BunchInstLumi", &BunchInstLumi, "BunchInstLumi[3]/D");*/
 
   tree_->Branch("nHLT", &nHLT, "nHLT/I");
-  tree_->Branch("HLT_Accept", HLT_Accept, "HLT_Prescl[nHLT]/I");
+  tree_->Branch("HLT_Accept", HLT_Accept, "HLT_Accept[nHLT]/I");
   tree_->Branch("HLT_Prescl", HLT_Prescl, "HLT_Prescl[nHLT]/I");
-  tree_->Branch("HLT_Name", HLT_Name);
+  //tree_->Branch("HLT_Name", &HLT_Name, "HLT_Name[nHLT]/C");
+  tree_->Branch("HLT_Name", &HLT_Name);
+  *HLT_Name = triggersList_;
   
   if (_fetchMuons) {
     tree_->Branch("nMuonCand", &nMuonCand, "nMuonCand/I");
@@ -1022,7 +1041,7 @@ GammaGammaLL::beginJob()
   
   // Primary vertices' information
   tree_->Branch("nPrimVertexCand", &nPrimVertexCand, "nPrimVertexCand/I");
-  tree_->Branch("nFilteredPrimVertexCand", &nFilteredPrimVertexCand, "nPrimVertexCand/I");
+  tree_->Branch("nFilteredPrimVertexCand", &nFilteredPrimVertexCand, "nFilteredPrimVertexCand/I");
   tree_->Branch("PrimVertexCand_id", PrimVertexCand_id, "PrimVertexCand_id[nPrimVertexCand]/I");
   tree_->Branch("PrimVertexCand_hasdil", PrimVertexCand_hasdil, "PrimVertexCand_hasdil[nPrimVertexCand]/I");
   tree_->Branch("PrimVertexCand_x", PrimVertexCand_x, "PrimVertexCand_x[nPrimVertexCand]/D");
@@ -1036,6 +1055,8 @@ GammaGammaLL::beginJob()
 
   // Lepton pairs' information
   tree_->Branch("Pair_candidates", Pair_candidates, "Pair_candidates[nPrimVertexCand][2]/I");
+  tree_->Branch("Pair_lepton1", Pair_lepton1, "Pair_lepton1[nPrimVertexCand]/I");
+  tree_->Branch("Pair_lepton2", Pair_lepton2, "Pair_lepton2[nPrimVertexCand]/I");
   tree_->Branch("Pair_mindist", Pair_mindist, "Pair_mindist[nPrimVertexCand]/D");
   tree_->Branch("Pair_p", Pair_p, "Pair_p[nPrimVertexCand]/D");
   tree_->Branch("Pair_pt", Pair_pt, "Pair_pt[nPrimVertexCand]/D");
@@ -1058,21 +1079,26 @@ GammaGammaLL::beginJob()
   tree_->Branch("Pair_extratracks10cm", Pair_extratracks10cm, "Pair_extratracks10cm[nPrimVertexCand]/I");
   tree_->Branch("PairGamma_mass", PairGamma_mass, "PairGamma_mass[nPrimVertexCand][nPFPhotonCand]/D");
 
-  tree_->Branch("nLocalProtCand", &nLocalProtCand, "nLocalProtCand/I");
-  tree_->Branch("LocalProtCand_x", LocalProtCand_x, "LocalProtCand_x[nLocalProtCand]/D");
-  tree_->Branch("LocalProtCand_y", LocalProtCand_y, "LocalProtCand_y[nLocalProtCand]/D"); 
-  tree_->Branch("LocalProtCand_z", LocalProtCand_z, "LocalProtCand_z[nLocalProtCand]/D"); 
-  tree_->Branch("LocalProtCand_xSigma", LocalProtCand_xSigma, "LocalProtCand_xSigma[nLocalProtCand]/D");
-  tree_->Branch("LocalProtCand_ySigma", LocalProtCand_ySigma, "LocalProtCand_ySigma[nLocalProtCand]/D"); 
-  tree_->Branch("LocalProtCand_Tx", LocalProtCand_Tx, "LocalProtCand_Tx[nLocalProtCand]/D");
-  tree_->Branch("LocalProtCand_Ty", LocalProtCand_Ty, "LocalProtCand_Ty[nLocalProtCand]/D"); 
-  tree_->Branch("LocalProtCand_TxSigma", LocalProtCand_TxSigma, "LocalProtCand_TxSigma[nLocalProtCand]/D"); 
-  tree_->Branch("LocalProtCand_TySigma", LocalProtCand_TySigma, "LocalProtCand_TySigma[nLocalProtCand]/D"); 
+  if (!runOnMC_) {
+    tree_->Branch("nLocalProtCand", &nLocalProtCand, "nLocalProtCand/I");
+    tree_->Branch("LocalProtCand_x", LocalProtCand_x, "LocalProtCand_x[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_y", LocalProtCand_y, "LocalProtCand_y[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_z", LocalProtCand_z, "LocalProtCand_z[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_xSigma", LocalProtCand_xSigma, "LocalProtCand_xSigma[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_ySigma", LocalProtCand_ySigma, "LocalProtCand_ySigma[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_xi", LocalProtCand_xi, "LocalProtCand_xi[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_arm", LocalProtCand_arm, "LocalProtCand_arm[nLocalProtCand]/I");
+    tree_->Branch("LocalProtCand_side", LocalProtCand_side, "LocalProtCand_side[nLocalProtCand]/I");
+    tree_->Branch("LocalProtCand_Tx", LocalProtCand_Tx, "LocalProtCand_Tx[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_Ty", LocalProtCand_Ty, "LocalProtCand_Ty[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_TxSigma", LocalProtCand_TxSigma, "LocalProtCand_TxSigma[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_TySigma", LocalProtCand_TySigma, "LocalProtCand_TySigma[nLocalProtCand]/D");
 
-  tree_->Branch("nLocalProtPairCand", &nLocalProtPairCand, "nLocalProtPairCand/I");
-  tree_->Branch("LocalProtPairCand_mass", LocalProtPairCand_mass, "LocalProtPairCand_mass[nLocalProtPairCand]/D]");
-  tree_->Branch("LocalProtPairCand_pt", LocalProtPairCand_pt, "LocalProtPairCand_pt[nLocalProtPairCand]/D]");
-  tree_->Branch("LocalProtPairCand_eta", LocalProtPairCand_eta, "LocalProtPairCand_eta[nLocalProtPairCand]/D]");
+    tree_->Branch("nLocalProtPairCand", &nLocalProtPairCand, "nLocalProtPairCand/I");
+    tree_->Branch("LocalProtPairCand_mass", LocalProtPairCand_mass, "LocalProtPairCand_mass[nLocalProtPairCand]/D]");
+    tree_->Branch("LocalProtPairCand_y", LocalProtPairCand_y, "LocalProtPairCand_y[nLocalProtPairCand]/D]");
+    tree_->Branch("LocalProtPairCand_pt", LocalProtPairCand_pt, "LocalProtPairCand_pt[nLocalProtPairCand]/D]");
+  }
 
   if (runOnMC_) {
     tree_->Branch("GenPair_p", &GenPair_p, "GenPair_p/D");
@@ -1139,14 +1165,14 @@ GammaGammaLL::beginJob()
   tree_->Branch("Etmiss_significance", &Etmiss_significance, "Etmiss_significance/D");
 
   // Pileup reweighting
-  tree_->Branch("nTruePUforPUWeight",&nTruePUforPUWeight,"nTruePUforPUWeight/I");
+  /*tree_->Branch("nTruePUforPUWeight",&nTruePUforPUWeight,"nTruePUforPUWeight/I");
   tree_->Branch("nTruePUafterPUWeight",&nTruePUafterPUWeight,"nTruePUafterPUWeight/D");
   tree_->Branch("nTruePUforPUWeightBXM1", &nTruePUforPUWeightBXM1, "nTruePUforPUWeightBXM1/I");
   tree_->Branch("nTruePUafterPUWeightBXM1", &nTruePUafterPUWeightBXM1, "nTruePUafterPUWeightBXM1/D");
   tree_->Branch("nTruePUforPUWeightBXP1", &nTruePUforPUWeightBXP1, "nTruePUforPUWeightBXP1/I"); 
   tree_->Branch("nTruePUafterPUWeightBXP1", &nTruePUafterPUWeightBXP1, "nTruePUafterPUWeightBXP1/D"); 
   tree_->Branch("nTruePUforPUWeightBX0", &nTruePUforPUWeightBX0, "nTruePUforPUWeightBX0/I");
-  tree_->Branch("nTruePUafterPUWeightBX0", &nTruePUafterPUWeightBX0, "nTruePUafterPUWeightBX0/D");
+  tree_->Branch("nTruePUafterPUWeightBX0", &nTruePUafterPUWeightBX0, "nTruePUafterPUWeightBX0/D");*/
   tree_->Branch("Weight", &Weight, "Weight/D");
   tree_->Branch("PUWeightTrue", &PUWeightTrue, "PUWeightTrue/D");
 
@@ -1166,6 +1192,8 @@ GammaGammaLL::clearTree()
   nGenPhotCand = nGenPhotCandOutOfAccept = 0;
   nGenProtCand = 0;
   nPFPhotonCand = 0;
+
+  //LHCFillNum = LHCBeamMode = -1;
 
   HPS_acc420b1 = HPS_acc220b1 = HPS_acc420and220b1 = HPS_acc420or220b1 = -1;
   HPS_acc420b2 = HPS_acc220b2 = HPS_acc420and220b2 = HPS_acc420or220b2 = -1;
@@ -1206,6 +1234,7 @@ GammaGammaLL::clearTree()
   }
   for (unsigned int i=0; i<MAX_PAIRS; i++) {
     Pair_candidates[i][0] = Pair_candidates[i][1] = -1;
+    Pair_lepton1[i] = Pair_lepton2[i] = -1;
     Pair_mindist[i] = Pair_p[i] = Pair_pt[i] = Pair_mass[i] = Pair_phi[i] = Pair_eta[i] = -999.;
     Pair_dphi[i] = Pair_dpt[i] = Pair_3Dangle[i] = -999.;
     Pair_extratracks1mm[i] = Pair_extratracks2mm[i] = Pair_extratracks3mm[i] = 0;
@@ -1234,12 +1263,14 @@ GammaGammaLL::clearTree()
   Etmiss = Etmiss_x = Etmiss_y = Etmiss_z = Etmiss_significance = -999.;
   for (unsigned int i=0; i<MAX_LOCALPCAND; i++) {
     LocalProtCand_x[i] = LocalProtCand_y[i] = LocalProtCand_z[i] = -999.;
-    LocalProtCand_xSigma[nLocalProtCand] = LocalProtCand_ySigma[nLocalProtCand] = -999.;
-    LocalProtCand_Tx[nLocalProtCand] = LocalProtCand_Ty[nLocalProtCand] = -999.;
-    LocalProtCand_TxSigma[nLocalProtCand] = LocalProtCand_TySigma[nLocalProtCand] = -999.;
+    LocalProtCand_xi[i] = -999.;
+    LocalProtCand_xSigma[i] = LocalProtCand_ySigma[i] = -999.;
+    LocalProtCand_Tx[i] = LocalProtCand_Ty[i] = -999.;
+    LocalProtCand_TxSigma[i] = LocalProtCand_TySigma[i] = -999.;
+    LocalProtCand_arm[i] = LocalProtCand_side[i] = -1;
   }
   for (unsigned int i=0; i<MAX_LOCALPPAIRCAND; i++) {
-    LocalProtPairCand_mass[i] = LocalProtPairCand_pt[i] = LocalProtPairCand_eta[i] = -999.;
+    LocalProtPairCand_mass[i] = LocalProtPairCand_pt[i] = LocalProtPairCand_y[i] = -999.;
   }
 }
 
@@ -1266,6 +1297,16 @@ GammaGammaLL::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
   else if (hltConfig_.size()<=0) {
     edm::LogError("GammaGammaLL") << "HLT config size error";
   }
+
+  // extended LHC information
+  /*iRun.getByToken(condInRunToken_, condInRunBlock_);
+  if (condInRunBlock_.isValid()) {
+    LHCFillNum = condInRunBlock_->lhcFillNumber;
+    LHCBeamMode = condInRunBlock_->beamMode;
+  }
+  else {
+    edm::LogError("GammaGammaLL") << "Failed to retrieve the \"extended\" event information";
+  }*/
 }
 
 // ------------ method called when ending the processing of a run  ------------

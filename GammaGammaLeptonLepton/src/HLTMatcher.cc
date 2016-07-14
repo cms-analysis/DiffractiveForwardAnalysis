@@ -41,7 +41,10 @@ int
 HLTMatcher::TriggerNum(std::string _trigName)
 {
   for (unsigned int i=0; i<HLTnames.size(); i++) {
-    if (_trigName.find(HLTnames[i])!=std::string::npos) return i;
+    if (_trigName.find(HLTnames[i])!=std::string::npos) {
+      //std::cout << "--> trigger " << _trigName << " matched with " << HLTnames[i] << std::endl;
+      return i;
+    }
   }
   return -1;
 }
