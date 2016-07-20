@@ -69,7 +69,6 @@
 
 // CT-PPS objects
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
-#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/ProtonKinematics.h"
 
 // HPS acceptance
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
@@ -78,8 +77,8 @@
 
 // LHC fill information
 //#include "DataFormats/Common/interface/ConditionsInEdm.h" // L1 method
-#include "CondFormats/RunInfo/interface/FillInfo.h"
-#include "CondFormats/DataRecord/interface/FillInfoRcd.h" // db method
+//#include "CondFormats/RunInfo/interface/FillInfo.h"
+//#include "CondFormats/DataRecord/interface/FillInfoRcd.h" // db method
 
 #include <TFile.h>
 #include <TTree.h>
@@ -136,24 +135,18 @@ class GammaGammaLL : public edm::EDAnalyzer {
       void clearTree();
 
       // ----------member data ---------------------------
+
+      bool fetchMuons_, fetchElectrons_, fetchProtons_;
+      
       unsigned int verb_;
-      int lep1, lep2;
-      double vtxdst;
-      double closesttrkdxyz, closesthighpuritytrkdxyz;
-      int closesttrkid, closesthighpuritytrkid;
-      int parttype;
-      double leadingphotpx, leadingphotpy, leadingphotpz, leadingphotp;
-      double photdeta, photdphi, photdr;
-      double endphotdeta, endphotdphi, endphotdr;
-      double pairgmass;
-      bool istight;
 
       std::ofstream *logfile_;
       
       // Input tags
       std::string outputFile_;
+      std::vector<std::string> leptonsType_;
       std::string hltMenuLabel_;
-      std::vector<std::string> triggersList_, leptonsType_;
+      std::vector<std::string> triggersList_;
       edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
       edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
       edm::EDGetTokenT<reco::VertexCollection> recoVertexToken_;
@@ -205,15 +198,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       int npv, npvtrue, npvm1true, npvp1true, npv0true, npv0;
       std::string mcPileupFile_, mcPileupPath_, dataPileupFile_, dataPileupPath_;
       
-      bool _fetchMuons, _fetchElectrons;
-      
-      // Two-leptons matching
-      bool foundPairInEvent, foundPairOnVertex;
-      bool foundGenCandPairInEvent;
-      double leptonsDist, minDist; 
       TLorentzVector leptonptmp_;
-      TLorentzVector l1, l2;
-      std::map<int, TLorentzVector> muonsMomenta, electronsMomenta;
       
       // Isolation
       double rhoIso;
@@ -348,12 +333,12 @@ class GammaGammaLL : public edm::EDAnalyzer {
       int EleCand_ecalDriven[MAX_LL]; 
       int EleCand_tightID[MAX_LL], EleCand_mediumID[MAX_LL], EleCand_looseID[MAX_LL];
       
-      // PF Photon quantities
-      int nPFPhotonCand;
-      double PFPhotonCand_px[MAX_PHO], PFPhotonCand_py[MAX_PHO], PFPhotonCand_pz[MAX_PHO];
-      double PFPhotonCand_p[MAX_PHO], PFPhotonCand_pt[MAX_PHO];
-      double PFPhotonCand_eta[MAX_PHO], PFPhotonCand_phi[MAX_PHO];
-      double PFPhotonCand_drtrue[MAX_PHO], PFPhotonCand_detatrue[MAX_PHO], PFPhotonCand_dphitrue[MAX_PHO];
+      // Photon quantities
+      int nPhotonCand;
+      double PhotonCand_px[MAX_PHO], PhotonCand_py[MAX_PHO], PhotonCand_pz[MAX_PHO];
+      double PhotonCand_p[MAX_PHO], PhotonCand_pt[MAX_PHO];
+      double PhotonCand_eta[MAX_PHO], PhotonCand_phi[MAX_PHO], PhotonCand_r9[MAX_PHO];
+      double PhotonCand_drtrue[MAX_PHO], PhotonCand_detatrue[MAX_PHO], PhotonCand_dphitrue[MAX_PHO];
       
       // Pair quantities
       int Pair_candidates[MAX_PAIRS][2], Pair_lepton1[MAX_PAIRS], Pair_lepton2[MAX_PAIRS];

@@ -61,27 +61,30 @@ PrimaryVertexSelector::SetPosition(double _x, double _y, double _z)
  *  internal collection
  */
 int
-PrimaryVertexSelector::AddTrack(const reco::TrackRef& _track, TString* _leptonType)
+PrimaryVertexSelector::AddTrack(const reco::TrackRef& _track)
 {
+  const double dr_max = 0.2;
   nTracks++; // total number of tracks matched with the vertex
   std::map<int,TLorentzVector>::iterator lep;
   for (lep=MuonMomenta.begin(); lep!=MuonMomenta.end(); lep++) {
-    if (fabs(_track->p()-lep->second.P())>.01) continue;
-    if (fabs(_track->pt()-lep->second.Pt())>.01) continue;
-    if (fabs(_track->eta()-lep->second.Eta())>.01) continue;
-    if (fabs(_track->phi()-lep->second.Phi())>.01) continue;
-    *_leptonType = "muon";
+    /*if (fabs(_track->p()-lep->second.P())>1.e-1) continue;
+    if (fabs(_track->pt()-lep->second.Pt())>1.e-1) continue;
+    if (fabs(_track->eta()-lep->second.Eta())>1.e-1) continue;
+    if (fabs(_track->phi()-lep->second.Phi())>1.e-1) continue;*/
+    TVector3 trk(_track->px(), _track->py(), _track->pz());
+    if (trk.DeltaR(lep->second.Vect())>dr_max) continue;
     MatchedMuons.push_back(lep->first);
     nMatchedMuons++;
     nMatchedTracks++;
     return lep->first;
   }
   for (lep=ElectronMomenta.begin(); lep!=ElectronMomenta.end(); lep++) {
-    if (fabs(_track->p()-lep->second.P())>.01) continue;
-    if (fabs(_track->pt()-lep->second.Pt())>.01) continue;
-    if (fabs(_track->eta()-lep->second.Eta())>.01) continue;
-    if (fabs(_track->phi()-lep->second.Phi())>.01) continue;
-    *_leptonType = "electron";
+    /*if (fabs(_track->p()-lep->second.P())>1.e-1) continue;
+    if (fabs(_track->pt()-lep->second.Pt())>1.e-1) continue;
+    if (fabs(_track->eta()-lep->second.Eta())>1.e-1) continue;
+    if (fabs(_track->phi()-lep->second.Phi())>1.e-1) continue;*/
+    TVector3 trk(_track->px(), _track->py(), _track->pz());
+    if (trk.DeltaR(lep->second.Vect())>dr_max) continue;
     MatchedElectrons.push_back(lep->first);
     nMatchedElectrons++;
     nMatchedTracks++;

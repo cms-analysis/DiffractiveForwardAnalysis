@@ -175,6 +175,7 @@ process.ggll_aod.LeptonsType = cms.vstring('Muon')
 #process.ggll_aod.LeptonsType = cms.vstring('Electron')
 process.ggll_aod.RunOnMC = cms.untracked.bool(runOnMC)
 process.ggll_aod.outfilename = cms.untracked.string('output.root')
+process.ggll_aod.fetchProtons = cms.bool(True)
 
 process.p = cms.Path(
     process.hltFilter*

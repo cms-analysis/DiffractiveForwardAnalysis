@@ -34,7 +34,7 @@ class PrimaryVertexSelector : public reco::Vertex {
     explicit PrimaryVertexSelector(std::vector<std::string>&, std::map<int,TLorentzVector>&, std::map<int,TLorentzVector>&);
     ~PrimaryVertexSelector();
     void SetPosition(double, double, double);
-    int AddTrack(const reco::TrackRef&, TString*);
+    int AddTrack(const reco::TrackRef&);
     inline int Electrons() { return nMatchedElectrons; }
     inline int Muons() { return nMatchedMuons; }
     double dZ(TVector3, int);

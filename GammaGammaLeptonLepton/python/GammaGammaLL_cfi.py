@@ -36,6 +36,7 @@ ggll_aod = cms.EDAnalyzer(
     MCAcceptPtCut = cms.untracked.double(0.),
     MCAcceptEtaCut = cms.untracked.double(-1.),
     GenParticlesCollectionLabel = cms.InputTag('genParticles'),
+    fetchProtons = cms.bool(False), # retrieve the TOTEM/PPS info from the files (data only!)
     PrintCandidates = cms.untracked.bool(False),
 )
 ggll = ggll_aod.clone() ## for backward-compatibility
