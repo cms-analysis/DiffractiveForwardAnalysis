@@ -15,33 +15,9 @@ process.options   = cms.untracked.PSet(
     #SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(250) )
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 #process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-
-#process.load("CondCore.DBCommon.CondDBCommon_cfi")
-#from CondCore.CondDB.CondDB_cfi import CondDB
-#db = CondDB.clone(
-#    #connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-#    connect = cms.string('frontier://FrontierPrep/CMS_COND_RUN_INFO')
-#    #name = cms.untracked.string('FillInfo'),
-#)
-#process.rn = cms.ESSource("PoolDBESSource",
-#    db,
-#    timetype = cms.string('timestamp'),
-#    toGet = cms.VPSet(cms.PSet(
-#        record = cms.string('FillInfoRcd'),
-#        tag = cms.string('FillInfo_v1_hlt')
-#    ))
-#)
-#process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
-#    toGet = cms.VPSet(cms.PSet(
-#        record = cms.string('FillInfoRcd'),
-#        data = cms.vstring('fillinfo')
-#    )),
-#    verbose = cms.untracked.bool(True)
-#)
-
 
 #########################
 #      Input files      #
@@ -73,7 +49,7 @@ process.hltFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 #process.hltFilter.HLTPaths = ['HLT_Mu17_Mu8_*']
 process.hltFilter.HLTPaths = cms.vstring(
     'HLT_DoubleMu33NoFiltersNoVtx_v*', 'HLT_DoubleMu38NoFiltersNoVtx_v*',
-    'HLT_Mu17_Mu8_v*', 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*',
+    'HLT_Mu17_Mu8_v*', #'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*',
     'HLT_Mu20_Mu10_v*'
 )
 #process.hltFilter.HLTPaths = ['HLT_Mu10_Ele10_CaloIdL_*', 'HLT_Mu8_Ele17_*', 'HLT_Mu17_Ele8_*']
@@ -111,21 +87,9 @@ process.muonFilter = cms.EDFilter("CandViewCountFilter",
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 from Configuration.EventContent.EventContent_cff import *
 
-#process.load('PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi')
-#process.load('PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi')
-#process.patDefaultSequence.insert(1, process.patTrigger)
-#process.patTriggerEvent.condGtTag = cms.InputTag('conditionsInEdm')
-#process.patDefaultSequence.insert(2, process.patTriggerEvent)
-
 #from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning, patExtraAodEventContent
 #from PhysicsTools.PatAlgos.tools.coreTools import *
 
-#
-# Particle flow isolation
-#
-#from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFMuonIso
-#process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
-#process.pfiso = cms.Sequence(process.pfParticleSelectionSequence + process.eleIsoSequence)
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *',
@@ -140,19 +104,12 @@ process.out = cms.OutputModule("PoolOutputModule",
         #*patEventContentNoCleaning
     ),
 )
-from PhysicsTools.PatAlgos.patEventContent_cff import patTriggerEventContent
-process.out.outputCommands += patTriggerEventContent
 
 from DiffractiveForwardAnalysis.GammaGammaLeptonLepton.RemovePATMCMatching_cfi import removePATMCMatching
 
 if not runOnMC:
     #names = ['Photons', 'Electrons', 'Muons', 'Jets', 'METs']
     removePATMCMatching(process)
-
-#process.tauMatchBoostedPFlow = cms.PSet()
-#process.patTausBoostedPFlow = cms.PSet()
-#usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix)
-#useGsfElectrons(process,postfix)
 
 #########################
 #      Electron ID      #
@@ -188,4 +145,3 @@ process.p = cms.Path(
     #getattr(process,"patPF2PATSequence"+postfix)*
     process.ggll_aod
 )
-#getattr(process,"pfNoElectron"+postfix).enable = True

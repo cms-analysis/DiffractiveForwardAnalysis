@@ -50,6 +50,9 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
+// Photons collection
+#include "DataFormats/PatCandidates/interface/Photon.h"
+
 // Particle flow collection
 //#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 //#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -176,7 +179,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       edm::Handle<reco::BeamSpot> beamspot_h;
 
       // Generator level information
-      edm::Handle<reco::GenParticleCollection> genPartColl;
+      edm::Handle<reco::GenParticleCollection> genPartColl_;
       reco::GenParticleCollection::const_iterator genPart;
       std::string fullAcceptancePath;
       edm::FileInPath *myDataFile;
@@ -207,37 +210,41 @@ class GammaGammaLL : public edm::EDAnalyzer {
       int etind; // Extra tracks on vertex index (used in loop over tracks)
 
       // Vertices
-      edm::Handle<reco::VertexCollection> recoVertexColl;
+      edm::Handle<reco::VertexCollection> recoVertexColl_;
       reco::VertexCollection::const_iterator vertex;
       
       // PAT muons
-      edm::Handle<edm::View<pat::Muon> > muonColl;
+      edm::Handle<edm::View<pat::Muon> > muonColl_;
       edm::View<pat::Muon>::const_iterator muon;
       // AOD muons
-      /*edm::Handle<reco::MuonCollection> muonColl;
+      /*edm::Handle<reco::MuonCollection> muonColl_;
       reco::MuonCollection::const_iterator muon;*/
       
       // PAT electrons
-      edm::Handle<edm::View<pat::Electron> > eleColl;
+      edm::Handle<edm::View<pat::Electron> > eleColl_;
       edm::View<pat::Electron>::const_iterator electron;
       // RECO electrons
-      edm::Handle<reco::GsfElectronCollection> eleCollRECO;
       edm::Handle<reco::ConversionCollection> conversions_h;
       edm::Handle<double> rhoIso_h; 
     	
       TLorentzVector pair;
       double dphi;
-      
+     
+      // PAT photons
+      edm::EDGetTokenT< edm::View<pat::Photon> > photonToken_;
+      edm::Handle< edm::View<pat::Photon> > photonColl_;
+      edm::View<pat::Photon>::const_iterator photon;
+ 
       // Particle Flow
       edm::EDGetTokenT< edm::View<reco::PFCandidate> > pflowToken_;
-      edm::Handle<edm::View<reco::PFCandidate> > pflowColl;
+      edm::Handle< edm::View<reco::PFCandidate> > pflowColl_;
       edm::View<reco::PFCandidate>::const_iterator pflow; //FIXME will not work for miniAOD
       /*edm::EDGetTokenT< edm::View<pat::PackedCandidate> > pflowToken_;
-      edm::Handle<edm::View<pat::PackedCandidate> > pflowColl;
+      edm::Handle<edm::View<pat::PackedCandidate> > pflowColl_;
       edm::View<pat::PackedCandidate>::const_iterator pflow;*/
       
       // Jets/MET
-      edm::Handle<edm::View<pat::Jet> > jetColl;
+      edm::Handle<edm::View<pat::Jet> > jetColl_;
       edm::View<pat::Jet>::const_iterator jet;
       edm::Handle< edm::View<pat::MET> > MET; 
       edm::View<pat::MET>::const_iterator met; 

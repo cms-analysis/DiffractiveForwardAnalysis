@@ -47,10 +47,10 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
   printCandidates_    (iConfig.getUntrackedParameter<bool>("PrintCandidates", false)),
   sqrts_              (iConfig.getParameter<double>("SqrtS")),
   maxExTrkVtx_        (iConfig.getUntrackedParameter<unsigned int>("maxExtraTracks", 1000)),
-  //condInRunToken_     (consumes<edm::ConditionsInRunBlock,edm::InRun>(iConfig.getUntrackedParameter<edm::InputTag>("CondInEdmInputTag", std::string("conditionsInEdm")))),
   hltPrescale_        (iConfig, consumesCollector(), *this),
   lumiWeights_(0),
-  pflowToken_         (consumes< edm::View<reco::PFCandidate> >(iConfig.getUntrackedParameter<edm::InputTag>("PFLabel", std::string("particleFlow")))) //FIXME will not work for miniAOD
+  photonToken_        (consumes< edm::View<pat::Photon> >         (iConfig.getParameter<edm::InputTag>("photonLabel"))),
+  pflowToken_         (consumes< edm::View<reco::PFCandidate> >   (iConfig.getUntrackedParameter<edm::InputTag>("PFLabel", std::string("particleFlow")))) //FIXME will not work for miniAOD
   //pflowToken_         (consumes< edm::View<pat::PackedCandidate> >(iConfig.getUntrackedParameter<edm::InputTag>("PFLabel", std::string("particleFlow"))))
 {
   //now do what ever initialization is needed
@@ -70,7 +70,7 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
     dataPileupFile_ = iConfig.getUntrackedParameter<std::string>("datapufile", "PUHistos_duplicated.root");
     dataPileupPath_ = iConfig.getUntrackedParameter<std::string>("datapupath", "pileup");  
   }
-  
+
   // Leptons input tags
   for (std::vector<std::string>::const_iterator it=leptonsType_.begin(); it!=leptonsType_.end(); it++) {
     if (*it=="Muon") fetchMuons_ = true;
@@ -81,16 +81,12 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
                                            << "   * ['Electron', 'Muon']       (for electron-muon pairs)";
     }
   }
-  ///isoValToken_ = consumes<iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags");
-  
+
   file_ = new TFile(outputFile_.c_str(), "recreate");
   file_->cd();
   // tree definition
   tree_ = new TTree("ntp1", "ntp1");
 
-  //log_hist = new TH1D("log", "", 500, -25., 25.);
-  logfile_ = new std::ofstream("log_file.out");
-      
   // HPS acceptance file readout definition
   if (runOnMC_) {
     // edm::FileInPath myDataFile("FastSimulation/ProtonTaggers/data/acceptance_420_220.root");  
@@ -124,10 +120,6 @@ GammaGammaLL::~GammaGammaLL()
   file_->Write();
   file_->Close();
 
-  if (logfile_) {
-    logfile_->close();
-    delete logfile_;
-  }
   if (hlts_) delete hlts_;
   if (tree_) delete tree_;
   if (lumiWeights_) delete lumiWeights_;
@@ -173,26 +165,11 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Weight = 1.;
   
-  //std::cout << "Passed First init of the variables" << std::endl;
-
   // Run and BX information
   BX = iEvent.bunchCrossing();
   Run = iEvent.id().run();
   LumiSection = iEvent.luminosityBlock();
   EventNum = iEvent.id().event();
-  //LHCFillNum = iEvent.eventAuxiliary().storeNumber(); //should be there, but it is not
-  /*edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("FillInfoRcd"));
-  if (recordKey.type()==edm::eventsetup::EventSetupRecordKey::TypeTag()) {
-    //record not found
-    std::cout <<"Record \"FillInfoRcd"<<"\" does not exist "<<std::endl;
-  }
-  edm::ESHandle<FillInfo> sum;
-  std::cout<<"got eshandle"<<std::endl;
-  iSetup.get<FillInfoRcd>().get(sum);
-  std::cout<<"got context"<<std::endl;
-  const FillInfo* summary=sum.product();
-  std::cout<<"got FillInfo* "<< std::endl;
-  std::cout << *summary;*/
   
   // High level trigger information retrieval  
   lookAtTriggers(iEvent, iSetup);
@@ -204,14 +181,14 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   const reco::BeamSpot &beamSpot = *(beamspot_h.product());*/
 
   // Get the vertex collection from the event
-  iEvent.getByToken(recoVertexToken_, recoVertexColl);
-  const reco::VertexCollection* vertices = recoVertexColl.product();
+  iEvent.getByToken(recoVertexToken_, recoVertexColl_);
+  const reco::VertexCollection* vertices = recoVertexColl_.product();
 
   // Generator level information
   if (runOnMC_) {
-    iEvent.getByToken(genToken_, genPartColl);
+    iEvent.getByToken(genToken_, genPartColl_);
     
-    for (genPart=genPartColl->begin(); genPart!=genPartColl->end(); genPart++) {
+    for (genPart=genPartColl_->begin(); genPart!=genPartColl_->end(); genPart++) {
       if (!genPart->isPromptFinalState()) continue;
       if (genPart->pt()<minPtMC_ || (minEtaMC_!=-1. && fabs(genPart->eta())>minEtaMC_)) {
         if (fabs(genPart->pdgId())==13) nGenMuonCandOutOfAccept++;
@@ -265,8 +242,9 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         else xi = 1.+genPart->pz()/sqrts_;
         t = -(std::pow(genPart->pt(), 2)+std::pow(MASS_P*xi, 2))/(1.-xi);
         
+        // FIXME to be updated with the new CT-PPS simulation (high-PU)
         // HPS acceptance computation
-        if (genPart->pz()>0.) {
+        /*if (genPart->pz()>0.) {
           HPS_acc420b1 = helper420beam1.GetAcceptance(t, xi, genPart->phi());
           HPS_acc220b1 = helper220beam1.GetAcceptance(t, xi, genPart->phi());
           HPS_acc420and220b1 = helper420a220beam1.GetAcceptance(t, xi, genPart->phi());
@@ -277,7 +255,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           HPS_acc220b2 = helper220beam2.GetAcceptance(t, xi, genPart->phi());
           HPS_acc420and220b2 = helper420a220beam2.GetAcceptance(t, xi, genPart->phi());
           HPS_acc420or220b2 = HPS_acc420b2 + HPS_acc220b2 - HPS_acc420and220b2;
-        }
+        }*/
       }
     }
 
@@ -320,7 +298,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (lumiWeights_) Weight = lumiWeights_->weight(*iEventB);
 
     if (verb_>1) edm::LogInfo("GammaGammaLL") << "Passed Pileup retrieval stage";
-  }
+  } // run on MC?
   
   std::map<int, TLorentzVector> muonsMomenta, electronsMomenta;
   muonsMomenta.clear();
@@ -330,8 +308,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // Get the muons collection from the event
   if (fetchMuons_) {
-    iEvent.getByToken(muonToken_, muonColl);
-    for (muon=muonColl->begin(); muon!=muonColl->end() && nMuonCand<MAX_MUONS; muon++) {
+    iEvent.getByToken(muonToken_, muonColl_);
+    for (muon=muonColl_->begin(); muon!=muonColl_->end() && nMuonCand<MAX_MUONS; muon++) {
       MuonCand_p[nMuonCand] = muon->p();
       MuonCand_px[nMuonCand] = muon->px();
       MuonCand_py[nMuonCand] = muon->py();
@@ -377,13 +355,13 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       nMuonCand++;
     }
-  }
-  
-  if (verb_>1) edm::LogInfo("GammaGammaLL") << "Passed Muon retrieval stage";
+    nLeptonCand += nMuonCand;
+    if (verb_>1) edm::LogInfo("GammaGammaLL") << "Passed Muon retrieval stage. Got " << nMuonCand << " muon(s)";
+  } // fetch muons?
 
   // Get the electrons collection from the event
   if (fetchElectrons_) {
-    iEvent.getByToken(eleToken_, eleColl);
+    iEvent.getByToken(eleToken_, eleColl_);
     // New 2012 electron ID variables conversions
     //iEvent.getByToken(conversionsToken_, conversions_h);
 
@@ -394,8 +372,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<edm::ValueMap<bool> > tight_id_decisions; 
     iEvent.getByToken(eleTightIdMapToken_, tight_id_decisions);
 
-    for (unsigned int j=0; j<eleColl->size(); j++) {
-      const auto electron = eleColl->ptrAt(j);
+    for (unsigned int j=0; j<eleColl_->size(); j++) {
+      const auto electron = eleColl_->ptrAt(j);
 
       EleCand_e[nEleCand] = electron->energy();
       EleCand_et[nEleCand] = electron->et();
@@ -442,25 +420,24 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  
       nEleCand++;
     }
-  }
-
-  nLeptonCand += (fetchMuons_) ? nMuonCand : 0;
-  nLeptonCand += (fetchElectrons_) ? nEleCand : 0;
-  
-  if (verb_>1) edm::LogInfo("GammaGammaLL") << "Passed Electron retrieval stage";
+    nLeptonCand += nEleCand;
+    if (verb_>1) edm::LogInfo("GammaGammaLL") << "Passed Electron retrieval stage. Got " << nEleCand << " electron(s)";
+  } // fetch electrons?  
   
   // Get the PFlow collection from the event
-  iEvent.getByToken(pflowToken_, pflowColl);
-  for (pflow=pflowColl->begin(); pflow!=pflowColl->end(); pflow++) { 
-    if (reco::PFCandidate::ParticleType(pflow->pdgId())!=reco::PFCandidate::gamma or nPhotonCand>=MAX_PHO) continue;
-    PhotonCand_p[nPhotonCand] = pflow->p();
-    PhotonCand_px[nPhotonCand] = pflow->px();
-    PhotonCand_py[nPhotonCand] = pflow->py();
-    PhotonCand_pz[nPhotonCand] = pflow->pz();
-    PhotonCand_pt[nPhotonCand] = pflow->pt();
-    PhotonCand_eta[nPhotonCand] = pflow->eta();
-    PhotonCand_phi[nPhotonCand] = pflow->phi();
-    PhotonCand_r9[nPhotonCand] = pflow->photonRef()->r9();
+  //iEvent.getByToken(pflowToken_, pflowColl_);
+
+  // Get the photons collection from the event
+  iEvent.getByToken(photonToken_, photonColl_);
+  for (photon=photonColl_->begin(); photon!=photonColl_->end(); photon++) { 
+    PhotonCand_p[nPhotonCand] = photon->p();
+    PhotonCand_px[nPhotonCand] = photon->px();
+    PhotonCand_py[nPhotonCand] = photon->py();
+    PhotonCand_pz[nPhotonCand] = photon->pz();
+    PhotonCand_pt[nPhotonCand] = photon->pt();
+    PhotonCand_eta[nPhotonCand] = photon->eta();
+    PhotonCand_phi[nPhotonCand] = photon->phi();
+    PhotonCand_r9[nPhotonCand] = photon->r9();
 
     PhotonCand_drtrue[nPhotonCand] = -999.;
     PhotonCand_detatrue[nPhotonCand] = -999.;
@@ -483,36 +460,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       PhotonCand_drtrue[nPhotonCand] = endphotdr;
     }
     nPhotonCand++;
-  }
-  if (verb_>1) edm::LogInfo("GammaGammaLL") << "Passed photons retrieval stage";
-
-  if (fetchProtons_) { //FIXME forward tracks only present in the data as from now
-    // Forward protons
-    edm::Handle< edm::DetSetVector<TotemRPLocalTrack> > rplocaltracks; 
-    iEvent.getByToken(totemRPHitToken_, rplocaltracks);
-
-    nLocalProtCand = 0;
-    for (edm::DetSetVector<TotemRPLocalTrack>::const_iterator rplocaltrack=rplocaltracks->begin(); rplocaltrack!=rplocaltracks->end(); rplocaltrack++) {
-      const unsigned int det_id = rplocaltrack->detId();
-      const unsigned short arm = (det_id%100==2), // 0->F, 1->N (3/103->F, 2/102->N)
-                           side = (det_id/100); // 0->L, 1->R (2/3->L, 102/103->R)
-      for (edm::DetSet<TotemRPLocalTrack>::const_iterator proton=rplocaltrack->begin(); proton!=rplocaltrack->end(); proton++) {
-        if (!proton->isValid()) continue;
-        //std::cout << "---> proton with origin: (" << proton->getX0() << ", " << proton->getY0() << ", " << proton->getZ0() << ") reconstructed!" << std::endl;
-        LocalProtCand_x[nLocalProtCand] = (proton->getX0())/1.e3;
-        LocalProtCand_y[nLocalProtCand] = (proton->getY0())/1.e3;
-        LocalProtCand_z[nLocalProtCand] = (proton->getZ0())/1.e3;
-        LocalProtCand_xSigma[nLocalProtCand] = (proton->getX0Sigma())/1.e3;
-        LocalProtCand_ySigma[nLocalProtCand] = (proton->getY0Sigma())/1.e3;
-        LocalProtCand_Tx[nLocalProtCand] = proton->getTx();
-        LocalProtCand_Ty[nLocalProtCand] = proton->getTy();
-        LocalProtCand_TxSigma[nLocalProtCand] = proton->getTxSigma();
-        LocalProtCand_TySigma[nLocalProtCand] = proton->getTySigma();
-        LocalProtCand_arm[nLocalProtCand] = arm;
-        LocalProtCand_side[nLocalProtCand] = side;
-        nLocalProtCand++;
-      }
-    }
+    if (verb_>1) edm::LogInfo("GammaGammaLL") << "Passed photons retrieval stage. Got " << nPhotonCand << " photon(s)";
   }
 
   // Vertex tracks multiplicity
@@ -522,16 +470,12 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool foundPairInEvent = false;
   
   if (nLeptonCand>=2) {
-    // Enough leptons candidates to go deeper and analyze the primary vertices
-    
-    
+    // Enough leptons candidates to go deeper and analyze the primary vertices 
     etind = 0;
 
     double closesttrkdxyz = 999., closesthighpuritytrkdxyz = 999.;
     for (vertex=vertices->begin(); vertex!=vertices->end() && vtxind<MAX_VTX; ++vertex) {
       PrimaryVertexSelector vtx(leptonsType_, muonsMomenta, electronsMomenta);
-
-      //(*logfile_) << vertex->z() << std::endl;
 
       nLeptonsInPrimVertex = 0;
       nExtraTracks = 0;
@@ -547,7 +491,6 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       PrimVertexCand_ndof[vtxind] = vertex->ndof();
       
       double closesttrkid = -1.;
-      //int closesthighpuritytrkid = -1;
       // Loop on all the tracks matched with this vertex
       for (reco::Vertex::trackRef_iterator track=vertex->tracks_begin();
           track!=vertex->tracks_end() && etind<MAX_ET && etind<(int)maxExTrkVtx_; track++) {
@@ -756,10 +699,10 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         for (int j=0; j<nPhotonCand; j++) {
           PairGamma_mass[vtxind][j] = sqrt(
-            std::pow(l1.P() +l2.P() +PhotonCand_p[j], 2)-
-	    std::pow(l1.Px()+l2.Px()+PhotonCand_px[j], 2)-
-	    std::pow(l1.Py()+l2.Py()+PhotonCand_py[j], 2)-
-	    std::pow(l1.Pz()+l2.Pz()+PhotonCand_pz[j], 2));
+            std::pow(l1.P() +l2.P() +PhotonCand_p[j], 2)
+           -std::pow(l1.Px()+l2.Px()+PhotonCand_px[j], 2)
+           -std::pow(l1.Py()+l2.Py()+PhotonCand_py[j], 2)
+           -std::pow(l1.Pz()+l2.Pz()+PhotonCand_pz[j], 2));
           //std::cout << "Photon " << j << " added to give a mass = " << PairGamma_mass[vtxind][j] << std::endl;
         }
         PrimVertexCand_hasdil[vtxind] = 1;
@@ -775,13 +718,47 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (verb_>2) edm::LogInfo("GammaGammaLL") << "end of the loop on the vertices : vtxind = " << vtxind;
   }
   nExtraTracks = etind;
-  
+
   if (verb_>1) edm::LogInfo("GammaGammaLL") << "Passed Loop on vertices";
   
+  /////
+  if (!foundPairInEvent) return; // avoid to unpack RP/jet/MET if no dilepton candidate has been found
+  /////
+  
+  if (fetchProtons_) {
+    // Forward proton tracks
+    edm::Handle< edm::DetSetVector<TotemRPLocalTrack> > rplocaltracks; 
+    iEvent.getByToken(totemRPHitToken_, rplocaltracks);
+
+    nLocalProtCand = 0;
+    for (edm::DetSetVector<TotemRPLocalTrack>::const_iterator rplocaltrack=rplocaltracks->begin(); rplocaltrack!=rplocaltracks->end(); rplocaltrack++) {
+      const unsigned int det_id = rplocaltrack->detId();
+      const unsigned short arm = (det_id%100==2), // 0->F, 1->N (3/103->F, 2/102->N)
+                           side = (det_id/100); // 0->L, 1->R (2/3->L, 102/103->R)
+      for (edm::DetSet<TotemRPLocalTrack>::const_iterator proton=rplocaltrack->begin(); proton!=rplocaltrack->end(); proton++) {
+        if (!proton->isValid()) continue;
+        LocalProtCand_x[nLocalProtCand] = (proton->getX0())/1.e3;
+        LocalProtCand_y[nLocalProtCand] = (proton->getY0())/1.e3;
+        LocalProtCand_z[nLocalProtCand] = (proton->getZ0())/1.e3;
+        LocalProtCand_xSigma[nLocalProtCand] = (proton->getX0Sigma())/1.e3;
+        LocalProtCand_ySigma[nLocalProtCand] = (proton->getY0Sigma())/1.e3;
+        LocalProtCand_Tx[nLocalProtCand] = proton->getTx();
+        LocalProtCand_Ty[nLocalProtCand] = proton->getTy();
+        LocalProtCand_TxSigma[nLocalProtCand] = proton->getTxSigma();
+        LocalProtCand_TySigma[nLocalProtCand] = proton->getTySigma();
+        LocalProtCand_arm[nLocalProtCand] = arm;
+        LocalProtCand_side[nLocalProtCand] = side;
+        nLocalProtCand++;
+        if (verb_>2) edm::LogInfo("GammaGammaLL") << "Proton track candidate with origin: (" << proton->getX0() << ", " << proton->getY0() << ", " << proton->getZ0() << ") extracted!";
+      }
+    }
+    if (verb_>1) edm::LogInfo("GammaGammaLL") << "Passed TOTEM RP info retrieval stage. Got " << nLocalProtCand << " local track(s)";
+  }
+
   // Get the Jet collection from the event
   // PAT
-  iEvent.getByToken(jetToken_, jetColl);
-  for (jet=jetColl->begin(); jet!=jetColl->end() && nJetCand<MAX_JETS; jet++) {
+  iEvent.getByToken(jetToken_, jetColl_);
+  for (jet=jetColl_->begin(); jet!=jetColl_->end() && nJetCand<MAX_JETS; jet++) {
     JetCand_e[nJetCand] = jet->energy();
     JetCand_px[nJetCand] = jet->px();
     JetCand_py[nJetCand] = jet->py();
@@ -818,12 +795,10 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if (verb_>1) edm::LogInfo("GammaGammaLL") << "Passed MET retrieval stage";
 
-  if (foundPairInEvent) {
-    if (verb_>2 or printCandidates_) {
-      std::cout << "Event " << Run << ":" << EventNum << " has " << nCandidatesInEvent << " leptons pair(s) candidate(s) (vertex mult. : " << nPrimVertexCand << ")" << std::endl;
-    }
-    tree_->Fill();
+  if (verb_>2 or printCandidates_) {
+    std::cout << "Event " << Run << ":" << EventNum << " has " << nCandidatesInEvent << " leptons pair(s) candidate(s) (vertex mult. : " << nPrimVertexCand << ")" << std::endl;
   }
+  tree_->Fill();
 }
 
 
@@ -837,10 +812,6 @@ GammaGammaLL::beginJob()
   tree_->Branch("LumiSection", &LumiSection, "LumiSection/I");
   tree_->Branch("BX", &BX, "BX/I");
   tree_->Branch("EventNum", &EventNum, "EventNum/I");
-  /*tree_->Branch("LHCFillNum", &LHCFillNum, "LHCFillNum/I");
-  tree_->Branch("LHCBeamMode", &LHCBeamMode, "LHCBeamMode/I");*/
-  /*tree_->Branch("AvgInstDelLumi", &AvgInstDelLumi, "AvgInstDelLumi/D");
-  tree_->Branch("BunchInstLumi", &BunchInstLumi, "BunchInstLumi[3]/D");*/
 
   tree_->Branch("nHLT", &nHLT, "nHLT/I");
   tree_->Branch("HLT_Accept", HLT_Accept, "HLT_Accept[nHLT]/I");
@@ -1021,14 +992,14 @@ GammaGammaLL::beginJob()
     tree_->Branch("GenPair_phi", &GenPair_phi, "GenPair_phi/D");
     tree_->Branch("GenPair_dphi", &GenPair_dphi, "GenPair_dphi/D");
     tree_->Branch("GenPair_3Dangle", &GenPair_3Dangle, "GenPair_3Dangle[nPrimVertexCand]/D");
-    tree_->Branch("HPS_acc420b1", &HPS_acc420b1, "HPS_acc420b1/D");
+    /*tree_->Branch("HPS_acc420b1", &HPS_acc420b1, "HPS_acc420b1/D");
     tree_->Branch("HPS_acc220b1", &HPS_acc220b1, "HPS_acc220b1/D");
     tree_->Branch("HPS_acc420and220b1", &HPS_acc420and220b1, "HPS_acc420and220b1/D");
     tree_->Branch("HPS_acc420or220b1", &HPS_acc420or220b1, "HPS_acc420or220b1/D");
     tree_->Branch("HPS_acc420b2", &HPS_acc420b2, "HPS_acc420b2/D");
     tree_->Branch("HPS_acc220b2", &HPS_acc220b2, "HPS_acc220b2/D");
     tree_->Branch("HPS_acc420and220b2", &HPS_acc420and220b2, "HPS_acc420and220b2/D");
-    tree_->Branch("HPS_acc420or220b2", &HPS_acc420or220b2, "HPS_acc420or220b2/D");
+    tree_->Branch("HPS_acc420or220b2", &HPS_acc420or220b2, "HPS_acc420or220b2/D");*/
   }
   // Extra tracks on vertex's information
   tree_->Branch("nExtraTracks", &nExtraTracks, "nExtraTracks/I");
@@ -1196,16 +1167,6 @@ GammaGammaLL::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
   else if (hltConfig_.size()<=0) {
     edm::LogError("GammaGammaLL") << "HLT config size error";
   }
-
-  // extended LHC information
-  /*iRun.getByToken(condInRunToken_, condInRunBlock_);
-  if (condInRunBlock_.isValid()) {
-    LHCFillNum = condInRunBlock_->lhcFillNumber;
-    LHCBeamMode = condInRunBlock_->beamMode;
-  }
-  else {
-    edm::LogError("GammaGammaLL") << "Failed to retrieve the \"extended\" event information";
-  }*/
 }
 
 // ------------ method called when ending the processing of a run  ------------
