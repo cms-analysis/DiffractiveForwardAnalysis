@@ -127,6 +127,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
    private:
       virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyzeMCEventContent(const edm::Event&);
       virtual void endJob() ;
 
       virtual void beginRun(edm::Run const&, edm::EventSetup const&);
@@ -150,6 +151,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       std::vector<std::string> leptonsType_;
       std::string hltMenuLabel_;
       std::vector<std::string> triggersList_;
+
       edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
       edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
       edm::EDGetTokenT<reco::VertexCollection> recoVertexToken_;
@@ -160,33 +162,19 @@ class GammaGammaLL : public edm::EDAnalyzer {
       edm::EDGetTokenT< edm::ValueMap<bool> > eleMediumIdMapToken_;
       edm::EDGetTokenT< edm::ValueMap<bool> > eleTightIdMapToken_;
       edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
-      // rhoIsoLabel_;
       edm::EDGetTokenT< std::vector<PileupSummaryInfo> > pileupToken_;
       edm::EDGetTokenT< edm::View<pat::Jet> > jetToken_;
       edm::EDGetTokenT< edm::View<pat::MET> > metToken_;
       edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > totemRPHitToken_;
-      std::vector<edm::InputTag> isoValLabel_; 
+      edm::EDGetTokenT< edm::View<pat::Photon> > photonToken_;
+      edm::EDGetTokenT< edm::View<reco::PFCandidate> > pflowToken_;
+
+      std::vector<edm::InputTag> isoValLabel_;
+
       bool runOnMC_, printCandidates_;
       double minPtMC_, minEtaMC_;
       double sqrts_;
       unsigned int maxExTrkVtx_;
-
-      // Extended LHC run information
-      /*edm::EDGetTokenT<edm::ConditionsInRunBlock> condInRunToken_;
-      edm::Handle<edm::ConditionsInRunBlock> condInRunBlock_;*/
-
-      // Beam spot
-      edm::Handle<reco::BeamSpot> beamspot_h;
-
-      // Generator level information
-      edm::Handle<reco::GenParticleCollection> genPartColl_;
-      reco::GenParticleCollection::const_iterator genPart;
-      std::string fullAcceptancePath;
-      edm::FileInPath *myDataFile;
-      // HPS acceptance tables
-      TFile* f;
-      AcceptanceTableHelper helper420beam1, helper220beam1, helper420a220beam1;
-      AcceptanceTableHelper helper420beam2, helper220beam2, helper420a220beam2;
 
       // Trigger information
       HLTMatcher* hlts_;
@@ -194,62 +182,14 @@ class GammaGammaLL : public edm::EDAnalyzer {
       HLTPrescaleProvider hltPrescale_;
 
       // Pileup information
-      edm::LumiReWeighting *lumiWeights_; 
-      edm::Handle< std::vector<PileupSummaryInfo> >  pileupInfo;
-      std::vector<PileupSummaryInfo>::const_iterator PVI;
-      int sum_nvtx, beamXing;
-      int npv, npvtrue, npvm1true, npvp1true, npv0true, npv0;
+      edm::LumiReWeighting *lumiWeights_;
       std::string mcPileupFile_, mcPileupPath_, dataPileupFile_, dataPileupPath_;
-      
-      TLorentzVector leptonptmp_;
       
       // Isolation
       double rhoIso;
       double iso_ch, iso_em, iso_nh; // Electron isolation quantities
       int vtxind; // Primary vertex index (used in loop over vertices)
       int etind; // Extra tracks on vertex index (used in loop over tracks)
-
-      // Vertices
-      edm::Handle<reco::VertexCollection> recoVertexColl_;
-      reco::VertexCollection::const_iterator vertex;
-      
-      // PAT muons
-      edm::Handle<edm::View<pat::Muon> > muonColl_;
-      edm::View<pat::Muon>::const_iterator muon;
-      // AOD muons
-      /*edm::Handle<reco::MuonCollection> muonColl_;
-      reco::MuonCollection::const_iterator muon;*/
-      
-      // PAT electrons
-      edm::Handle<edm::View<pat::Electron> > eleColl_;
-      edm::View<pat::Electron>::const_iterator electron;
-      // RECO electrons
-      edm::Handle<reco::ConversionCollection> conversions_h;
-      edm::Handle<double> rhoIso_h; 
-    	
-      TLorentzVector pair;
-      double dphi;
-     
-      // PAT photons
-      edm::EDGetTokenT< edm::View<pat::Photon> > photonToken_;
-      edm::Handle< edm::View<pat::Photon> > photonColl_;
-      edm::View<pat::Photon>::const_iterator photon;
- 
-      // Particle Flow
-      edm::EDGetTokenT< edm::View<reco::PFCandidate> > pflowToken_;
-      edm::Handle< edm::View<reco::PFCandidate> > pflowColl_;
-      edm::View<reco::PFCandidate>::const_iterator pflow; //FIXME will not work for miniAOD
-      /*edm::EDGetTokenT< edm::View<pat::PackedCandidate> > pflowToken_;
-      edm::Handle<edm::View<pat::PackedCandidate> > pflowColl_;
-      edm::View<pat::PackedCandidate>::const_iterator pflow;*/
-      
-      // Jets/MET
-      edm::Handle<edm::View<pat::Jet> > jetColl_;
-      edm::View<pat::Jet>::const_iterator jet;
-      edm::Handle< edm::View<pat::MET> > MET; 
-      edm::View<pat::MET>::const_iterator met; 
-      double HEJet_e, HEJet_eta, HEJet_phi;
-      double totalJetEnergy;
 
       ////// Tree contents //////
       
