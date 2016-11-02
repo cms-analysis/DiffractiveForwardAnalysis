@@ -178,6 +178,8 @@ class GammaGammaLL : public edm::EDAnalyzer {
 
       std::vector<edm::InputTag> isoValLabel_;
 
+      KalmanVertexFitter kvFitter_;
+
       bool runOnMC_, printCandidates_;
       double minPtMC_, minEtaMC_;
       double sqrts_;

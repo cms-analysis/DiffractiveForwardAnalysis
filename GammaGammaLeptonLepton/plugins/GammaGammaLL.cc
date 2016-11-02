@@ -92,6 +92,7 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
     lumiWeights_ = new edm::LumiReWeighting(mcPileupFile_, dataPileupFile_, mcPileupPath_, dataPileupPath_);
     //lumiWeights_->setPileupSummaryInfoInputTag(iConfig.getParameter<edm::InputTag>("pileupInfo"));
   }
+  kvFitter_ = KalmanVertexFitter(true);
 }
 
 GammaGammaLL::~GammaGammaLL()
@@ -188,7 +189,6 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Kalman filtering
   edm::ESHandle<TransientTrackBuilder> KalVtx;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", KalVtx);
-  KalmanVertexFitter kvFitter(true);
 
   std::map<unsigned int,reco::TransientTrack> MuonTransientTracks, EleTransientTracks;
 
@@ -388,7 +388,6 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Enough leptons candidates to go deeper and analyze the primary vertices 
     etind = 0;
 
-    double closesttrkdxyz = 999., closesthighpuritytrkdxyz = 999.;
     for (reco::VertexCollection::const_iterator vertex=vertices->begin(); vertex!=vertices->end() && vtxind<MAX_VTX; ++vertex) {
       PrimaryVertexSelector vtx(leptonsType_, muonsMomenta, electronsMomenta);
 
@@ -405,74 +404,6 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       PrimVertexCand_chi2[vtxind] = vertex->chi2();
       PrimVertexCand_ndof[vtxind] = vertex->ndof();
 
-      double closesttrkid = -1.;
-      // Loop on all the tracks matched with this vertex
-      for (reco::Vertex::trackRef_iterator track=vertex->tracks_begin();
-          track!=vertex->tracks_end() && etind<MAX_ET && etind<(int)maxExTrkVtx_; track++) {
-	const int leptonId_ = vtx.AddTrack((*track).castTo<reco::TrackRef>());
-	if (leptonId_==-1) { // Track was not matched to any of the leptons in the collection
-          ExtraTrack_vtxId[etind] = vtxind;
-	  const double vtxdst = sqrt(std::pow(((*track)->vertex().x()-vtx.Position.X()),2)+
-                                std::pow(((*track)->vertex().y()-vtx.Position.Y()),2)+
-                                std::pow(((*track)->vertex().z()-vtx.Position.Z()),2));
-	  
-	  ExtraTrack_purity[etind] = (*track)->quality(reco::TrackBase::highPurity);
-	  ExtraTrack_nhits[etind] = (*track)->numberOfValidHits();
-	  
-	  ExtraTrack_p[etind] = (*track)->p();
-	  ExtraTrack_px[etind] = (*track)->px();
-	  ExtraTrack_py[etind] = (*track)->py();
-	  ExtraTrack_pz[etind] = (*track)->pz();
-	  ExtraTrack_pt[etind] = (*track)->pt();
-	  ExtraTrack_eta[etind] = (*track)->eta();
-	  ExtraTrack_phi[etind] = (*track)->phi();
-	  ExtraTrack_charge[etind] = (*track)->charge();
-	  ExtraTrack_chi2[etind] = (*track)->chi2();
-	  ExtraTrack_ndof[etind] = (*track)->ndof();
-          ExtraTrack_vtxdxyz[etind] = vtxdst;
-          ExtraTrack_vtxT[etind] = sqrt(std::pow((*track)->vertex().x()-vtx.Position.X(),2)+
-					std::pow((*track)->vertex().y()-vtx.Position.Y(),2));
-          ExtraTrack_vtxZ[etind] = fabs((*track)->vertex().z()-vtx.Position.Z());
-          ExtraTrack_x[etind] = (*track)->vertex().x();
-          ExtraTrack_y[etind] = (*track)->vertex().y();
-          ExtraTrack_z[etind] = (*track)->vertex().z();
-          
-          if (vtxdst<0.1) Pair_extratracks1mm[vtxind]++;
-          if (vtxdst<0.2) Pair_extratracks2mm[vtxind]++;
-          if (vtxdst<0.3) Pair_extratracks3mm[vtxind]++;
-          if (vtxdst<0.4) Pair_extratracks4mm[vtxind]++;
-          if (vtxdst<0.5) Pair_extratracks5mm[vtxind]++;
-          if (vtxdst<1.0) Pair_extratracks1cm[vtxind]++;
-          if (vtxdst<2.0) Pair_extratracks2cm[vtxind]++;
-          if (vtxdst<3.0) Pair_extratracks3cm[vtxind]++;
-          if (vtxdst<4.0) Pair_extratracks4cm[vtxind]++;
-          if (vtxdst<5.0) Pair_extratracks5cm[vtxind]++;
-          if (vtxdst<10.) Pair_extratracks10cm[vtxind]++;
-
-          if (vtxdst<closesttrkdxyz) {
-            closesttrkdxyz = vtxdst;
-            closesttrkid = etind;
-          }
-          
-	  if (ExtraTrack_purity[etind]==1 && ExtraTrack_nhits[etind]>=3) {
-	    nQualityExtraTrack++;
-	    if (vtxdst<closesthighpuritytrkdxyz) {
-	      closesthighpuritytrkdxyz = vtxdst;
-              //closesthighpuritytrkid = etind;
-	    }
-	  }
-          etind++;
-        }
-        else {
-          if (verb_>1) { edm::LogWarning("GammaGammaLL") << "-- Lepton match on vertex " << vtxind << " --> " << leptonId_; }
-          nLeptonsInPrimVertex++;
-        }
-      }
-      ClosestExtraTrack_vtxdxyz[vtxind] = closesttrkdxyz;
-      ClosestExtraTrack_id[vtxind] = closesttrkid;
-      ClosestHighPurityExtraTrack_vtxdxyz[vtxind] = closesthighpuritytrkdxyz;
-      ClosestHighPurityExtraTrack_id[vtxind] = closesttrkid;
-      
       PrimVertexCand_tracks[vtxind] = vtx.nTracks;
       PrimVertexCand_matchedtracks[vtxind] = vtx.nMatchedTracks;
       PrimVertexCand_unmatchedtracks[vtxind] = vtx.nUnmatchedTracks;
@@ -531,7 +462,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           std::vector<reco::TransientTrack> trans_trks;
           trans_trks.push_back(MuonTransientTracks[Pair_lepton1[vtxind]]);
           trans_trks.push_back(EleTransientTracks[Pair_lepton2[vtxind]]);
-          TransientVertex tr_vtx = kvFitter.vertex(trans_trks);
+          TransientVertex tr_vtx = kvFitter_.vertex(trans_trks);
           if (tr_vtx.isValid()) {
             KalmanVertexCand_x[vtxind] = tr_vtx.position().x();
             KalmanVertexCand_y[vtxind] = tr_vtx.position().y();
@@ -573,7 +504,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           std::vector<reco::TransientTrack> trans_trks;
           trans_trks.push_back(EleTransientTracks[Pair_lepton1[vtxind]]);
           trans_trks.push_back(EleTransientTracks[Pair_lepton2[vtxind]]);
-          TransientVertex tr_vtx = kvFitter.vertex(trans_trks);
+          TransientVertex tr_vtx = kvFitter_.vertex(trans_trks);
           if (tr_vtx.isValid()) {
             KalmanVertexCand_x[vtxind] = tr_vtx.position().x();
             KalmanVertexCand_y[vtxind] = tr_vtx.position().y();
@@ -625,7 +556,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           std::vector<reco::TransientTrack> trans_trks;
           trans_trks.push_back(MuonTransientTracks[Pair_lepton1[vtxind]]);
           trans_trks.push_back(MuonTransientTracks[Pair_lepton2[vtxind]]);
-          TransientVertex tr_vtx = kvFitter.vertex(trans_trks);
+          TransientVertex tr_vtx = kvFitter_.vertex(trans_trks);
           if (tr_vtx.isValid()) {
             KalmanVertexCand_x[vtxind] = tr_vtx.position().x();
             KalmanVertexCand_y[vtxind] = tr_vtx.position().y();
@@ -633,6 +564,90 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           }
         }
       }
+
+      double closesttrkdxyz = 999., closesthighpuritytrkdxyz = 999., closesttrkdxyz_kalman = 999.;
+      int closesttrkid = -1/*, closesttrkid_kalman = -1*/;
+      // Loop on all the tracks matched with this vertex
+      for (reco::Vertex::trackRef_iterator track=vertex->tracks_begin();
+          track!=vertex->tracks_end() && etind<MAX_ET && etind<(int)maxExTrkVtx_; track++) {
+	const int leptonId_ = vtx.AddTrack((*track).castTo<reco::TrackRef>());
+	if (leptonId_==-1) { // Track was not matched to any of the leptons in the collection
+          ExtraTrack_vtxId[etind] = vtxind;
+	  const double vtxdst = sqrt(std::pow(((*track)->vertex().x()-vtx.Position.X()),2)+
+                                std::pow(((*track)->vertex().y()-vtx.Position.Y()),2)+
+                                std::pow(((*track)->vertex().z()-vtx.Position.Z()),2));
+	  
+	  ExtraTrack_purity[etind] = (*track)->quality(reco::TrackBase::highPurity);
+	  ExtraTrack_nhits[etind] = (*track)->numberOfValidHits();
+	  
+	  ExtraTrack_p[etind] = (*track)->p();
+	  ExtraTrack_px[etind] = (*track)->px();
+	  ExtraTrack_py[etind] = (*track)->py();
+	  ExtraTrack_pz[etind] = (*track)->pz();
+	  ExtraTrack_pt[etind] = (*track)->pt();
+	  ExtraTrack_eta[etind] = (*track)->eta();
+	  ExtraTrack_phi[etind] = (*track)->phi();
+	  ExtraTrack_charge[etind] = (*track)->charge();
+	  ExtraTrack_chi2[etind] = (*track)->chi2();
+	  ExtraTrack_ndof[etind] = (*track)->ndof();
+          ExtraTrack_vtxdxyz[etind] = vtxdst;
+          ExtraTrack_vtxT[etind] = sqrt(std::pow((*track)->vertex().x()-vtx.Position.X(),2)+
+					std::pow((*track)->vertex().y()-vtx.Position.Y(),2));
+          ExtraTrack_vtxZ[etind] = fabs((*track)->vertex().z()-vtx.Position.Z());
+          ExtraTrack_x[etind] = (*track)->vertex().x();
+          ExtraTrack_y[etind] = (*track)->vertex().y();
+          ExtraTrack_z[etind] = (*track)->vertex().z();
+          
+          if (vtxdst<0.1) Pair_extratracks1mm[vtxind]++;
+          if (vtxdst<0.2) Pair_extratracks2mm[vtxind]++;
+          if (vtxdst<0.3) Pair_extratracks3mm[vtxind]++;
+          if (vtxdst<0.4) Pair_extratracks4mm[vtxind]++;
+          if (vtxdst<0.5) Pair_extratracks5mm[vtxind]++;
+          if (vtxdst<1.0) Pair_extratracks1cm[vtxind]++;
+          if (vtxdst<2.0) Pair_extratracks2cm[vtxind]++;
+          if (vtxdst<3.0) Pair_extratracks3cm[vtxind]++;
+          if (vtxdst<4.0) Pair_extratracks4cm[vtxind]++;
+          if (vtxdst<5.0) Pair_extratracks5cm[vtxind]++;
+          if (vtxdst<10.) Pair_extratracks10cm[vtxind]++;
+
+          // minimum distance track to "simple" vertex
+          if (vtxdst<closesttrkdxyz) {
+            closesttrkdxyz = vtxdst;
+            closesttrkid = etind;
+          }
+
+          // minimum distance track to associated Kalman vertex
+          if (KalmanVertexCand_x[vtxind]>-999. and KalmanVertexCand_y[vtxind]>-999. and KalmanVertexCand_z[vtxind]>-999.) {
+            const double vtxdst_kalman = sqrt(std::pow(((*track)->vertex().x()-KalmanVertexCand_x[vtxind]),2)+
+                                              std::pow(((*track)->vertex().y()-KalmanVertexCand_y[vtxind]),2)+
+                                              std::pow(((*track)->vertex().z()-KalmanVertexCand_z[vtxind]),2));
+            if (vtxdst_kalman<closesttrkdxyz_kalman) {
+              closesttrkdxyz_kalman = vtxdst_kalman;
+              //closesttrkid_kalman = etind;
+            }
+          }
+
+          // minimum distance high purity track to "simple" vertex
+	  if (ExtraTrack_purity[etind]==1 && ExtraTrack_nhits[etind]>=3) {
+	    nQualityExtraTrack++;
+	    if (vtxdst<closesthighpuritytrkdxyz) {
+	      closesthighpuritytrkdxyz = vtxdst;
+              //closesthighpuritytrkid = etind;
+	    }
+	  }
+          etind++;
+        }
+        else {
+          if (verb_>1) { edm::LogWarning("GammaGammaLL") << "-- Lepton match on vertex " << vtxind << " --> " << leptonId_; }
+          nLeptonsInPrimVertex++;
+        }
+      }
+      ClosestExtraTrack_vtxdxyz[vtxind] = closesttrkdxyz;
+      ClosestExtraTrack_id[vtxind] = closesttrkid;
+      ClosestHighPurityExtraTrack_vtxdxyz[vtxind] = closesthighpuritytrkdxyz;
+      ClosestHighPurityExtraTrack_id[vtxind] = closesttrkid;
+      ClosestExtraTrackKalman_vtxdxyz[vtxind] = closesttrkdxyz_kalman;
+      
 
       if (foundPairOnVertex) {
 	Pair_mindist[vtxind] = minDist;
