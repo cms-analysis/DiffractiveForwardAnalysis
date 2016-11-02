@@ -75,8 +75,14 @@
 
 // HPS acceptance
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AcceptanceTableHelper.h"
+
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/PrimaryVertexSelector.h"
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/HLTMatcher.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 // LHC fill information
 //#include "DataFormats/Common/interface/ConditionsInEdm.h" // L1 method
@@ -88,6 +94,7 @@
 #include <TVector3.h>
 #include <TLorentzVector.h>
 #include <TH1D.h>
+#include <map>
 
 #define MAX_HLT    10   // Maximum number of HLT to check
 #define MAX_LL     50   // Maximum number of leptons per event
@@ -252,6 +259,8 @@ class GammaGammaLL : public edm::EDAnalyzer {
       double MuonCand_px[MAX_LL], MuonCand_py[MAX_LL], MuonCand_pz[MAX_LL];
       double MuonCand_p[MAX_LL], MuonCand_pt[MAX_LL];
       double MuonCand_eta[MAX_LL], MuonCand_phi[MAX_LL];
+      double MuonCand_innerTrackPt[MAX_LL], MuonCand_innerTrackEta[MAX_LL], MuonCand_innerTrackPhi[MAX_LL];
+      double MuonCand_innerTrackVtxz[MAX_LL];
       double MuonCand_vtxx[MAX_LL], MuonCand_vtxy[MAX_LL], MuonCand_vtxz[MAX_LL];
       int MuonCand_charge[MAX_LL];
       double MuonCand_dxy[MAX_LL], MuonCand_dz[MAX_LL];
@@ -268,10 +277,9 @@ class GammaGammaLL : public edm::EDAnalyzer {
       double EleCand_p[MAX_LL], EleCand_e[MAX_LL], EleCand_et[MAX_LL];
       double EleCand_eta[MAX_LL], EleCand_phi[MAX_LL];
       double EleCand_vtxx[MAX_LL], EleCand_vtxy[MAX_LL], EleCand_vtxz[MAX_LL];
+      double EleCand_innerTrackPt[MAX_LL], EleCand_innerTrackEta[MAX_LL], EleCand_innerTrackPhi[MAX_LL];
+      double EleCand_innerTrackVtxz[MAX_LL]; 
       int EleCand_charge[MAX_LL];
-      double EleCandTrack_p[MAX_LL], EleCandTrack_pt[MAX_LL];
-      double EleCandTrack_eta[MAX_LL], EleCandTrack_phi[MAX_LL];
-      double EleCandTrack_vtxz[MAX_LL]; 
       double EleCand_deltaPhi[MAX_LL], EleCand_deltaEta[MAX_LL];
       double EleCand_HoverE[MAX_LL];
       double EleCand_trackiso[MAX_LL], EleCand_ecaliso[MAX_LL], EleCand_hcaliso[MAX_LL];
@@ -310,6 +318,9 @@ class GammaGammaLL : public edm::EDAnalyzer {
       double PrimVertexCand_chi2[MAX_VTX];
       int PrimVertexCand_ndof[MAX_VTX];
       int nFilteredPrimVertexCand;
+
+      double KalmanVertexCand_x[MAX_VTX], KalmanVertexCand_y[MAX_VTX], KalmanVertexCand_z[MAX_VTX];
+      double ClosestExtraTrackKalman_vtxdxyz[MAX_VTX];
       
       // Extra tracks on vertex quantities
       int nExtraTracks;

@@ -184,7 +184,14 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::map<int, TLorentzVector> muonsMomenta, electronsMomenta;
   muonsMomenta.clear();
   electronsMomenta.clear();
-  
+
+  // Kalman filtering
+  edm::ESHandle<TransientTrackBuilder> KalVtx;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", KalVtx);
+  KalmanVertexFitter kvFitter(true);
+
+  std::map<unsigned int,reco::TransientTrack> MuonTransientTracks, EleTransientTracks;
+
   TLorentzVector leptonptmp;
   
   // Get the muons collection from the event
@@ -231,6 +238,10 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       muonsMomenta.insert(std::pair<int,TLorentzVector>(nMuonCand, leptonptmp));
 
       if (MuonCand_isglobal[nMuonCand] && MuonCand_istracker[nMuonCand]) {
+        MuonCand_innerTrackPt[nMuonCand] = muon->innerTrack()->pt();
+        MuonCand_innerTrackEta[nMuonCand] = muon->innerTrack()->eta();
+        MuonCand_innerTrackPhi[nMuonCand] = muon->innerTrack()->phi();
+        MuonCand_innerTrackVtxz[nMuonCand] = muon->innerTrack()->vertex().z();
 	MuonCandTrack_nmuchits[nMuonCand] = muon->globalTrack()->hitPattern().numberOfValidMuonHits();
 	MuonCandTrack_chisq[nMuonCand] = muon->globalTrack()->normalizedChi2();
 	const bool istight = ( MuonCand_ispfmuon[nMuonCand]
@@ -241,6 +252,8 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                           and (MuonCand_npxlhits[nMuonCand]>0)
                           and (MuonCand_ntrklayers[nMuonCand]>5));
 	MuonCand_istight[nMuonCand] = istight;
+
+        MuonTransientTracks[nMuonCand] = KalVtx->build(*muon->innerTrack());
       } 
 
       nMuonCand++;
@@ -285,13 +298,14 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       leptonptmp.SetXYZM(electron->px(), electron->py(), electron->pz(), electron->mass());
 
       if (electron->closestCtfTrackRef().isNonnull()) { // Only for pat::Electron
-        EleCandTrack_p[nEleCand] = electron->closestCtfTrackRef()->p(); 
-        EleCandTrack_pt[nEleCand] = electron->closestCtfTrackRef()->pt();  
-        EleCandTrack_eta[nEleCand] = electron->closestCtfTrackRef()->eta();  
-        EleCandTrack_phi[nEleCand] = electron->closestCtfTrackRef()->phi();  
-        EleCandTrack_vtxz[nEleCand] = electron->closestCtfTrackRef()->vertex().z();
-	leptonptmp.SetPtEtaPhiM(EleCandTrack_pt[nEleCand], EleCandTrack_eta[nEleCand], EleCandTrack_phi[nEleCand], electron->mass());
+        EleCand_innerTrackPt[nEleCand] = electron->closestCtfTrackRef()->pt();
+        EleCand_innerTrackEta[nEleCand] = electron->closestCtfTrackRef()->eta();
+        EleCand_innerTrackPhi[nEleCand] = electron->closestCtfTrackRef()->phi();
+        EleCand_innerTrackVtxz[nEleCand] = electron->closestCtfTrackRef()->vertex().z();
+	leptonptmp.SetPtEtaPhiM(EleCand_innerTrackPt[nEleCand], EleCand_innerTrackEta[nEleCand], EleCand_innerTrackPhi[nEleCand], electron->mass());
+        //EleTransientTrack[nEleCand] = KalVtx->build(*electron->closestCtfTrackRef());
       }
+      EleTransientTracks[nEleCand] = KalVtx->build(*electron->gsfTrack());
 
       electronsMomenta.insert(std::pair<int,TLorentzVector>(nEleCand, leptonptmp));
 
@@ -390,7 +404,7 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       PrimVertexCand_z[vtxind] = vtx.Position.Z();
       PrimVertexCand_chi2[vtxind] = vertex->chi2();
       PrimVertexCand_ndof[vtxind] = vertex->ndof();
-      
+
       double closesttrkid = -1.;
       // Loop on all the tracks matched with this vertex
       for (reco::Vertex::trackRef_iterator track=vertex->tracks_begin();
@@ -510,6 +524,20 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    EleCand_py[Pair_lepton2[vtxind]],
                    EleCand_pz[Pair_lepton2[vtxind]],
                    MASS_E);
+
+        if (MuonTransientTracks.find(Pair_lepton1[vtxind])!=MuonTransientTracks.end()
+         && EleTransientTracks.find(Pair_lepton2[vtxind])!=EleTransientTracks.end())
+        {
+          std::vector<reco::TransientTrack> trans_trks;
+          trans_trks.push_back(MuonTransientTracks[Pair_lepton1[vtxind]]);
+          trans_trks.push_back(EleTransientTracks[Pair_lepton2[vtxind]]);
+          TransientVertex tr_vtx = kvFitter.vertex(trans_trks);
+          if (tr_vtx.isValid()) {
+            KalmanVertexCand_x[vtxind] = tr_vtx.position().x();
+            KalmanVertexCand_y[vtxind] = tr_vtx.position().y();
+            KalmanVertexCand_z[vtxind] = tr_vtx.position().z();
+          }
+        }
       }
       else if (fetchElectrons_) { // Looks at dielectrons
 	if (vtx.MatchedElectrons.size()<2) continue; // not enough electrons candidates on the vertex
@@ -538,6 +566,20 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    EleCand_py[Pair_lepton2[vtxind]],
                    EleCand_pz[Pair_lepton2[vtxind]],
                    MASS_E);
+
+        if (EleTransientTracks.find(Pair_lepton1[vtxind])!=EleTransientTracks.end()
+         && EleTransientTracks.find(Pair_lepton2[vtxind])!=EleTransientTracks.end())
+        {
+          std::vector<reco::TransientTrack> trans_trks;
+          trans_trks.push_back(EleTransientTracks[Pair_lepton1[vtxind]]);
+          trans_trks.push_back(EleTransientTracks[Pair_lepton2[vtxind]]);
+          TransientVertex tr_vtx = kvFitter.vertex(trans_trks);
+          if (tr_vtx.isValid()) {
+            KalmanVertexCand_x[vtxind] = tr_vtx.position().x();
+            KalmanVertexCand_y[vtxind] = tr_vtx.position().y();
+            KalmanVertexCand_z[vtxind] = tr_vtx.position().z();
+          }
+        }
       }
       else if (fetchMuons_) { // Looks at dimuons
 	if (vtx.MatchedMuons.size()<2) continue; // not enough muons candidates on the vertex
@@ -576,6 +618,20 @@ GammaGammaLL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    MuonCand_py[Pair_lepton2[vtxind]],
                    MuonCand_pz[Pair_lepton2[vtxind]],
                    MASS_MU);
+
+        if (MuonTransientTracks.find(Pair_lepton1[vtxind])!=MuonTransientTracks.end()
+         && MuonTransientTracks.find(Pair_lepton2[vtxind])!=MuonTransientTracks.end())
+        {
+          std::vector<reco::TransientTrack> trans_trks;
+          trans_trks.push_back(MuonTransientTracks[Pair_lepton1[vtxind]]);
+          trans_trks.push_back(MuonTransientTracks[Pair_lepton2[vtxind]]);
+          TransientVertex tr_vtx = kvFitter.vertex(trans_trks);
+          if (tr_vtx.isValid()) {
+            KalmanVertexCand_x[vtxind] = tr_vtx.position().x();
+            KalmanVertexCand_y[vtxind] = tr_vtx.position().y();
+            KalmanVertexCand_z[vtxind] = tr_vtx.position().z();
+          }
+        }
       }
 
       if (foundPairOnVertex) {
@@ -857,10 +913,14 @@ GammaGammaLL::beginJob()
     tree_->Branch("MuonCand_pt", MuonCand_pt, "MuonCand_pt[nMuonCand]/D");
     tree_->Branch("MuonCand_eta", MuonCand_eta, "MuonCand_eta[nMuonCand]/D");
     tree_->Branch("MuonCand_phi", MuonCand_phi, "MuonCand_phi[nMuonCand]/D");
+    tree_->Branch("MuonCand_innerTrackPt", MuonCand_innerTrackPt, "MuonCand_innerTrackPt[nMuonCand]/D");
+    tree_->Branch("MuonCand_innerTrackEta", MuonCand_innerTrackEta, "MuonCand_innerTrackEta[nMuonCand]/D");
+    tree_->Branch("MuonCand_innerTrackPhi", MuonCand_innerTrackPhi, "MuonCand_innerTrackPhi[nMuonCand]/D");
     tree_->Branch("MuonCand_charge", MuonCand_charge, "MuonCand_charge[nMuonCand]/I");
     tree_->Branch("MuonCand_vtxx", MuonCand_vtxx, "MuonCand_vtxx[nMuonCand]/D");
     tree_->Branch("MuonCand_vtxy", MuonCand_vtxy, "MuonCand_vtxy[nMuonCand]/D");
     tree_->Branch("MuonCand_vtxz", MuonCand_vtxz, "MuonCand_vtxz[nMuonCand]/D");
+    tree_->Branch("MuonCand_innerTrackVtxz", MuonCand_innerTrackVtxz, "MuonCand_innerTrackVtxz[nMuonCand]/D");
     tree_->Branch("MuonCand_dxy", MuonCand_dxy, "MuonCand_dxy[nMuonCand]/D");
     tree_->Branch("MuonCand_dz", MuonCand_dz, "MuonCand_dz[nMuonCand]/D");
     tree_->Branch("MuonCand_nstatseg", MuonCand_nstatseg, "MuonCand_nstatseg[nMuonCand]/I");
@@ -873,6 +933,9 @@ GammaGammaLL::beginJob()
     tree_->Branch("MuonCand_istight", MuonCand_istight, "MuonCand_istight[nMuonCand]/I");
     tree_->Branch("MuonCandTrack_nmuchits", MuonCandTrack_nmuchits, "MuonCandTrack_nmuchits[nMuonCand]/I");
     tree_->Branch("MuonCandTrack_chisq", MuonCandTrack_chisq, "MuonCandTrack_chisq[nMuonCand]/D");
+    tree_->Branch("MuonCand_innerTrackPt", MuonCand_innerTrackPt, "MuonCand_innerTrackPt[nMuonCand]/D");
+    tree_->Branch("MuonCand_innerTrackEta", MuonCand_innerTrackEta, "MuonCand_innerTrackEta[nMuonCand]/D");
+    tree_->Branch("MuonCand_innerTrackPhi", MuonCand_innerTrackPhi, "MuonCand_innerTrackPhi[nMuonCand]/D");
     if (runOnMC_) {
       tree_->Branch("nGenMuonCand", &nGenMuonCand, "nGenMuonCand/I");
       tree_->Branch("nGenMuonCandOutOfAccept", &nGenMuonCandOutOfAccept, "nGenMuonCandOutOfAccept/I");    
@@ -896,15 +959,14 @@ GammaGammaLL::beginJob()
     tree_->Branch("EleCand_et", EleCand_et, "EleCand_et[nEleCand]/D");
     tree_->Branch("EleCand_eta", EleCand_eta, "EleCand_eta[nEleCand]/D");
     tree_->Branch("EleCand_phi", EleCand_phi, "EleCand_phi[nEleCand]/D");
+    tree_->Branch("EleCand_innerTrackPt", EleCand_innerTrackPt, "EleCand_innerTrackPt[nEleCand]/D");
+    tree_->Branch("EleCand_innerTrackEta", EleCand_innerTrackEta, "EleCand_innerTrackEta[nEleCand]/D");
+    tree_->Branch("EleCand_innerTrackPhi", EleCand_innerTrackPhi, "EleCand_innerTrackPhi[nEleCand]/D");
     tree_->Branch("EleCand_charge", EleCand_charge, "EleCand_charge[nEleCand]/I");
     tree_->Branch("EleCand_vtxx", EleCand_vtxx, "EleCand_vtxx[nEleCand]/D");
     tree_->Branch("EleCand_vtxy", EleCand_vtxy, "EleCand_vtxy[nEleCand]/D");
     tree_->Branch("EleCand_vtxz", EleCand_vtxz, "EleCand_vtxz[nEleCand]/D");
-    tree_->Branch("EleCandTrack_p", EleCandTrack_p, "EleCandTrack_p[nEleCand]/D");
-    tree_->Branch("EleCandTrack_pt", EleCandTrack_pt, "EleCandTrack_pt[nEleCand]/D");
-    tree_->Branch("EleCandTrack_eta", EleCandTrack_eta, "EleCandTrack_eta[nEleCand]/D");
-    tree_->Branch("EleCandTrack_phi", EleCandTrack_phi, "EleCandTrack_phi[nEleCand]/D");
-    tree_->Branch("EleCandTrack_vtxz", EleCandTrack_vtxz, "EleCandTrack_vtxz[nEleCand]/D");
+    tree_->Branch("EleCand_innerTrackVtxz", EleCand_innerTrackVtxz, "EleCand_innerTrackVtxz[nEleCand]/D");
     tree_->Branch("EleCand_deltaPhi", EleCand_deltaPhi, "EleCand_deltaPhi[nEleCand]/D"); 
     tree_->Branch("EleCand_deltaEta", EleCand_deltaEta, "EleCand_deltaEta[nEleCand]/D"); 
     tree_->Branch("EleCand_HoverE", EleCand_HoverE, "EleCand_HoverE[nEleCand]/D"); 
@@ -918,6 +980,9 @@ GammaGammaLL::beginJob()
     tree_->Branch("EleCand_mediumID", EleCand_mediumID, "EleCand_mediumID[nEleCand]/I");    
     tree_->Branch("EleCand_looseID", EleCand_looseID, "EleCand_looseID[nEleCand]/I");   
     tree_->Branch("EleCand_tightID", EleCand_tightID, "EleCand_tightID[nEleCand]/I");   
+    tree_->Branch("EleCand_innerTrackPt", EleCand_innerTrackPt, "EleCand_innerTrackPt[nEleCand]/D");
+    tree_->Branch("EleCand_innerTrackEta", EleCand_innerTrackEta, "EleCand_innerTrackEta[nEleCand]/D");
+    tree_->Branch("EleCand_innerTrackPhi", EleCand_innerTrackPhi, "EleCand_innerTrackPhi[nEleCand]/D");
     if (runOnMC_) {
       tree_->Branch("nGenEleCand", &nGenEleCand, "nGenEleCand/I");
       tree_->Branch("nGenEleCandOutOfAccept", &nGenEleCandOutOfAccept, "nGenEleCandOutOfAccept/I");    
@@ -971,6 +1036,12 @@ GammaGammaLL::beginJob()
   tree_->Branch("PrimVertexCand_chi2", PrimVertexCand_chi2, "PrimVertexCand_chi2[nPrimVertexCand]/D");
   tree_->Branch("PrimVertexCand_ndof", PrimVertexCand_ndof, "PrimVertexCand_ndof[nPrimVertexCand]/I");
 
+  // Kalman dilepton vertex information
+  tree_->Branch("KalmanVertexCand_x", KalmanVertexCand_x, "KalmanVertexCand_x[nPrimVertexCand]/D");
+  tree_->Branch("KalmanVertexCand_y", KalmanVertexCand_y, "KalmanVertexCand_y[nPrimVertexCand]/D");
+  tree_->Branch("KalmanVertexCand_z", KalmanVertexCand_z, "KalmanVertexCand_z[nPrimVertexCand]/D");
+  tree_->Branch("ClosestExtraTrackKalman_vtxdxyz", ClosestExtraTrackKalman_vtxdxyz, "ClosestExtraTrackKalman_vtxdxyz[nPrimVertexCand]/D");
+
   // Lepton pairs' information
   tree_->Branch("Pair_candidates", Pair_candidates, "Pair_candidates[nPrimVertexCand][2]/I");
   tree_->Branch("Pair_lepton1", Pair_lepton1, "Pair_lepton1[nPrimVertexCand]/I");
@@ -996,22 +1067,6 @@ GammaGammaLL::beginJob()
   tree_->Branch("Pair_extratracks5cm", Pair_extratracks5cm, "Pair_extratracks5cm[nPrimVertexCand]/I");
   tree_->Branch("Pair_extratracks10cm", Pair_extratracks10cm, "Pair_extratracks10cm[nPrimVertexCand]/I");
   tree_->Branch("PairGamma_mass", PairGamma_mass, "PairGamma_mass[nPrimVertexCand][nPhotonCand]/D");
-
-  if (!runOnMC_) {
-    tree_->Branch("nLocalProtCand", &nLocalProtCand, "nLocalProtCand/I");
-    tree_->Branch("LocalProtCand_x", LocalProtCand_x, "LocalProtCand_x[nLocalProtCand]/D");
-    tree_->Branch("LocalProtCand_y", LocalProtCand_y, "LocalProtCand_y[nLocalProtCand]/D");
-    tree_->Branch("LocalProtCand_z", LocalProtCand_z, "LocalProtCand_z[nLocalProtCand]/D");
-    tree_->Branch("LocalProtCand_xSigma", LocalProtCand_xSigma, "LocalProtCand_xSigma[nLocalProtCand]/D");
-    tree_->Branch("LocalProtCand_ySigma", LocalProtCand_ySigma, "LocalProtCand_ySigma[nLocalProtCand]/D");
-    tree_->Branch("LocalProtCand_arm", LocalProtCand_arm, "LocalProtCand_arm[nLocalProtCand]/I");
-    tree_->Branch("LocalProtCand_side", LocalProtCand_side, "LocalProtCand_side[nLocalProtCand]/I");
-    tree_->Branch("LocalProtCand_Tx", LocalProtCand_Tx, "LocalProtCand_Tx[nLocalProtCand]/D");
-    tree_->Branch("LocalProtCand_Ty", LocalProtCand_Ty, "LocalProtCand_Ty[nLocalProtCand]/D");
-    tree_->Branch("LocalProtCand_TxSigma", LocalProtCand_TxSigma, "LocalProtCand_TxSigma[nLocalProtCand]/D");
-    tree_->Branch("LocalProtCand_TySigma", LocalProtCand_TySigma, "LocalProtCand_TySigma[nLocalProtCand]/D");
-  }
-
   if (runOnMC_) {
     tree_->Branch("GenPair_p", &GenPair_p, "GenPair_p/D");
     tree_->Branch("GenPair_pt", &GenPair_pt, "GenPair_pt/D");
@@ -1030,6 +1085,22 @@ GammaGammaLL::beginJob()
     tree_->Branch("HPS_acc420and220b2", &HPS_acc420and220b2, "HPS_acc420and220b2/D");
     tree_->Branch("HPS_acc420or220b2", &HPS_acc420or220b2, "HPS_acc420or220b2/D");*/
   }
+
+  if (!runOnMC_) {
+    tree_->Branch("nLocalProtCand", &nLocalProtCand, "nLocalProtCand/I");
+    tree_->Branch("LocalProtCand_x", LocalProtCand_x, "LocalProtCand_x[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_y", LocalProtCand_y, "LocalProtCand_y[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_z", LocalProtCand_z, "LocalProtCand_z[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_xSigma", LocalProtCand_xSigma, "LocalProtCand_xSigma[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_ySigma", LocalProtCand_ySigma, "LocalProtCand_ySigma[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_arm", LocalProtCand_arm, "LocalProtCand_arm[nLocalProtCand]/I");
+    tree_->Branch("LocalProtCand_side", LocalProtCand_side, "LocalProtCand_side[nLocalProtCand]/I");
+    tree_->Branch("LocalProtCand_Tx", LocalProtCand_Tx, "LocalProtCand_Tx[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_Ty", LocalProtCand_Ty, "LocalProtCand_Ty[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_TxSigma", LocalProtCand_TxSigma, "LocalProtCand_TxSigma[nLocalProtCand]/D");
+    tree_->Branch("LocalProtCand_TySigma", LocalProtCand_TySigma, "LocalProtCand_TySigma[nLocalProtCand]/D");
+  }
+
   // Extra tracks on vertex's information
   tree_->Branch("nExtraTracks", &nExtraTracks, "nExtraTracks/I");
   tree_->Branch("ExtraTrack_vtxId", ExtraTrack_vtxId, "ExtraTrack_vtxId[nExtraTracks]/I");
@@ -1109,6 +1180,8 @@ GammaGammaLL::clearTree()
     MuonCand_pt[i] = MuonCand_eta[i] = MuonCand_phi[i] = -999.;
     MuonCand_charge[i] = -999;
     MuonCand_vtxx[i] = MuonCand_vtxy[i] = MuonCand_vtxz[i] = -999.;
+    MuonCand_innerTrackPt[i] = MuonCand_innerTrackEta[i] = MuonCand_innerTrackPhi[i] = -999.;
+    MuonCand_innerTrackVtxz[i] = -999.;
     MuonCand_npxlhits[i] = MuonCand_nstatseg[i] = MuonCand_ntrklayers[i] = -999;
     MuonCand_dxy[i] = MuonCand_dz[i] = -999.;
     MuonCand_isglobal[i] = MuonCand_istracker[i] = MuonCand_isstandalone[i] = MuonCand_ispfmuon[i] = -999;
@@ -1119,8 +1192,8 @@ GammaGammaLL::clearTree()
     EleCand_p[i] = EleCand_phi[i] = EleCand_eta[i] = -999.;
     EleCand_charge[i] = -999;
     EleCand_vtxx[i] = EleCand_vtxy[i] = EleCand_vtxz[i] = -999.;
-    EleCandTrack_p[i] = EleCandTrack_pt[i] = EleCandTrack_eta[i] = EleCandTrack_phi[i] = -999.; 
-    EleCandTrack_vtxz[i] = -999.;
+    EleCand_innerTrackPt[i] = EleCand_innerTrackEta[i] = EleCand_innerTrackPhi[i] = -999.;
+    EleCand_innerTrackVtxz[i] = -999.;
     EleCand_deltaPhi[i] = EleCand_deltaEta[i] = EleCand_HoverE[i] = -999.;
     EleCand_trackiso[i] = EleCand_ecaliso[i] = EleCand_hcaliso[i] = EleCand_sigmaIetaIeta[i] = -999.;
     EleCand_convDist[i] = EleCand_convDcot[i] = EleCand_ecalDriven[i] = -999.;
@@ -1150,6 +1223,8 @@ GammaGammaLL::clearTree()
     PrimVertexCand_tracks[i] = PrimVertexCand_matchedtracks[i] = PrimVertexCand_unmatchedtracks[i] = PrimVertexCand_hasdil[i] = 0;
     PrimVertexCand_x[i] = PrimVertexCand_y[i] = PrimVertexCand_z[i] = -999.;
     PrimVertexCand_chi2[i] = PrimVertexCand_ndof[i] = -999.;
+    KalmanVertexCand_x[i] = KalmanVertexCand_y[i] = KalmanVertexCand_z[i] = -999.;
+    ClosestExtraTrackKalman_vtxdxyz[i] = 999.;
   }
   for (unsigned int i=0; i<MAX_PHO; i++) { 
     PhotonCand_p[i] = PhotonCand_pt[i] = -999.;
@@ -1171,6 +1246,8 @@ GammaGammaLL::clearTree()
     LocalProtCand_TxSigma[i] = LocalProtCand_TySigma[i] = -999.;
     LocalProtCand_arm[i] = LocalProtCand_side[i] = -1;
   }
+
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
