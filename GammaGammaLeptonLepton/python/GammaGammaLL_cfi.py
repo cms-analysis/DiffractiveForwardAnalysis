@@ -12,14 +12,19 @@ ggll_aod = cms.EDAnalyzer(
         cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
         cms.InputTag('elPFIsoValueNeutral03PFIdPFIso')
     ),
-    #GlobalMuonCollectionLabel = cms.untracked.InputTag("muons"), # RECO
-    GlobalMuonCollectionLabel = cms.untracked.InputTag("selectedPatMuons"), # PAT
-    #GlobalEleCollectionLabel = cms.untracked.InputTag("gsfElectrons"), # RECO
-    GlobalEleCollectionLabel = cms.untracked.InputTag("selectedPatElectrons"), # PAT
+    #GlobalMuonCollectionLabel = cms.InputTag("muons"), # RECO
+    GlobalMuonCollectionLabel = cms.InputTag("selectedPatMuons"), # PAT
+    #GlobalEleCollectionLabel = cms.InputTag("gsfElectrons"), # RECO
+    GlobalEleCollectionLabel = cms.InputTag("selectedPatElectrons"), # PAT
+
+    # Pileup reweighting
     pileupInfo = cms.InputTag('addPileupInfo'),
-    beamSpotLabel = cms.InputTag('offlineBeamSpot'),
+    mcpufile = cms.string('PUHistos_mc.root'),
+    mcpupath = cms.string('pileup'),
+    datapufile = cms.string('PUHistos_data.root'),
+    datapupath = cms.string('pileup'),
+
     RecoVertexLabel = cms.InputTag('offlinePrimaryVertices'),
-    conversionsLabel = cms.InputTag('allConversions'),
     #eleLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-loose"),
     #eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
     #eleTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),

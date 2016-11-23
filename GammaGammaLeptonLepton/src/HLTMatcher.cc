@@ -21,10 +21,10 @@
 //
 // constructors and destructor
 //
-HLTMatcher::HLTMatcher(std::vector<std::string> _HLTlist)
+HLTMatcher::HLTMatcher(const std::vector<std::string>& list)
 {
-  for (unsigned int i=0; i<_HLTlist.size(); i++) {
-    HLTnames.push_back(_HLTlist[i].substr(0, _HLTlist[i].find_first_of("*")));
+  for (unsigned int i=0; i<list.size(); i++) {
+    HLTnames.push_back(list[i].substr(0, list[i].find_first_of("*")));
   }
 #ifdef DEBUG
   for (unsigned int i=0; i<HLTnames.size(); i++) {
@@ -38,11 +38,11 @@ HLTMatcher::~HLTMatcher()
 }
 
 int
-HLTMatcher::TriggerNum(std::string _trigName)
+HLTMatcher::TriggerNum(const std::string& name)
 {
   for (unsigned int i=0; i<HLTnames.size(); i++) {
-    if (_trigName.find(HLTnames[i])!=std::string::npos) {
-      //std::cout << "--> trigger " << _trigName << " matched with " << HLTnames[i] << std::endl;
+    if (name.find(HLTnames[i])!=std::string::npos) {
+      //std::cout << "--> trigger " << name << " matched with " << HLTnames[i] << std::endl;
       return i;
     }
   }

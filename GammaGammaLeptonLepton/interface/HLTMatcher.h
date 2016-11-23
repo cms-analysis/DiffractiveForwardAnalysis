@@ -14,9 +14,10 @@
 
 class HLTMatcher {
   public:
-    explicit HLTMatcher(std::vector<std::string>);
+    explicit HLTMatcher() {;}
+    explicit HLTMatcher(const std::vector<std::string>&);
     ~HLTMatcher();
-    int TriggerNum(std::string);
+    int TriggerNum(const std::string&);
   private:
     std::vector<std::string> HLTnames;
 };

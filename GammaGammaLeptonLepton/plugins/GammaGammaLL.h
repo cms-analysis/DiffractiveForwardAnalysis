@@ -15,6 +15,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 // HLT information
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -102,8 +105,8 @@
 #define MAX_ELE    25   // Maximum number of electrons per event
 #define MAX_PHO    50   // Maximum number of photons per event
 #define MAX_PAIRS  25   // Maximum number of leptons pairs per event
-#define MAX_VTX    1000 // Maximum number of primary vertices per event
-#define MAX_ET     10000// Maximum number of extra tracks per event
+#define MAX_VTX    150  // Maximum number of primary vertices per event
+#define MAX_ET     1000 // Maximum number of extra tracks per event
 #define MAX_GENMU  25   // Maximum number of generator level muons per event
 #define MAX_GENELE 25   // Maximum number of generator level electrons per event
 #define MAX_GENPHO 10   // Maximum number of generator level photons per event
@@ -123,13 +126,15 @@ typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
 // class declaration
 //
 
-class GammaGammaLL : public edm::EDAnalyzer {
+class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit GammaGammaLL(const edm::ParameterSet&);
       ~GammaGammaLL();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+   public:
+      enum Type { Dimuon, Dielectron, ElectronMuon };
 
    private:
       virtual void beginJob() ;
@@ -146,39 +151,31 @@ class GammaGammaLL : public edm::EDAnalyzer {
       void clearTree();
 
       // ----------member data ---------------------------
+      Type leptonsType_;
+
+      TTree* tree_;
 
       bool fetchMuons_, fetchElectrons_, fetchProtons_;
       
-      unsigned int verb_;
-
-      std::ofstream *logfile_;
-      
       // Input tags
-      std::string outputFile_;
-      std::vector<std::string> leptonsType_;
       std::string hltMenuLabel_;
       std::vector<std::string> triggersList_;
 
       edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
-      edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-      edm::EDGetTokenT<reco::VertexCollection> recoVertexToken_;
+      edm::EDGetTokenT< edm::View<PileupSummaryInfo> > pileupToken_;
+      edm::EDGetTokenT< edm::View<reco::Vertex> > recoVertexToken_;
       edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
       edm::EDGetTokenT< edm::View<pat::Muon> > muonToken_;
       edm::EDGetTokenT< edm::View<pat::Electron> > eleToken_;
       edm::EDGetTokenT< edm::ValueMap<bool> > eleLooseIdMapToken_;
       edm::EDGetTokenT< edm::ValueMap<bool> > eleMediumIdMapToken_;
       edm::EDGetTokenT< edm::ValueMap<bool> > eleTightIdMapToken_;
-      edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
-      edm::EDGetTokenT< std::vector<PileupSummaryInfo> > pileupToken_;
       edm::EDGetTokenT< edm::View<pat::Jet> > jetToken_;
       edm::EDGetTokenT< edm::View<pat::MET> > metToken_;
       edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > totemRPHitToken_;
       edm::EDGetTokenT< edm::View<pat::Photon> > photonToken_;
-      edm::EDGetTokenT< edm::View<reco::PFCandidate> > pflowToken_;
 
       std::vector<edm::InputTag> isoValLabel_;
-
-      KalmanVertexFitter kvFitter_;
 
       bool runOnMC_, printCandidates_;
       double minPtMC_, minEtaMC_;
@@ -186,13 +183,14 @@ class GammaGammaLL : public edm::EDAnalyzer {
       unsigned int maxExTrkVtx_;
 
       // Trigger information
-      HLTMatcher* hlts_;
+      HLTMatcher hlts_;
       HLTConfigProvider hltConfig_;
       HLTPrescaleProvider hltPrescale_;
 
       // Pileup information
-      edm::LumiReWeighting *lumiWeights_;
-      std::string mcPileupFile_, mcPileupPath_, dataPileupFile_, dataPileupPath_;
+      edm::LumiReWeighting lumiWeights_;
+      std::string mcPileupFile_, dataPileupFile_;
+      std::string mcPileupPath_, dataPileupPath_;
       
       // Isolation
       double rhoIso;
@@ -223,22 +221,15 @@ class GammaGammaLL : public edm::EDAnalyzer {
       
       // Generator level quantities
       int nGenMuonCand, nGenMuonCandOutOfAccept;
-      double GenMuonCand_px[MAX_GENMU], GenMuonCand_py[MAX_GENMU], GenMuonCand_pz[MAX_GENMU];
-      double GenMuonCand_p[MAX_GENMU], GenMuonCand_pt[MAX_GENMU];
-      double GenMuonCand_eta[MAX_GENMU], GenMuonCand_phi[MAX_GENMU];
+      double GenMuonCand_pt[MAX_GENMU], GenMuonCand_eta[MAX_GENMU], GenMuonCand_phi[MAX_GENMU], GenMuonCand_e[MAX_GENMU];
       int nGenEleCand, nGenEleCandOutOfAccept;
-      double GenEleCand_px[MAX_GENELE], GenEleCand_py[MAX_GENELE], GenEleCand_pz[MAX_GENELE];
-      double GenEleCand_p[MAX_GENELE], GenEleCand_pt[MAX_GENELE];
-      double GenEleCand_eta[MAX_GENELE], GenEleCand_phi[MAX_GENELE];
-      double GenPair_p, GenPair_pt, GenPair_mass;
-      double GenPair_phi, GenPair_eta;
+      double GenEleCand_pt[MAX_GENELE], GenEleCand_eta[MAX_GENELE], GenEleCand_phi[MAX_GENELE], GenEleCand_e[MAX_GENELE];
+      double GenPair_pt, GenPair_eta, GenPair_phi, GenPair_mass;
       double GenPair_dphi, GenPair_dpt, GenPair_3Dangle;
       int nGenPhotCand, nGenPhotCandOutOfAccept;
-      double GenPhotCand_p[MAX_GENPHO], GenPhotCand_e[MAX_GENPHO];
-      double GenPhotCand_pt[MAX_GENPHO], GenPhotCand_eta[MAX_GENPHO], GenPhotCand_phi[MAX_GENPHO];
+      double GenPhotCand_pt[MAX_GENPHO], GenPhotCand_eta[MAX_GENPHO], GenPhotCand_phi[MAX_GENPHO], GenPhotCand_e[MAX_GENPHO];
       int nGenProtCand;
-      double GenProtCand_p[MAX_GENPRO], GenProtCand_px[MAX_GENPRO], GenProtCand_py[MAX_GENPRO], GenProtCand_pz[MAX_GENPRO];
-      double GenProtCand_pt[MAX_GENPRO], GenProtCand_eta[MAX_GENPRO], GenProtCand_phi[MAX_GENPRO];
+      double GenProtCand_pt[MAX_GENPRO], GenProtCand_eta[MAX_GENPRO], GenProtCand_phi[MAX_GENPRO], GenProtCand_e[MAX_GENPHO];
       int GenProtCand_status[MAX_GENPRO];
 
       // HPS quantities
@@ -246,7 +237,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       double HPS_acc420b1, HPS_acc220b1, HPS_acc420and220b1, HPS_acc420or220b1; // beam 1 (clockwise)  
       double HPS_acc420b2, HPS_acc220b2, HPS_acc420and220b2, HPS_acc420or220b2; // beam 2 (anti-clockwise)  
 
-      int nLeptonCand, nLeptonsInPrimVertex, nCandidates, nCandidatesInEvent;
+      int nLeptonCand, nCandidates, nCandidatesInEvent;
 
       // Pileup reweighting quantities
       double nTruePUafterPUWeight;
@@ -258,14 +249,12 @@ class GammaGammaLL : public edm::EDAnalyzer {
 
       // Muon quantities
       int nMuonCand;
-      double MuonCand_px[MAX_LL], MuonCand_py[MAX_LL], MuonCand_pz[MAX_LL];
-      double MuonCand_p[MAX_LL], MuonCand_pt[MAX_LL];
-      double MuonCand_eta[MAX_LL], MuonCand_phi[MAX_LL];
+      double MuonCand_pt[MAX_LL], MuonCand_eta[MAX_LL], MuonCand_phi[MAX_LL], MuonCand_e[MAX_LL];
       double MuonCand_innerTrackPt[MAX_LL], MuonCand_innerTrackEta[MAX_LL], MuonCand_innerTrackPhi[MAX_LL];
       double MuonCand_innerTrackVtxz[MAX_LL];
       double MuonCand_vtxx[MAX_LL], MuonCand_vtxy[MAX_LL], MuonCand_vtxz[MAX_LL];
       int MuonCand_charge[MAX_LL];
-      double MuonCand_dxy[MAX_LL], MuonCand_dz[MAX_LL];
+      double MuonCand_dxy[MAX_LL];
       int MuonCand_nstatseg[MAX_LL], MuonCand_npxlhits[MAX_LL], MuonCand_ntrklayers[MAX_LL];
       double MuonCand_[MAX_LL];
       int MuonCandTrack_nmuchits[MAX_LL];
@@ -275,9 +264,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
 
       // Electron quantities
       int nEleCand;
-      double EleCand_px[MAX_LL], EleCand_py[MAX_LL], EleCand_pz[MAX_LL];
-      double EleCand_p[MAX_LL], EleCand_e[MAX_LL], EleCand_et[MAX_LL];
-      double EleCand_eta[MAX_LL], EleCand_phi[MAX_LL];
+      double EleCand_et[MAX_LL], EleCand_eta[MAX_LL], EleCand_phi[MAX_LL], EleCand_e[MAX_LL];
       double EleCand_vtxx[MAX_LL], EleCand_vtxy[MAX_LL], EleCand_vtxz[MAX_LL];
       double EleCand_innerTrackPt[MAX_LL], EleCand_innerTrackEta[MAX_LL], EleCand_innerTrackPhi[MAX_LL];
       double EleCand_innerTrackVtxz[MAX_LL]; 
@@ -292,17 +279,16 @@ class GammaGammaLL : public edm::EDAnalyzer {
       
       // Photon quantities
       int nPhotonCand;
-      double PhotonCand_px[MAX_PHO], PhotonCand_py[MAX_PHO], PhotonCand_pz[MAX_PHO];
-      double PhotonCand_p[MAX_PHO], PhotonCand_pt[MAX_PHO];
-      double PhotonCand_eta[MAX_PHO], PhotonCand_phi[MAX_PHO], PhotonCand_r9[MAX_PHO];
+      double PhotonCand_pt[MAX_PHO], PhotonCand_eta[MAX_PHO], PhotonCand_phi[MAX_PHO], PhotonCand_e[MAX_PHO];
+      double PhotonCand_r9[MAX_PHO];
       double PhotonCand_drtrue[MAX_PHO], PhotonCand_detatrue[MAX_PHO], PhotonCand_dphitrue[MAX_PHO];
       
       // Pair quantities
-      int Pair_candidates[MAX_PAIRS][2], Pair_lepton1[MAX_PAIRS], Pair_lepton2[MAX_PAIRS];
+      int Pair_lepton1[MAX_PAIRS], Pair_lepton2[MAX_PAIRS];
       double Pair_mindist[MAX_PAIRS];
-      double Pair_p[MAX_PAIRS], Pair_pt[MAX_PAIRS], Pair_dpt[MAX_PAIRS];
+      double Pair_p[MAX_PAIRS], Pair_dpt[MAX_PAIRS];
       double Pair_mass[MAX_PAIRS], Pair_dphi[MAX_PAIRS];
-      double Pair_eta[MAX_PAIRS], Pair_phi[MAX_PAIRS], Pair_3Dangle[MAX_PAIRS];
+      double Pair_pt[MAX_PAIRS], Pair_eta[MAX_PAIRS], Pair_phi[MAX_PAIRS], Pair_3Dangle[MAX_PAIRS];
       double PairGamma_mass[MAX_PAIRS][MAX_PHO];
       // Extra tracks
       int Pair_extratracks1mm[MAX_PAIRS], Pair_extratracks2mm[MAX_PAIRS];
@@ -329,9 +315,7 @@ class GammaGammaLL : public edm::EDAnalyzer {
       int ExtraTrack_purity[MAX_ET], ExtraTrack_nhits[MAX_ET];
       int ExtraTrack_charge[MAX_ET], ExtraTrack_ndof[MAX_ET];
       int ExtraTrack_vtxId[MAX_ET];
-      double ExtraTrack_p[MAX_ET], ExtraTrack_pt[MAX_ET];
       double ExtraTrack_px[MAX_ET], ExtraTrack_py[MAX_ET], ExtraTrack_pz[MAX_ET];
-      double ExtraTrack_eta[MAX_ET], ExtraTrack_phi[MAX_ET];
       double ExtraTrack_chi2[MAX_ET];
       double ExtraTrack_vtxdxyz[MAX_ET];
       double ExtraTrack_vtxT[MAX_ET], ExtraTrack_vtxZ[MAX_ET];
@@ -342,11 +326,10 @@ class GammaGammaLL : public edm::EDAnalyzer {
 
       // Jets/MET quantities
       int nJetCand;
-      double JetCand_px[MAX_JETS], JetCand_py[MAX_JETS], JetCand_pz[MAX_JETS];
-      double JetCand_e[MAX_JETS], JetCand_eta[MAX_JETS], JetCand_phi[MAX_JETS];
-      double HighestJet_e, HighestJet_eta, HighestJet_phi;
+      double JetCand_e[MAX_JETS], JetCand_pt[MAX_JETS], JetCand_eta[MAX_JETS], JetCand_phi[MAX_JETS];
+      double HighestJet_pt, HighestJet_eta, HighestJet_phi, HighestJet_e;
       double SumJet_e;
-      double Etmiss, Etmiss_phi, Etmiss_x, Etmiss_y, Etmiss_z, Etmiss_significance;
+      double Etmiss, Etmiss_phi, Etmiss_significance;
 
       // CTPPS quantities
       int nLocalProtCand;
@@ -368,7 +351,5 @@ class GammaGammaLL : public edm::EDAnalyzer {
 //
 // static data member definitions
 //
-TFile* file_;
-TTree* tree_;
 
 #endif
