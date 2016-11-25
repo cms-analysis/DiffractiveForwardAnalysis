@@ -112,11 +112,9 @@ setupAllVIDIdsInModule(process, 'RecoEgamma.ElectronIdentification.Identificatio
 
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.GammaGammaLL_cfi")
 
-process.ggll_aod.TriggersList = process.hltFilter.HLTPaths
-#process.ggll_aod.LeptonsType = cms.vstring('Muon')
-#process.ggll_aod.LeptonsType = cms.vstring('Electron', 'Muon')
-process.ggll_aod.LeptonsType = cms.vstring('Electron')
-process.ggll_aod.RunOnMC = cms.untracked.bool(runOnMC)
+process.ggll_aod.triggersList = process.hltFilter.HLTPaths
+process.ggll_aod.leptonsType = cms.vstring('Electron')
+process.ggll_aod.runOnMC = cms.untracked.bool(runOnMC)
 process.ggll_aod.outfilename = cms.untracked.string('output.root')
 process.ggll_aod.fetchProtons = cms.bool(True)
 

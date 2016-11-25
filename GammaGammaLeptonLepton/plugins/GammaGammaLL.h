@@ -115,9 +115,6 @@
 #define MAX_LOCALPCAND 10 // Maximum number of reconstructed local tracks in RPs
 #define MAX_LOCALPPAIRCAND 5 // Maximum number of reconstructed local tracks pairs in RPs
 
-#define MASS_MU 0.1057
-#define MASS_E  0.000511
-#define MASS_P  0.938272029
 #define pi 3.14159265359
 
 typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals; 
@@ -139,15 +136,26 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    private:
       virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void analyzeMCEventContent(const edm::Event&);
       virtual void endJob() ;
 
       virtual void beginRun(edm::Run const&, edm::EventSetup const&);
       virtual void endRun(edm::Run const&, edm::EventSetup const&);
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      
+
       virtual void lookAtTriggers(const edm::Event&, const edm::EventSetup&);
+
+      virtual void analyzeMCEventContent(const edm::Event&);
+      void fetchElectrons(const edm::Event&);
+      void fetchMuons(const edm::Event&);
+      void fetchPhotons(const edm::Event&);
+      void fetchProtons(const edm::Event&);
+
+      void legacyVertexInfoRetrieval(const edm::Event&);
+      void newVertexInfoRetrieval(const edm::Event&);
+      bool newTracksInfoRetrieval(int, int);
+
+
       void clearTree();
 
       // ----------member data ---------------------------
@@ -156,6 +164,7 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       TTree* tree_;
 
       bool fetchMuons_, fetchElectrons_, fetchProtons_;
+      bool foundPairInEvent_;
       
       // Input tags
       std::string hltMenuLabel_;
@@ -164,6 +173,7 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
       edm::EDGetTokenT< edm::View<PileupSummaryInfo> > pileupToken_;
       edm::EDGetTokenT< edm::View<reco::Vertex> > recoVertexToken_;
+      edm::EDGetTokenT< edm::View<reco::Track> > recoTrackToken_;
       edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
       edm::EDGetTokenT< edm::View<pat::Muon> > muonToken_;
       edm::EDGetTokenT< edm::View<pat::Electron> > eleToken_;
@@ -175,11 +185,10 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > totemRPHitToken_;
       edm::EDGetTokenT< edm::View<pat::Photon> > photonToken_;
 
-      std::vector<edm::InputTag> isoValLabel_;
-
       bool runOnMC_, printCandidates_;
       double minPtMC_, minEtaMC_;
       double sqrts_;
+      bool useLegacyVertexing_;
       unsigned int maxExTrkVtx_;
 
       // Trigger information
@@ -192,11 +201,10 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       std::string mcPileupFile_, dataPileupFile_;
       std::string mcPileupPath_, dataPileupPath_;
       
-      // Isolation
-      double rhoIso;
-      double iso_ch, iso_em, iso_nh; // Electron isolation quantities
-      int vtxind; // Primary vertex index (used in loop over vertices)
-      int etind; // Extra tracks on vertex index (used in loop over tracks)
+      edm::Handle< edm::View<reco::Track> > trackColl_;
+      edm::ESHandle<TransientTrackBuilder> KalVtx_;
+      std::map<int, TLorentzVector> muonsMomenta_, electronsMomenta_;
+      std::map<unsigned int,reco::TransientTrack> muonTransientTracks_, eleTransientTracks_;
 
       ////// Tree contents //////
       
@@ -284,6 +292,7 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       double PhotonCand_drtrue[MAX_PHO], PhotonCand_detatrue[MAX_PHO], PhotonCand_dphitrue[MAX_PHO];
       
       // Pair quantities
+      int nPair;
       int Pair_lepton1[MAX_PAIRS], Pair_lepton2[MAX_PAIRS];
       double Pair_mindist[MAX_PAIRS];
       double Pair_p[MAX_PAIRS], Pair_dpt[MAX_PAIRS];
@@ -312,9 +321,9 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       
       // Extra tracks on vertex quantities
       int nExtraTracks;
+      int ExtraTrack_pair[MAX_ET];
       int ExtraTrack_purity[MAX_ET], ExtraTrack_nhits[MAX_ET];
       int ExtraTrack_charge[MAX_ET], ExtraTrack_ndof[MAX_ET];
-      int ExtraTrack_vtxId[MAX_ET];
       double ExtraTrack_px[MAX_ET], ExtraTrack_py[MAX_ET], ExtraTrack_pz[MAX_ET];
       double ExtraTrack_chi2[MAX_ET];
       double ExtraTrack_vtxdxyz[MAX_ET];
