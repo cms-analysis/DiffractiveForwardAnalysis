@@ -53,17 +53,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
-#process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
-#    vertexCollection = cms.InputTag('offlinePrimaryVertices'),
-#    minimumNDOF = cms.uint32(4),
-#    maxAbsZ = cms.double(15),
-#    maxd0 = cms.double(2)
-#)
-
-#process.muonFilter = cms.EDFilter("CandViewCountFilter",
-#    src = cms.InputTag("muons"),
-#    minNumber = cms.uint32(1)
-#)
 
 #########################
 #     PAT-ification     #
@@ -73,9 +62,6 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 # PAT Layer 0+1
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 from Configuration.EventContent.EventContent_cff import *
-
-#from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning, patExtraAodEventContent
-#from PhysicsTools.PatAlgos.tools.coreTools import *
 
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
@@ -88,7 +74,6 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_selectedPatJets*_*_*',
         'keep *_*MET*_*_*',
         'keep *_*particleFlow*_*_*',
-        #*patEventContentNoCleaning
     ),
 )
 
@@ -113,19 +98,21 @@ setupAllVIDIdsInModule(process, 'RecoEgamma.ElectronIdentification.Identificatio
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.GammaGammaLL_cfi")
 
 process.ggll_aod.triggersList = process.hltFilter.HLTPaths
-process.ggll_aod.leptonsType = cms.vstring('Electron')
-process.ggll_aod.runOnMC = cms.untracked.bool(runOnMC)
-process.ggll_aod.outfilename = cms.untracked.string('output.root')
+process.ggll_aod.leptonsType = cms.string('Electron')
+#process.ggll_aod.leptonsType = cms.string('ElectronMuon')
+#process.ggll_aod.leptonsType = cms.string('Electron')
+process.ggll_aod.runOnMC = cms.bool(runOnMC)
 process.ggll_aod.fetchProtons = cms.bool(True)
+
+# prepare the output file
+process.TFileService = cms.Service('TFileService',
+    fileName = cms.string('output.root'),
+    closeFileFast = cms.untracked.bool(True)
+)
 
 process.p = cms.Path(
     process.hltFilter*
-    #process.scrapingVeto*
-    #process.kt6PFJetsForIsolation*
-    #process.pfiso*
-    #process.primaryVertexFilter*
     process.egmGsfElectronIDSequence*
     process.patDefaultSequence*
-    #getattr(process,"patPF2PATSequence"+postfix)*
     process.ggll_aod
 )

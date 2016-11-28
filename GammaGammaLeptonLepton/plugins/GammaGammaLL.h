@@ -52,6 +52,8 @@
 //#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+//// tweaked electron ID
+//#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/ElectronID.h"
 
 // Photons collection
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -99,19 +101,20 @@
 #include <TH1D.h>
 #include <map>
 
-#define MAX_HLT    10   // Maximum number of HLT to check
-#define MAX_LL     50   // Maximum number of leptons per event
-#define MAX_MUONS  25   // Maximum number of muons per event
-#define MAX_ELE    25   // Maximum number of electrons per event
-#define MAX_PHO    50   // Maximum number of photons per event
-#define MAX_PAIRS  25   // Maximum number of leptons pairs per event
-#define MAX_VTX    150  // Maximum number of primary vertices per event
-#define MAX_ET     1000 // Maximum number of extra tracks per event
-#define MAX_GENMU  25   // Maximum number of generator level muons per event
-#define MAX_GENELE 25   // Maximum number of generator level electrons per event
-#define MAX_GENPHO 10   // Maximum number of generator level photons per event
-#define MAX_GENPRO 8    // Maximum number of generator level protons per event
-#define MAX_JETS   30   // Maximum number of jets per event
+#define MAX_HLT     10   // Maximum number of HLT to check
+#define MAX_LL      50   // Maximum number of leptons per event
+#define MAX_MUONS   25   // Maximum number of muons per event
+#define MAX_ELE     25   // Maximum number of electrons per event
+#define MAX_PHO     50   // Maximum number of photons per event
+#define MAX_PAIRS   25   // Maximum number of leptons pairs per event
+#define MAX_PAIRPHO 25
+#define MAX_VTX     150  // Maximum number of primary vertices per event
+#define MAX_ET      1000 // Maximum number of extra tracks per event
+#define MAX_GENMU   25   // Maximum number of generator level muons per event
+#define MAX_GENELE  25   // Maximum number of generator level electrons per event
+#define MAX_GENPHO  10   // Maximum number of generator level photons per event
+#define MAX_GENPRO  8    // Maximum number of generator level protons per event
+#define MAX_JETS    30   // Maximum number of jets per event
 #define MAX_LOCALPCAND 10 // Maximum number of reconstructed local tracks in RPs
 #define MAX_LOCALPPAIRCAND 5 // Maximum number of reconstructed local tracks pairs in RPs
 
@@ -150,11 +153,12 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       void fetchMuons(const edm::Event&);
       void fetchPhotons(const edm::Event&);
       void fetchProtons(const edm::Event&);
+      void fetchJets(const edm::Event&);
+      void fetchVertices(const edm::Event&);
 
       void legacyVertexInfoRetrieval(const edm::Event&);
       void newVertexInfoRetrieval(const edm::Event&);
       bool newTracksInfoRetrieval(int, int);
-
 
       void clearTree();
 
@@ -174,13 +178,12 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       edm::EDGetTokenT< edm::View<PileupSummaryInfo> > pileupToken_;
       edm::EDGetTokenT< edm::View<reco::Vertex> > recoVertexToken_;
       edm::EDGetTokenT< edm::View<reco::Track> > recoTrackToken_;
-      edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
+      edm::EDGetTokenT< edm::View<reco::GenParticle> > genToken_;
       edm::EDGetTokenT< edm::View<pat::Muon> > muonToken_;
       edm::EDGetTokenT< edm::View<pat::Electron> > eleToken_;
-      edm::EDGetTokenT< edm::ValueMap<bool> > eleLooseIdMapToken_;
-      edm::EDGetTokenT< edm::ValueMap<bool> > eleMediumIdMapToken_;
-      edm::EDGetTokenT< edm::ValueMap<bool> > eleTightIdMapToken_;
+      //edm::EDGetTokenT< edm::ValueMap<bool> > eleLooseIdMapToken_, eleMediumIdMapToken_, eleTightIdMapToken_, eleVetoIdMapToken_;
       edm::EDGetTokenT< edm::View<pat::Jet> > jetToken_;
+      edm::EDGetTokenT<double> fixedGridRhoFastjetAllToken_;
       edm::EDGetTokenT< edm::View<pat::MET> > metToken_;
       edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > totemRPHitToken_;
       edm::EDGetTokenT< edm::View<pat::Photon> > photonToken_;
@@ -195,6 +198,8 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       HLTMatcher hlts_;
       HLTConfigProvider hltConfig_;
       HLTPrescaleProvider hltPrescale_;
+
+      edm::ParameterSet eleIdLabelSet_;
 
       // Pileup information
       edm::LumiReWeighting lumiWeights_;
@@ -283,7 +288,7 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       double EleCand_sigmaIetaIeta[MAX_LL];
       double EleCand_convDist[MAX_LL], EleCand_convDcot[MAX_LL];
       int EleCand_ecalDriven[MAX_LL]; 
-      int EleCand_tightID[MAX_LL], EleCand_mediumID[MAX_LL], EleCand_looseID[MAX_LL];
+      int EleCand_vetoID[MAX_LL], EleCand_tightID[MAX_LL], EleCand_mediumID[MAX_LL], EleCand_looseID[MAX_LL];
       
       // Photon quantities
       int nPhotonCand;
@@ -294,11 +299,14 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       // Pair quantities
       int nPair;
       int Pair_lepton1[MAX_PAIRS], Pair_lepton2[MAX_PAIRS];
+      double Pair_pt[MAX_PAIRS], Pair_eta[MAX_PAIRS], Pair_phi[MAX_PAIRS], Pair_mass[MAX_PAIRS];
+      double Pair_dpt[MAX_PAIRS], Pair_dphi[MAX_PAIRS], Pair_3Dangle[MAX_PAIRS];
       double Pair_mindist[MAX_PAIRS];
-      double Pair_p[MAX_PAIRS], Pair_dpt[MAX_PAIRS];
-      double Pair_mass[MAX_PAIRS], Pair_dphi[MAX_PAIRS];
-      double Pair_pt[MAX_PAIRS], Pair_eta[MAX_PAIRS], Pair_phi[MAX_PAIRS], Pair_3Dangle[MAX_PAIRS];
-      double PairGamma_mass[MAX_PAIRS][MAX_PHO];
+
+      int nPairGamma;
+      int PairGamma_pair[MAX_PHO];
+      double PairGamma_mass[MAX_PHO];
+
       // Extra tracks
       int Pair_extratracks1mm[MAX_PAIRS], Pair_extratracks2mm[MAX_PAIRS];
       int Pair_extratracks3mm[MAX_PAIRS], Pair_extratracks4mm[MAX_PAIRS];
