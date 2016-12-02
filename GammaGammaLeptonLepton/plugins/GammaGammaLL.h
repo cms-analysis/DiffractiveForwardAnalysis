@@ -115,8 +115,8 @@
 #define MAX_GENPHO  10   // Maximum number of generator level photons per event
 #define MAX_GENPRO  8    // Maximum number of generator level protons per event
 #define MAX_JETS    30   // Maximum number of jets per event
-#define MAX_LOCALPCAND 10 // Maximum number of reconstructed local tracks in RPs
-#define MAX_LOCALPPAIRCAND 5 // Maximum number of reconstructed local tracks pairs in RPs
+#define MAX_LOCALPCAND 25 // Maximum number of reconstructed local tracks in RPs
+#define MAX_LOCALPPAIRCAND 10 // Maximum number of reconstructed local tracks pairs in RPs
 
 #define pi 3.14159265359
 
