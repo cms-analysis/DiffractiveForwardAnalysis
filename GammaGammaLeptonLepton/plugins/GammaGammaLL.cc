@@ -49,7 +49,6 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
   useLegacyVertexing_ (iConfig.getParameter<bool>("useLegacyVertexing")),
   maxExTrkVtx_        (iConfig.getUntrackedParameter<unsigned int>("maxExtraTracks", MAX_ET)),
   hltPrescale_        (iConfig, consumesCollector(), *this),
-  eleIdLabelSet_      (iConfig.getParameter<edm::ParameterSet>("eleIdLabels")),
   // Pileup input tags
   mcPileupFile_       (iConfig.getParameter<std::string>("mcpufile")),
   dataPileupFile_     (iConfig.getParameter<std::string>("datapufile")),
@@ -86,6 +85,14 @@ GammaGammaLL::GammaGammaLL(const edm::ParameterSet& iConfig) :
   else throw cms::Exception("GammaGammaLL") << "'LeptonsType' parameter should either be:\n"
                                             << "   * 'ElectronMuon'       (for mixed leptons pair)\n"
                                             << "   * 'Electron' or 'Muon' (for same-flavour leptons)";
+  if (fetchElectrons_) {
+    // electron identification variables
+    const edm::ParameterSet eleIdLabelSet = iConfig.getParameter<edm::ParameterSet>("eleIdLabels");
+    eleLooseIdLabel_ = eleIdLabelSet.getParameter<edm::InputTag>("looseLabel").encode();
+    eleMediumIdLabel_ = eleIdLabelSet.getParameter<edm::InputTag>("mediumLabel").encode();
+    eleTightIdLabel_ = eleIdLabelSet.getParameter<edm::InputTag>("tightLabel").encode();
+    eleVetoIdLabel_ = eleIdLabelSet.getParameter<edm::InputTag>("vetoLabel").encode();
+  }
 
   // Pileup reweighting utilities
   if (runOnMC_) {
@@ -442,20 +449,16 @@ GammaGammaLL::fetchElectrons(const edm::Event& iEvent)
     for (unsigned int j=0; j<ids.size(); j++) {
       pat::Electron::IdPair idp = ids.at(j);
       //FIXME make me private attributes
-      if (eleIdLabelSet_.getParameter<edm::InputTag>("looseLabel").encode().find(idp.first)!=std::string::npos) loose_id = idp.second;
-      if (eleIdLabelSet_.getParameter<edm::InputTag>("mediumLabel").encode().find(idp.first)!=std::string::npos) medium_id = idp.second;
-      if (eleIdLabelSet_.getParameter<edm::InputTag>("tightLabel").encode().find(idp.first)!=std::string::npos) tight_id = idp.second;
-      if (eleIdLabelSet_.getParameter<edm::InputTag>("vetoLabel").encode().find(idp.first)!=std::string::npos) veto_id = idp.second;
+      if (eleLooseIdLabel_.find(idp.first)!=std::string::npos) loose_id = idp.second;
+      if (eleMediumIdLabel_.find(idp.first)!=std::string::npos) medium_id = idp.second;
+      if (eleTightIdLabel_.find(idp.first)!=std::string::npos) tight_id = idp.second;
+      if (eleVetoIdLabel_.find(idp.first)!=std::string::npos) veto_id = idp.second;
     }
     //edm::RefToBase<pat::Electron> electronRef(eleColl->refAt(i));
     /*const bool loose_id = (*loose_id_decisions)[electron],
                med_id = (*medium_id_decisions)[electron],
                tight_id = (*tight_id_decisions)[electron],
                veto_id = (*veto_id_decisions)[electron];*/
-    /*const bool loose_id = isLooseCutBasedElectronWithoutIsolation(electron) and pfRelIso(electron, *rhoJECJets) < (electron->isEB() ? 0.0588 : 0.0571),
-               med_id = false, //FIXME
-               tight_id = isTightCutBasedElectronWithoutIsolation(electron) and pfRelIso(electron, *rhoJECJets) < (electron->isEB() ? 0.0588 : 0.0571),
-               veto_id = false; //FIXME*/
 
     EleCand_looseID[nEleCand] = loose_id;
     EleCand_mediumID[nEleCand] = medium_id;
@@ -555,7 +558,7 @@ GammaGammaLL::fetchJets(const edm::Event& iEvent)
   double totalJetEnergy = 0.,
          HEJet_pt = 0., HEJet_eta = 0., HEJet_phi = 0., HEJet_e = 0.;
 
-  for (unsigned int i=0; i<jetColl->size(); i++) {
+  for (unsigned int i=0; i<jetColl->size() && nJetCand<MAX_JETS; i++) {
     const edm::Ptr<pat::Jet> jet = jetColl->ptrAt(i);
 
     JetCand_e[nJetCand] = jet->energy();
@@ -1115,14 +1118,10 @@ GammaGammaLL::beginJob()
     tree_->Branch("MuonCand_eta", MuonCand_eta, "MuonCand_eta[nMuonCand]/D");
     tree_->Branch("MuonCand_phi", MuonCand_phi, "MuonCand_phi[nMuonCand]/D");
     tree_->Branch("MuonCand_e", MuonCand_e, "MuonCand_e[nMuonCand]/D");
-    tree_->Branch("MuonCand_innerTrackPt", MuonCand_innerTrackPt, "MuonCand_innerTrackPt[nMuonCand]/D");
-    tree_->Branch("MuonCand_innerTrackEta", MuonCand_innerTrackEta, "MuonCand_innerTrackEta[nMuonCand]/D");
-    tree_->Branch("MuonCand_innerTrackPhi", MuonCand_innerTrackPhi, "MuonCand_innerTrackPhi[nMuonCand]/D");
     tree_->Branch("MuonCand_charge", MuonCand_charge, "MuonCand_charge[nMuonCand]/I");
     tree_->Branch("MuonCand_vtxx", MuonCand_vtxx, "MuonCand_vtxx[nMuonCand]/D");
     tree_->Branch("MuonCand_vtxy", MuonCand_vtxy, "MuonCand_vtxy[nMuonCand]/D");
     tree_->Branch("MuonCand_vtxz", MuonCand_vtxz, "MuonCand_vtxz[nMuonCand]/D");
-    tree_->Branch("MuonCand_innerTrackVtxz", MuonCand_innerTrackVtxz, "MuonCand_innerTrackVtxz[nMuonCand]/D");
     tree_->Branch("MuonCand_dxy", MuonCand_dxy, "MuonCand_dxy[nMuonCand]/D");
     tree_->Branch("MuonCand_nstatseg", MuonCand_nstatseg, "MuonCand_nstatseg[nMuonCand]/I");
     tree_->Branch("MuonCand_ntrklayers", MuonCand_ntrklayers, "MuonCand_ntrklayers[nMuonCand]/I");
@@ -1137,6 +1136,7 @@ GammaGammaLL::beginJob()
     tree_->Branch("MuonCand_innerTrackPt", MuonCand_innerTrackPt, "MuonCand_innerTrackPt[nMuonCand]/D");
     tree_->Branch("MuonCand_innerTrackEta", MuonCand_innerTrackEta, "MuonCand_innerTrackEta[nMuonCand]/D");
     tree_->Branch("MuonCand_innerTrackPhi", MuonCand_innerTrackPhi, "MuonCand_innerTrackPhi[nMuonCand]/D");
+    tree_->Branch("MuonCand_innerTrackVtxz", MuonCand_innerTrackVtxz, "MuonCand_innerTrackVtxz[nMuonCand]/D");
     if (runOnMC_) {
       tree_->Branch("nGenMuonCand", &nGenMuonCand, "nGenMuonCand/I");
       tree_->Branch("nGenMuonCandOutOfAccept", &nGenMuonCandOutOfAccept, "nGenMuonCandOutOfAccept/I");    
@@ -1153,14 +1153,10 @@ GammaGammaLL::beginJob()
     tree_->Branch("EleCand_eta", EleCand_eta, "EleCand_eta[nEleCand]/D");
     tree_->Branch("EleCand_phi", EleCand_phi, "EleCand_phi[nEleCand]/D");
     tree_->Branch("EleCand_e", EleCand_e, "EleCand_e[nEleCand]/D");
-    tree_->Branch("EleCand_innerTrackPt", EleCand_innerTrackPt, "EleCand_innerTrackPt[nEleCand]/D");
-    tree_->Branch("EleCand_innerTrackEta", EleCand_innerTrackEta, "EleCand_innerTrackEta[nEleCand]/D");
-    tree_->Branch("EleCand_innerTrackPhi", EleCand_innerTrackPhi, "EleCand_innerTrackPhi[nEleCand]/D");
     tree_->Branch("EleCand_charge", EleCand_charge, "EleCand_charge[nEleCand]/I");
     tree_->Branch("EleCand_vtxx", EleCand_vtxx, "EleCand_vtxx[nEleCand]/D");
     tree_->Branch("EleCand_vtxy", EleCand_vtxy, "EleCand_vtxy[nEleCand]/D");
     tree_->Branch("EleCand_vtxz", EleCand_vtxz, "EleCand_vtxz[nEleCand]/D");
-    tree_->Branch("EleCand_innerTrackVtxz", EleCand_innerTrackVtxz, "EleCand_innerTrackVtxz[nEleCand]/D");
     tree_->Branch("EleCand_deltaPhi", EleCand_deltaPhi, "EleCand_deltaPhi[nEleCand]/D"); 
     tree_->Branch("EleCand_deltaEta", EleCand_deltaEta, "EleCand_deltaEta[nEleCand]/D"); 
     tree_->Branch("EleCand_HoverE", EleCand_HoverE, "EleCand_HoverE[nEleCand]/D"); 
@@ -1178,6 +1174,7 @@ GammaGammaLL::beginJob()
     tree_->Branch("EleCand_innerTrackPt", EleCand_innerTrackPt, "EleCand_innerTrackPt[nEleCand]/D");
     tree_->Branch("EleCand_innerTrackEta", EleCand_innerTrackEta, "EleCand_innerTrackEta[nEleCand]/D");
     tree_->Branch("EleCand_innerTrackPhi", EleCand_innerTrackPhi, "EleCand_innerTrackPhi[nEleCand]/D");
+    tree_->Branch("EleCand_innerTrackVtxz", EleCand_innerTrackVtxz, "EleCand_innerTrackVtxz[nEleCand]/D");
     if (runOnMC_) {
       tree_->Branch("nGenEleCand", &nGenEleCand, "nGenEleCand/I");
       tree_->Branch("nGenEleCandOutOfAccept", &nGenEleCandOutOfAccept, "nGenEleCandOutOfAccept/I");    

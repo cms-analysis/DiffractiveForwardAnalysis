@@ -101,21 +101,21 @@
 #include <TH1D.h>
 #include <map>
 
-#define MAX_HLT     10   // Maximum number of HLT to check
-#define MAX_LL      50   // Maximum number of leptons per event
-#define MAX_MUONS   25   // Maximum number of muons per event
-#define MAX_ELE     25   // Maximum number of electrons per event
-#define MAX_PHO     50   // Maximum number of photons per event
-#define MAX_PAIRS   25   // Maximum number of leptons pairs per event
+#define MAX_HLT     10        // Maximum number of HLT to check
+#define MAX_LL      50        // Maximum number of leptons per event
+#define MAX_MUONS   25        // Maximum number of muons per event
+#define MAX_ELE     25        // Maximum number of electrons per event
+#define MAX_PHO     50        // Maximum number of photons per event
+#define MAX_PAIRS   25        // Maximum number of leptons pairs per event
 #define MAX_PAIRPHO 25
-#define MAX_VTX     150  // Maximum number of primary vertices per event
-#define MAX_ET      1000 // Maximum number of extra tracks per event
-#define MAX_GENMU   25   // Maximum number of generator level muons per event
-#define MAX_GENELE  25   // Maximum number of generator level electrons per event
-#define MAX_GENPHO  10   // Maximum number of generator level photons per event
-#define MAX_GENPRO  8    // Maximum number of generator level protons per event
-#define MAX_JETS    30   // Maximum number of jets per event
-#define MAX_LOCALPCAND 25 // Maximum number of reconstructed local tracks in RPs
+#define MAX_VTX     150       // Maximum number of primary vertices per event
+#define MAX_ET      1000      // Maximum number of extra tracks per event
+#define MAX_GENMU   25        // Maximum number of generator level muons per event
+#define MAX_GENELE  25        // Maximum number of generator level electrons per event
+#define MAX_GENPHO  10        // Maximum number of generator level photons per event
+#define MAX_GENPRO  8         // Maximum number of generator level protons per event
+#define MAX_JETS    40        // Maximum number of jets per event
+#define MAX_LOCALPCAND 25     // Maximum number of reconstructed local tracks in RPs
 #define MAX_LOCALPPAIRCAND 10 // Maximum number of reconstructed local tracks pairs in RPs
 
 #define pi 3.14159265359
@@ -200,6 +200,7 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       HLTPrescaleProvider hltPrescale_;
 
       edm::ParameterSet eleIdLabelSet_;
+      std::string eleLooseIdLabel_, eleMediumIdLabel_, eleTightIdLabel_, eleVetoIdLabel_;
 
       // Pileup information
       edm::LumiReWeighting lumiWeights_;
