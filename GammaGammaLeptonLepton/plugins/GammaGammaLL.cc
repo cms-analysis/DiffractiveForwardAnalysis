@@ -59,7 +59,8 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   mcPileupFile_       ( iConfig.getParameter<std::string>( "mcpufile" ) ),
   dataPileupFile_     ( iConfig.getParameter<std::string>( "datapufile" ) ),
   mcPileupPath_       ( iConfig.getParameter<std::string>( "mcpupath" ) ),
-  dataPileupPath_     ( iConfig.getParameter<std::string>( "datapupath" ) )
+  dataPileupPath_     ( iConfig.getParameter<std::string>( "datapupath" ) ),
+  nCandidates_( 0 )
 {
   evt_.nHLT = triggersList_.size();	
 
@@ -390,7 +391,6 @@ GammaGammaLL::fetchMuons( const edm::Event& iEvent )
 
     evt_.nMuonCand++;
   }
-  evt_.nLeptonCand += evt_.nMuonCand;
   LogDebug( "GammaGammaLL" ) << "Passed Muon retrieval stage. Got " << evt_.nMuonCand << " muon(s)";
 }
 
@@ -472,7 +472,6 @@ GammaGammaLL::fetchElectrons( const edm::Event& iEvent )
 
     evt_.nEleCand++;
   }
-  evt_.nLeptonCand += evt_.nEleCand;
   LogDebug( "GammaGammaLL" ) << "Passed Electron retrieval stage. Got " << evt_.nEleCand << " electron(s)";
 }
 
@@ -701,6 +700,7 @@ GammaGammaLL::newTracksInfoRetrieval( int l1id, int l2id )
     const double vtxdst = sqrt( std::pow( ( track->vertex().x()-evt_.KalmanVertexCand_x[evt_.nPair] ), 2 )
                               + std::pow( ( track->vertex().y()-evt_.KalmanVertexCand_y[evt_.nPair] ), 2 )
                               + std::pow( ( track->vertex().z()-evt_.KalmanVertexCand_z[evt_.nPair] ), 2 ) );
+    if ( vtxdst < 0.05 ) evt_.Pair_extratracks0p5mm[evt_.nPair]++;
     if ( vtxdst < 0.1 ) evt_.Pair_extratracks1mm[evt_.nPair]++;
     if ( vtxdst < 0.2 ) evt_.Pair_extratracks2mm[evt_.nPair]++;
     if ( vtxdst < 0.3 ) evt_.Pair_extratracks3mm[evt_.nPair]++;
@@ -792,7 +792,7 @@ GammaGammaLL::newTracksInfoRetrieval( int l1id, int l2id )
   }
 
   evt_.nPair++;
-  evt_.nCandidates++;
+  nCandidates_++;
 
   return true;
 }
@@ -810,7 +810,7 @@ GammaGammaLL::beginJob()
 void
 GammaGammaLL::endJob()
 {
-  std::cout << "==> Number of candidates in the dataset : " << evt_.nCandidates << std::endl;
+  std::cout << "==> Number of candidates in the dataset : " << nCandidates_ << std::endl;
 }
 
 // ------------ method called when starting to processes a run  ------------

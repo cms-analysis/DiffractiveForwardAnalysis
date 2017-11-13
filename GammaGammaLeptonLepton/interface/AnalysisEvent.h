@@ -92,8 +92,6 @@ namespace ggll
       double GenProtCand_pt[MAX_GENPRO], GenProtCand_eta[MAX_GENPRO], GenProtCand_phi[MAX_GENPRO], GenProtCand_e[MAX_GENPHO];
       int GenProtCand_status[MAX_GENPRO];
 
-      unsigned int nLeptonCand, nCandidates, nCandidatesInEvent;
-
       // Pileup reweighting quantities
       double PUWeightTrue, Weight;
 
@@ -144,6 +142,7 @@ namespace ggll
       double PairGamma_mass[MAX_PHO];
 
       // Extra tracks
+      unsigned int Pair_extratracks0p5mm[MAX_PAIRS];
       unsigned int Pair_extratracks1mm[MAX_PAIRS], Pair_extratracks2mm[MAX_PAIRS];
       unsigned int Pair_extratracks3mm[MAX_PAIRS], Pair_extratracks4mm[MAX_PAIRS];
       unsigned int Pair_extratracks5mm[MAX_PAIRS], Pair_extratracks1cm[MAX_PAIRS];
@@ -223,14 +222,12 @@ namespace ggll
           GenProtCand_status[i] = -1;
         }
 
-        nLeptonCand = nCandidates = nCandidatesInEvent = 0;
-
         PUWeightTrue = Weight = 0.;
 
         //LHCFillNum = LHCBeamMode = -1;
 
         // single lepton candidates
-        nMuonCand = nEleCand = nLeptonCand = 0;
+        nMuonCand = nEleCand = 0;
         for ( unsigned int i = 0; i < MAX_LL; ++i ) {
           MuonCand_pt[i] = MuonCand_eta[i] = MuonCand_phi[i] = MuonCand_e[i] = -999.;
           MuonCand_innerTrackPt[i] = MuonCand_innerTrackEta[i] = MuonCand_innerTrackPhi[i] = -999.;
@@ -283,6 +280,7 @@ namespace ggll
 
         // extra tracks associated to the central system vertex
         for ( unsigned int i = 0; i < MAX_PAIRS; ++i ) {
+          Pair_extratracks0p5mm[i] = 0;
           Pair_extratracks1mm[i] = Pair_extratracks2mm[i] = Pair_extratracks3mm[i] = 0;
           Pair_extratracks4mm[i] = Pair_extratracks5mm[i] = Pair_extratracks1cm[i] = 0;
           Pair_extratracks2cm[i] = Pair_extratracks3cm[i] = Pair_extratracks4cm[i] = 0;
@@ -473,6 +471,7 @@ namespace ggll
         tree->Branch( "Pair_dpt", Pair_dpt, "Pair_dpt[nPair]/D" );
         tree->Branch( "Pair_dphi", Pair_dphi, "Pair_dphi[nPair]/D" );
         tree->Branch( "Pair_3Dangle", Pair_3Dangle, "Pair_3Dangle[nPair]/D" );
+        tree->Branch( "Pair_extratracks0p5mm", Pair_extratracks0p5mm, "Pair_extratracks0p5mm[nPair]/i" );
         tree->Branch( "Pair_extratracks1mm", Pair_extratracks1mm, "Pair_extratracks1mm[nPair]/i" );
         tree->Branch( "Pair_extratracks2mm", Pair_extratracks2mm, "Pair_extratracks2mm[nPair]/i" );
         tree->Branch( "Pair_extratracks3mm", Pair_extratracks3mm, "Pair_extratracks3mm[nPair]/i" );
@@ -692,6 +691,7 @@ namespace ggll
         tree->SetBranchAddress( "Pair_dpt", Pair_dpt );
         tree->SetBranchAddress( "Pair_dphi", Pair_dphi );
         tree->SetBranchAddress( "Pair_3Dangle", Pair_3Dangle );
+        tree->SetBranchAddress( "Pair_extratracks0p5mm", Pair_extratracks0p5mm );
         tree->SetBranchAddress( "Pair_extratracks1mm", Pair_extratracks1mm );
         tree->SetBranchAddress( "Pair_extratracks2mm", Pair_extratracks2mm );
         tree->SetBranchAddress( "Pair_extratracks3mm", Pair_extratracks3mm );

@@ -13,8 +13,33 @@ void reader( const char* filename = "output.root" )
 
   for ( unsigned long long i = 0; i < tree->GetEntriesFast(); ++i ) {
     tree->GetEntry( i );
+    cout << ">>> event " << i << endl;
+    cout << "- fired triggers:" << endl;
+    for ( const auto& hlt : *evt.HLT_Name ) {
+      cout << "  *) " << hlt << endl;
+    }
+
+    cout << "- dilepton pairs:" << endl;
     for ( unsigned int j = 0; j < evt.nPair; ++j ) {
-      cout << "---> pair " << j << " has invariant mass = " << evt.Pair_mass[j] << endl;
+      cout << "  *) pair " << j << " has invariant mass = " << evt.Pair_mass[j] << endl;
+      auto kvc = TVector3( evt.KalmanVertexCand_x[j], evt.KalmanVertexCand_y[j], evt.KalmanVertexCand_z[j] );
+
+      if ( evt.Pair_extratracks0p5mm[j] != 0 ) continue;
+      if ( 1.-fabs( evt.Pair_dphi[j] )/M_PI > 0.009 ) continue;
+
+      cout << "CANDIDATE!!!" << endl;
+      //cout << evt.Pair_extratracks2mm[j] << endl;
+
+      /*double min_dist = 999.;
+      int min_dist_vtx = -1;
+      for ( unsigned int k = 0; k < evt.nPrimVertexCand; ++k ) {
+        auto pvc = TVector3( evt.PrimVertexCand_x[k], evt.PrimVertexCand_y[k], evt.PrimVertexCand_z[k] );
+        const double dist = ( kvc-pvc ).Mag();
+        if ( dist < min_dist ) {
+          min_dist = dist;
+          min_dist_vtx = k;
+        }
+      }*/
     }
   }
 }

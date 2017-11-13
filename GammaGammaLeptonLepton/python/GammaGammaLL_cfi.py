@@ -1,15 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-ggll_aod = cms.EDAnalyzer(
-    'GammaGammaLL',
-
+ggll_aod = cms.EDAnalyzer('GammaGammaLL',
     # General parameters
-    leptonsType = cms.InputTag('electronmuon'),
+    leptonsType = cms.InputTag('ElectronMuon'),
     #maxExtraTracks = cms.untracked.uint32(10000),
     sqrtS = cms.double(13.e3), # in GeV
     fetchProtons = cms.bool(False), # retrieve the TOTEM/PPS info from the files (data only!)
     printCandidates = cms.bool(False),
-    useLegacyVertexing = cms.bool(False),
 
     # MC tweaks
     runOnMC = cms.bool(True),
