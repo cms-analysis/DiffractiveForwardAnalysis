@@ -26,6 +26,8 @@
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/PrimaryVertexSelector.h"
 
+const unsigned int ggll::AnalysisEvent::MAX_ET;
+
 GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   tree_( 0 ),
   fetchMuons_( false ), fetchElectrons_( false ),
@@ -496,7 +498,7 @@ GammaGammaLL::fetchPhotons( const edm::Event& iEvent )
     if ( runOnMC_ ) {
       double photdr = 999., photdeta = 999., photdphi = 999.;
       double endphotdr = 999., endphotdeta = 999., endphotdphi = 999.;
-      for ( int j = 0; j < evt_.nGenPhotCand; ++j ) { // matching with the 'true' photon object from MC
+      for ( unsigned int j = 0; j < evt_.nGenPhotCand; ++j ) { // matching with the 'true' photon object from MC
         photdeta = ( evt_.PhotonCand_eta[evt_.nPhotonCand]-evt_.GenPhotCand_eta[j] );
         photdphi = ( evt_.PhotonCand_phi[evt_.nPhotonCand]-evt_.GenPhotCand_phi[j] );
         photdr = sqrt( photdeta*photdeta + photdphi*photdphi );
@@ -615,24 +617,24 @@ GammaGammaLL::newVertexInfoRetrieval( const edm::Event& iEvent )
   foundPairInEvent_ = false;
   switch ( leptonsType_ ) {
     case ggll::ElectronMuon: {
-      for ( int i = 0; i < evt_.nMuonCand; ++i ) {
-        for ( int j = 0; j < evt_.nEleCand; ++j ) {
+      for ( unsigned int i = 0; i < evt_.nMuonCand; ++i ) {
+        for ( unsigned int j = 0; j < evt_.nEleCand; ++j ) {
           if ( evt_.MuonCand_charge[i]*evt_.EleCand_charge[j] > 0 ) continue;
           if ( newTracksInfoRetrieval( i, j ) ) foundPairInEvent_ = true;
         }
       }
     } break;
     case ggll::DiElectron: {
-      for ( int i = 0; i < evt_.nEleCand; ++i ) {
-        for ( int j = i+1; j < evt_.nEleCand; ++j ) {
+      for ( unsigned int i = 0; i < evt_.nEleCand; ++i ) {
+        for ( unsigned int j = i+1; j < evt_.nEleCand; ++j ) {
           if ( evt_.EleCand_charge[i]*evt_.EleCand_charge[j] > 0 ) continue;
           if ( newTracksInfoRetrieval( i, j ) ) foundPairInEvent_ = true;
         }
       }
     } break;
     case ggll::DiMuon: {
-      for ( int i = 0; i < evt_.nMuonCand; ++i ) {
-       for ( int j = i+1; j < evt_.nMuonCand; ++j ) {
+      for ( unsigned int i = 0; i < evt_.nMuonCand; ++i ) {
+       for ( unsigned int j = i+1; j < evt_.nMuonCand; ++j ) {
           if ( evt_.MuonCand_charge[i]*evt_.MuonCand_charge[j] > 0 ) continue;
           if ( newTracksInfoRetrieval( i, j ) ) foundPairInEvent_ = true;
         }
@@ -780,7 +782,7 @@ GammaGammaLL::newTracksInfoRetrieval( int l1id, int l2id )
   evt_.Pair_dpt[evt_.nPair] = fabs( l1.Pt()-l2.Pt() );
   evt_.Pair_3Dangle[evt_.nPair] = l1.Angle( l2.Vect() )/M_PI;
 
-  for ( int j = 0; j < evt_.nPhotonCand; ++j ) {
+  for ( unsigned int j = 0; j < evt_.nPhotonCand; ++j ) {
     TLorentzVector pho;
     pho.SetPtEtaPhiE( evt_.PhotonCand_pt[j], evt_.PhotonCand_eta[j], evt_.PhotonCand_phi[j], evt_.PhotonCand_e[j] );
     evt_.PairGamma_pair[evt_.nPairGamma] = evt_.nPair;
@@ -801,7 +803,7 @@ GammaGammaLL::beginJob()
 {
   // Filling the ntuple
   evt_.attach( tree_, leptonsType_, runOnMC_ );
-  //*evt_.HLT_Name = triggersList_;
+  *evt_.HLT_Name = triggersList_;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
