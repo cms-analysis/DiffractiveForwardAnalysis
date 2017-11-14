@@ -22,6 +22,8 @@
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
+
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/PrimaryVertexSelector.h"
@@ -536,9 +538,9 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
 
   evt_.nLocalProtCand = 0;
   for ( const auto rplocaltrack : *rplocaltracks ) {
-    const unsigned int det_id = rplocaltrack.detId();
-    const unsigned short arm = (det_id%100 == 2), // 0->F, 1->N (3/103->F, 2/102->N)
-                         side = (det_id/100); // 0->L, 1->R (2/3->L, 102/103->R)
+    const CTPPSDetId det_id( rplocaltrack.detId() );
+    const unsigned short arm = det_id.arm(), // 0->L, 1->R (  2/  3->45, 102/103->56)
+                         pot = det_id.rp();  // 0->F, 1->N (  2/102-> N,   3/103-> F)
     for ( const auto track : rplocaltrack ) {
       if ( evt_.nLocalProtCand == ggll::AnalysisEvent::MAX_LOCALPCAND-1 ) {
         edm::LogWarning( "GammaGammaLL" ) << "maximum number of local tracks in RPs is reached! increase MAX_LOCALPCAND=" << ggll::AnalysisEvent::MAX_LOCALPCAND << " in GammaGammaLL.h";
@@ -555,7 +557,7 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
       evt_.LocalProtCand_TxSigma[evt_.nLocalProtCand] = track.getTxSigma();
       evt_.LocalProtCand_TySigma[evt_.nLocalProtCand] = track.getTySigma();
       evt_.LocalProtCand_arm[evt_.nLocalProtCand] = arm;
-      evt_.LocalProtCand_side[evt_.nLocalProtCand] = side;
+      evt_.LocalProtCand_pot[evt_.nLocalProtCand] = pot;
       evt_.nLocalProtCand++;
       LogDebug( "GammaGammaLL" ) << "Proton track candidate with origin: ( " << track.getX0() << ", " << track.getY0() << ", " << track.getZ0() << " ) extracted!";
     }

@@ -190,7 +190,7 @@ namespace ggll
       double LocalProtCand_xSigma[MAX_LOCALPCAND], LocalProtCand_ySigma[MAX_LOCALPCAND];
       double LocalProtCand_Tx[MAX_LOCALPCAND], LocalProtCand_Ty[MAX_LOCALPCAND];
       double LocalProtCand_TxSigma[MAX_LOCALPCAND], LocalProtCand_TySigma[MAX_LOCALPCAND];
-      int LocalProtCand_arm[MAX_LOCALPCAND], LocalProtCand_side[MAX_LOCALPCAND];
+      int LocalProtCand_arm[MAX_LOCALPCAND], LocalProtCand_pot[MAX_LOCALPCAND];
 
       void clear() {
         // event-level branches
@@ -337,7 +337,7 @@ namespace ggll
           LocalProtCand_xSigma[i] = LocalProtCand_ySigma[i] = -999.;
           LocalProtCand_Tx[i] = LocalProtCand_Ty[i] = -999.;
           LocalProtCand_TxSigma[i] = LocalProtCand_TySigma[i] = -999.;
-          LocalProtCand_arm[i] = LocalProtCand_side[i] = -1;
+          LocalProtCand_arm[i] = LocalProtCand_pot[i] = -1;
         }
       }
       void attach( TTree* tree, TreeType tt, bool mc ) {
@@ -511,7 +511,7 @@ namespace ggll
           tree->Branch( "LocalProtCand_xSigma", LocalProtCand_xSigma, "LocalProtCand_xSigma[nLocalProtCand]/D" );
           tree->Branch( "LocalProtCand_ySigma", LocalProtCand_ySigma, "LocalProtCand_ySigma[nLocalProtCand]/D" );
           tree->Branch( "LocalProtCand_arm", LocalProtCand_arm, "LocalProtCand_arm[nLocalProtCand]/I" );
-          tree->Branch( "LocalProtCand_side", LocalProtCand_side, "LocalProtCand_side[nLocalProtCand]/I" );
+          tree->Branch( "LocalProtCand_pot", LocalProtCand_pot, "LocalProtCand_pot[nLocalProtCand]/I" );
           tree->Branch( "LocalProtCand_Tx", LocalProtCand_Tx, "LocalProtCand_Tx[nLocalProtCand]/D" );
           tree->Branch( "LocalProtCand_Ty", LocalProtCand_Ty, "LocalProtCand_Ty[nLocalProtCand]/D" );
           tree->Branch( "LocalProtCand_TxSigma", LocalProtCand_TxSigma, "LocalProtCand_TxSigma[nLocalProtCand]/D" );
@@ -731,7 +731,7 @@ namespace ggll
           tree->SetBranchAddress( "LocalProtCand_xSigma", LocalProtCand_xSigma );
           tree->SetBranchAddress( "LocalProtCand_ySigma", LocalProtCand_ySigma );
           tree->SetBranchAddress( "LocalProtCand_arm", LocalProtCand_arm );
-          tree->SetBranchAddress( "LocalProtCand_side", LocalProtCand_side );
+          tree->SetBranchAddress( "LocalProtCand_pot", LocalProtCand_pot );
           tree->SetBranchAddress( "LocalProtCand_Tx", LocalProtCand_Tx );
           tree->SetBranchAddress( "LocalProtCand_Ty", LocalProtCand_Ty );
           tree->SetBranchAddress( "LocalProtCand_TxSigma", LocalProtCand_TxSigma );
