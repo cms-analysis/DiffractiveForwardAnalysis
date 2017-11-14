@@ -136,7 +136,7 @@ namespace ggll
       int Pair_lepton1[MAX_PAIRS], Pair_lepton2[MAX_PAIRS];
       double Pair_pt[MAX_PAIRS], Pair_eta[MAX_PAIRS], Pair_phi[MAX_PAIRS], Pair_mass[MAX_PAIRS];
       double Pair_dpt[MAX_PAIRS], Pair_dphi[MAX_PAIRS], Pair_3Dangle[MAX_PAIRS];
-      double Pair_mindist[MAX_PAIRS];
+      //double Pair_mindist[MAX_PAIRS];
 
       unsigned int nPairGamma;
       int PairGamma_pair[MAX_PHO];
@@ -270,7 +270,7 @@ namespace ggll
           Pair_lepton1[i] = Pair_lepton2[i] = -1;
           Pair_pt[i] = Pair_mass[i] = Pair_phi[i] = Pair_eta[i] = -999.;
           Pair_dpt[i] = Pair_dphi[i] = Pair_3Dangle[i] = -999.;
-          Pair_mindist[i] = -999.;
+          //Pair_mindist[i] = -999.;
         }
 
         // dilepton pair + associated photon candidates
@@ -465,7 +465,7 @@ namespace ggll
         tree->Branch( "nPair", &nPair, "nPair/i" );
         tree->Branch( "Pair_lepton1", Pair_lepton1, "Pair_lepton1[nPair]/I" );
         tree->Branch( "Pair_lepton2", Pair_lepton2, "Pair_lepton2[nPair]/I" );
-        tree->Branch( "Pair_mindist", Pair_mindist, "Pair_mindist[nPair]/D" );
+        //tree->Branch( "Pair_mindist", Pair_mindist, "Pair_mindist[nPair]/D" );
         tree->Branch( "Pair_mass", Pair_mass, "Pair_mass[nPair]/D" );
         tree->Branch( "Pair_pt", Pair_pt, "Pair_pt[nPair]/D" );
         tree->Branch( "Pair_eta", Pair_eta, "Pair_eta[nPair]/D" );
@@ -685,7 +685,7 @@ namespace ggll
         tree->SetBranchAddress( "nPair", &nPair );
         tree->SetBranchAddress( "Pair_lepton1", Pair_lepton1 );
         tree->SetBranchAddress( "Pair_lepton2", Pair_lepton2 );
-        tree->SetBranchAddress( "Pair_mindist", Pair_mindist );
+        //tree->SetBranchAddress( "Pair_mindist", Pair_mindist );
         tree->SetBranchAddress( "Pair_mass", Pair_mass );
         tree->SetBranchAddress( "Pair_pt", Pair_pt );
         tree->SetBranchAddress( "Pair_eta", Pair_eta );

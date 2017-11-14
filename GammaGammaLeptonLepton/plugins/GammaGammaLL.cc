@@ -783,6 +783,8 @@ GammaGammaLL::newTracksInfoRetrieval( int l1id, int l2id )
   evt_.Pair_mass[evt_.nPair] = pair.M();
   evt_.Pair_phi[evt_.nPair] = pair.Phi();
   evt_.Pair_eta[evt_.nPair] = pair.Eta();
+  evt_.Pair_lepton1[evt_.nPair] = l1id;
+  evt_.Pair_lepton2[evt_.nPair] = l2id;
 
   double dphi = fabs( l1.Phi()-l2.Phi() );
   // dphi lies in [-pi, pi]
