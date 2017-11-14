@@ -122,13 +122,14 @@ namespace ggll
       double EleCand_sigmaIetaIeta[MAX_LL];
       double EleCand_convDist[MAX_LL], EleCand_convDcot[MAX_LL];
       int EleCand_ecalDriven[MAX_LL];
-      int EleCand_vetoID[MAX_LL], EleCand_tightID[MAX_LL], EleCand_mediumID[MAX_LL], EleCand_looseID[MAX_LL];
+      int EleCand_tightID[MAX_LL], EleCand_mediumID[MAX_LL];
 
       // Photon quantities
       unsigned int nPhotonCand;
       double PhotonCand_pt[MAX_PHO], PhotonCand_eta[MAX_PHO], PhotonCand_phi[MAX_PHO], PhotonCand_e[MAX_PHO];
       double PhotonCand_r9[MAX_PHO];
       double PhotonCand_drtrue[MAX_PHO], PhotonCand_detatrue[MAX_PHO], PhotonCand_dphitrue[MAX_PHO];
+      int PhotonCand_tightID[MAX_PHO], PhotonCand_mediumID[MAX_PHO];
 
       // Pair quantities
       unsigned int nPair;
@@ -251,7 +252,7 @@ namespace ggll
           EleCand_sigmaIetaIeta[i] = -999.;
           EleCand_convDist[i] = EleCand_convDcot[i] = -999.;
           EleCand_ecalDriven[i] = -999;
-          EleCand_vetoID[i] = EleCand_tightID[i] = EleCand_mediumID[i] = EleCand_looseID[i] = -1;
+          EleCand_tightID[i] = EleCand_mediumID[i] = -1;
         }
 
         // single photon candidates
@@ -260,6 +261,7 @@ namespace ggll
           PhotonCand_pt[i] = PhotonCand_eta[i] = PhotonCand_phi[i] = PhotonCand_e[i] = -999.;
           PhotonCand_r9[i] = -999.;
           PhotonCand_drtrue[i] = PhotonCand_detatrue[i] = PhotonCand_dphitrue[i] = -999.;
+          PhotonCand_tightID[i] = PhotonCand_mediumID[i] = -1;
         }
 
         // dilepton pair candidates
@@ -407,9 +409,7 @@ namespace ggll
           tree->Branch( "EleCand_convDcot", EleCand_convDcot, "EleCand_convDcot[nEleCand]/D" );
           tree->Branch( "EleCand_ecalDriven", EleCand_ecalDriven, "EleCand_ecalDriven[nEleCand]/D" );
           tree->Branch( "EleCand_mediumID", EleCand_mediumID, "EleCand_mediumID[nEleCand]/I" );
-          tree->Branch( "EleCand_looseID", EleCand_looseID, "EleCand_looseID[nEleCand]/I" );
           tree->Branch( "EleCand_tightID", EleCand_tightID, "EleCand_tightID[nEleCand]/I" );
-          tree->Branch( "EleCand_vetoID", EleCand_vetoID, "EleCand_vetoID[nEleCand]/I" );
           tree->Branch( "EleCand_innerTrackPt", EleCand_innerTrackPt, "EleCand_innerTrackPt[nEleCand]/D" );
           tree->Branch( "EleCand_innerTrackEta", EleCand_innerTrackEta, "EleCand_innerTrackEta[nEleCand]/D" );
           tree->Branch( "EleCand_innerTrackPhi", EleCand_innerTrackPhi, "EleCand_innerTrackPhi[nEleCand]/D" );
@@ -432,6 +432,8 @@ namespace ggll
         tree->Branch( "PhotonCand_drtrue", PhotonCand_drtrue, "PhotonCand_drtrue[nPhotonCand]/D" );
         tree->Branch( "PhotonCand_detatrue", PhotonCand_detatrue, "PhotonCand_detatrue[nPhotonCand]/D" );
         tree->Branch( "PhotonCand_dphitrue", PhotonCand_dphitrue, "PhotonCand_dphitrue[nPhotonCand]/D" );
+        tree->Branch( "PhotonCand_mediumID", PhotonCand_mediumID, "PhotonCand_mediumID[nPhotonCand]/I" );
+        tree->Branch( "PhotonCand_tightID", PhotonCand_tightID, "PhotonCand_tightID[nPhotonCand]/I" );
         if ( mc ) {
           tree->Branch( "nGenPhotCand", &nGenPhotCand, "nGenPhotCand/i" );
           tree->Branch( "nGenPhotCandOutOfAccept", &nGenPhotCandOutOfAccept, "nGenPhotCandOutOfAccept/I" );
@@ -627,9 +629,7 @@ namespace ggll
           tree->SetBranchAddress( "EleCand_convDcot", EleCand_convDcot );
           tree->SetBranchAddress( "EleCand_ecalDriven", EleCand_ecalDriven );
           tree->SetBranchAddress( "EleCand_mediumID", EleCand_mediumID );
-          tree->SetBranchAddress( "EleCand_looseID", EleCand_looseID );
           tree->SetBranchAddress( "EleCand_tightID", EleCand_tightID );
-          tree->SetBranchAddress( "EleCand_vetoID", EleCand_vetoID );
           tree->SetBranchAddress( "EleCand_innerTrackPt", EleCand_innerTrackPt );
           tree->SetBranchAddress( "EleCand_innerTrackEta", EleCand_innerTrackEta );
           tree->SetBranchAddress( "EleCand_innerTrackPhi", EleCand_innerTrackPhi );
@@ -652,6 +652,8 @@ namespace ggll
         tree->SetBranchAddress( "PhotonCand_drtrue", PhotonCand_drtrue );
         tree->SetBranchAddress( "PhotonCand_detatrue", PhotonCand_detatrue );
         tree->SetBranchAddress( "PhotonCand_dphitrue", PhotonCand_dphitrue );
+        tree->SetBranchAddress( "PhotonCand_mediumID", PhotonCand_mediumID );
+        tree->SetBranchAddress( "PhotonCand_tightID", PhotonCand_tightID );
         if ( mc ) {
           tree->SetBranchAddress( "nGenPhotCand", &nGenPhotCand );
           tree->SetBranchAddress( "nGenPhotCandOutOfAccept", &nGenPhotCandOutOfAccept );

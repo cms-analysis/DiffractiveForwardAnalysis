@@ -63,6 +63,7 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 ## Look at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATTools#Core_Tools for more information
 
 process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('PATuple.root'),
     outputCommands = cms.untracked.vstring(
         'drop *',
         'keep *_offline*PrimaryVertices*_*_*',
@@ -119,6 +120,20 @@ process.ggll_aod.leptonsType = cms.string('Muon')
 process.ggll_aod.runOnMC = cms.bool(runOnMC)
 process.ggll_aod.fetchProtons = cms.bool(True)
 
+# E/gamma identification
+process.ggll_aod.eleIdLabels = cms.PSet(
+    mediumLabel = cms.InputTag('mvaEleID-Spring16-GeneralPurpose-V1-wp90'),
+    tightLabel = cms.InputTag('mvaEleID-Spring16-GeneralPurpose-V1-wp80'),
+)
+process.ggll_aod.phoIdLabels = cms.PSet(
+    mediumLabel = cms.InputTag('mvaPhoID-Spring16-nonTrig-V1-wp90'),
+    tightLabel = cms.InputTag('mvaPhoID-Spring16-nonTrig-V1-wp80'),
+)
+#process.ggll_aod.eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90")
+#process.ggll_aod.eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80")
+#process.ggll_aod.phoMediumIdMap = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp90")
+#process.ggll_aod.phoTightIdMap = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp80")
+
 # prepare the output file
 process.TFileService = cms.Service('TFileService',
     fileName = cms.string('output.root'),
@@ -132,5 +147,6 @@ process.p = cms.Path(
     process.ggll_aod
 )
 
+#process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
 process.outpath = cms.EndPath(patAlgosToolsTask)
 

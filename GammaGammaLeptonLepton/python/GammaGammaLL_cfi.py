@@ -36,25 +36,7 @@ ggll_aod = cms.EDAnalyzer('GammaGammaLL',
     mcpupath = cms.string('pileup'),
     datapufile = cms.string('PUHistos_data.root'),
     datapupath = cms.string('pileup'),
-
-    # Electron ID
     fixedGridRhoFastjetAllLabel = cms.InputTag('fixedGridRhoFastjetAll'),
-    eleIdLabels = cms.PSet(
-       looseLabel = cms.InputTag('cutBasedElectronID-Spring15-25ns-V1-standalone-loose'),
-       mediumLabel = cms.InputTag('cutBasedElectronID-Spring15-25ns-V1-standalone-medium'),
-       tightLabel = cms.InputTag('cutBasedElectronID-Spring15-25ns-V1-standalone-tight'),
-       vetoLabel = cms.InputTag('cutBasedElectronID-Spring15-25ns-V1-standalone-veto'),
-    ),
-    eleLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
-    eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
-    eleTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
-    eleVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
-    #eleLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-loose"),
-    #eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-medium"),
-    #eleTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-tight"),
-    #eleVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-veto"),
-    #eleLooseMVAIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp90"),
-    #eleTightMVAIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp80"),
 )
 
 ggll = ggll_aod.clone() ## for backward-compatibility

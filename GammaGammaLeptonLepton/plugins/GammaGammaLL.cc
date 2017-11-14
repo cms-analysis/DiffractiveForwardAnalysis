@@ -40,10 +40,10 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   recoTrackToken_     ( consumes<edm::View<reco::Track> >              ( iConfig.getParameter<edm::InputTag>( "trackTag" ) ) ),
   muonToken_          ( consumes<edm::View<pat::Muon> >                ( iConfig.getParameter<edm::InputTag>( "muonTag" ) ) ),
   eleToken_           ( consumes<edm::View<pat::Electron> >            ( iConfig.getParameter<edm::InputTag>( "electronTag" ) ) ),
-  /*eleLooseIdMapToken_ ( consumes<edm::ValueMap<bool> >               ( iConfig.getParameter<edm::InputTag>( "eleLooseIdMap" ) ) ),
-  eleMediumIdMapToken_( consumes<edm::ValueMap<bool> >                 ( iConfig.getParameter<edm::InputTag>( "eleMediumIdMap" ) ) ),
+  /*eleMediumIdMapToken_( consumes<edm::ValueMap<bool> >                 ( iConfig.getParameter<edm::InputTag>( "eleMediumIdMap" ) ) ),
   eleTightIdMapToken_ ( consumes<edm::ValueMap<bool> >                 ( iConfig.getParameter<edm::InputTag>( "eleTightIdMap" ) ) ),
-  eleVetoIdMapToken_  ( consumes<edm::ValueMap<bool> >                 ( iConfig.getParameter<edm::InputTag>( "eleVetoIdMap" ) ) ),*/
+  phoMediumIdMapToken_( consumes<edm::ValueMap<bool> >                 ( iConfig.getParameter<edm::InputTag>( "phoMediumIdMap" ) ) ),
+  phoTightIdMapToken_ ( consumes<edm::ValueMap<bool> >                 ( iConfig.getParameter<edm::InputTag>( "phoTightIdMap" ) ) ),*/
   jetToken_           ( consumes<edm::View<pat::Jet> >                 ( iConfig.getParameter<edm::InputTag>( "jetTag" ) ) ),
   fixedGridRhoFastjetAllToken_( consumes<double>                       ( iConfig.getParameter<edm::InputTag>( "fixedGridRhoFastjetAllLabel" ) ) ),
   metToken_           ( consumes<edm::View<pat::MET> >                 ( iConfig.getParameter<edm::InputTag>( "metTag" ) ) ),
@@ -89,14 +89,17 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   else throw cms::Exception( "GammaGammaLL" ) << "'LeptonsType' parameter should either be:\n"
                                             << "   * 'ElectronMuon'       (for mixed leptons pair)\n"
                                             << "   * 'Electron' or 'Muon' (for same-flavour leptons)";
+
   if ( fetchElectrons_ ) {
     // electron identification variables
     const edm::ParameterSet eleIdLabelSet = iConfig.getParameter<edm::ParameterSet>( "eleIdLabels" );
-    eleLooseIdLabel_ = eleIdLabelSet.getParameter<edm::InputTag>( "looseLabel" ).encode();
     eleMediumIdLabel_ = eleIdLabelSet.getParameter<edm::InputTag>( "mediumLabel" ).encode();
     eleTightIdLabel_ = eleIdLabelSet.getParameter<edm::InputTag>( "tightLabel" ).encode();
-    eleVetoIdLabel_ = eleIdLabelSet.getParameter<edm::InputTag>( "vetoLabel" ).encode();
   }
+  // photon identification variables
+  const edm::ParameterSet phoIdLabelSet = iConfig.getParameter<edm::ParameterSet>( "phoIdLabels" );
+  phoMediumIdLabel_ = phoIdLabelSet.getParameter<edm::InputTag>( "mediumLabel" ).encode();
+  phoTightIdLabel_ = phoIdLabelSet.getParameter<edm::InputTag>( "tightLabel" ).encode();
 
   // Pileup reweighting utilities
   if ( runOnMC_ ) {
@@ -170,7 +173,7 @@ GammaGammaLL::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     analyzeMCEventContent( iEvent );
 
     // Pileup information
-    edm::Handle< edm::View<PileupSummaryInfo> > pu_info;
+    edm::Handle<edm::View<PileupSummaryInfo> > pu_info;
     iEvent.getByToken( pileupToken_, pu_info);
 
     int npv0true = 0;
@@ -209,7 +212,7 @@ GammaGammaLL::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   fetchJets( iEvent );
 
   // Missing ET
-  edm::Handle< edm::View<pat::MET> > MET;
+  edm::Handle<edm::View<pat::MET> > MET;
   iEvent.getByToken( metToken_, MET);
   const edm::View<pat::MET>* metColl = MET.product();
   edm::View<pat::MET>::const_iterator met = metColl->begin();
@@ -230,7 +233,7 @@ GammaGammaLL::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 void
 GammaGammaLL::analyzeMCEventContent( const edm::Event& iEvent )
 {
-  edm::Handle< edm::View<reco::GenParticle> > genPartColl;
+  edm::Handle<edm::View<reco::GenParticle> > genPartColl;
   iEvent.getByToken( genToken_, genPartColl );
 
   for ( unsigned int i = 0; i < genPartColl->size(); ++i ) {
@@ -401,11 +404,9 @@ GammaGammaLL::fetchElectrons( const edm::Event& iEvent )
   edm::Handle<edm::View<pat::Electron> > eleColl;
   iEvent.getByToken( eleToken_, eleColl );
 
-  /*edm::Handle< edm::ValueMap<float> > loose_id_decisions, medium_id_decisions, tight_id_decisions, veto_id_decisions;
-  iEvent.getByToken( eleLooseIdMapToken_, loose_id_decisions);
-  iEvent.getByToken( eleMediumIdMapToken_, medium_id_decisions);
-  iEvent.getByToken( eleTightIdMapToken_, tight_id_decisions);
-  iEvent.getByToken( eleVetoIdMapToken_, veto_id_decisions);*/
+  /*edm::Handle<edm::ValueMap<bool> > medium_id_decisions, tight_id_decisions;
+  iEvent.getByToken( eleMediumIdMapToken_, medium_id_decisions );
+  iEvent.getByToken( eleTightIdMapToken_, tight_id_decisions );*/
 
   edm::Handle<double> rhoJECJets;
   iEvent.getByToken( fixedGridRhoFastjetAllToken_, rhoJECJets );//kt6PFJets
@@ -450,25 +451,16 @@ GammaGammaLL::fetchElectrons( const edm::Event& iEvent )
     evt_.EleCand_ecalDriven[evt_.nEleCand] = electron->ecalDrivenSeed();
 
     const std::vector<pat::Electron::IdPair> ids = electron->electronIDs();
-    bool loose_id = false, medium_id = false, tight_id = false, veto_id = false;
     for ( unsigned int j = 0; j < ids.size(); ++j ) {
       pat::Electron::IdPair idp = ids.at( j );
       //FIXME make me private attributes
-      if ( eleLooseIdLabel_.find( idp.first ) != std::string::npos ) loose_id = idp.second;
-      if ( eleMediumIdLabel_.find( idp.first ) != std::string::npos ) medium_id = idp.second;
-      if ( eleTightIdLabel_.find( idp.first ) != std::string::npos ) tight_id = idp.second;
-      if ( eleVetoIdLabel_.find( idp.first ) != std::string::npos ) veto_id = idp.second;
+      if ( eleMediumIdLabel_.find( idp.first ) != std::string::npos ) evt_.EleCand_mediumID[evt_.nEleCand] = idp.second;
+      if ( eleTightIdLabel_.find( idp.first ) != std::string::npos ) evt_.EleCand_tightID[evt_.nEleCand] = idp.second;
     }
-    //edm::RefToBase<pat::Electron> electronRef(eleColl->refAt( i ) );
-    /*const bool loose_id = (*loose_id_decisions)[electron],
-               med_id = (*medium_id_decisions)[electron],
-               tight_id = (*tight_id_decisions)[electron],
-               veto_id = (*veto_id_decisions)[electron];*/
 
-    evt_.EleCand_looseID[evt_.nEleCand] = loose_id;
-    evt_.EleCand_mediumID[evt_.nEleCand] = medium_id;
-    evt_.EleCand_tightID[evt_.nEleCand] = tight_id;
-    evt_.EleCand_vetoID[evt_.nEleCand] = veto_id;
+    //edm::RefToBase<pat::Electron> electronRef( eleColl->refAt( i ) );
+    //evt_.EleCand_mediumID[evt_.nEleCand] = medium_id_decisions->operator[]( electronRef ),
+    //evt_.EleCand_tightID[evt_.nEleCand] = tight_id_decisions->operator[]( electronRef ),
 
     evt_.nEleCand++;
   }
@@ -479,11 +471,16 @@ void
 GammaGammaLL::fetchPhotons( const edm::Event& iEvent )
 {
   // Get the photons collection from the event
-  edm::Handle< edm::View<pat::Photon> > photonColl;
+  edm::Handle<edm::View<pat::Photon> > photonColl;
   iEvent.getByToken( photonToken_, photonColl );
 
+  // identification
+  /*edm::Handle<edm::ValueMap<bool> > medium_id_decisions, tight_id_decisions;
+  iEvent.getByToken( phoMediumIdMapToken_, medium_id_decisions );
+  iEvent.getByToken( phoTightIdMapToken_, tight_id_decisions );*/
+
   for ( unsigned int i = 0; i < photonColl->size(); ++i ) {
-    const edm::Ptr<pat::Photon> photon = photonColl->ptrAt( i);
+    const edm::Ptr<pat::Photon> photon = photonColl->ptrAt( i );
 
     evt_.PhotonCand_pt[evt_.nPhotonCand] = photon->pt();
     evt_.PhotonCand_eta[evt_.nPhotonCand] = photon->eta();
@@ -511,6 +508,20 @@ GammaGammaLL::fetchPhotons( const edm::Event& iEvent )
       evt_.PhotonCand_dphitrue[evt_.nPhotonCand] = endphotdphi;
       evt_.PhotonCand_drtrue[evt_.nPhotonCand] = endphotdr;
     }
+
+    const std::vector<pat::Photon::IdPair> ids = photon->photonIDs();
+    for ( unsigned int j = 0; j < ids.size(); ++j ) {
+      pat::Photon::IdPair idp = ids.at( j );
+      //FIXME make me private attributes
+      if ( phoMediumIdLabel_.find( idp.first ) != std::string::npos ) evt_.PhotonCand_mediumID[evt_.nPhotonCand] = idp.second;
+      if ( phoTightIdLabel_.find( idp.first ) != std::string::npos ) evt_.PhotonCand_tightID[evt_.nPhotonCand] = idp.second;
+    }
+
+    //edm::RefToBase<pat::Photon> photonRef = photonColl->refAt( i );
+    //const edm::Ptr<reco::Photon> photonRef = photonColl->ptrAt( i );
+    //evt_.PhotonCand_mediumID[evt_.nPhotonCand] = medium_id_decisions->operator[]( photonRef );
+    //evt_.PhotonCand_tightID[evt_.nPhotonCand] = tight_id_decisions->operator[]( photonRef );
+
     evt_.nPhotonCand++;
     LogDebug( "GammaGammaLL" ) << "Passed photons retrieval stage. Got " << evt_.nPhotonCand << " photon(s)";
   }
@@ -520,7 +531,7 @@ void
 GammaGammaLL::fetchProtons( const edm::Event& iEvent )
 {
   // Forward proton tracks
-  edm::Handle< edm::DetSetVector<TotemRPLocalTrack> > rplocaltracks;
+  edm::Handle<edm::DetSetVector<TotemRPLocalTrack> > rplocaltracks;
   iEvent.getByToken( totemRPHitToken_, rplocaltracks);
 
   evt_.nLocalProtCand = 0;
@@ -591,7 +602,7 @@ void
 GammaGammaLL::fetchVertices( const edm::Event& iEvent )
 {
   // Get the vertex collection from the event
-  edm::Handle< edm::View<reco::Vertex> > recoVertexColl;
+  edm::Handle<edm::View<reco::Vertex> > recoVertexColl;
   iEvent.getByToken( recoVertexToken_, recoVertexColl );
 
   for ( unsigned int i = 0; i < recoVertexColl->size() && evt_.nPrimVertexCand < ggll::AnalysisEvent::MAX_VTX; ++i ) {

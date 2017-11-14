@@ -150,7 +150,8 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       edm::EDGetTokenT<edm::View<reco::GenParticle> > genToken_;
       edm::EDGetTokenT<edm::View<pat::Muon> > muonToken_;
       edm::EDGetTokenT<edm::View<pat::Electron> > eleToken_;
-      //edm::EDGetTokenT<edm::ValueMap<bool> > eleLooseIdMapToken_, eleMediumIdMapToken_, eleTightIdMapToken_, eleVetoIdMapToken_;
+      /*edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_, eleTightIdMapToken_;
+      edm::EDGetTokenT<edm::ValueMap<bool> > phoMediumIdMapToken_, phoTightIdMapToken_;*/
       edm::EDGetTokenT<edm::View<pat::Jet> > jetToken_;
       edm::EDGetTokenT<double> fixedGridRhoFastjetAllToken_;
       edm::EDGetTokenT<edm::View<pat::MET> > metToken_;
@@ -167,8 +168,11 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       HLTConfigProvider hltConfig_;
       HLTPrescaleProvider hltPrescale_;
 
+      // E/gamma identification
       edm::ParameterSet eleIdLabelSet_;
-      std::string eleLooseIdLabel_, eleMediumIdLabel_, eleTightIdLabel_, eleVetoIdLabel_;
+      std::string eleMediumIdLabel_, eleTightIdLabel_;
+      edm::ParameterSet phoIdLabelSet_;
+      std::string phoMediumIdLabel_, phoTightIdLabel_;
 
       // Pileup information
       edm::LumiReWeighting lumiWeights_;
