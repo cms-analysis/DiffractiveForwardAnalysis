@@ -181,7 +181,7 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
       edm::Handle<edm::View<reco::Track> > trackColl_;
       edm::ESHandle<TransientTrackBuilder> KalVtx_;
-      std::map<int,TLorentzVector> muonsMomenta_, electronsMomenta_;
+      std::map<unsigned int,TLorentzVector> muonsMomenta_, electronsMomenta_;
       std::map<unsigned int,reco::TransientTrack> muonTransientTracks_, eleTransientTracks_;
 
       unsigned int nCandidates_;
