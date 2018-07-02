@@ -12,7 +12,8 @@ The `Egamma` POG recommendations for multivariate electron and photon identifica
 cmsrel CMSSW_9_4_0
 cd CMSSW_9_4_0/src
 cmsenv
-git cms-merge-topic guitargeek:ElectronID_MVA2017_940pre3
+git cms-merge-topic guitargeek:ElectronID_MVA2017_940pre3 # electron identification
+git cms-merge-topic lsoffi:CMSSW_9_4_0_pre3_TnP # photon identification
 scram b -j 8
 # Add the area containing the MVA weights (from cms-data, to appear in `external`).
 # Note: the `external` area appears after `scram build` is run at least once, as above
