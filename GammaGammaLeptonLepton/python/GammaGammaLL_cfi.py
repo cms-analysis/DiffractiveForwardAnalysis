@@ -15,6 +15,7 @@ ggll_aod = cms.EDAnalyzer('GammaGammaLL',
 
     # HLT selection
     HLTMenuTag = cms.string('HLT'),
+    triggerEvent = cms.InputTag('patTriggerEvent'),
     triggerResults = cms.InputTag('TriggerResults', '', 'HLT'),
 
     # Input collections
