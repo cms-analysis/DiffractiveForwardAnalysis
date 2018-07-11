@@ -19,12 +19,7 @@
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-// L1 collections
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
-
 // HLT information
-#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -148,7 +143,6 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
       std::string hltMenuLabel_;
       std::vector<std::string> triggersList_;
 
-      edm::EDGetTokenT<pat::TriggerEvent> triggerEventToken_;
       edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
       edm::EDGetTokenT<edm::View<PileupSummaryInfo> > pileupToken_;
       edm::EDGetTokenT<edm::View<reco::Vertex> > recoVertexToken_;

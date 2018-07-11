@@ -36,7 +36,6 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   fetchProtons_       ( iConfig.getParameter<bool>( "fetchProtons" ) ),
   hltMenuLabel_       ( iConfig.getParameter<std::string>( "HLTMenuTag" ) ),
   triggersList_       ( iConfig.getParameter<std::vector<std::string> >( "triggersList" ) ),
-  triggerEventToken_  ( consumes<pat::TriggerEvent>                    ( iConfig.getParameter<edm::InputTag>( "triggerEvent" ) ) ),
   triggerResultsToken_( consumes<edm::TriggerResults>                  ( iConfig.getParameter<edm::InputTag>( "triggerResults" ) ) ),
   pileupToken_        ( consumes<edm::View<PileupSummaryInfo> >        ( iConfig.getParameter<edm::InputTag>( "pileupInfo" ) ) ),
   recoVertexToken_    ( consumes<edm::View<reco::Vertex> >             ( iConfig.getParameter<edm::InputTag>( "vertexTag" ) ) ),
@@ -65,7 +64,7 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   dataPileupPath_     ( iConfig.getParameter<std::string>( "datapupath" ) ),
   nCandidates_( 0 )
 {
-  evt_.nHLT = triggersList_.size();
+  evt_.nHLT = triggersList_.size();	
 
   // Generator level
   if ( runOnMC_ ) {
@@ -126,14 +125,9 @@ void
 GammaGammaLL::lookAtTriggers( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   // Get the trigger information from the event
-  edm::Handle<pat::TriggerEvent> triggerEvent;
-  iEvent.getByToken( triggerEventToken_, triggerEvent );
-
-  std::cout << ">>>> " << triggerEvent->lhcFill() << std::endl;
-
   edm::Handle<edm::TriggerResults> hltResults;
-  iEvent.getByToken( triggerResultsToken_, hltResults );
-  const edm::TriggerNames& trigNames = iEvent.triggerNames( *hltResults );
+  iEvent.getByToken( triggerResultsToken_, hltResults);
+  const edm::TriggerNames& trigNames = iEvent.triggerNames(*hltResults);
 
   std::ostringstream os;
   os << "Trigger names: " << std::endl;
@@ -321,7 +315,7 @@ GammaGammaLL::analyzeMCEventContent( const edm::Event& iEvent )
   else if ( leptonsType_ == ggll::DiMuon && evt_.nGenMuonCand == 2 ) { // FIXME maybe a bit tight according to the newer PU conditions?
     l1.SetPtEtaPhiE( evt_.GenMuonCand_pt[0], evt_.GenMuonCand_eta[0], evt_.GenMuonCand_phi[0], evt_.GenMuonCand_e[0] );
     l2.SetPtEtaPhiE( evt_.GenMuonCand_pt[1], evt_.GenMuonCand_eta[1], evt_.GenMuonCand_phi[1], evt_.GenMuonCand_e[1] );
-    foundGenCandPairInEvent = true;
+    foundGenCandPairInEvent = true;      	
   }
   if ( foundGenCandPairInEvent ) {
     const TLorentzVector pair = l1+l2;
