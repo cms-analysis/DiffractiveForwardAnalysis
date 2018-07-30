@@ -33,6 +33,9 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
@@ -42,7 +45,7 @@ class SinglePhotonTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedRes
 {
   public:
     explicit SinglePhotonTreeProducer( const edm::ParameterSet& );
-    ~SinglePhotonTreeProducer();
+    ~SinglePhotonTreeProducer() {}
 
     static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
@@ -51,7 +54,7 @@ class SinglePhotonTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedRes
 
     virtual void beginJob() override;
     virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
-    virtual void endJob() override;
+    virtual void endJob() override {}
 
     TTree* tree_;
     gggx::SinglePhotonEvent evt_;
@@ -59,11 +62,15 @@ class SinglePhotonTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedRes
     std::string hltMenuLabel_;
     std::vector<std::string> triggersList_;
     bool runOnMC_;
+    unsigned int minPhotonMult_, minFwdTrks_;
 
     edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
     edm::EDGetTokenT<edm::View<pat::Photon> > photonToken_;
-    edm::EDGetTokenT<edm::ValueMap<bool> > phoMediumIdMapToken_, phoTightIdMapToken_;
+    edm::EDGetTokenT<edm::ValueMap<bool> > phoWP80IdMapToken_, phoWP90IdMapToken_;
     edm::EDGetTokenT<edm::View<CTPPSLocalTrackLite> > ppsTracksToken_;
+    edm::EDGetTokenT<edm::View<reco::Vertex> > verticesToken_;
+    edm::EDGetTokenT<edm::View<pat::Jet> > jetsToken_;
+    edm::EDGetTokenT<edm::View<pat::MET> > metsToken_;
 
     HLTConfigProvider hltConfig_;
     HLTPrescaleProvider hltPrescale_;
@@ -73,11 +80,16 @@ SinglePhotonTreeProducer::SinglePhotonTreeProducer( const edm::ParameterSet& iCo
   hltMenuLabel_  ( iConfig.getParameter<std::string>( "hltMenuTag" ) ),
   triggersList_  ( iConfig.getParameter<std::vector<std::string> >( "triggersList" ) ),
   runOnMC_       ( iConfig.getParameter<bool>( "runOnMC" ) ),
+  minPhotonMult_ ( iConfig.getParameter<unsigned int>( "minPhotonMult" ) ),
+  minFwdTrks_    ( iConfig.getParameter<unsigned int>( "minFwdTrks" ) ),
   triggerResultsToken_( consumes<edm::TriggerResults>            ( iConfig.getParameter<edm::InputTag>( "triggerResults" ) ) ),
   photonToken_        ( consumes<edm::View<pat::Photon> >        ( iConfig.getParameter<edm::InputTag>( "photonsTag" ) ) ),
-  phoMediumIdMapToken_( consumes<edm::ValueMap<bool> >           ( iConfig.getParameter<edm::InputTag>( "phoMediumIdMap" ) ) ),
-  phoTightIdMapToken_ ( consumes<edm::ValueMap<bool> >           ( iConfig.getParameter<edm::InputTag>( "phoTightIdMap" ) ) ),
+  phoWP80IdMapToken_  ( consumes<edm::ValueMap<bool> >           ( iConfig.getParameter<edm::InputTag>( "phoWP80IdMap" ) ) ),
+  phoWP90IdMapToken_  ( consumes<edm::ValueMap<bool> >           ( iConfig.getParameter<edm::InputTag>( "phoWP90IdMap" ) ) ),
   ppsTracksToken_     ( consumes<edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "ppsTracksTag" ) ) ),
+  verticesToken_      ( consumes<edm::View<reco::Vertex> >       ( iConfig.getParameter<edm::InputTag>( "verticesTag" ) ) ),
+  jetsToken_          ( consumes<edm::View<pat::Jet> >           ( iConfig.getParameter<edm::InputTag>( "jetsTag" ) ) ),
+  metsToken_          ( consumes<edm::View<pat::MET> >           ( iConfig.getParameter<edm::InputTag>( "metsTag" ) ) ),
   hltPrescale_        ( iConfig, consumesCollector(), *this )
 {
   usesResource( "TFileService" );
@@ -86,13 +98,16 @@ SinglePhotonTreeProducer::SinglePhotonTreeProducer( const edm::ParameterSet& iCo
 }
 
 
-SinglePhotonTreeProducer::~SinglePhotonTreeProducer()
-{}
-
 void
 SinglePhotonTreeProducer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   evt_.clear();
+
+  // Run and BX information
+  evt_.BX = iEvent.bunchCrossing();
+  evt_.Run = iEvent.id().run();
+  evt_.LumiSection = iEvent.luminosityBlock();
+  evt_.EventNum = iEvent.id().event();
 
   //--- trigger information
   edm::Handle<edm::TriggerResults> hltResults;
@@ -102,8 +117,11 @@ SinglePhotonTreeProducer::analyze( const edm::Event& iEvent, const edm::EventSet
   evt_.HLT_Name.reserve( trigNames.size() );
   for ( const auto& sel : triggersList_ ) {
     short trig_id = -1;
+    const std::string trig_name = ( sel.size() > 1 && sel[sel.size()-1] == '*' )
+      ? sel.substr( 0, sel.size()-1 ) // remove trailing '*'
+      : sel;
     for ( unsigned int i = 0; i < trigNames.size(); ++i )
-      if ( trigNames.triggerNames().at( i ).find( sel ) != std::string::npos ) {
+      if ( trigNames.triggerNames().at( i ).find( trig_name ) != std::string::npos ) {
         trig_id = i;
         break;
       }
@@ -126,10 +144,10 @@ SinglePhotonTreeProducer::analyze( const edm::Event& iEvent, const edm::EventSet
   edm::Handle<edm::View<pat::Photon> > photonColl;
   iEvent.getByToken( photonToken_, photonColl );
 
-  // photon identification
-  edm::Handle<edm::ValueMap<bool> > medium_id_decisions, tight_id_decisions;
-  iEvent.getByToken( phoMediumIdMapToken_, medium_id_decisions );
-  iEvent.getByToken( phoTightIdMapToken_, tight_id_decisions );
+  //--- photon identification
+  edm::Handle<edm::ValueMap<bool> > wp80_id_decisions, wp90_id_decisions;
+  iEvent.getByToken( phoWP80IdMapToken_, wp80_id_decisions );
+  iEvent.getByToken( phoWP90IdMapToken_, wp90_id_decisions );
 
   for ( unsigned int i = 0; i < photonColl->size(); ++i ) {
     const edm::Ptr<pat::Photon> photon = photonColl->ptrAt( i );
@@ -140,8 +158,8 @@ SinglePhotonTreeProducer::analyze( const edm::Event& iEvent, const edm::EventSet
     evt_.PhotonCand_e[evt_.nPhotonCand] = photon->energy();
     evt_.PhotonCand_r9[evt_.nPhotonCand] = photon->r9();
 
-    evt_.PhotonCand_mediumID[evt_.nPhotonCand] = medium_id_decisions->operator[]( photon );
-    evt_.PhotonCand_tightID[evt_.nPhotonCand] = tight_id_decisions->operator[]( photon );
+    evt_.PhotonCand_wp80id[evt_.nPhotonCand] = wp80_id_decisions->operator[]( photon );
+    evt_.PhotonCand_wp90id[evt_.nPhotonCand] = wp90_id_decisions->operator[]( photon );
 
     evt_.PhotonCand_drtrue[evt_.nPhotonCand] = -999.;
     evt_.PhotonCand_detatrue[evt_.nPhotonCand] = -999.;
@@ -167,8 +185,8 @@ SinglePhotonTreeProducer::analyze( const edm::Event& iEvent, const edm::EventSet
 
     evt_.nPhotonCand++;
   }
-
-  if ( evt_.nPhotonCand < 1 )
+  //--- do not store if minimal number of photons is not reached
+  if ( evt_.nPhotonCand < minPhotonMult_ )
     return;
 
   //--- PPS local tracks
@@ -193,6 +211,66 @@ SinglePhotonTreeProducer::analyze( const edm::Event& iEvent, const edm::EventSet
     LogDebug( "SinglePhotonTreeProducer" )
       << "Proton track candidate with origin: ( " << trk.getX() << ", " << trk.getY() << " ) extracted!";
   }
+  //--- do not store if minimal number of PPS tracks is not reached
+  if ( evt_.nFwdTrkCand < minFwdTrks_ )
+    return;
+
+  //--- vertex collection
+  edm::Handle<edm::View<reco::Vertex> > verticesColl;
+  iEvent.getByToken( verticesToken_, verticesColl );
+
+  for ( unsigned int i = 0; i < verticesColl->size() && evt_.nPrimVertexCand < gggx::SinglePhotonEvent::MAX_VTX; ++i ) {
+    const edm::Ptr<reco::Vertex> vertex = verticesColl->ptrAt( i );
+
+    evt_.PrimVertexCand_id[evt_.nPrimVertexCand] = evt_.nPrimVertexCand;
+    evt_.PrimVertexCand_x[evt_.nPrimVertexCand] = vertex->x();
+    evt_.PrimVertexCand_y[evt_.nPrimVertexCand] = vertex->y();
+    evt_.PrimVertexCand_z[evt_.nPrimVertexCand] = vertex->z();
+    evt_.PrimVertexCand_tracks[evt_.nPrimVertexCand] = vertex->nTracks();
+    evt_.PrimVertexCand_chi2[evt_.nPrimVertexCand] = vertex->chi2();
+    evt_.PrimVertexCand_ndof[evt_.nPrimVertexCand] = vertex->ndof();
+    evt_.nPrimVertexCand++;
+  }
+
+  //--- jets collection
+  edm::Handle<edm::View<pat::Jet> > jetColl;
+  iEvent.getByToken( jetsToken_, jetColl );
+
+  double totalJetEnergy = 0., HEJet_pt = 0., HEJet_eta = 0., HEJet_phi = 0., HEJet_e = 0.;
+
+  for ( unsigned int i = 0; i < jetColl->size() && evt_.nJetCand < gggx::SinglePhotonEvent::MAX_JETS; ++i ) {
+    const edm::Ptr<pat::Jet> jet = jetColl->ptrAt( i );
+
+    evt_.JetCand_e[evt_.nJetCand] = jet->energy();
+    evt_.JetCand_pt[evt_.nJetCand] = jet->pt();
+    evt_.JetCand_eta[evt_.nJetCand] = jet->eta();
+    evt_.JetCand_phi[evt_.nJetCand] = jet->phi();
+    totalJetEnergy += jet->energy();
+    //--- find the highest energy jet
+    if ( evt_.JetCand_e[evt_.nJetCand] > HEJet_e ) {
+      HEJet_e = evt_.JetCand_e[evt_.nJetCand];
+      HEJet_pt = evt_.JetCand_pt[evt_.nJetCand];
+      HEJet_eta = evt_.JetCand_eta[evt_.nJetCand];
+      HEJet_phi = evt_.JetCand_phi[evt_.nJetCand];
+    }
+    evt_.nJetCand++;
+  }
+  evt_.HighestJet_pt = HEJet_pt;
+  evt_.HighestJet_eta = HEJet_eta;
+  evt_.HighestJet_phi = HEJet_phi;
+  evt_.HighestJet_e = HEJet_e;
+  evt_.SumJet_e = totalJetEnergy;
+
+  //--- missing ET
+  edm::Handle<edm::View<pat::MET> > mets;
+  iEvent.getByToken( metsToken_, mets );
+  const edm::View<pat::MET>* metColl = mets.product();
+  edm::View<pat::MET>::const_iterator met = metColl->begin();
+
+  evt_.Etmiss = met->et();
+  evt_.Etmiss_phi = met->phi();
+  evt_.Etmiss_significance = met->significance();
+
 
   tree_->Fill();
 }
@@ -217,10 +295,6 @@ SinglePhotonTreeProducer::beginJob()
 {
   evt_.attach( tree_, runOnMC_ );
 }
-
-void
-SinglePhotonTreeProducer::endJob()
-{}
 
 void
 SinglePhotonTreeProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions )

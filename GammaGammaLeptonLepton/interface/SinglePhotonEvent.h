@@ -60,7 +60,7 @@ namespace gggx
       double PhotonCand_pt[MAX_PHO], PhotonCand_eta[MAX_PHO], PhotonCand_phi[MAX_PHO], PhotonCand_e[MAX_PHO];
       double PhotonCand_r9[MAX_PHO];
       double PhotonCand_drtrue[MAX_PHO], PhotonCand_detatrue[MAX_PHO], PhotonCand_dphitrue[MAX_PHO];
-      int PhotonCand_tightID[MAX_PHO], PhotonCand_mediumID[MAX_PHO];
+      int PhotonCand_wp80id[MAX_PHO], PhotonCand_wp90id[MAX_PHO];
 
       // Vertex quantities
       unsigned int nPrimVertexCand;
@@ -114,7 +114,7 @@ namespace gggx
           PhotonCand_pt[i] = PhotonCand_eta[i] = PhotonCand_phi[i] = PhotonCand_e[i] = -999.;
           PhotonCand_r9[i] = -999.;
           PhotonCand_drtrue[i] = PhotonCand_detatrue[i] = PhotonCand_dphitrue[i] = -999.;
-          PhotonCand_tightID[i] = PhotonCand_mediumID[i] = -1;
+          PhotonCand_wp80id[i] = PhotonCand_wp90id[i] = -1;
         }
 
         // offline primary vertices
@@ -170,8 +170,8 @@ namespace gggx
         tree->Branch( "PhotonCand_drtrue", PhotonCand_drtrue, "PhotonCand_drtrue[nPhotonCand]/D" );
         tree->Branch( "PhotonCand_detatrue", PhotonCand_detatrue, "PhotonCand_detatrue[nPhotonCand]/D" );
         tree->Branch( "PhotonCand_dphitrue", PhotonCand_dphitrue, "PhotonCand_dphitrue[nPhotonCand]/D" );
-        tree->Branch( "PhotonCand_mediumID", PhotonCand_mediumID, "PhotonCand_mediumID[nPhotonCand]/I" );
-        tree->Branch( "PhotonCand_tightID", PhotonCand_tightID, "PhotonCand_tightID[nPhotonCand]/I" );
+        tree->Branch( "PhotonCand_wp80id", PhotonCand_wp80id, "PhotonCand_wp80id[nPhotonCand]/I" );
+        tree->Branch( "PhotonCand_wp90id", PhotonCand_wp90id, "PhotonCand_wp90id[nPhotonCand]/I" );
 
         if ( mc ) {
           tree->Branch( "nGenPhotCand", &nGenPhotCand, "nGenPhotCand/i" );
@@ -252,8 +252,8 @@ namespace gggx
         tree->SetBranchAddress( "PhotonCand_drtrue", PhotonCand_drtrue );
         tree->SetBranchAddress( "PhotonCand_detatrue", PhotonCand_detatrue );
         tree->SetBranchAddress( "PhotonCand_dphitrue", PhotonCand_dphitrue );
-        tree->SetBranchAddress( "PhotonCand_mediumID", PhotonCand_mediumID );
-        tree->SetBranchAddress( "PhotonCand_tightID", PhotonCand_tightID );
+        tree->SetBranchAddress( "PhotonCand_wp80id", PhotonCand_wp80id );
+        tree->SetBranchAddress( "PhotonCand_wp90id", PhotonCand_wp90id );
 
         if ( mc ) {
           tree->SetBranchAddress( "nGenPhotCand", &nGenPhotCand );

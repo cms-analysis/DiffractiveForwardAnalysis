@@ -15,7 +15,8 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 #'/store/data/Run2016G/DoubleEG/AOD/23Sep2016-v1/100000/0042DBD3-BA8E-E611-919E-002481ACDAA8.root',
 #'/store/data/Run2017C/DoubleMuon/AOD/12Sep2017-v1/10000/029F251F-B1A2-E711-AAC3-001E67792890.root',
-'/store/data/Run2017B/SinglePhoton/MINIAOD/17Nov2017-v1/30000/10F66FEF-B7D5-E711-9003-008CFAC93F3C.root',
+#'/store/data/Run2017B/SinglePhoton/MINIAOD/17Nov2017-v1/30000/10F66FEF-B7D5-E711-9003-008CFAC93F3C.root',
+'/store/data/Run2017B/SinglePhoton/MINIAOD/12Sep2017-v1/100000/F0CB68CC-0EA3-E711-A877-0025905B85BE.root',
     ),
     #firstEvent = cms.untracked.uint32(0)
 )
@@ -61,8 +62,8 @@ process.load('DiffractiveForwardAnalysis.GammaGammaLeptonLepton.singlePhotonTree
 process.singlePhotonTreeProducer.runOnMC = cms.bool(False)
 process.singlePhotonTreeProducer.triggerResults = process.hltHighLevel.TriggerResultsTag
 process.singlePhotonTreeProducer.triggersList = process.hltHighLevel.HLTPaths
-process.singlePhotonTreeProducer.phoMediumIdMap = cms.InputTag('egmPhotonIDs:mvaPhoID-RunIIFall17-v1-wp90')
-process.singlePhotonTreeProducer.phoTightIdMap = cms.InputTag('egmPhotonIDs:mvaPhoID-RunIIFall17-v1-wp80')
+process.singlePhotonTreeProducer.phoWP80IdMap = cms.InputTag('egmPhotonIDs:mvaPhoID-RunIIFall17-v1-wp80')
+process.singlePhotonTreeProducer.phoWP90IdMap = cms.InputTag('egmPhotonIDs:mvaPhoID-RunIIFall17-v1-wp90')
 
 # prepare the output file
 process.TFileService = cms.Service('TFileService',
