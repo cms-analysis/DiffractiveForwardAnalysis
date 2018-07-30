@@ -25,6 +25,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "FWCore/Common/interface/TriggerNames.h"
+
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -42,6 +47,8 @@ class SinglePhotonTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedRes
     static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
   private:
+    virtual void beginRun( const edm::Run&, const edm::EventSetup& );
+
     virtual void beginJob() override;
     virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
     virtual void endJob() override;
@@ -49,6 +56,7 @@ class SinglePhotonTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedRes
     TTree* tree_;
     gggx::SinglePhotonEvent evt_;
 
+    std::string hltMenuLabel_;
     std::vector<std::string> triggersList_;
     bool runOnMC_;
 
@@ -56,15 +64,21 @@ class SinglePhotonTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedRes
     edm::EDGetTokenT<edm::View<pat::Photon> > photonToken_;
     edm::EDGetTokenT<edm::ValueMap<bool> > phoMediumIdMapToken_, phoTightIdMapToken_;
     edm::EDGetTokenT<edm::View<CTPPSLocalTrackLite> > ppsTracksToken_;
+
+    HLTConfigProvider hltConfig_;
+    HLTPrescaleProvider hltPrescale_;
 };
 
 SinglePhotonTreeProducer::SinglePhotonTreeProducer( const edm::ParameterSet& iConfig ) :
+  hltMenuLabel_  ( iConfig.getParameter<std::string>( "hltMenuTag" ) ),
   triggersList_  ( iConfig.getParameter<std::vector<std::string> >( "triggersList" ) ),
   runOnMC_       ( iConfig.getParameter<bool>( "runOnMC" ) ),
+  triggerResultsToken_( consumes<edm::TriggerResults>            ( iConfig.getParameter<edm::InputTag>( "triggerResults" ) ) ),
   photonToken_        ( consumes<edm::View<pat::Photon> >        ( iConfig.getParameter<edm::InputTag>( "photonsTag" ) ) ),
   phoMediumIdMapToken_( consumes<edm::ValueMap<bool> >           ( iConfig.getParameter<edm::InputTag>( "phoMediumIdMap" ) ) ),
   phoTightIdMapToken_ ( consumes<edm::ValueMap<bool> >           ( iConfig.getParameter<edm::InputTag>( "phoTightIdMap" ) ) ),
-  ppsTracksToken_     ( consumes<edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "ppsTracksTag" ) ) )
+  ppsTracksToken_     ( consumes<edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "ppsTracksTag" ) ) ),
+  hltPrescale_        ( iConfig, consumesCollector(), *this )
 {
   usesResource( "TFileService" );
   edm::Service<TFileService> fs;
@@ -80,11 +94,39 @@ SinglePhotonTreeProducer::analyze( const edm::Event& iEvent, const edm::EventSet
 {
   evt_.clear();
 
+  //--- trigger information
+  edm::Handle<edm::TriggerResults> hltResults;
+  iEvent.getByToken( triggerResultsToken_, hltResults );
+  const edm::TriggerNames& trigNames = iEvent.triggerNames( *hltResults );
+
+  evt_.HLT_Name.reserve( trigNames.size() );
+  for ( const auto& sel : triggersList_ ) {
+    short trig_id = -1;
+    for ( unsigned int i = 0; i < trigNames.size(); ++i )
+      if ( trigNames.triggerNames().at( i ).find( sel ) != std::string::npos ) {
+        trig_id = i;
+        break;
+      }
+    if ( trig_id < 0 )
+      continue;
+    evt_.HLT_Name[evt_.nHLT] = trigNames.triggerNames().at( trig_id );
+    evt_.HLT_Accept[evt_.nHLT] = hltResults->accept( trig_id );
+    evt_.HLT_Prescl[evt_.nHLT] = 0.;
+    // extract prescale value for this path
+    if ( !runOnMC_ ) {
+      int prescale_set = hltPrescale_.prescaleSet( iEvent, iSetup );
+      evt_.HLT_Prescl[evt_.nHLT] = ( prescale_set < 0 )
+        ? 0.
+        : hltConfig_.prescaleValue(prescale_set, trigNames.triggerNames().at( trig_id ) );
+    }
+    evt_.nHLT++;
+  }
+
   //--- photons collection retrieval
   edm::Handle<edm::View<pat::Photon> > photonColl;
   iEvent.getByToken( photonToken_, photonColl );
 
-  // identification
+  // photon identification
   edm::Handle<edm::ValueMap<bool> > medium_id_decisions, tight_id_decisions;
   iEvent.getByToken( phoMediumIdMapToken_, medium_id_decisions );
   iEvent.getByToken( phoTightIdMapToken_, tight_id_decisions );
@@ -98,9 +140,13 @@ SinglePhotonTreeProducer::analyze( const edm::Event& iEvent, const edm::EventSet
     evt_.PhotonCand_e[evt_.nPhotonCand] = photon->energy();
     evt_.PhotonCand_r9[evt_.nPhotonCand] = photon->r9();
 
+    evt_.PhotonCand_mediumID[evt_.nPhotonCand] = medium_id_decisions->operator[]( photon );
+    evt_.PhotonCand_tightID[evt_.nPhotonCand] = tight_id_decisions->operator[]( photon );
+
     evt_.PhotonCand_drtrue[evt_.nPhotonCand] = -999.;
     evt_.PhotonCand_detatrue[evt_.nPhotonCand] = -999.;
     evt_.PhotonCand_dphitrue[evt_.nPhotonCand] = -999.;
+
     if ( runOnMC_ ) {
       double photdr = 999., photdeta = 999., photdphi = 999.;
       double endphotdr = 999., endphotdeta = 999., endphotdphi = 999.;
@@ -119,23 +165,14 @@ SinglePhotonTreeProducer::analyze( const edm::Event& iEvent, const edm::EventSet
       evt_.PhotonCand_drtrue[evt_.nPhotonCand] = endphotdr;
     }
 
-    /*const std::vector<pat::Photon::IdPair> ids = photon->photonIDs();
-    for ( unsigned int j = 0; j < ids.size(); ++j ) {
-      pat::Photon::IdPair idp = ids.at( j );
-      //FIXME make me private attributes
-      if ( phoMediumIdLabel_.find( idp.first ) != std::string::npos ) evt_.PhotonCand_mediumID[evt_.nPhotonCand] = idp.second;
-      if ( phoTightIdLabel_.find( idp.first ) != std::string::npos ) evt_.PhotonCand_tightID[evt_.nPhotonCand] = idp.second;
-    }*/
-
-    //edm::RefToBase<pat::Photon> photonRef = photonColl->refAt( i );
-    //const edm::Ptr<reco::Photon> photonRef = photonColl->ptrAt( i );
-    evt_.PhotonCand_mediumID[evt_.nPhotonCand] = medium_id_decisions->operator[]( photon );
-    evt_.PhotonCand_tightID[evt_.nPhotonCand] = tight_id_decisions->operator[]( photon );
     evt_.nPhotonCand++;
   }
 
+  if ( evt_.nPhotonCand < 1 )
+    return;
+
   //--- PPS local tracks
-  edm::Handle<std::vector<CTPPSLocalTrackLite> > ppsTracks;
+  edm::Handle<edm::View<CTPPSLocalTrackLite> > ppsTracks;
   iEvent.getByToken( ppsTracksToken_, ppsTracks );
   for ( const auto& trk : *ppsTracks ) {
     if ( evt_.nFwdTrkCand >= gggx::SinglePhotonEvent::MAX_FWDTRKCAND-1 ) {
@@ -160,12 +197,25 @@ SinglePhotonTreeProducer::analyze( const edm::Event& iEvent, const edm::EventSet
   tree_->Fill();
 }
 
+void
+SinglePhotonTreeProducer::beginRun( const edm::Run& iRun, const edm::EventSetup& iSetup )
+{
+  //--- HLT part
+  bool changed = true;
+  if ( !hltPrescale_.init( iRun, iSetup, hltMenuLabel_, changed ) )
+    throw cms::Exception( "GammaGammaLL" ) << " prescales extraction failure with process name " << hltMenuLabel_;
+  // Initialise HLTConfigProvider
+  hltConfig_ = hltPrescale_.hltConfigProvider();
+  if ( !hltConfig_.init( iRun, iSetup, hltMenuLabel_, changed ) )
+    throw cms::Exception( "GammaGammaLL" ) << " config extraction failure with process name " << hltMenuLabel_;
+  else if ( hltConfig_.size() == 0 )
+    edm::LogError( "GammaGammaLL" ) << "HLT config size error";
+}
 
 void
 SinglePhotonTreeProducer::beginJob()
 {
   evt_.attach( tree_, runOnMC_ );
-  *evt_.HLT_Name = triggersList_;
 }
 
 void

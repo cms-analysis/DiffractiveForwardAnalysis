@@ -11,14 +11,10 @@ namespace gggx
   class SinglePhotonEvent
   {
     public:
-      SinglePhotonEvent() :
-        HLT_Name( new std::vector<std::string>() ) {
+      SinglePhotonEvent() : pHLT_Name( nullptr ) {
         clear();
       }
-      ~SinglePhotonEvent() {
-        if ( HLT_Name )
-          delete HLT_Name;
-      }
+      ~SinglePhotonEvent() {}
 
       //////  Leaves size  //////
 
@@ -47,7 +43,7 @@ namespace gggx
       // HLT quantities
       unsigned int nHLT;
       int HLT_Accept[MAX_HLT], HLT_Prescl[MAX_HLT];
-      std::vector<std::string>* HLT_Name;
+      std::vector<std::string> HLT_Name, *pHLT_Name;
 
       // Generator level quantities
       unsigned int nGenPhotCand, nGenPhotCandOutOfAccept;
@@ -73,7 +69,6 @@ namespace gggx
       unsigned int PrimVertexCand_tracks[MAX_VTX];
       double PrimVertexCand_chi2[MAX_VTX];
       unsigned int PrimVertexCand_ndof[MAX_VTX];
-      double KalmanVertexCand_x[MAX_VTX], KalmanVertexCand_y[MAX_VTX], KalmanVertexCand_z[MAX_VTX];
       unsigned int nFilteredPrimVertexCand;
 
       // Jets/MET quantities
@@ -95,6 +90,7 @@ namespace gggx
 
         // high-level trigger
         nHLT = 0;
+        HLT_Name.clear();
         for ( unsigned int i = 0; i < MAX_HLT; ++i )
           HLT_Accept[i] = HLT_Prescl[i] = -1;
 
@@ -129,7 +125,6 @@ namespace gggx
           PrimVertexCand_tracks[i] = 0;
           PrimVertexCand_chi2[i] = -999.;
           PrimVertexCand_ndof[i] = 0;
-          KalmanVertexCand_x[i] = KalmanVertexCand_y[i] = KalmanVertexCand_z[i] = -999.;
         }
         nFilteredPrimVertexCand = 0;
 
@@ -152,7 +147,8 @@ namespace gggx
         }
       }
       void attach( TTree* tree, bool mc ) {
-        if ( !tree ) return;
+        if ( !tree )
+          return;
 
         tree->Branch( "Run", &Run, "Run/i" );
         tree->Branch( "LumiSection", &LumiSection, "LumiSection/i" );
@@ -162,7 +158,8 @@ namespace gggx
         tree->Branch( "nHLT", &nHLT, "nHLT/i" );
         tree->Branch( "HLT_Accept", HLT_Accept, "HLT_Accept[nHLT]/I" );
         tree->Branch( "HLT_Prescl", HLT_Prescl, "HLT_Prescl[nHLT]/I" );
-        tree->Branch( "HLT_Name", &HLT_Name);
+        pHLT_Name = &HLT_Name;
+        tree->Branch( "HLT_Name", "std::vector<std::string>", &pHLT_Name );
 
         tree->Branch( "nPhotonCand", &nPhotonCand, "nPhotonCand/i" );
         tree->Branch( "PhotonCand_pt", PhotonCand_pt, "PhotonCand_pt[nPhotonCand]/D" );
@@ -244,7 +241,7 @@ namespace gggx
         tree->SetBranchAddress( "nHLT", &nHLT );
         tree->SetBranchAddress( "HLT_Accept", HLT_Accept );
         tree->SetBranchAddress( "HLT_Prescl", HLT_Prescl );
-        tree->SetBranchAddress( "HLT_Name", &HLT_Name );
+        tree->SetBranchAddress( "HLT_Name", &pHLT_Name );
 
         tree->SetBranchAddress( "nPhotonCand", &nPhotonCand );
         tree->SetBranchAddress( "PhotonCand_pt", PhotonCand_pt );
