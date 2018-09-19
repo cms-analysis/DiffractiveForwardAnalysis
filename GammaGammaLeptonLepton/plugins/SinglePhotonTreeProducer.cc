@@ -161,6 +161,9 @@ SinglePhotonTreeProducer::analyze( const edm::Event& iEvent, const edm::EventSet
     evt_.PhotonCand_wp80id[evt_.nPhotonCand] = wp80_id_decisions->operator[]( photon );
     evt_.PhotonCand_wp90id[evt_.nPhotonCand] = wp90_id_decisions->operator[]( photon );
 
+    evt_.PhotonCand_electronveto[evt_.nPhotonCand] = photon->passElectronVeto();
+    evt_.PhotonCand_pixelseed[evt_.nPhotonCand] = photon->hasPixelSeed();
+
     evt_.PhotonCand_drtrue[evt_.nPhotonCand] = -999.;
     evt_.PhotonCand_detatrue[evt_.nPhotonCand] = -999.;
     evt_.PhotonCand_dphitrue[evt_.nPhotonCand] = -999.;
@@ -222,7 +225,6 @@ SinglePhotonTreeProducer::analyze( const edm::Event& iEvent, const edm::EventSet
   for ( unsigned int i = 0; i < verticesColl->size() && evt_.nPrimVertexCand < gggx::SinglePhotonEvent::MAX_VTX; ++i ) {
     const edm::Ptr<reco::Vertex> vertex = verticesColl->ptrAt( i );
 
-    evt_.PrimVertexCand_id[evt_.nPrimVertexCand] = evt_.nPrimVertexCand;
     evt_.PrimVertexCand_x[evt_.nPrimVertexCand] = vertex->x();
     evt_.PrimVertexCand_y[evt_.nPrimVertexCand] = vertex->y();
     evt_.PrimVertexCand_z[evt_.nPrimVertexCand] = vertex->z();

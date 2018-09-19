@@ -61,10 +61,10 @@ namespace gggx
       double PhotonCand_r9[MAX_PHO];
       double PhotonCand_drtrue[MAX_PHO], PhotonCand_detatrue[MAX_PHO], PhotonCand_dphitrue[MAX_PHO];
       int PhotonCand_wp80id[MAX_PHO], PhotonCand_wp90id[MAX_PHO];
+      int PhotonCand_electronveto[MAX_PHO], PhotonCand_pixelseed[MAX_PHO];
 
       // Vertex quantities
       unsigned int nPrimVertexCand;
-      int PrimVertexCand_id[MAX_VTX], PrimVertexCand_hasdil[MAX_VTX];
       double PrimVertexCand_x[MAX_VTX], PrimVertexCand_y[MAX_VTX], PrimVertexCand_z[MAX_VTX];
       unsigned int PrimVertexCand_tracks[MAX_VTX];
       double PrimVertexCand_chi2[MAX_VTX];
@@ -115,12 +115,12 @@ namespace gggx
           PhotonCand_r9[i] = -999.;
           PhotonCand_drtrue[i] = PhotonCand_detatrue[i] = PhotonCand_dphitrue[i] = -999.;
           PhotonCand_wp80id[i] = PhotonCand_wp90id[i] = -1;
+          PhotonCand_electronveto[i] = PhotonCand_pixelseed[i] = -1;
         }
 
         // offline primary vertices
         nPrimVertexCand = 0;
         for ( unsigned int i = 0; i < MAX_VTX; ++i ) {
-          PrimVertexCand_id[i] = PrimVertexCand_hasdil[i] = -1;
           PrimVertexCand_x[i] = PrimVertexCand_y[i] = PrimVertexCand_z[i] = -999.;
           PrimVertexCand_tracks[i] = 0;
           PrimVertexCand_chi2[i] = -999.;
@@ -172,6 +172,8 @@ namespace gggx
         tree->Branch( "PhotonCand_dphitrue", PhotonCand_dphitrue, "PhotonCand_dphitrue[nPhotonCand]/D" );
         tree->Branch( "PhotonCand_wp80id", PhotonCand_wp80id, "PhotonCand_wp80id[nPhotonCand]/I" );
         tree->Branch( "PhotonCand_wp90id", PhotonCand_wp90id, "PhotonCand_wp90id[nPhotonCand]/I" );
+        tree->Branch( "PhotonCand_electronveto", PhotonCand_electronveto, "PhotonCand_electronveto[nPhotonCand]/I" );
+        tree->Branch( "PhotonCand_pixelseed", PhotonCand_pixelseed, "PhotonCand_pixelseed[nPhotonCand]/I" );
 
         if ( mc ) {
           tree->Branch( "nGenPhotCand", &nGenPhotCand, "nGenPhotCand/i" );
@@ -192,7 +194,6 @@ namespace gggx
         // Primary vertices' information
         tree->Branch( "nPrimVertexCand", &nPrimVertexCand, "nPrimVertexCand/i" );
         tree->Branch( "nFilteredPrimVertexCand", &nFilteredPrimVertexCand, "nFilteredPrimVertexCand/i" );
-        tree->Branch( "PrimVertexCand_id", PrimVertexCand_id, "PrimVertexCand_id[nPrimVertexCand]/I" );
         tree->Branch( "PrimVertexCand_x", PrimVertexCand_x, "PrimVertexCand_x[nPrimVertexCand]/D" );
         tree->Branch( "PrimVertexCand_y", PrimVertexCand_y, "PrimVertexCand_y[nPrimVertexCand]/D" );
         tree->Branch( "PrimVertexCand_z", PrimVertexCand_z, "PrimVertexCand_z[nPrimVertexCand]/D" );
@@ -254,6 +255,8 @@ namespace gggx
         tree->SetBranchAddress( "PhotonCand_dphitrue", PhotonCand_dphitrue );
         tree->SetBranchAddress( "PhotonCand_wp80id", PhotonCand_wp80id );
         tree->SetBranchAddress( "PhotonCand_wp90id", PhotonCand_wp90id );
+        tree->SetBranchAddress( "PhotonCand_electronveto", PhotonCand_electronveto );
+        tree->SetBranchAddress( "PhotonCand_pixelseed", PhotonCand_pixelseed );
 
         if ( mc ) {
           tree->SetBranchAddress( "nGenPhotCand", &nGenPhotCand );
@@ -274,7 +277,6 @@ namespace gggx
         // Primary vertices' information
         tree->SetBranchAddress( "nPrimVertexCand", &nPrimVertexCand );
         tree->SetBranchAddress( "nFilteredPrimVertexCand", &nFilteredPrimVertexCand );
-        tree->SetBranchAddress( "PrimVertexCand_id", PrimVertexCand_id );
         tree->SetBranchAddress( "PrimVertexCand_x", PrimVertexCand_x );
         tree->SetBranchAddress( "PrimVertexCand_y", PrimVertexCand_y );
         tree->SetBranchAddress( "PrimVertexCand_z", PrimVertexCand_z );

@@ -30,6 +30,8 @@ process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
 process.hltHighLevel.HLTPaths = cms.vstring(
     'HLT_Photon33_v*',
     'HLT_Photon50_v*',
+    'HLT_Photon75_v*',
+    'HLT_Photon90_v*',
 )
 #process.hltHighLevel.throw = cms.bool(False)
 

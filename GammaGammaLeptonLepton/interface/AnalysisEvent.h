@@ -153,13 +153,12 @@ namespace ggll
 
       // Vertex quantities
       unsigned int nPrimVertexCand;
-      int PrimVertexCand_id[MAX_VTX], PrimVertexCand_hasdil[MAX_VTX];
+      int PrimVertexCand_hasdil[MAX_VTX];
       double PrimVertexCand_x[MAX_VTX], PrimVertexCand_y[MAX_VTX], PrimVertexCand_z[MAX_VTX];
       unsigned int PrimVertexCand_tracks[MAX_VTX];
       double PrimVertexCand_chi2[MAX_VTX];
       unsigned int PrimVertexCand_ndof[MAX_VTX];
       double KalmanVertexCand_x[MAX_VTX], KalmanVertexCand_y[MAX_VTX], KalmanVertexCand_z[MAX_VTX];
-      unsigned int nFilteredPrimVertexCand;
 
       // Extra tracks on vertex quantities
       unsigned int nExtraTracks;
@@ -186,11 +185,9 @@ namespace ggll
 
       // CTPPS quantities
       unsigned int nLocalProtCand;
-      double LocalProtCand_x[MAX_LOCALPCAND], LocalProtCand_y[MAX_LOCALPCAND], LocalProtCand_z[MAX_LOCALPCAND];
-      double LocalProtCand_xSigma[MAX_LOCALPCAND], LocalProtCand_ySigma[MAX_LOCALPCAND];
-      double LocalProtCand_Tx[MAX_LOCALPCAND], LocalProtCand_Ty[MAX_LOCALPCAND];
-      double LocalProtCand_TxSigma[MAX_LOCALPCAND], LocalProtCand_TySigma[MAX_LOCALPCAND];
-      int LocalProtCand_arm[MAX_LOCALPCAND], LocalProtCand_pot[MAX_LOCALPCAND];
+      double LocalProtCand_x[MAX_LOCALPCAND], LocalProtCand_y[MAX_LOCALPCAND], LocalProtCand_t[MAX_LOCALPCAND];
+      double LocalProtCand_xSigma[MAX_LOCALPCAND], LocalProtCand_ySigma[MAX_LOCALPCAND], LocalProtCand_tSigma[MAX_LOCALPCAND];
+      int LocalProtCand_arm[MAX_LOCALPCAND], LocalProtCand_station[MAX_LOCALPCAND], LocalProtCand_pot[MAX_LOCALPCAND];
 
       void clear() {
         // event-level branches
@@ -292,14 +289,13 @@ namespace ggll
         // offline primary vertices
         nPrimVertexCand = 0;
         for ( unsigned int i = 0; i < MAX_VTX; ++i ) {
-          PrimVertexCand_id[i] = PrimVertexCand_hasdil[i] = -1;
+          PrimVertexCand_hasdil[i] = -1;
           PrimVertexCand_x[i] = PrimVertexCand_y[i] = PrimVertexCand_z[i] = -999.;
           PrimVertexCand_tracks[i] = 0;
           PrimVertexCand_chi2[i] = -999.;
           PrimVertexCand_ndof[i] = 0;
           KalmanVertexCand_x[i] = KalmanVertexCand_y[i] = KalmanVertexCand_z[i] = -999.;
         }
-        nFilteredPrimVertexCand = 0;
 
         // extra tracks associated to the central system
         nExtraTracks = 0;
@@ -333,11 +329,9 @@ namespace ggll
         // CTPPS strips leaves
         nLocalProtCand = 0;
         for ( unsigned int i = 0; i < MAX_LOCALPCAND; ++i ) {
-          LocalProtCand_x[i] = LocalProtCand_y[i] = LocalProtCand_z[i] = -999.;
-          LocalProtCand_xSigma[i] = LocalProtCand_ySigma[i] = -999.;
-          LocalProtCand_Tx[i] = LocalProtCand_Ty[i] = -999.;
-          LocalProtCand_TxSigma[i] = LocalProtCand_TySigma[i] = -999.;
-          LocalProtCand_arm[i] = LocalProtCand_pot[i] = -1;
+          LocalProtCand_x[i] = LocalProtCand_y[i] = LocalProtCand_t[i] = -999.;
+          LocalProtCand_xSigma[i] = LocalProtCand_ySigma[i] = LocalProtCand_tSigma[i] = -999.;
+          LocalProtCand_arm[i] = LocalProtCand_station[i] = LocalProtCand_pot[i] = -1;
         }
       }
       void attach( TTree* tree, TreeType tt, bool mc ) {
@@ -452,8 +446,6 @@ namespace ggll
 
         // Primary vertices' information
         tree->Branch( "nPrimVertexCand", &nPrimVertexCand, "nPrimVertexCand/i" );
-        tree->Branch( "nFilteredPrimVertexCand", &nFilteredPrimVertexCand, "nFilteredPrimVertexCand/i" );
-        tree->Branch( "PrimVertexCand_id", PrimVertexCand_id, "PrimVertexCand_id[nPrimVertexCand]/I" );
         tree->Branch( "PrimVertexCand_x", PrimVertexCand_x, "PrimVertexCand_x[nPrimVertexCand]/D" );
         tree->Branch( "PrimVertexCand_y", PrimVertexCand_y, "PrimVertexCand_y[nPrimVertexCand]/D" );
         tree->Branch( "PrimVertexCand_z", PrimVertexCand_z, "PrimVertexCand_z[nPrimVertexCand]/D" );
@@ -507,15 +499,13 @@ namespace ggll
           tree->Branch( "nLocalProtCand", &nLocalProtCand, "nLocalProtCand/i" );
           tree->Branch( "LocalProtCand_x", LocalProtCand_x, "LocalProtCand_x[nLocalProtCand]/D" );
           tree->Branch( "LocalProtCand_y", LocalProtCand_y, "LocalProtCand_y[nLocalProtCand]/D" );
-          tree->Branch( "LocalProtCand_z", LocalProtCand_z, "LocalProtCand_z[nLocalProtCand]/D" );
+          tree->Branch( "LocalProtCand_t", LocalProtCand_t, "LocalProtCand_t[nLocalProtCand]/D" );
           tree->Branch( "LocalProtCand_xSigma", LocalProtCand_xSigma, "LocalProtCand_xSigma[nLocalProtCand]/D" );
           tree->Branch( "LocalProtCand_ySigma", LocalProtCand_ySigma, "LocalProtCand_ySigma[nLocalProtCand]/D" );
+          tree->Branch( "LocalProtCand_tSigma", LocalProtCand_tSigma, "LocalProtCand_tSigma[nLocalProtCand]/D" );
           tree->Branch( "LocalProtCand_arm", LocalProtCand_arm, "LocalProtCand_arm[nLocalProtCand]/I" );
+          tree->Branch( "LocalProtCand_station", LocalProtCand_station, "LocalProtCand_station[nLocalProtCand]/I" );
           tree->Branch( "LocalProtCand_pot", LocalProtCand_pot, "LocalProtCand_pot[nLocalProtCand]/I" );
-          tree->Branch( "LocalProtCand_Tx", LocalProtCand_Tx, "LocalProtCand_Tx[nLocalProtCand]/D" );
-          tree->Branch( "LocalProtCand_Ty", LocalProtCand_Ty, "LocalProtCand_Ty[nLocalProtCand]/D" );
-          tree->Branch( "LocalProtCand_TxSigma", LocalProtCand_TxSigma, "LocalProtCand_TxSigma[nLocalProtCand]/D" );
-          tree->Branch( "LocalProtCand_TySigma", LocalProtCand_TySigma, "LocalProtCand_TySigma[nLocalProtCand]/D" );
         }
 
         // Extra tracks on vertex's information
@@ -672,8 +662,6 @@ namespace ggll
 
         // Primary vertices' information
         tree->SetBranchAddress( "nPrimVertexCand", &nPrimVertexCand );
-        tree->SetBranchAddress( "nFilteredPrimVertexCand", &nFilteredPrimVertexCand );
-        tree->SetBranchAddress( "PrimVertexCand_id", PrimVertexCand_id );
         tree->SetBranchAddress( "PrimVertexCand_x", PrimVertexCand_x );
         tree->SetBranchAddress( "PrimVertexCand_y", PrimVertexCand_y );
         tree->SetBranchAddress( "PrimVertexCand_z", PrimVertexCand_z );
@@ -727,15 +715,13 @@ namespace ggll
           tree->SetBranchAddress( "nLocalProtCand", &nLocalProtCand );
           tree->SetBranchAddress( "LocalProtCand_x", LocalProtCand_x );
           tree->SetBranchAddress( "LocalProtCand_y", LocalProtCand_y );
-          tree->SetBranchAddress( "LocalProtCand_z", LocalProtCand_z );
+          tree->SetBranchAddress( "LocalProtCand_t", LocalProtCand_t );
           tree->SetBranchAddress( "LocalProtCand_xSigma", LocalProtCand_xSigma );
           tree->SetBranchAddress( "LocalProtCand_ySigma", LocalProtCand_ySigma );
+          tree->SetBranchAddress( "LocalProtCand_tSigma", LocalProtCand_tSigma );
           tree->SetBranchAddress( "LocalProtCand_arm", LocalProtCand_arm );
+          tree->SetBranchAddress( "LocalProtCand_station", LocalProtCand_station );
           tree->SetBranchAddress( "LocalProtCand_pot", LocalProtCand_pot );
-          tree->SetBranchAddress( "LocalProtCand_Tx", LocalProtCand_Tx );
-          tree->SetBranchAddress( "LocalProtCand_Ty", LocalProtCand_Ty );
-          tree->SetBranchAddress( "LocalProtCand_TxSigma", LocalProtCand_TxSigma );
-          tree->SetBranchAddress( "LocalProtCand_TySigma", LocalProtCand_TySigma );
         }
 
         // Extra tracks on vertex's information

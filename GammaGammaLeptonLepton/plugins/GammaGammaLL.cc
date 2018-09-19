@@ -3,7 +3,7 @@
 // Package:    GammaGammaLL
 // Class:      GammaGammaLL
 //
-/**\class GammaGammaLL GammaGammaLL.cc DiffractiveForwardAnalysis/GammaGammaLeptonLepton/src/GammaGammaLL.cc
+/**\class GammaGammaLL GammaGammaLL.cc DiffractiveForwardAnalysis/GammaGammaLeptonLepton/plugins/GammaGammaLL.cc
 
  Description: [one line class summary]
 
@@ -17,16 +17,203 @@
 //
 //
 
-#include "GammaGammaLL.h"
+// system include files
+#include <fstream>
+#include <memory>
+#include <map>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+// L1 collections
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 
+// HLT information
+#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
+
+// Generator level collection
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+// Pileup
+#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+//#include "DiffractiveForwardAnalysis/Utilities/interface/LumiReWeighting.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+
+// Muons collection
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+//#include "DataFormats/MuonReco/interface/MuonFwd.h"
+//#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
+// Electrons collection
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+//#include "EgammaAnalysis/ElectronTools/interface/EGammaCutBasedEleId.h"
+//#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+//// tweaked electron ID
+//#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/ElectronID.h"
+
+// Photons collection
+#include "DataFormats/PatCandidates/interface/Photon.h"
+
+// Particle flow collection
+//#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+//#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
+// Vertices collection
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+
+// Jets/MET collection
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+
+// PPS objects
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+
+#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/HLTMatcher.h"
+#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AnalysisEvent.h"
+#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/PrimaryVertexSelector.h"
 
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
-#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/PrimaryVertexSelector.h"
+// LHC fill information
+//#include "DataFormats/Common/interface/ConditionsInEdm.h" // L1 method
+//#include "CondFormats/RunInfo/interface/FillInfo.h"
+//#include "CondFormats/DataRecord/interface/FillInfoRcd.h" // db method
+
+#include "TFile.h"
+#include "TTree.h"
+#include "TVector3.h"
+#include "TLorentzVector.h"
+#include "TH1D.h"
+
+#include <map>
+
+typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
+
+//
+// class declaration
+//
+
+class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources>
+{
+  public:
+    explicit GammaGammaLL( const edm::ParameterSet& );
+    ~GammaGammaLL() {}
+
+    static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
+
+  private:
+    void beginRun( const edm::Run&, const edm::EventSetup& );
+
+    void beginJob() override;
+    void analyze( const edm::Event&, const edm::EventSetup& ) override;
+    void endJob() override;
+
+    void lookAtTriggers( const edm::Event&, const edm::EventSetup& );
+    void analyzeMCEventContent( const edm::Event& );
+
+    void fetchElectrons( const edm::Event& );
+    void fetchMuons( const edm::Event& );
+    void fetchPhotons( const edm::Event& );
+    void fetchProtons( const edm::Event& );
+    void fetchJets( const edm::Event& );
+    void fetchVertices( const edm::Event& );
+
+    void newVertexInfoRetrieval( const edm::Event& );
+    bool newTracksInfoRetrieval( int, int );
+
+    // ----------member data ---------------------------
+    ggll::TreeType leptonsType_;
+
+    TTree* tree_;
+    ggll::AnalysisEvent evt_;
+
+    bool fetchMuons_, fetchElectrons_, fetchProtons_;
+    bool foundPairInEvent_;
+
+    // Input tags
+    std::string hltMenuLabel_;
+    std::vector<std::string> triggersList_;
+
+    edm::EDGetTokenT<pat::TriggerEvent> triggerEventToken_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+    edm::EDGetTokenT<edm::View<PileupSummaryInfo> > pileupToken_;
+    edm::EDGetTokenT<edm::View<reco::Vertex> > recoVertexToken_;
+    edm::EDGetTokenT<edm::View<reco::Track> > recoTrackToken_;
+    edm::EDGetTokenT<edm::View<reco::GenParticle> > genToken_;
+    edm::EDGetTokenT<edm::View<pat::Muon> > muonToken_;
+    edm::EDGetTokenT<edm::View<pat::Electron> > eleToken_;
+    /*edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_, eleTightIdMapToken_;
+    edm::EDGetTokenT<edm::ValueMap<bool> > phoMediumIdMapToken_, phoTightIdMapToken_;*/
+    edm::EDGetTokenT<edm::View<pat::Jet> > jetToken_;
+    edm::EDGetTokenT<double> fixedGridRhoFastjetAllToken_;
+    edm::EDGetTokenT<edm::View<pat::MET> > metToken_;
+    edm::EDGetTokenT<edm::View<CTPPSLocalTrackLite> > ppsLocalTrackToken_;
+    edm::EDGetTokenT<edm::View<pat::Photon> > photonToken_;
+
+    bool runOnMC_, printCandidates_;
+    double minPtMC_, minEtaMC_;
+    double sqrts_;
+    unsigned int maxExTrkVtx_;
+
+    // Trigger information
+    ggll::HLTMatcher hlts_;
+    HLTConfigProvider hltConfig_;
+    HLTPrescaleProvider hltPrescale_;
+
+    // E/gamma identification
+    edm::ParameterSet eleIdLabelSet_;
+    std::string eleMediumIdLabel_, eleTightIdLabel_;
+    edm::ParameterSet phoIdLabelSet_;
+    std::string phoMediumIdLabel_, phoTightIdLabel_;
+
+    // Pileup information
+    edm::LumiReWeighting lumiWeights_;
+    std::string mcPileupFile_, dataPileupFile_;
+    std::string mcPileupPath_, dataPileupPath_;
+
+    edm::Handle<edm::View<reco::Track> > trackColl_;
+    edm::ESHandle<TransientTrackBuilder> KalVtx_;
+    std::map<int,TLorentzVector> muonsMomenta_, electronsMomenta_;
+    std::map<unsigned int,reco::TransientTrack> muonTransientTracks_, eleTransientTracks_;
+
+    unsigned int nCandidates_;
+};
 
 const unsigned int ggll::AnalysisEvent::MAX_ET;
 
@@ -36,7 +223,7 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   fetchProtons_       ( iConfig.getParameter<bool>( "fetchProtons" ) ),
   hltMenuLabel_       ( iConfig.getParameter<std::string>( "HLTMenuTag" ) ),
   triggersList_       ( iConfig.getParameter<std::vector<std::string> >( "triggersList" ) ),
-  triggerEventToken_  ( consumes<pat::TriggerEvent>                    ( iConfig.getParameter<edm::InputTag>( "triggerEvent" ) ) ),
+  //triggerEventToken_  ( consumes<pat::TriggerEvent>                    ( iConfig.getParameter<edm::InputTag>( "triggerEvent" ) ) ),
   triggerResultsToken_( consumes<edm::TriggerResults>                  ( iConfig.getParameter<edm::InputTag>( "triggerResults" ) ) ),
   pileupToken_        ( consumes<edm::View<PileupSummaryInfo> >        ( iConfig.getParameter<edm::InputTag>( "pileupInfo" ) ) ),
   recoVertexToken_    ( consumes<edm::View<reco::Vertex> >             ( iConfig.getParameter<edm::InputTag>( "vertexTag" ) ) ),
@@ -50,7 +237,7 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   jetToken_           ( consumes<edm::View<pat::Jet> >                 ( iConfig.getParameter<edm::InputTag>( "jetTag" ) ) ),
   fixedGridRhoFastjetAllToken_( consumes<double>                       ( iConfig.getParameter<edm::InputTag>( "fixedGridRhoFastjetAllLabel" ) ) ),
   metToken_           ( consumes<edm::View<pat::MET> >                 ( iConfig.getParameter<edm::InputTag>( "metTag" ) ) ),
-  totemRPHitToken_    ( consumes<edm::DetSetVector<TotemRPLocalTrack> >( iConfig.getParameter<edm::InputTag>( "totemRPLocalTrackTag" ) ) ),
+  ppsLocalTrackToken_ ( consumes<edm::View<CTPPSLocalTrackLite> >      ( iConfig.getParameter<edm::InputTag>( "ppsLocalTrackTag" ) ) ),
   photonToken_        ( consumes<edm::View<pat::Photon> >              ( iConfig.getParameter<edm::InputTag>( "photonTag" ) ) ),
   runOnMC_            ( iConfig.getParameter<bool>( "runOnMC" ) ),
   printCandidates_    ( iConfig.getParameter<bool>( "printCandidates" ) ),
@@ -65,7 +252,7 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   dataPileupPath_     ( iConfig.getParameter<std::string>( "datapupath" ) ),
   nCandidates_( 0 )
 {
-  evt_.nHLT = triggersList_.size();
+  for ( const auto& t : triggersList_ ) std::cout << ">" << t << "\n";
 
   // Generator level
   if ( runOnMC_ ) {
@@ -105,9 +292,8 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   phoTightIdLabel_ = phoIdLabelSet.getParameter<edm::InputTag>( "tightLabel" ).encode();
 
   // Pileup reweighting utilities
-  if ( runOnMC_ ) {
-    lumiWeights_ = edm::LumiReWeighting(mcPileupFile_, dataPileupFile_, mcPileupPath_, dataPileupPath_ );
-  }
+  if ( runOnMC_ )
+    lumiWeights_ = edm::LumiReWeighting( mcPileupFile_, dataPileupFile_, mcPileupPath_, dataPileupPath_ );
 
   // Book the output tree
   usesResource( "TFileService" );
@@ -115,22 +301,16 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   tree_ = fs->make<TTree>( "ntp1", "ntp1" );
 }
 
-GammaGammaLL::~GammaGammaLL()
-{}
-
-//
-// member functions
-//
-
 void
 GammaGammaLL::lookAtTriggers( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   // Get the trigger information from the event
-  edm::Handle<pat::TriggerEvent> triggerEvent;
+  /*edm::Handle<pat::TriggerEvent> triggerEvent;
   iEvent.getByToken( triggerEventToken_, triggerEvent );
 
-  std::cout << ">>>> " << triggerEvent->lhcFill() << std::endl;
+  std::cout << ">>>> " << triggerEvent->lhcFill() << std::endl;*/
 
+  evt_.nHLT = triggersList_.size();
   edm::Handle<edm::TriggerResults> hltResults;
   iEvent.getByToken( triggerResultsToken_, hltResults );
   const edm::TriggerNames& trigNames = iEvent.triggerNames( *hltResults );
@@ -138,19 +318,29 @@ GammaGammaLL::lookAtTriggers( const edm::Event& iEvent, const edm::EventSetup& i
   std::ostringstream os;
   os << "Trigger names: " << std::endl;
   for ( unsigned int i = 0; i < trigNames.size(); ++i ) {
-    os << "--> " << trigNames.triggerNames().at( i) << std::endl;
+    os << "--> " << trigNames.triggerNames().at( i ) << std::endl;
 
-    const int trigNum = hlts_.TriggerNum(trigNames.triggerNames().at( i ) );
-    if ( trigNum<0) continue; // Trigger didn't match the interesting ones
+    // ensure trigger matches the interesting ones
+    const int trigNum = hlts_.TriggerNum( trigNames.triggerNames().at( i ) );
+    if ( trigNum < 0 )
+      continue;
 
-    evt_.HLT_Accept[trigNum] = hltResults->accept( i);
+    evt_.HLT_Accept[trigNum] = hltResults->accept( i );
 
     // extract prescale value for this path
-    if ( runOnMC_ ) { evt_.HLT_Prescl[trigNum] = 1.; continue; } //FIXME
-    int prescale_set = hltPrescale_.prescaleSet( iEvent, iSetup);
-    evt_.HLT_Prescl[trigNum] = (prescale_set<0) ? 0. : hltConfig_.prescaleValue(prescale_set, trigNames.triggerNames().at( i ) ); //FIXME
+    if ( runOnMC_ ) {
+      evt_.HLT_Prescl[trigNum] = 1.;
+      continue;
+    } //FIXME
+    int prescale_set = hltPrescale_.prescaleSet( iEvent, iSetup );
+    std::cout << trigNames.triggerNames().at( i ) << " --> " << prescale_set << std::endl;
+    evt_.HLT_Prescl[trigNum] = ( prescale_set < 0 )
+      ? 0.
+      : hltConfig_.prescaleValue( prescale_set, trigNames.triggerNames().at( i ) ); //FIXME
   }
-  LogDebug( "GammaGammaLL" ) << os.str();
+  //std::cout
+  LogDebug( "GammaGammaLL" )
+    << os.str();
 }
 
 // ------------ method called for each event  ------------
@@ -521,8 +711,10 @@ GammaGammaLL::fetchPhotons( const edm::Event& iEvent )
     for ( unsigned int j = 0; j < ids.size(); ++j ) {
       pat::Photon::IdPair idp = ids.at( j );
       //FIXME make me private attributes
-      if ( phoMediumIdLabel_.find( idp.first ) != std::string::npos ) evt_.PhotonCand_mediumID[evt_.nPhotonCand] = idp.second;
-      if ( phoTightIdLabel_.find( idp.first ) != std::string::npos ) evt_.PhotonCand_tightID[evt_.nPhotonCand] = idp.second;
+      if ( phoMediumIdLabel_.find( idp.first ) != std::string::npos )
+        evt_.PhotonCand_mediumID[evt_.nPhotonCand] = idp.second;
+      if ( phoTightIdLabel_.find( idp.first ) != std::string::npos )
+        evt_.PhotonCand_tightID[evt_.nPhotonCand] = idp.second;
     }
 
     //edm::RefToBase<pat::Photon> photonRef = photonColl->refAt( i );
@@ -539,34 +731,24 @@ void
 GammaGammaLL::fetchProtons( const edm::Event& iEvent )
 {
   // Forward proton tracks
-  edm::Handle<edm::DetSetVector<TotemRPLocalTrack> > rplocaltracks;
-  iEvent.getByToken( totemRPHitToken_, rplocaltracks);
+  edm::Handle<edm::View<CTPPSLocalTrackLite> > ppslocaltracks;
+  iEvent.getByToken( ppsLocalTrackToken_, ppslocaltracks );
 
   evt_.nLocalProtCand = 0;
-  for ( const auto rplocaltrack : *rplocaltracks ) {
-    const CTPPSDetId det_id( rplocaltrack.detId() );
-    const unsigned short arm = det_id.arm(), // 0->L, 1->R (  2/  3->45, 102/103->56)
-                         pot = det_id.rp();  // 0->F, 1->N (  2/102-> N,   3/103-> F)
-    for ( const auto track : rplocaltrack ) {
-      if ( evt_.nLocalProtCand == ggll::AnalysisEvent::MAX_LOCALPCAND-1 ) {
-        edm::LogWarning( "GammaGammaLL" ) << "maximum number of local tracks in RPs is reached! increase MAX_LOCALPCAND=" << ggll::AnalysisEvent::MAX_LOCALPCAND << " in GammaGammaLL.h";
-        break;
-      }
-      if ( !track.isValid() ) continue;
-      evt_.LocalProtCand_x[evt_.nLocalProtCand] = ( track.getX0() )/1.e3;
-      evt_.LocalProtCand_y[evt_.nLocalProtCand] = ( track.getY0() )/1.e3;
-      evt_.LocalProtCand_z[evt_.nLocalProtCand] = ( track.getZ0() )/1.e3;
-      evt_.LocalProtCand_xSigma[evt_.nLocalProtCand] = ( track.getX0Sigma() )/1.e3;
-      evt_.LocalProtCand_ySigma[evt_.nLocalProtCand] = ( track.getY0Sigma() )/1.e3;
-      evt_.LocalProtCand_Tx[evt_.nLocalProtCand] = track.getTx();
-      evt_.LocalProtCand_Ty[evt_.nLocalProtCand] = track.getTy();
-      evt_.LocalProtCand_TxSigma[evt_.nLocalProtCand] = track.getTxSigma();
-      evt_.LocalProtCand_TySigma[evt_.nLocalProtCand] = track.getTySigma();
-      evt_.LocalProtCand_arm[evt_.nLocalProtCand] = arm;
-      evt_.LocalProtCand_pot[evt_.nLocalProtCand] = pot;
-      evt_.nLocalProtCand++;
-      LogDebug( "GammaGammaLL" ) << "Proton track candidate with origin: ( " << track.getX0() << ", " << track.getY0() << ", " << track.getZ0() << " ) extracted!";
-    }
+  for ( const auto trk : *ppslocaltracks ) {
+    const CTPPSDetId det_id( trk.getRPId() );
+    if ( evt_.nLocalProtCand == ggll::AnalysisEvent::MAX_LOCALPCAND-1 )
+      throw cms::Exception( "GammaGammaLL" ) << "maximum number of local tracks in RPs is reached!\n"
+        << "increase MAX_LOCALPCAND=" << ggll::AnalysisEvent::MAX_LOCALPCAND << " in GammaGammaLL.cc";
+    evt_.LocalProtCand_x[evt_.nLocalProtCand] = ( trk.getX() )/1.e3;
+    evt_.LocalProtCand_y[evt_.nLocalProtCand] = ( trk.getY() )/1.e3;
+    evt_.LocalProtCand_xSigma[evt_.nLocalProtCand] = ( trk.getXUnc() )/1.e3;
+    evt_.LocalProtCand_ySigma[evt_.nLocalProtCand] = ( trk.getYUnc() )/1.e3;
+    evt_.LocalProtCand_arm[evt_.nLocalProtCand] = det_id.arm();
+    evt_.LocalProtCand_station[evt_.nLocalProtCand] = det_id.station();
+    evt_.LocalProtCand_pot[evt_.nLocalProtCand] = det_id.rp();
+    evt_.nLocalProtCand++;
+    LogDebug( "GammaGammaLL" ) << "Proton track candidate with origin: ( " << trk.getX() << ", " << trk.getY() << " ) extracted!";
   }
   LogDebug( "GammaGammaLL" ) << "Passed TOTEM RP info retrieval stage. Got " << evt_.nLocalProtCand << " local track(s)";
 }
@@ -616,7 +798,6 @@ GammaGammaLL::fetchVertices( const edm::Event& iEvent )
   for ( unsigned int i = 0; i < recoVertexColl->size() && evt_.nPrimVertexCand < ggll::AnalysisEvent::MAX_VTX; ++i ) {
     const edm::Ptr<reco::Vertex> vertex = recoVertexColl->ptrAt( i);
 
-    evt_.PrimVertexCand_id[evt_.nPrimVertexCand] = evt_.nPrimVertexCand;
     evt_.PrimVertexCand_x[evt_.nPrimVertexCand] = vertex->x();
     evt_.PrimVertexCand_y[evt_.nPrimVertexCand] = vertex->y();
     evt_.PrimVertexCand_z[evt_.nPrimVertexCand] = vertex->z();
@@ -753,8 +934,8 @@ GammaGammaLL::newTracksInfoRetrieval( int l1id, int l2id )
       evt_.ExtraTrack_chi2[evt_.nExtraTracks] = track->chi2();
       evt_.ExtraTrack_ndof[evt_.nExtraTracks] = track->ndof();
       evt_.ExtraTrack_vtxdxyz[evt_.nExtraTracks] = vtxdst;
-      evt_.ExtraTrack_vtxT[evt_.nExtraTracks] = sqrt( std::pow( track->vertex().x()-evt_.KalmanVertexCand_x[evt_.nPair], 2)
-                                                    + std::pow( track->vertex().y()-evt_.KalmanVertexCand_y[evt_.nPair], 2 ) );
+      evt_.ExtraTrack_vtxT[evt_.nExtraTracks] = std::hypot( track->vertex().x()-evt_.KalmanVertexCand_x[evt_.nPair],
+                                                            track->vertex().y()-evt_.KalmanVertexCand_y[evt_.nPair] );
       evt_.ExtraTrack_vtxZ[evt_.nExtraTracks] = fabs( track->vertex().z()-evt_.KalmanVertexCand_z[evt_.nPair] );
       evt_.ExtraTrack_x[evt_.nExtraTracks] = track->vertex().x();
       evt_.ExtraTrack_y[evt_.nExtraTracks] = track->vertex().y();
@@ -839,23 +1020,16 @@ void
 GammaGammaLL::beginRun( const edm::Run& iRun, const edm::EventSetup& iSetup )
 {
   bool changed = true;
-  if ( !hltPrescale_.init( iRun, iSetup, hltMenuLabel_, changed ) ) {
+
+  if ( !hltPrescale_.init( iRun, iSetup, hltMenuLabel_, changed ) )
     throw cms::Exception( "GammaGammaLL" ) << " prescales extraction failure with process name " << hltMenuLabel_;
-  }
+
   // Initialise HLTConfigProvider
   hltConfig_ = hltPrescale_.hltConfigProvider();
-  if ( !hltConfig_.init( iRun, iSetup, hltMenuLabel_, changed ) ) {
+  if ( !hltConfig_.init( iRun, iSetup, hltMenuLabel_, changed ) )
     throw cms::Exception( "GammaGammaLL" ) << " config extraction failure with process name " << hltMenuLabel_;
-  }
-  else if ( hltConfig_.size() == 0 ) {
+  else if ( hltConfig_.size() == 0 )
     edm::LogError( "GammaGammaLL" ) << "HLT config size error";
-  }
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void
-GammaGammaLL::endRun( const edm::Run&, const edm::EventSetup& )
-{
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -870,3 +1044,4 @@ GammaGammaLL::fillDescriptions( edm::ConfigurationDescriptions& descriptions ) {
 
 //define this as a plug-in
 DEFINE_FWK_MODULE( GammaGammaLL );
+
