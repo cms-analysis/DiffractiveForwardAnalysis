@@ -129,7 +129,7 @@ typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
 // class declaration
 //
 
-class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources>
+class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources>
 {
   public:
     explicit GammaGammaLL( const edm::ParameterSet& );
@@ -138,10 +138,10 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources>
     static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
   private:
-    void beginRun( const edm::Run&, const edm::EventSetup& );
-
     void beginJob() override;
+    void beginRun( const edm::Run&, const edm::EventSetup& ) override;
     void analyze( const edm::Event&, const edm::EventSetup& ) override;
+    void endRun( const edm::Run&, const edm::EventSetup& ) override {}
     void endJob() override;
 
     void lookAtTriggers( const edm::Event&, const edm::EventSetup& );
@@ -167,7 +167,7 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::SharedResources>
     bool foundPairInEvent_;
 
     // Input tags
-    std::string hltMenuLabel_;
+    edm::InputTag triggerResults_;
     std::vector<std::string> triggersList_;
 
     edm::EDGetTokenT<pat::TriggerEvent> triggerEventToken_;
@@ -221,7 +221,7 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   tree_( 0 ),
   fetchMuons_( false ), fetchElectrons_( false ),
   fetchProtons_       ( iConfig.getParameter<bool>( "fetchProtons" ) ),
-  hltMenuLabel_       ( iConfig.getParameter<std::string>( "HLTMenuTag" ) ),
+  triggerResults_     ( iConfig.getParameter<edm::InputTag>            ( "triggerResults" ) ),
   triggersList_       ( iConfig.getParameter<std::vector<std::string> >( "triggersList" ) ),
   //triggerEventToken_  ( consumes<pat::TriggerEvent>                    ( iConfig.getParameter<edm::InputTag>( "triggerEvent" ) ) ),
   triggerResultsToken_( consumes<edm::TriggerResults>                  ( iConfig.getParameter<edm::InputTag>( "triggerResults" ) ) ),
@@ -252,8 +252,6 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   dataPileupPath_     ( iConfig.getParameter<std::string>( "datapupath" ) ),
   nCandidates_( 0 )
 {
-  for ( const auto& t : triggersList_ ) std::cout << ">" << t << "\n";
-
   // Generator level
   if ( runOnMC_ ) {
     genToken_ = consumes<edm::View<reco::GenParticle> >( iConfig.getParameter<edm::InputTag>( "genParticleTag" ) );
@@ -316,9 +314,10 @@ GammaGammaLL::lookAtTriggers( const edm::Event& iEvent, const edm::EventSetup& i
   const edm::TriggerNames& trigNames = iEvent.triggerNames( *hltResults );
 
   std::ostringstream os;
-  os << "Trigger names: " << std::endl;
+  os << "Prescale set: " << hltPrescale_.prescaleSet(iEvent, iSetup) << "\n"
+     << "Trigger names: " << std::endl;
   for ( unsigned int i = 0; i < trigNames.size(); ++i ) {
-    os << "--> " << trigNames.triggerNames().at( i ) << std::endl;
+    os << "* " << trigNames.triggerNames().at( i ) << std::endl;
 
     // ensure trigger matches the interesting ones
     const int trigNum = hlts_.TriggerNum( trigNames.triggerNames().at( i ) );
@@ -328,15 +327,18 @@ GammaGammaLL::lookAtTriggers( const edm::Event& iEvent, const edm::EventSetup& i
     evt_.HLT_Accept[trigNum] = hltResults->accept( i );
 
     // extract prescale value for this path
-    if ( runOnMC_ ) {
+    if ( !iEvent.isRealData() ) {
       evt_.HLT_Prescl[trigNum] = 1.;
       continue;
     } //FIXME
     int prescale_set = hltPrescale_.prescaleSet( iEvent, iSetup );
-    std::cout << trigNames.triggerNames().at( i ) << " --> " << prescale_set << std::endl;
     evt_.HLT_Prescl[trigNum] = ( prescale_set < 0 )
       ? 0.
-      : hltConfig_.prescaleValue( prescale_set, trigNames.triggerNames().at( i ) ); //FIXME
+      : hltConfig_.prescaleValue( prescale_set, trigNames.triggerNames().at( i ) );
+    /*std::pair<int,int> prescales = hltPrescale_.prescaleValues( iEvent, iSetup, trigNames.triggerNames().at( i ) );
+    //std::cout << "trigger path " << trigNames.triggerNames().at( i ) << " has L1/HLT prescales: " << prescales.first << "/" << prescales.second
+    //  << "   event r/l/e: " << iEvent.id().run() << "/" << iEvent.luminosityBlock() << "/" << iEvent.id().event() << std::endl;
+    evt_.HLT_Prescl[trigNum] = prescales.second;*/
   }
   //std::cout
   LogDebug( "GammaGammaLL" )
@@ -1019,16 +1021,13 @@ GammaGammaLL::endJob()
 void
 GammaGammaLL::beginRun( const edm::Run& iRun, const edm::EventSetup& iSetup )
 {
-  bool changed = true;
-
-  if ( !hltPrescale_.init( iRun, iSetup, hltMenuLabel_, changed ) )
-    throw cms::Exception( "GammaGammaLL" ) << " prescales extraction failure with process name " << hltMenuLabel_;
+  bool changed = false;
+  if ( !hltPrescale_.init( iRun, iSetup, triggerResults_.process(), changed ) || !changed )
+    throw cms::Exception( "GammaGammaLL" ) << "prescales extraction failure with process name " << triggerResults_.process();
 
   // Initialise HLTConfigProvider
   hltConfig_ = hltPrescale_.hltConfigProvider();
-  if ( !hltConfig_.init( iRun, iSetup, hltMenuLabel_, changed ) )
-    throw cms::Exception( "GammaGammaLL" ) << " config extraction failure with process name " << hltMenuLabel_;
-  else if ( hltConfig_.size() == 0 )
+  if ( hltConfig_.size() == 0 )
     edm::LogError( "GammaGammaLL" ) << "HLT config size error";
 }
 

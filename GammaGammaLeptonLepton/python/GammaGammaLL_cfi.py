@@ -14,7 +14,6 @@ ggll_aod = cms.EDAnalyzer('GammaGammaLL',
     MCAcceptEtaCut = cms.untracked.double(-1.),
 
     # HLT selection
-    HLTMenuTag = cms.string('HLT'),
     triggerEvent = cms.InputTag('patTriggerEvent'),
     triggerResults = cms.InputTag('TriggerResults', '', 'HLT'),
 
