@@ -189,12 +189,14 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::S
     bool runOnMC_, printCandidates_;
     double minPtMC_, minEtaMC_;
     double sqrts_;
-    unsigned int maxExTrkVtx_;
 
     // Trigger information
     ggll::HLTMatcher hlts_;
     HLTConfigProvider hltConfig_;
     HLTPrescaleProvider hltPrescale_;
+
+    unsigned int maxExTrkVtx_;
+    double minMpair_, maxMpair_;
 
     // E/gamma identification
     edm::ParameterSet eleIdLabelSet_;
@@ -242,9 +244,12 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   runOnMC_            ( iConfig.getParameter<bool>( "runOnMC" ) ),
   printCandidates_    ( iConfig.getParameter<bool>( "printCandidates" ) ),
   sqrts_              ( iConfig.getParameter<double>( "sqrtS" ) ),
-  maxExTrkVtx_        ( iConfig.getUntrackedParameter<unsigned int>( "maxExtraTracks", ggll::AnalysisEvent::MAX_ET ) ),
   hlts_               ( triggersList_ ),
   hltPrescale_        ( iConfig, consumesCollector(), *this ),
+  // Central selection
+  maxExTrkVtx_        ( iConfig.getUntrackedParameter<unsigned int>( "maxExtraTracks", ggll::AnalysisEvent::MAX_ET ) ),
+  minMpair_           ( iConfig.getUntrackedParameter<double>( "minMpair", -1. ) ),
+  maxMpair_           ( iConfig.getUntrackedParameter<double>( "maxMpair", -1. ) ),
   // Pileup input tags
   mcPileupFile_       ( iConfig.getParameter<std::string>( "mcpufile" ) ),
   dataPileupFile_     ( iConfig.getParameter<std::string>( "datapufile" ) ),
@@ -326,15 +331,16 @@ GammaGammaLL::lookAtTriggers( const edm::Event& iEvent, const edm::EventSetup& i
 
     evt_.HLT_Accept[trigNum] = hltResults->accept( i );
 
+    if ( !evt_.HLT_Accept[trigNum] )
+      continue;
     // extract prescale value for this path
     if ( !iEvent.isRealData() ) {
       evt_.HLT_Prescl[trigNum] = 1.;
       continue;
     } //FIXME
     int prescale_set = hltPrescale_.prescaleSet( iEvent, iSetup );
-    evt_.HLT_Prescl[trigNum] = ( prescale_set < 0 )
-      ? 0.
-      : hltConfig_.prescaleValue( prescale_set, trigNames.triggerNames().at( i ) );
+    if ( prescale_set >= 0 )
+      evt_.HLT_Prescl[trigNum] = hltConfig_.prescaleValue( prescale_set, trigNames.triggerNames().at( i ) );
     /*std::pair<int,int> prescales = hltPrescale_.prescaleValues( iEvent, iSetup, trigNames.triggerNames().at( i ) );
     //std::cout << "trigger path " << trigNames.triggerNames().at( i ) << " has L1/HLT prescales: " << prescales.first << "/" << prescales.second
     //  << "   event r/l/e: " << iEvent.id().run() << "/" << iEvent.luminosityBlock() << "/" << iEvent.id().event() << std::endl;
@@ -407,7 +413,11 @@ GammaGammaLL::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     return; // avoid to unpack RP/jet/MET if no dilepton candidate has been found
   }
 
-  if ( fetchProtons_ ) fetchProtons( iEvent );
+  if ( fetchProtons_ ) {
+    fetchProtons( iEvent );
+    if ( evt_.nLocalProtCand < 1 )
+      return;
+  }
 
   fetchJets( iEvent );
 
@@ -423,9 +433,8 @@ GammaGammaLL::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
   LogDebug( "GammaGammaLL" ) << "Passed MET retrieval stage";
 
-  if ( printCandidates_ ) {
+  if ( printCandidates_ )
     std::cout << "Event " << evt_.Run << ":" << evt_.EventNum << " has " << evt_.nPair << " leptons pair(s) candidate(s) (vertex mult. : " << evt_.nPrimVertexCand << " )" << std::endl;
-  }
 
   tree_->Fill();
 }
@@ -524,8 +533,8 @@ GammaGammaLL::analyzeMCEventContent( const edm::Event& iEvent )
 
     double dphi = fabs( l1.Phi()-l2.Phi() );
     // dphi lies in [-pi, pi]
-    while ( dphi < -M_PI ) { dphi += 2.*M_PI; }
-    while ( dphi >  M_PI ) { dphi -= 2.*M_PI; }
+    while ( dphi < -M_PI ) dphi += 2.*M_PI;
+    while ( dphi >  M_PI ) dphi -= 2.*M_PI;
     evt_.GenPair_dphi = dphi;
 
     evt_.GenPair_dpt = fabs( l1.Pt()-l2.Pt() );
@@ -968,7 +977,12 @@ GammaGammaLL::newTracksInfoRetrieval( int l1id, int l2id )
     default: throw cms::Exception( "GammaGammaLL" ) << "Invalid leptons type: " << leptonsType_;
   }
 
-  const TLorentzVector pair(l1+l2);
+  const TLorentzVector pair = l1+l2;
+
+  if ( minMpair_ > 0. && pair.M() < minMpair_ )
+    return false;
+  if ( maxMpair_ > 0. && pair.M() > maxMpair_ )
+    return false;
 
   evt_.Pair_pt[evt_.nPair] = pair.Pt();
   evt_.Pair_mass[evt_.nPair] = pair.M();
@@ -979,8 +993,8 @@ GammaGammaLL::newTracksInfoRetrieval( int l1id, int l2id )
 
   double dphi = fabs( l1.Phi()-l2.Phi() );
   // dphi lies in [-pi, pi]
-  while ( dphi < -M_PI ) { dphi += 2.*M_PI; }
-  while ( dphi >  M_PI ) { dphi -= 2.*M_PI; }
+  while ( dphi < -M_PI ) dphi += 2.*M_PI;
+  while ( dphi >  M_PI ) dphi -= 2.*M_PI;
   evt_.Pair_dphi[evt_.nPair] = dphi;
 
   evt_.Pair_dpt[evt_.nPair] = fabs( l1.Pt()-l2.Pt() );
@@ -990,7 +1004,7 @@ GammaGammaLL::newTracksInfoRetrieval( int l1id, int l2id )
     TLorentzVector pho;
     pho.SetPtEtaPhiE( evt_.PhotonCand_pt[j], evt_.PhotonCand_eta[j], evt_.PhotonCand_phi[j], evt_.PhotonCand_e[j] );
     evt_.PairGamma_pair[evt_.nPairGamma] = evt_.nPair;
-    evt_.PairGamma_mass[evt_.nPairGamma] = ( l1+l2+pho ).M();
+    evt_.PairGamma_mass[evt_.nPairGamma] = ( pair+pho ).M();
     //std::cout << "Photon " << j << " added to pair " << evt_.PairGamma_pair[evt_.nPairGamma] << " to give a mass = " << evt_.PairGamma_mass[evt_.nPairGamma] << std::endl;
     evt_.nPairGamma++;
   }
@@ -1021,9 +1035,9 @@ GammaGammaLL::endJob()
 void
 GammaGammaLL::beginRun( const edm::Run& iRun, const edm::EventSetup& iSetup )
 {
-  bool changed = false;
-  if ( !hltPrescale_.init( iRun, iSetup, triggerResults_.process(), changed ) || !changed )
-    throw cms::Exception( "GammaGammaLL" ) << "prescales extraction failure with process name " << triggerResults_.process();
+  bool changed = true;
+  if ( !hltPrescale_.init( iRun, iSetup, triggerResults_.process(), changed ) )
+    edm::LogError( "GammaGammaLL" ) << "prescales extraction failure with process name " << triggerResults_.process();
 
   // Initialise HLTConfigProvider
   hltConfig_ = hltPrescale_.hltConfigProvider();

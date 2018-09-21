@@ -56,9 +56,7 @@ namespace ggll
       /// Maximum number of jets per event
       static constexpr unsigned int MAX_JETS = 40;
       /// Maximum number of reconstructed local tracks in RPs
-      static constexpr unsigned int MAX_LOCALPCAND = 25;
-      /// Maximum number of reconstructed local tracks pairs in RPs
-      static constexpr unsigned int MAX_LOCALPPAIRCAND = 10;
+      static constexpr unsigned int MAX_LOCALPCAND = 120;
 
       ////// Tree contents //////
 
