@@ -225,7 +225,6 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   fetchProtons_       ( iConfig.getParameter<bool>( "fetchProtons" ) ),
   triggerResults_     ( iConfig.getParameter<edm::InputTag>            ( "triggerResults" ) ),
   triggersList_       ( iConfig.getParameter<std::vector<std::string> >( "triggersList" ) ),
-  //triggerEventToken_  ( consumes<pat::TriggerEvent>                    ( iConfig.getParameter<edm::InputTag>( "triggerEvent" ) ) ),
   triggerResultsToken_( consumes<edm::TriggerResults>                  ( iConfig.getParameter<edm::InputTag>( "triggerResults" ) ) ),
   pileupToken_        ( consumes<edm::View<PileupSummaryInfo> >        ( iConfig.getParameter<edm::InputTag>( "pileupInfo" ) ) ),
   recoVertexToken_    ( consumes<edm::View<reco::Vertex> >             ( iConfig.getParameter<edm::InputTag>( "vertexTag" ) ) ),
@@ -308,15 +307,10 @@ void
 GammaGammaLL::lookAtTriggers( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   // Get the trigger information from the event
-  /*edm::Handle<pat::TriggerEvent> triggerEvent;
-  iEvent.getByToken( triggerEventToken_, triggerEvent );
-
-  std::cout << ">>>> " << triggerEvent->lhcFill() << std::endl;*/
-
   evt_.nHLT = triggersList_.size();
   edm::Handle<edm::TriggerResults> hltResults;
-  iEvent.getByToken( triggerResultsToken_, hltResults );
-  const edm::TriggerNames& trigNames = iEvent.triggerNames( *hltResults );
+  iEvent.getByToken( triggerResultsToken_, hltResults);
+  const edm::TriggerNames& trigNames = iEvent.triggerNames(*hltResults);
 
   std::ostringstream os;
   os << "Prescale set: " << hltPrescale_.prescaleSet(iEvent, iSetup) << "\n"
