@@ -14,7 +14,6 @@ ggll_aod = cms.EDAnalyzer('GammaGammaLL',
     MCAcceptEtaCut = cms.untracked.double(-1.),
 
     # HLT selection
-    HLTMenuTag = cms.string('HLT'),
     triggerEvent = cms.InputTag('patTriggerEvent'),
     triggerResults = cms.InputTag('TriggerResults', '', 'HLT'),
 
@@ -28,7 +27,7 @@ ggll_aod = cms.EDAnalyzer('GammaGammaLL',
     jetTag = cms.InputTag('patJets'),
     metTag = cms.InputTag('patMETs'),
     photonTag = cms.InputTag('selectedPatPhotons'),
-    totemRPLocalTrackTag = cms.InputTag('totemRPLocalTrackFitter'),
+    ppsLocalTrackTag = cms.InputTag('ctppsLocalTrackLiteProducer'),
     genParticleTag = cms.InputTag('genParticles'),
 
     # Pileup reweighting
