@@ -6,25 +6,25 @@
 #include <memory>
 #include <vector>
 
+#include <iostream>
+
 //
 // class declaration
 //
 
-class HLTMatcher {
-  public:
-    explicit HLTMatcher(std::vector<std::string>);
-    ~HLTMatcher();
-    int TriggerNum(std::string);
-  private:
-    std::vector<std::string> HLTnames;
-};
+namespace ggll
+{
+  class HLTMatcher {
+    public:
+      explicit HLTMatcher() {}
+      explicit HLTMatcher( const std::vector<std::string>& );
+      ~HLTMatcher() {}
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
+      int TriggerNum( const std::string& );
+    private:
+      std::vector<std::string> HLTnames;
+  };
+}
 
 #endif
+

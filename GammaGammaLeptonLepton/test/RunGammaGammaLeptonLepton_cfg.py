@@ -3,151 +3,188 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("ggll")
 
 runOnMC = False
+useAOD = True # AOD or MiniAOD?
+#useAOD = False
 
 #########################
 #    General options    #
 #########################
+
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.options   = cms.untracked.PSet(
     #wantSummary = cms.untracked.bool(True),
-    SkipEvent = cms.untracked.vstring('ProductNotFound')
+    #SkipEvent = cms.untracked.vstring('ProductNotFound'),
+    allowUnscheduled = cms.untracked.bool(True),
 )
 
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
-#process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #########################
 #      Input files      #
 #########################
+
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      #'/store/data/Run2012A/SingleMu/AOD/22Jan2013-v1/20000/002F5062-346F-E211-BF00-1CC1DE04DF20.root',
-      '/store/mc/Run2015D/DoubleEG/AOD/04Dec2015-v1/10000/04D11E1B-BB9E-E511-AC1A-047D7B881D62.root',
+#'/store/data/Run2016G/DoubleEG/AOD/23Sep2016-v1/100000/0042DBD3-BA8E-E611-919E-002481ACDAA8.root',
+#'/store/data/Run2017C/DoubleMuon/AOD/12Sep2017-v1/10000/029F251F-B1A2-E711-AAC3-001E67792890.root',
+#'/store/data/Run2018B/DoubleMuon/MINIAOD/17Sep2018-v1/00000/8E1342C6-AA35-9049-B101-B5B595EAAEE2.root'
+#'/store/data/Run2017C/DoubleMuon/AOD/17Nov2017-v1/30001/30DDB6DA-CBD8-E711-AF2A-A4BF0112BCB4.root'
+#'file:/tmp/jjhollar/8816F63B-C0D5-E711-B32B-002590D9D9F0.root'
+
+#'/store/data/Run2017D/DoubleMuon/AOD/17Nov2017-v1/30000/6482D69E-48D6-E711-9AF7-008CFAF71FB4.root'
+#'file:/tmp/jjhollar/6482D69E-48D6-E711-9AF7-008CFAF71FB4.root'
+#'file:/tmp/jjhollar/F2C53386-ABFA-4A4F-B851-0065858DB53C.root'
+'file:/tmp/jjhollar/14D52021-5DDE-E711-8A48-02163E01453B.root'
+
     ),
-    firstEvent = cms.untracked.uint32(540)
+    #firstEvent = cms.untracked.uint32(0)
 )
 
 #########################
 #        Triggers       #
 #########################
+
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.HLTFilter_cfi")
 process.hltFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-process.hltFilter.HLTPaths = ['HLT_Mu10_Ele10_CaloIdL_*', 'HLT_Mu8_Ele17_*', 'HLT_Mu17_Ele8_*']
+process.hltFilter.HLTPaths = cms.vstring(
+    'HLT_DoubleMu43NoFiltersNoVtx_*',
+    'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_*',
+    'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_*'
+#    'HLT_DoubleEle33_CaloIdL_MW_v*',
+#    'HLT_Ele27_HighEta_Ele20_Mass55_v*',
+#    'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v*',
+)
 
 #########################
 #      Preskimming      #
 #########################
 process.load("Configuration.StandardSequences.GeometryDB_cff") ## FIXME need to ensure that this is the good one
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = cms.string('START52_V9::All')
-#process.GlobalTag.globaltag = cms.string('FT_R_53_V6::All')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data')
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
-process.scrapingVeto = cms.EDFilter("FilterOutScraping",
-    applyfilter = cms.untracked.bool(True),
-    debugOn = cms.untracked.bool(False),
-    numtrack = cms.untracked.uint32(10),
-    thresh = cms.untracked.double(0.2)
-)
-
-process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
-    vertexCollection = cms.InputTag('offlinePrimaryVertices'),
-    minimumNDOF = cms.uint32(4) ,
-    maxAbsZ = cms.double(15),
-    maxd0 = cms.double(2)
-)
-
-process.muonFilter = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("muons"),
-    minNumber = cms.uint32(1)
-)
 
 #########################
 #     PAT-ification     #
 #########################
 ## Look at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATTools#Core_Tools for more information
 
-# PAT Layer 0+1
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
-from Configuration.EventContent.EventContent_cff import *
-from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning, patExtraAodEventContent
-from PhysicsTools.PatAlgos.tools.coreTools import *
-
-#
-# rho value for isolation
-#
-#from RecoJets.JetProducers.kt4PFJets_cfi import *
-#process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
-#process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
-#
-# Particle flow isolation
-#
-#from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFMuonIso
-#process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
-#process.pfiso = cms.Sequence(process.pfParticleSelectionSequence + process.eleIsoSequence)
 process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('PATuple.root'),
     outputCommands = cms.untracked.vstring(
         'drop *',
-        'keep *_offlinePrimaryVertices*_*_*',
-        'keep *_*Muons*_*_*',
-        'keep *_*Electrons*_*_*',
-        #'keep *_*Photons*_*_*',
-        'keep *_*Jets*_*_*',
+        'keep *_offline*PrimaryVertices*_*_*',
+        'keep *_selectedPatMuons*_*_*',
+        'keep *_*lectron*_*_*',
+        'keep *_selectedPatElectrons*_*_*',
+        'keep *_selectedPat*Photons*_*_*',
+        'keep *_selectedPatJets*_*_*',
         'keep *_*MET*_*_*',
-        'keep recoPFCandidates_particleFlow_*_*',
-        #*patEventContentNoCleaning
+        'keep *_*particleFlow*_*_*',
     ),
 )
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
+patAlgosToolsTask = getPatAlgosToolsTask(process)
 
-# Particle flow
-#from PhysicsTools.PatAlgos.tools.pfTools import *
-#postfix = "PFlow"
-#jetAlgo="AK5" 
-##usePFBRECO(process,runPFBRECO=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix) 
-#usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix)
-#useGsfElectrons(process,postfix)
-#removeCleaning(process)
-#removeMCMatching(process, ['All'])
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+patAlgosToolsTask.add(process.patCandidatesTask)
 
-useAOD = False
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
+
+from PhysicsTools.PatAlgos.tools.coreTools import runOnData
+if not runOnMC:
+    runOnData( process )
+
+#########################
+#      Electron ID      #
+#########################
+
+#from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, setupVIDElectronSelection, setupAllVIDIdsInModule, DataFormat
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 
-if useAOD==True: dataFormat = DataFormat.AOD
-else:            dataFormat = DataFormat.MiniAOD
-switchOnVIDElectronIdProducer(process, dataFormat)
-setupAllVIDIdsInModule(process, 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff', setupVIDElectronSelection)
+switchOnVIDElectronIdProducer(process, DataFormat.AOD)
+#setupAllVIDIdsInModule(process, 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff', setupVIDElectronSelection)
+setupAllVIDIdsInModule(process, 'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff', setupVIDElectronSelection)
+
+#########################
+#       Photon ID       #
+#########################
+
+switchOnVIDPhotonIdProducer(process, DataFormat.AOD)
+setupAllVIDIdsInModule(process, 'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff', setupVIDPhotonSelection)
+
+#########################
+#     Proton RECO       #
+#########################
+process.load("RecoCTPPS.ProtonReconstruction.year_2017_OF.ctppsProtonReconstructionOF_cfi")
+#process.load("RecoCTPPS.ProtonReconstruction.year_2018_OFDB.ctppsProtonReconstructionOFDB_cfi")
+# conditions DB for 2018                                                                                                                    
+                         
+#from CondCore.CondDB.CondDB_cfi import *
+#
+#CondDB.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
+#
+#process.PoolDBESSource2 = cms.ESSource("PoolDBESSource",
+#                                       CondDB,
+#                                       DumpStat = cms.untracked.bool(False),
+#                                       toGet = cms.VPSet(cms.PSet(
+#            record = cms.string('LHCInfoRcd'),
+#            #tag = cms.string("LHCInfoTest_prompt_v3")  
+#            tag = cms.string("LHCInfoEndFill_prompt_v1")
+#            )),
+#                                       )
 
 #########################
 #       Analysis        #
 #########################
+
 process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.GammaGammaLL_cfi")
-process.ggll.TriggersList = process.hltFilter.HLTPaths
-#process.ggll.LeptonsType = cms.vstring('Muon')
-process.ggll.LeptonsType = cms.vstring('Electron', 'Muon')
-#process.ggll.LeptonsType = cms.vstring('Electron')
-process.ggll.RecoVertexLabel = cms.InputTag("offlinePrimaryVertices")
-#process.ggll.GlobalMuonCollectionLabel = cms.untracked.InputTag("muons") # RECO
-#process.ggll.GlobalMuonCollectionLabel = cms.untracked.InputTag("selectedPatMuonsPFlow"), # PAT (particle flow)
-process.ggll.GlobalMuonCollectionLabel = cms.untracked.InputTag("selectedPatMuons") # PAT
-#process.ggll.GlobalEleCollectionLabel = cms.untracked.InputTag("gsfElectrons") # RECO
-#process.ggll.GlobalEleCollectionLabel = cms.untracked.InputTag("selectedPatElectronsPFlow") # PAT (particle flow)
-process.ggll.GlobalEleCollectionLabel = cms.untracked.InputTag("selectedPatElectrons") # PAT
-process.ggll.RunOnMC = cms.untracked.bool(runOnMC)
-process.ggll.outfilename = cms.untracked.string('output.root')
+
+process.ggll_aod.triggersList = process.hltFilter.HLTPaths
+process.ggll_aod.leptonsType = cms.string('Muon')
+#process.ggll_aod.leptonsType = cms.string('ElectronMuon')
+#process.ggll_aod.leptonsType = cms.string('Electron')
+process.ggll_aod.runOnMC = cms.bool(runOnMC)
+process.ggll_aod.fetchProtons = cms.bool(True)
+process.ggll_aod.saveExtraTracks = cms.bool(False)
+process.ggll_aod.year = cms.string('2017')
+
+
+# E/gamma identification
+process.ggll_aod.eleIdLabels = cms.PSet(
+    mediumLabel = cms.InputTag('mvaEleID-Spring16-GeneralPurpose-V1-wp90'),
+    tightLabel = cms.InputTag('mvaEleID-Spring16-GeneralPurpose-V1-wp80'),
+)
+process.ggll_aod.phoIdLabels = cms.PSet(
+    mediumLabel = cms.InputTag('mvaPhoID-Spring16-nonTrig-V1-wp90'),
+    tightLabel = cms.InputTag('mvaPhoID-Spring16-nonTrig-V1-wp80'),
+)
+#process.ggll_aod.eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90")
+#process.ggll_aod.eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80")
+#process.ggll_aod.phoMediumIdMap = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp90")
+#process.ggll_aod.phoTightIdMap = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp80")
+
+# prepare the output file
+process.TFileService = cms.Service('TFileService',
+    fileName = cms.string('output.root'),
+    closeFileFast = cms.untracked.bool(True)
+)
 
 process.p = cms.Path(
-    process.egmGsfElectronIDSequence+
-    #process.scrapingVeto+
-    #process.kt6PFJetsForIsolation+
-    #process.pfiso+
-    process.primaryVertexFilter+
-    process.patDefaultSequence+
-    #getattr(process,"patPF2PATSequence"+postfix)+
-    process.ggll
+    process.hltFilter*
+    process.egmPhotonIDSequence*
+    process.egmGsfElectronIDSequence*
+    process.ctppsProtonReconstructionOFDB *                                                                                            
+    process.ggll_aod
 )
-#getattr(process,"pfNoElectron"+postfix).enable = True
+
+#process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
+process.outpath = cms.EndPath(patAlgosToolsTask)
+
+#print process.dumpPython()
