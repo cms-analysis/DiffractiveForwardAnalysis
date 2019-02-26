@@ -1,33 +1,63 @@
 import FWCore.ParameterSet.Config as cms
 
-ggll = cms.EDAnalyzer(
-    'GammaGammaLL',
-    SqrtS = cms.double(8000.),
-    HLTMenuLabel = cms.string("HLT"),
-    LeptonsType = cms.InputTag('electron', 'muon'),
-    maxExtraTracks = cms.untracked.uint32(10000),
-    isoValInputTags = cms.VInputTag(
-        cms.InputTag('elPFIsoValueCharged03PFIdPFIso'),
-        cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
-        cms.InputTag('elPFIsoValueNeutral03PFIdPFIso')
-    ),
-    beamSpotInputTag = cms.InputTag('offlineBeamSpot'),
-    conversionsInputTag = cms.InputTag('allConversions'),
-    #eleLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-loose"),
-    #eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
-    #eleTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
-    eleLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
-    eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
-    eleTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
-    #eleLooseIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp90"),
-    #eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp90"),
-    #eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp80"),
-    rhoIsoInputTag = cms.InputTag('kt6PFJetsForIsolation', 'rho'),
-    JetCollectionLabel = cms.InputTag('selectedPatJetsPFlow'),
-    MetLabel = cms.InputTag('pfMet'),
-    RunOnMC = cms.untracked.bool(True),
+ggll_aod = cms.EDAnalyzer('GammaGammaLL',
+    # General parameters
+    leptonsType = cms.InputTag('ElectronMuon'),
+    #maxExtraTracks = cms.untracked.uint32(10000),
+    sqrtS = cms.double(13.e3), # in GeV
+    fetchProtons = cms.bool(False), # retrieve the TOTEM/PPS info from the files (data only!)
+    printCandidates = cms.bool(False),
+
+    # MC tweaks
+    runOnMC = cms.bool(True),
     MCAcceptPtCut = cms.untracked.double(0.),
     MCAcceptEtaCut = cms.untracked.double(-1.),
-    GenParticlesCollectionLabel = cms.InputTag('genParticles'),
-    PrintCandidates = cms.untracked.bool(False),
+
+    # HLT selection
+    triggerEvent = cms.InputTag('patTriggerEvent'),
+    triggerResults = cms.InputTag('TriggerResults', '', 'HLT'),
+
+    # Input collections
+    #muonTag = cms.InputTag("muons"), # RECO ; needs recompilation!
+    muonTag = cms.InputTag("patMuons"), # PAT
+    #electronTag = cms.InputTag("gsfElectrons"), # RECO ; needs recompilation!
+    electronTag = cms.InputTag("patElectrons"), # PAT
+    vertexTag = cms.InputTag('offlinePrimaryVertices'),
+    trackTag = cms.InputTag('generalTracks'),
+    jetTag = cms.InputTag('patJets'),
+    metTag = cms.InputTag('patMETs'),
+    photonTag = cms.InputTag('selectedPatPhotons'),
+    ppsLocalTrackTag = cms.InputTag('ctppsLocalTrackLiteProducer'),
+    ppsRecoProtonTag = cms.InputTag('ctppsProtonReconstructionOFDB'),
+
+    genParticleTag = cms.InputTag('genParticles'),
+
+    # Pileup reweighting
+    pileupInfo = cms.InputTag('addPileupInfo'),
+    mcpufile = cms.string('PUHistos_mc.root'),
+    mcpupath = cms.string('pileup'),
+    datapufile = cms.string('PUHistos_data.root'),
+    datapupath = cms.string('pileup'),
+    fixedGridRhoFastjetAllLabel = cms.InputTag('fixedGridRhoFastjetAll'),
+)
+
+ggll = ggll_aod.clone() ## for backward-compatibility
+
+ggll_aod_pflow = ggll_aod.clone(
+    muonTag = cms.InputTag("selectedPatMuonsPFlow"),
+    electronTag = cms.InputTag("selectedPatElectronsPFlow"),
+    jetTag = cms.InputTag('selectedPatJetsPFlow'),
+    metTag = cms.InputTag('pfMet'),
+)
+
+ggll_miniaod = ggll_aod.clone(
+    vertexTag = cms.InputTag('offlineSlimmedPrimaryVertices'),
+    muonTag = cms.InputTag("slimmedMuons"), # PAT
+    electronTag = cms.InputTag("slimmedElectrons"), # PAT
+    jetTag = cms.InputTag('slimmedJetsAK8'),
+    photonTag = cms.InputTag('slimmedPhotons'),
+    metTag = cms.InputTag('slimmedMETs'), # PAT
+    genParticleTag = cms.InputTag('prunedGenParticles'),
+    #pfTag = cms.InputTag('packedPFCandidates'),
+    pileupInfo = cms.InputTag('slimmedAddPileupInfo'),
 )

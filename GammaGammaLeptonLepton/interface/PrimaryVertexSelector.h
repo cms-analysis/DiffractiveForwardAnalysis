@@ -4,7 +4,7 @@
 // system include files
 #include <fstream>
 #include <memory>
-#include <map>
+#include <vector>
 
 // Muons collection
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -17,44 +17,35 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 // Vertices collection
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/RefToBase.h" 
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
-#include <TVector3.h>
-#include <TLorentzVector.h>
+#include "TLorentzVector.h"
 
 //
 // class declaration
 //
 
-class PrimaryVertexSelector : public reco::Vertex {
+class PrimaryVertexSelector {
   public:
-    explicit PrimaryVertexSelector(std::vector<std::string>&, std::map<int,TLorentzVector>&, std::map<int,TLorentzVector>&);
-    ~PrimaryVertexSelector();
-    void SetPosition(double, double, double);
-    int AddTrack(const reco::TrackRef&, TString&);
-    inline int Electrons() { return nMatchedElectrons; }
-    inline int Muons() { return nMatchedMuons; }
-    double dZ(TVector3, int);
-    TVector3 Position;
-    int nTracks, nMatchedTracks, nUnmatchedTracks;
-    std::vector<int> MatchedMuons, MatchedElectrons;
+    typedef std::vector< std::pair<int,reco::TrackRef> > MatchedLeptonsMap;
+
+  public:
+    explicit PrimaryVertexSelector(const std::map<int,TLorentzVector>&, const std::map<int,TLorentzVector>&);
+    inline ~PrimaryVertexSelector() {;}
+
+    void feedTracks(const reco::Vertex::trackRef_iterator&, const reco::Vertex::trackRef_iterator&);
+
+    inline MatchedLeptonsMap matchedElectrons() const { return matchedElectrons_; }
+    int matchedElectron(const reco::TrackRef&) const;
+
+    inline MatchedLeptonsMap matchedMuons() const { return matchedMuons_; }
+    int matchedMuon(const reco::TrackRef&) const;
+
   private:
-    unsigned int i;
-    int nMatchedMuons, nMatchedElectrons;
-    bool FetchMuons, FetchElectrons;
-    std::map<int,TLorentzVector> MuonMomenta;
-    std::map<int,TLorentzVector> ElectronMomenta;
+    typedef std::map<int,TLorentzVector> LeptonsMap;
+
+    LeptonsMap muonMomenta_, electronMomenta_;
+    MatchedLeptonsMap matchedMuons_, matchedElectrons_;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 #endif
