@@ -4,6 +4,7 @@ process = cms.Process("ggll")
 
 runOnMC = False
 useAOD = True # AOD or MiniAOD?
+#useAOD = False
 
 #########################
 #    General options    #
@@ -17,7 +18,7 @@ process.options   = cms.untracked.PSet(
 )
 
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #########################
@@ -27,7 +28,16 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 #'/store/data/Run2016G/DoubleEG/AOD/23Sep2016-v1/100000/0042DBD3-BA8E-E611-919E-002481ACDAA8.root',
-'/store/data/Run2017C/DoubleMuon/AOD/12Sep2017-v1/10000/029F251F-B1A2-E711-AAC3-001E67792890.root',
+#'/store/data/Run2017C/DoubleMuon/AOD/12Sep2017-v1/10000/029F251F-B1A2-E711-AAC3-001E67792890.root',
+#'/store/data/Run2018B/DoubleMuon/MINIAOD/17Sep2018-v1/00000/8E1342C6-AA35-9049-B101-B5B595EAAEE2.root'
+#'/store/data/Run2017C/DoubleMuon/AOD/17Nov2017-v1/30001/30DDB6DA-CBD8-E711-AF2A-A4BF0112BCB4.root'
+#'file:/tmp/jjhollar/8816F63B-C0D5-E711-B32B-002590D9D9F0.root'
+
+#'/store/data/Run2017D/DoubleMuon/AOD/17Nov2017-v1/30000/6482D69E-48D6-E711-9AF7-008CFAF71FB4.root'
+#'file:/tmp/jjhollar/6482D69E-48D6-E711-9AF7-008CFAF71FB4.root'
+#'file:/tmp/jjhollar/F2C53386-ABFA-4A4F-B851-0065858DB53C.root'
+'file:/tmp/jjhollar/14D52021-5DDE-E711-8A48-02163E01453B.root'
+
     ),
     #firstEvent = cms.untracked.uint32(0)
 )
@@ -40,6 +50,8 @@ process.load("DiffractiveForwardAnalysis.GammaGammaLeptonLepton.HLTFilter_cfi")
 process.hltFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 process.hltFilter.HLTPaths = cms.vstring(
     'HLT_DoubleMu43NoFiltersNoVtx_*',
+    'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_*',
+    'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_*'
 #    'HLT_DoubleEle33_CaloIdL_MW_v*',
 #    'HLT_Ele27_HighEta_Ele20_Mass55_v*',
 #    'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v*',
@@ -108,6 +120,27 @@ switchOnVIDPhotonIdProducer(process, DataFormat.AOD)
 setupAllVIDIdsInModule(process, 'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff', setupVIDPhotonSelection)
 
 #########################
+#     Proton RECO       #
+#########################
+process.load("RecoCTPPS.ProtonReconstruction.year_2017_OF.ctppsProtonReconstructionOF_cfi")
+#process.load("RecoCTPPS.ProtonReconstruction.year_2018_OFDB.ctppsProtonReconstructionOFDB_cfi")
+# conditions DB for 2018                                                                                                                    
+                         
+#from CondCore.CondDB.CondDB_cfi import *
+#
+#CondDB.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
+#
+#process.PoolDBESSource2 = cms.ESSource("PoolDBESSource",
+#                                       CondDB,
+#                                       DumpStat = cms.untracked.bool(False),
+#                                       toGet = cms.VPSet(cms.PSet(
+#            record = cms.string('LHCInfoRcd'),
+#            #tag = cms.string("LHCInfoTest_prompt_v3")  
+#            tag = cms.string("LHCInfoEndFill_prompt_v1")
+#            )),
+#                                       )
+
+#########################
 #       Analysis        #
 #########################
 
@@ -119,6 +152,9 @@ process.ggll_aod.leptonsType = cms.string('Muon')
 #process.ggll_aod.leptonsType = cms.string('Electron')
 process.ggll_aod.runOnMC = cms.bool(runOnMC)
 process.ggll_aod.fetchProtons = cms.bool(True)
+process.ggll_aod.saveExtraTracks = cms.bool(False)
+process.ggll_aod.year = cms.string('2017')
+
 
 # E/gamma identification
 process.ggll_aod.eleIdLabels = cms.PSet(
@@ -144,9 +180,11 @@ process.p = cms.Path(
     process.hltFilter*
     process.egmPhotonIDSequence*
     process.egmGsfElectronIDSequence*
+    process.ctppsProtonReconstructionOFDB *                                                                                            
     process.ggll_aod
 )
 
 #process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
 process.outpath = cms.EndPath(patAlgosToolsTask)
 
+#print process.dumpPython()
