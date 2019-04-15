@@ -1,0 +1,573 @@
+void StupidFit(Int_t reco = 1)
+{
+  //  TFile *f1 = TFile::Open("MoreDimuons2017AllWithMultSingleTrack.root");
+  //  TFile *f1 = TFile::Open("MoreDimuons2017AllWithMultTwoTrack.root");
+  //  TFile *f1 = TFile::Open("MoreDimuons2017AllWithMultSingleTrackNewFriciCorr2.root");
+  //  TFile *f1 = TFile::Open("MoreDimuons2017AllWithMultSingleTrackAntiAcopAntiTrackNewFriciCorr3.root");
+  //  TFile *f1 = TFile::Open("/tmp/jjhollar/MoreDimuons2017AllWithMultSingleTrack.root");
+  //  TFile *f1 = TFile::Open("/tmp/jjhollar/MoreDimuons2017AllWithMultSingleTrack_single.root");
+  //  TFile *f1 = TFile::Open("MoreDimuons2017AllWithMultSingleTrackNewFriciCorr3.root");
+  //  TFile *f1 = TFile::Open("/tmp/jjhollar/MoreDimuons2017AllWithMultSingleTrack_BCDEF_single_RC.root");
+  TFile *f1 = TFile::Open("/tmp/jjhollar/MoreDimuons2017AllWithMultSingleTrack_BCDEF_strips.root");
+  TFile *f2 = TFile::Open("MoreDimuons2017AllWithMultMC.root");
+
+  TH1F *h1; 
+  if(reco == 1)
+    h1 = (TH1F *)f1->Get("hres45");
+  if(reco == 2)
+    h1 = (TH1F *)f1->Get("hres45mult");
+
+  TH1F *h2; 
+  if(reco == 1)
+    h2 = (TH1F *)f1->Get("hres56");
+  if(reco == 2)
+    h2 = (TH1F *)f1->Get("hres56mult");
+
+  TH1F *h3;
+  if(reco == 1)
+    h3 = (TH1F *)f2->Get("hres45");
+  if(reco == 2)
+    h3 = (TH1F *)f2->Get("hres45mult");
+
+  TH1F *h4;
+  if(reco == 1)
+    h4 = (TH1F *)f2->Get("hres56");
+  if(reco == 2)
+    h4 = (TH1F *)f2->Get("hres56mult");
+
+
+  h1->Sumw2();
+  h2->Sumw2();
+  TH1F *hsum = (TH1F *)h1->Clone("hsum");
+  hsum->Sumw2();
+  hsum->Add(h2);
+
+  h3->Sumw2();
+  h4->Sumw2();
+  TH1F *hsummc = (TH1F *)h3->Clone("hsum");
+  hsummc->Add(h4);
+
+  TCanvas *c1 = new TCanvas("c1","c1");
+  //  c1->Divide(1,2);
+
+  Int_t rebinfact = 5;
+  //  rebinfact = 6;
+  //  rebinfact = 4;
+
+  //  rebinfact = 1;
+  // For multi-RP
+  //  rebinfact = 3;
+
+  c1->Divide(3,1);
+  c1->cd(1);
+  h3->Rebin(rebinfact);
+  h1->Rebin(rebinfact);
+  h3->Scale(1.0/20.0);
+  h3->SetLineColor(4); h3->SetLineWidth(3);
+  h1->SetMaximum(100);
+  h1->Draw("e");
+  h3->Draw("histsame");
+  TF1 *fitmc1 = new TF1("fitmc1","gaus(0)",-1,1);
+  TFitResultPtr fitrmc3 = h3->Fit("fitmc1","LEMVS","",-1,1);
+
+  //  h1->Rebin(2);
+  h1->SetStats(1);
+  h1->SetMarkerStyle(20); h1->SetLineWidth(3); h1->SetLineColor(1);
+  h1->SetMaximum(100);
+  h1->SetTitle("2017BCDEF, 45");
+  h1->SetXTitle("1 - #xi(p)/#xi(#mu#mu)");
+  h1->Draw("esame");
+  TF1 *fit1 = new TF1("fit1", "gaus(0)+pol2(3)",-5,1);
+  fit1->SetParName(0,"Norm.");
+  fit1->SetParName(1,"Mean");
+  fit1->SetParName(2,"Sigma");
+  fit1->SetParName(3,"background p0");
+  fit1->SetParName(4,"background p1");
+  fit1->SetParName(5,"background p2");
+  fit1->SetParameter(0,50);
+  fit1->SetParameter(1,0);
+  fit1->SetParameter(2,0.1);
+
+  fit1->SetParLimits(0,0.1,1000);
+  fit1->SetParLimits(1,-0.5,0.5);
+  fit1->SetParLimits(2,0.03,0.2);
+  fit1->SetLineColor(2);
+  TFitResultPtr fitr = h1->Fit("fit1","LEMVS","",-5,1);
+  std::cout << fitr->MinFcnValue() << std::endl;
+
+  c1->cd(2);
+  h2->Rebin(rebinfact);
+  h4->Rebin(rebinfact);
+  h4->Scale(1.0/20.0);
+  h4->SetLineColor(4); h4->SetLineWidth(3);
+  h4->SetMaximum(100);
+  h2->Draw("e");
+  h4->Draw("histsame");
+  TF1 *fitmc2 = new TF1("fitmc2","gaus(0)",-1,1);
+  TFitResultPtr fitrmc4 = h4->Fit("fitmc2","LEMVS","",-1,1);
+
+  //  h2->Rebin(2);
+  h2->SetStats(1);
+  h2->SetMarkerStyle(20); h2->SetLineWidth(3); h2->SetLineColor(1);
+  h2->SetMaximum(100);
+  h2->SetTitle("2017BCDEF, 56");
+  h2->SetXTitle("1 - #xi(p)/#xi(#mu#mu)");
+  h2->Draw("esame");
+  TF1 *fit2 = new TF1("fit2", "gaus(0)+pol2(3)",-5,1);
+  fit2->SetParName(0,"Norm.");
+  fit2->SetParName(1,"Mean");
+  fit2->SetParName(2,"Sigma");
+  fit2->SetParName(3,"background p0");
+  fit2->SetParName(4,"background p1");
+  fit2->SetParName(5,"background p2");
+  // JH - for multi-RP
+  fit2->SetParameter(0,10);
+  //  fit2->SetParameter(0,50);
+  fit2->SetParameter(1,0);
+  fit2->SetParameter(2,0.1);
+
+  fit2->SetParLimits(0,0.1,1000);
+  fit2->SetParLimits(1,-0.5,0.5);
+  fit2->SetParLimits(2,0.03,0.2);
+  fit2->SetLineColor(2);
+  TFitResultPtr fitr2 = h2->Fit("fit2","LEMVS","",-5,1);
+  std::cout << fitr2->MinFcnValue() << std::endl;
+						   
+  c1->cd(3);
+  hsum->Rebin(rebinfact);
+  hsummc->Rebin(rebinfact);
+  hsummc->Scale(1.0/20.0);
+  hsummc->SetLineColor(4); hsummc->SetLineWidth(3);
+  hsummc->SetMaximum(100);
+  hsum->Draw("e");
+  hsummc->Draw("histsame");
+  TF1 *fitmcsum = new TF1("fitmcsum","gaus(0)",-1,1);
+  TFitResultPtr fitrmcsum = hsummc->Fit("fitmcsum","LEMVS","",-1,1);
+
+  hsum->SetStats(1);
+  hsum->SetMarkerStyle(20); hsum->SetLineWidth(3); hsum->SetLineColor(1);
+  hsum->SetMaximum(100);
+  hsum->SetTitle("2017BCDEF, 45+56");
+  hsum->SetXTitle("1 - #xi(p)/#xi(#mu#mu)");
+  hsum->Draw("esame");
+  TF1 *fitsum = new TF1("fitsum", "gaus(0)+pol2(3)",-5,1);
+  fitsum->SetParName(0,"Norm.");
+  fitsum->SetParName(1,"Mean");
+  fitsum->SetParName(2,"Sigma");
+  fitsum->SetParName(3,"background p0");
+  fitsum->SetParName(4,"background p1");
+  fitsum->SetParName(5,"background p2");
+  fitsum->SetParameter(0,50);
+  fitsum->SetParameter(1,0);
+  fitsum->SetParameter(2,0.10);
+
+  fitsum->SetParLimits(0,0.000001,1000);
+  fitsum->SetParLimits(1,-0.9,0.9);
+  fitsum->SetParLimits(2,0.03,0.2);
+  fitsum->SetLineColor(2);
+  TFitResultPtr fitrs = hsum->Fit("fitsum","LEMVS","",-5,1);
+  std::cout << fitrs->MinFcnValue() << std::endl;
+
+  std::cout << "Data:" << std::endl;
+  std::cout << "\t45 mean = " << fit1->GetParameter(1) << " +- " << fit1->GetParError(1) 
+  	    << ", sigma = " << fit1->GetParameter(2) << " +- " << fit1->GetParError(2) << std::endl;
+  std::cout << "\t56 mean = " << fit2->GetParameter(1) << " +- " << fit2->GetParError(1)
+	    << ", sigma = " << fit2->GetParameter(2) << " +- " << fit2->GetParError(2) << std::endl;
+  std::cout << "\tsum mean = " << fitsum->GetParameter(1) << " +- " << fitsum->GetParError(1)
+            << ", sigma = " << fitsum->GetParameter(2) << " +- " << fitsum->GetParError(2) << std::endl;
+
+  std::cout << "MC:" << std::endl;
+  std::cout << "\t45 mean = " << fitmc1->GetParameter(1) << " +- " << fitmc1->GetParError(1)
+	    << ", sigma = " << fitmc1->GetParameter(2) << " +- " << fitmc1->GetParError(2) << std::endl;
+  std::cout << "\t56 mean = " << fitmc2->GetParameter(1) << " +- " << fitmc2->GetParError(1)
+  	    << ", sigma = " << fitmc2->GetParameter(2) << " +- " << fitmc2->GetParError(2) << std::endl;
+  std::cout << "\tsum mean = " << fitmcsum->GetParameter(1) << " +- " << fitmcsum->GetParError(1)
+  	    << ", sigma = " << fitmcsum->GetParameter(2) << " +- " << fitmcsum->GetParError(2) << std::endl;
+
+  std::cout << "\tsum RMS = " << hsummc->GetRMS() << std::endl;
+  /*
+  c1->cd(4);
+  //  h3->Rebin(rebinfact);
+  h3->Fit("gaus");
+  h3->SetMaximum(100);
+  h3->Draw("hist");
+
+  c1->cd(5);
+  //  h4->Rebin(rebinfact);
+  h4->Fit("gaus");
+  h4->SetMaximum(100);
+  h4->Draw("hist");
+
+  //  c1->cd(2);
+  c1->cd(6);
+  //  hsummc->Rebin(rebinfact);
+  hsummc->Fit("gaus");
+  hsummc->SetMaximum(100);
+  hsummc->Draw("hist");
+  */
+}
+
+void StupidFitBins()
+{
+  TFile *f1 = TFile::Open("MoreDimuons2017AllWithMultSingleTrack.root");
+  TH1F *h145= (TH1F *)f1->Get("hbin145");
+  TH1F *h245= (TH1F *)f1->Get("hbin245");
+  TH1F *h345= (TH1F *)f1->Get("hbin345");
+  TH1F *h156= (TH1F *)f1->Get("hbin156");
+  TH1F *h256= (TH1F *)f1->Get("hbin256");
+  TH1F *h356= (TH1F *)f1->Get("hbin356");
+
+  Float_t thebins[4] = {0.02,0.03,0.04,0.15};
+
+  TH1F *hscale45 = new TH1F("hscale45","hscale45",3,thebins);
+  TH1F *hres45 = new TH1F("hres45","hres45",3,thebins);
+  TH1F *hscale56 = new TH1F("hscale56","hscale56",3,thebins);
+  TH1F *hres56 = new TH1F("hres56","hres56",3,thebins);
+
+  // From single-gaussian fit to LPAIR elastics
+  TH1F *hmcscale45 = new TH1F("hmcscale45","hmcscale45",3,thebins);
+  TH1F *hmcres45 = new TH1F("hmcres45","hmcres45",3,thebins);
+  TH1F *hmcscale56 = new TH1F("hmcscale56","hmcscale56",3,thebins);
+  TH1F *hmcres56 = new TH1F("hmcres56","hmcres56",3,thebins);
+  hmcscale45->SetBinContent(1,-0.026); hmcscale45->SetBinError(1,0.0081);
+  hmcscale45->SetBinContent(2,-0.019); hmcscale45->SetBinError(2,0.001);
+  hmcscale45->SetBinContent(3,-0.004); hmcscale45->SetBinError(3,0.0076);
+
+  //  hmcscale56->SetBinContent(1,-0.0196); hmcscale56->SetBinError(1,0.011);
+  hmcscale56->SetBinContent(2,-0.014); hmcscale56->SetBinError(2,0.0063);
+  hmcscale56->SetBinContent(3,-0.012); hmcscale56->SetBinError(3,0.013);
+
+  hmcres45->SetBinContent(1,0.081); hmcres45->SetBinError(1,0.009);  
+  hmcres45->SetBinContent(2,0.111); hmcres45->SetBinError(2,0.0099);
+  hmcres45->SetBinContent(3,0.130); hmcres45->SetBinError(3,0.0064);
+
+  //  hmcres56->SetBinContent(1,0.191); hmcres56->SetBinError(1,0.249);
+  hmcres56->SetBinContent(2,0.1594); hmcres56->SetBinError(2,0.00794);
+  hmcres56->SetBinContent(3,0.213); hmcres56->SetBinError(3,0.012);
+
+
+  hscale45->GetYaxis()->SetRangeUser(-1.0,1.0); hscale45->SetMarkerStyle(20); hscale45->SetLineColor(1); hscale45->SetLineWidth(3);
+  hscale56->GetYaxis()->SetRangeUser(-1.0,1.0); hscale56->SetMarkerStyle(20); hscale56->SetLineColor(1); hscale56->SetLineWidth(3);
+  hres45->GetYaxis()->SetRangeUser(0.0,0.5); hres45->SetMarkerStyle(20); hres45->SetLineColor(1); hres45->SetLineWidth(3);
+  hres56->GetYaxis()->SetRangeUser(0.0,0.5); hres56->SetMarkerStyle(20); hres56->SetLineColor(1); hres56->SetLineWidth(3);
+
+  hmcscale45->SetMarkerStyle(21); hmcscale45->SetMarkerColor(2); hmcscale45->SetLineWidth(3); hmcscale45->SetLineColor(2);
+  hmcscale56->SetMarkerStyle(21); hmcscale56->SetMarkerColor(2); hmcscale56->SetLineWidth(3); hmcscale56->SetLineColor(2);
+  hmcres45->SetMarkerStyle(21); hmcres45->SetMarkerColor(2); hmcres45->SetLineWidth(3); hmcres45->SetLineColor(2);
+  hmcres56->SetMarkerStyle(21); hmcres56->SetMarkerColor(2); hmcres56->SetLineWidth(3); hmcres56->SetLineColor(2);
+
+
+  TF1 *fit2 = new TF1("fit2", "gaus(0)+pol2(3)",-2,1);
+  fit2->SetParName(0,"Norm.");
+  fit2->SetParName(1,"Mean");
+  fit2->SetParName(2,"Sigma");
+  fit2->SetParName(3,"background p0");
+  fit2->SetParName(4,"background p1");
+  fit2->SetParName(5,"background p2");
+  fit2->SetParameter(0,20);
+  fit2->SetParameter(1,0.0);
+  fit2->SetParameter(2,0.1);
+
+  fit2->SetParLimits(0,0.000001,1000);
+  fit2->SetParLimits(1,-1,1);
+  fit2->SetParLimits(2,0.05,0.3);
+  fit2->SetLineColor(2);
+
+  //  h245->Sumw2(); h345->Sumw2(); h245->Add(h345);
+  //  h256->Sumw2(); h356->Sumw2(); h345->Add(h356);
+
+  TCanvas *c1 = new TCanvas("c1","c1");
+  //  c1->Divide(2,2);
+  c1->Divide(2,3);
+  c1->cd(1);
+  h145->Rebin(12);                                                                                                                                                                         
+  TFitResultPtr fitrs145 = h145->Fit("fit2","LEMVS","",-2,1);
+  h145->Draw("e");
+  hscale45->SetBinContent(1,fit2->GetParameter(1)); hscale45->SetBinError(1,fit2->GetParError(1));
+  hres45->SetBinContent(1,fit2->GetParameter(2)); hres45->SetBinError(1,fit2->GetParError(2));
+
+  c1->cd(2);
+  h156->Rebin(12);
+  TFitResultPtr fitrs156 = h156->Fit("fit2","LEMVS","",-2,1);
+  h156->Draw("e");
+  //  hscale56->SetBinContent(1,fit2->GetParameter(1)); hscale56->SetBinError(1,fit2->GetParError(1));
+  //  hres56->SetBinContent(1,fit2->GetParameter(2)); hres56->SetBinError(1,fit2->GetParError(2));
+
+  c1->cd(3);
+  h245->Rebin(12);
+  TFitResultPtr fitrs245 = h245->Fit("fit2","LEMVS","",-2,1);
+  h245->Draw("e");
+  hscale45->SetBinContent(2,fit2->GetParameter(1)); hscale45->SetBinError(2,fit2->GetParError(1));
+  hres45->SetBinContent(2,fit2->GetParameter(2)); hres45->SetBinError(2,fit2->GetParError(2));
+
+  c1->cd(4);
+  h256->Rebin(12);
+  TFitResultPtr fitrs256 = h256->Fit("fit2","LEMVS","",-2,1);
+  h256->Draw("e");
+  hscale56->SetBinContent(2,fit2->GetParameter(1)); hscale56->SetBinError(2,fit2->GetParError(1));
+  hres56->SetBinContent(2,fit2->GetParameter(2)); hres56->SetBinError(2,fit2->GetParError(2));
+
+  c1->cd(5);                                                                                                                                                
+  h345->Rebin(12);                                                                                                                                          
+  TFitResultPtr fitrs345 = h345->Fit("fit2","LEMVS","",-2,1);                                                                                               
+  h345->Draw("e");                                                                                                                                          
+  hscale45->SetBinContent(3,fit2->GetParameter(1)); hscale45->SetBinError(3,fit2->GetParError(1));
+  hres45->SetBinContent(3,fit2->GetParameter(2)); hres45->SetBinError(3,fit2->GetParError(2));
+
+  c1->cd(6);                                                                                                                                                
+  h356->Rebin(12);                                                                                                                                          
+  TFitResultPtr fitrs356 = h356->Fit("fit2","LEMVS","",-2,1);                                                                                               
+  h356->Draw("e");                                                                                                                                          
+  hscale56->SetBinContent(3,fit2->GetParameter(1)); hscale56->SetBinError(3,fit2->GetParError(1));
+  hres56->SetBinContent(3,fit2->GetParameter(2)); hres56->SetBinError(3,fit2->GetParError(2));
+
+
+  TCanvas *c2 = new TCanvas("c2","c2");
+  c2->Divide(2,2);
+  c2->cd(1);
+  hscale45->Draw("e");
+  hmcscale45->Draw("esame");
+  c2->cd(2);
+  hscale56->Draw("e");
+  hmcscale56->Draw("esame");
+  c2->cd(3);
+  hres45->Draw("e");
+  hmcres45->Draw("esame");
+  c2->cd(4);
+  hres56->Draw("e");
+  hmcres56->Draw("esame");
+
+
+  /*
+  c1->cd(5);
+  h345->Rebin(10);
+  TFitResultPtr fitrs345 = h345->Fit("fit2","LEMVS","",-5,1);
+  h345->Draw("e");
+  c1->cd(6);
+  h356->Rebin(10);
+  TFitResultPtr fitrs356 = h356->Fit("fit2","LEMVS","",-5,1);
+  h356->Draw("e");
+  */
+
+}
+
+
+void StupidFitBinsComb()
+{
+  //  TFile *f1 = TFile::Open("MoreDimuons2017AllWithMultSingleTrack.root");
+  TFile *f1 = TFile::Open("MoreDimuons2017AllWithMultSingleTrackNewFriciCorr3.root");
+  TH1F *h145= (TH1F *)f1->Get("hbin145");
+  TH1F *h245= (TH1F *)f1->Get("hbin245");
+  TH1F *h345= (TH1F *)f1->Get("hbin345");
+  TH1F *h156= (TH1F *)f1->Get("hbin156");
+  TH1F *h256= (TH1F *)f1->Get("hbin256");
+  TH1F *h356= (TH1F *)f1->Get("hbin356");
+
+  //  TFile *f1b = TFile::Open("MoreDimuons2017AllWithMultSingleTrackAntiAcopAntiTrack.root");
+  TFile *f1b = TFile::Open("MoreDimuons2017AllWithMultSingleTrackAntiAcopAntiTrackNewFriciCorr3.root");
+  TH1F *hb145= (TH1F *)f1b->Get("hbin145");
+  TH1F *hb245= (TH1F *)f1b->Get("hbin245");
+  TH1F *hb345= (TH1F *)f1b->Get("hbin345");
+  TH1F *hb156= (TH1F *)f1b->Get("hbin156");
+  TH1F *hb256= (TH1F *)f1b->Get("hbin256");
+  TH1F *hb356= (TH1F *)f1b->Get("hbin356");
+
+  Float_t thebins[4] = {0.02,0.03,0.04,0.15};
+  TH1F *hscale45 = new TH1F("hscale45","hscale45",3,thebins);
+  TH1F *hres45 = new TH1F("hres45","hres45",3,thebins);
+  TH1F *hscale56 = new TH1F("hscale56","hscale56",3,thebins);
+  TH1F *hres56 = new TH1F("hres56","hres56",3,thebins);
+
+  // From single-gaussian fit to LPAIR elastics                                                                                                                                                        
+  TH1F *hmcscale45 = new TH1F("hmcscale45","hmcscale45",3,thebins);
+  TH1F *hmcres45 = new TH1F("hmcres45","hmcres45",3,thebins);
+  TH1F *hmcscale56 = new TH1F("hmcscale56","hmcscale56",3,thebins);
+  TH1F *hmcres56 = new TH1F("hmcres56","hmcres56",3,thebins);
+  hmcscale45->SetBinContent(1,-0.026); hmcscale45->SetBinError(1,0.0081);
+  hmcscale45->SetBinContent(2,-0.019); hmcscale45->SetBinError(2,0.001);
+  hmcscale45->SetBinContent(3,-0.004); hmcscale45->SetBinError(3,0.0076);
+  hmcscale56->SetBinContent(2,-0.014); hmcscale56->SetBinError(2,0.0063);
+  hmcscale56->SetBinContent(3,-0.012); hmcscale56->SetBinError(3,0.013);
+  hmcres45->SetBinContent(1,0.081); hmcres45->SetBinError(1,0.009);
+  hmcres45->SetBinContent(2,0.111); hmcres45->SetBinError(2,0.0099);
+  hmcres45->SetBinContent(3,0.130); hmcres45->SetBinError(3,0.0064);
+  hmcres56->SetBinContent(2,0.1594); hmcres56->SetBinError(2,0.00794);
+  hmcres56->SetBinContent(3,0.213); hmcres56->SetBinError(3,0.012);
+
+  hscale45->GetYaxis()->SetRangeUser(-1.0,1.0); hscale45->SetMarkerStyle(20); hscale45->SetLineColor(1); hscale45->SetLineWidth(3);
+  hscale56->GetYaxis()->SetRangeUser(-1.0,1.0); hscale56->SetMarkerStyle(20); hscale56->SetLineColor(1); hscale56->SetLineWidth(3);
+  hres45->GetYaxis()->SetRangeUser(0.0,0.5); hres45->SetMarkerStyle(20); hres45->SetLineColor(1); hres45->SetLineWidth(3);
+  hres56->GetYaxis()->SetRangeUser(0.0,0.5); hres56->SetMarkerStyle(20); hres56->SetLineColor(1); hres56->SetLineWidth(3);
+
+  hmcscale45->SetMarkerStyle(21); hmcscale45->SetMarkerColor(2); hmcscale45->SetLineWidth(3); hmcscale45->SetLineColor(2);
+  hmcscale56->SetMarkerStyle(21); hmcscale56->SetMarkerColor(2); hmcscale56->SetLineWidth(3); hmcscale56->SetLineColor(2);
+  hmcres45->SetMarkerStyle(21); hmcres45->SetMarkerColor(2); hmcres45->SetLineWidth(3); hmcres45->SetLineColor(2);
+  hmcres56->SetMarkerStyle(21); hmcres56->SetMarkerColor(2); hmcres56->SetLineWidth(3); hmcres56->SetLineColor(2);
+
+
+  hb145->SetLineColor(6); hb245->SetLineColor(6); hb345->SetLineColor(6);
+  hb156->SetLineColor(6); hb256->SetLineColor(6); hb356->SetLineColor(6);
+  h145->Sumw2(); h245->Sumw2(); h345->Sumw2();
+  h156->Sumw2(); h256->Sumw2(); h356->Sumw2();
+  hb145->Sumw2(); hb245->Sumw2(); hb345->Sumw2();
+  hb156->Sumw2(); hb256->Sumw2(); hb356->Sumw2();
+
+
+  TF1 *fit3 = new TF1("fit3", "gaus(0) + pol0(3)",-5,1);
+  fit3->SetParName(0,"Norm.");
+  fit3->SetParName(1,"Mean");
+  fit3->SetParName(2,"Sigma");
+  fit3->SetParameter(0,20);
+  fit3->SetParameter(1,0.0);
+  fit3->SetParameter(2,0.3);
+  fit3->SetParameter(3,0);
+
+  fit3->SetParLimits(0,0.000001,1000);
+  fit3->SetParLimits(1,-0.5,0.5);
+  //  fit3->SetParLimits(2,0.05,0.5);
+  fit3->SetParLimits(2,0.05,0.9);
+  fit3->SetLineColor(2);
+
+  Float_t norms = 0.0;
+  Float_t normb = 0.0;
+
+  TCanvas *c1 = new TCanvas("c1","c1");                                                                                                              
+  c1->Divide(2,3);                                                                                                                                   
+  c1->cd(1);                                                                                                                                         
+  h145->Rebin(6); hb145->Rebin(6);
+  norms = h145->Integral(31,38);                                                                                                                     
+  normb = hb145->Integral(31,38);                                                                                                                    
+  hb145->Scale(norms/normb);                                                                                                                         
+  h145->Draw("e");                                                                                                                                   
+  hb145->Draw("histsame");                                                                                                                           
+  h145->Add(hb145,-1);
+  h145->Draw("e");
+  TFitResultPtr fitrsc145 = h145->Fit("fit3","LEMVS","",-5,1);
+  hscale45->SetBinContent(1,fit3->GetParameter(1)); hscale45->SetBinError(1,fit3->GetParError(1));
+  hres45->SetBinContent(1,fit3->GetParameter(2)); hres45->SetBinError(1,fit3->GetParError(2));
+
+  c1->cd(2);
+  h156->Rebin(6); hb156->Rebin(6);
+  norms = h156->Integral(31,38);
+  normb = hb156->Integral(31,38);
+  hb156->Scale(norms/normb);
+  h156->Draw("e");
+  hb156->Draw("histsame");
+  h156->Add(hb156,-1);
+  h156->Draw("e");
+
+
+  c1->cd(3);
+  h245->Rebin(6); hb245->Rebin(6);
+  norms = h245->Integral(31,38);
+  normb = hb245->Integral(31,38);
+  hb245->Scale(norms/normb);
+  h245->Draw("e");
+  hb245->Draw("histsame");
+  h245->Add(hb245,-1);
+  h245->Draw("e");
+  TFitResultPtr fitrsc245 = h245->Fit("fit3","LEMVS","",-5,1);
+  hscale45->SetBinContent(2,fit3->GetParameter(1)); hscale45->SetBinError(2,fit3->GetParError(1));
+  hres45->SetBinContent(2,fit3->GetParameter(2)); hres45->SetBinError(2,fit3->GetParError(2));
+
+  c1->cd(4);
+  h256->Rebin(6); hb256->Rebin(6);
+  norms = h256->Integral(31,38);
+  normb = hb256->Integral(31,38);
+  hb256->Scale(norms/normb);
+  h256->Draw("e");
+  hb256->Draw("histsame");
+  h256->Add(hb256,-1);
+  h256->Draw("e");
+  TFitResultPtr fitrsc256 = h256->Fit("fit3","LEMVS","",-5,1);
+  hscale56->SetBinContent(2,fit3->GetParameter(1)); hscale56->SetBinError(2,fit3->GetParError(1));
+  hres56->SetBinContent(2,fit3->GetParameter(2)); hres56->SetBinError(2,fit3->GetParError(2));
+
+  c1->cd(5);
+  h345->Rebin(10); hb345->Rebin(10);
+  //  norms = h345->Integral(16,21);
+  //  normb = hb345->Integral(16,21);
+  norms = h345->Integral(18,23);
+  normb = hb345->Integral(18,23);
+  hb345->Scale(norms/normb);
+  h345->Draw("e");
+  hb345->Draw("histsame");
+  h345->Add(hb345,-1);
+  h345->Draw("e");
+  TFitResultPtr fitrsc345 = h345->Fit("fit3","","",-5,1);
+  hscale45->SetBinContent(3,fit3->GetParameter(1)); hscale45->SetBinError(3,fit3->GetParError(1));
+  hres45->SetBinContent(3,fit3->GetParameter(2)); hres45->SetBinError(3,fit3->GetParError(2));
+
+  c1->cd(6);
+  h356->Rebin(10); hb356->Rebin(10);
+  norms = h356->Integral(16,21);
+  normb = hb356->Integral(16,21);
+  hb356->Scale(norms/normb);
+  h356->Draw("e");
+  hb356->Draw("histsame");
+  h356->Add(hb356,-1);
+  h356->Draw("e");
+  TFitResultPtr fitrsc356 = h356->Fit("fit3","","",-5,1);
+  hscale56->SetBinContent(3,fit3->GetParameter(1)); hscale56->SetBinError(3,fit3->GetParError(1));
+  hres56->SetBinContent(3,fit3->GetParameter(2)); hres56->SetBinError(3,fit3->GetParError(2));
+
+  TCanvas *c2 = new TCanvas("c2","c2");
+  c2->Divide(2,2);
+  c2->cd(1);
+  hscale45->Draw("e");
+  hmcscale45->Draw("esame");
+  c2->cd(2);
+  hscale56->Draw("e");
+  hmcscale56->Draw("esame");
+  c2->cd(3);
+  hres45->Draw("e");
+  hmcres45->Draw("esame");
+  c2->cd(4);
+  hres56->Draw("e");
+  hmcres56->Draw("esame");
+
+
+  /*
+  TCanvas *c1 = new TCanvas("c1","c1");
+  c1->Divide(1,3);
+  c1->cd(1);
+  h145->Rebin(6); h156->Rebin(6);
+  h145->Sumw2(); h156->Sumw2(); h145->Add(h156);
+  hb145->Rebin(6); hb156->Rebin(6);
+  hb145->Sumw2(); hb156->Sumw2(); hb145->Add(hb156);
+  norms = h145->Integral(31,38);
+  normb = hb145->Integral(31,38);
+  hb145->Scale(norms/normb);
+  //  h145->Add(hb145,-1);
+  hb145->Draw("hist");
+  //  TFitResultPtr fitcrs145 = hb145->Fit("pol2","LEMVS","",-1.5,0.5);
+  h145->Draw("e");
+  hb145->Draw("histsame");
+
+  c1->cd(2);
+  h245->Rebin(10); h256->Rebin(10);
+  h245->Sumw2(); h256->Sumw2(); h245->Add(h256);
+  hb245->Rebin(10); hb256->Rebin(10);
+  hb245->Sumw2(); hb256->Sumw2(); hb245->Add(hb256);
+  norms = h245->Integral(19,23);
+  normb = hb245->Integral(19,23);
+  hb245->Scale(norms/normb);
+  //  h245->Add(hb245,-1);
+  //  TFitResultPtr fitcrs245 = hb245->Fit("pol2","LEMVS","",-1.5,0.5);
+  h245->Draw("e");
+  hb245->Draw("histsame");
+
+  c1->cd(3);
+  h345->Rebin(12); h356->Rebin(12);
+  h345->Sumw2(); h356->Sumw2(); h345->Add(h356);
+  hb345->Rebin(12); hb356->Rebin(12);
+  hb345->Sumw2(); hb356->Sumw2(); hb345->Add(hb356);
+  norms = h345->Integral(16,19);
+  normb = hb345->Integral(16,19);
+  hb345->Scale(norms/normb);
+  //  h345->Add(hb345,-1);
+  //  TFitResultPtr fitcrs345 = hb345->Fit("pol2","LEMVS","",-1.5,0.5);
+  h345->Draw("e");
+  hb345->Draw("histsame");
+  */
+}
