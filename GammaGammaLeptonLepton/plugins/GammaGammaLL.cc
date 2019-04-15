@@ -77,9 +77,6 @@
 //// tweaked electron ID
 //#include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/ElectronID.h"
 
-// Photons collection
-#include "DataFormats/PatCandidates/interface/Photon.h"
-
 // Particle flow collection
 //#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 //#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -91,15 +88,12 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
-// Jets/MET collection
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 // PPS objects
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/HLTMatcher.h"
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/AnalysisEvent.h"
@@ -114,6 +108,8 @@
 //#include "DataFormats/Common/interface/ConditionsInEdm.h" // L1 method
 //#include "CondFormats/RunInfo/interface/FillInfo.h"
 //#include "CondFormats/DataRecord/interface/FillInfoRcd.h" // db method
+#include "CondFormats/RunInfo/interface/LHCInfo.h"
+#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -149,9 +145,7 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::S
 
     void fetchElectrons( const edm::Event& );
     void fetchMuons( const edm::Event& );
-    void fetchPhotons( const edm::Event& );
     void fetchProtons( const edm::Event& );
-    void fetchJets( const edm::Event& );
     void fetchVertices( const edm::Event& );
 
     void newVertexInfoRetrieval( const edm::Event& );
@@ -180,15 +174,15 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::S
     edm::EDGetTokenT<edm::View<pat::Electron> > eleToken_;
     /*edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_, eleTightIdMapToken_;
     edm::EDGetTokenT<edm::ValueMap<bool> > phoMediumIdMapToken_, phoTightIdMapToken_;*/
-    edm::EDGetTokenT<edm::View<pat::Jet> > jetToken_;
     edm::EDGetTokenT<double> fixedGridRhoFastjetAllToken_;
-    edm::EDGetTokenT<edm::View<pat::MET> > metToken_;
     edm::EDGetTokenT<edm::View<CTPPSLocalTrackLite> > ppsLocalTrackToken_;
-    edm::EDGetTokenT<edm::View<pat::Photon> > photonToken_;
+    edm::EDGetTokenT<std::vector<reco::ProtonTrack> > recoProtonsToken_;
 
     bool runOnMC_, printCandidates_;
     double minPtMC_, minEtaMC_;
     double sqrts_;
+    bool saveExtraTracks_;
+    std::string year_; 
 
     // Trigger information
     ggll::HLTMatcher hlts_;
@@ -235,14 +229,14 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   eleTightIdMapToken_ ( consumes<edm::ValueMap<bool> >                 ( iConfig.getParameter<edm::InputTag>( "eleTightIdMap" ) ) ),
   phoMediumIdMapToken_( consumes<edm::ValueMap<bool> >                 ( iConfig.getParameter<edm::InputTag>( "phoMediumIdMap" ) ) ),
   phoTightIdMapToken_ ( consumes<edm::ValueMap<bool> >                 ( iConfig.getParameter<edm::InputTag>( "phoTightIdMap" ) ) ),*/
-  jetToken_           ( consumes<edm::View<pat::Jet> >                 ( iConfig.getParameter<edm::InputTag>( "jetTag" ) ) ),
   fixedGridRhoFastjetAllToken_( consumes<double>                       ( iConfig.getParameter<edm::InputTag>( "fixedGridRhoFastjetAllLabel" ) ) ),
-  metToken_           ( consumes<edm::View<pat::MET> >                 ( iConfig.getParameter<edm::InputTag>( "metTag" ) ) ),
   ppsLocalTrackToken_ ( consumes<edm::View<CTPPSLocalTrackLite> >      ( iConfig.getParameter<edm::InputTag>( "ppsLocalTrackTag" ) ) ),
-  photonToken_        ( consumes<edm::View<pat::Photon> >              ( iConfig.getParameter<edm::InputTag>( "photonTag" ) ) ),
+  recoProtonsToken_   ( consumes<std::vector<reco::ProtonTrack> >      ( iConfig.getParameter<edm::InputTag>( "ppsRecoProtonTag" ) ) ),
   runOnMC_            ( iConfig.getParameter<bool>( "runOnMC" ) ),
   printCandidates_    ( iConfig.getParameter<bool>( "printCandidates" ) ),
   sqrts_              ( iConfig.getParameter<double>( "sqrtS" ) ),
+  saveExtraTracks_    ( iConfig.getParameter<bool>( "saveExtraTracks" ) ),
+  year_               ( iConfig.getParameter<std::string>( "year" ) ),
   hlts_               ( triggersList_ ),
   hltPrescale_        ( iConfig, consumesCollector(), *this ),
   // Central selection
@@ -288,10 +282,6 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
     eleMediumIdLabel_ = eleIdLabelSet.getParameter<edm::InputTag>( "mediumLabel" ).encode();
     eleTightIdLabel_ = eleIdLabelSet.getParameter<edm::InputTag>( "tightLabel" ).encode();
   }
-  // photon identification variables
-  const edm::ParameterSet phoIdLabelSet = iConfig.getParameter<edm::ParameterSet>( "phoIdLabels" );
-  phoMediumIdLabel_ = phoIdLabelSet.getParameter<edm::InputTag>( "mediumLabel" ).encode();
-  phoTightIdLabel_ = phoIdLabelSet.getParameter<edm::InputTag>( "tightLabel" ).encode();
 
   // Pileup reweighting utilities
   if ( runOnMC_ )
@@ -364,9 +354,26 @@ GammaGammaLL::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   evt_.EventNum = iEvent.id().event();
 
   // High level trigger information retrieval
-  lookAtTriggers( iEvent, iSetup);
+  // JH - for Summer17 MC this crashes...
+  if ( !runOnMC_ ) {
+    lookAtTriggers( iEvent, iSetup);
+  }
 
   LogDebug( "GammaGammaLL" ) << "Passed trigger filtering stage";
+
+  // Crossing angle information from DB for 2018
+  if(year_ == "2018")
+    {
+      edm::ESHandle<LHCInfo> pSetup;
+      const string label = "";
+      iSetup.get<LHCInfoRcd>().get(label, pSetup);
+      
+      // re-initialise algorithm upon crossing-angle change                                                                                            
+      const LHCInfo* pInfo = pSetup.product();
+      evt_.CrossingAngle = pInfo->crossingAngle();
+    }
+  else
+    evt_.CrossingAngle = -999;
 
   // Generator level information
   if ( runOnMC_ ) {
@@ -398,8 +405,6 @@ GammaGammaLL::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   if ( fetchMuons_ ) fetchMuons( iEvent );
   if ( fetchElectrons_ ) fetchElectrons( iEvent );
 
-  fetchPhotons( iEvent );
-
   newVertexInfoRetrieval( iEvent );
 
   if ( !foundPairInEvent_ ) {
@@ -412,20 +417,6 @@ GammaGammaLL::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     if ( evt_.nLocalProtCand < 1 )
       return;
   }
-
-  fetchJets( iEvent );
-
-  // Missing ET
-  edm::Handle<edm::View<pat::MET> > MET;
-  iEvent.getByToken( metToken_, MET);
-  const edm::View<pat::MET>* metColl = MET.product();
-  edm::View<pat::MET>::const_iterator met = metColl->begin();
-
-  evt_.Etmiss = met->et();
-  evt_.Etmiss_phi = met->phi();
-  evt_.Etmiss_significance = met->significance();
-
-  LogDebug( "GammaGammaLL" ) << "Passed MET retrieval stage";
 
   if ( printCandidates_ )
     std::cout << "Event " << evt_.Run << ":" << evt_.EventNum << " has " << evt_.nPair << " leptons pair(s) candidate(s) (vertex mult. : " << evt_.nPrimVertexCand << " )" << std::endl;
@@ -480,14 +471,6 @@ GammaGammaLL::analyzeMCEventContent( const edm::Event& iEvent )
       evt_.nGenEleCand++;
     }
 
-    // generated inner photon line
-    if ( genPart->pdgId() == 22 && evt_.nGenPhotCand < ggll::AnalysisEvent::MAX_GENPHO ) {
-      evt_.GenPhotCand_e[evt_.nGenPhotCand] = genPart->energy();
-      evt_.GenPhotCand_pt[evt_.nGenPhotCand] = genPart->pt();
-      evt_.GenPhotCand_eta[evt_.nGenPhotCand] = genPart->eta();
-      evt_.GenPhotCand_phi[evt_.nGenPhotCand] = genPart->phi();
-      evt_.nGenPhotCand++;
-    }
     if ( genPart->pdgId() == 2212 && fabs( genPart->pz() ) > 3000. ) {
       // Kinematic quantities computation
       // xi = fractional momentum loss
@@ -548,6 +531,10 @@ GammaGammaLL::fetchMuons( const edm::Event& iEvent )
 
   for ( unsigned int i = 0; i < muonColl->size() && evt_.nMuonCand < ggll::AnalysisEvent::MAX_MUONS; ++i ) {
     const edm::Ptr<pat::Muon> muon = muonColl->ptrAt( i);
+
+    // JH
+    if( muon->pt() < 20) continue;
+    if( muon->isGlobalMuon() == 0 || muon->isTrackerMuon() == 0) continue;
 
     evt_.MuonCand_pt[evt_.nMuonCand] = muon->pt();
     evt_.MuonCand_eta[evt_.nMuonCand] = muon->eta();
@@ -671,68 +658,6 @@ GammaGammaLL::fetchElectrons( const edm::Event& iEvent )
 }
 
 void
-GammaGammaLL::fetchPhotons( const edm::Event& iEvent )
-{
-  // Get the photons collection from the event
-  edm::Handle<edm::View<pat::Photon> > photonColl;
-  iEvent.getByToken( photonToken_, photonColl );
-
-  // identification
-  /*edm::Handle<edm::ValueMap<bool> > medium_id_decisions, tight_id_decisions;
-  iEvent.getByToken( phoMediumIdMapToken_, medium_id_decisions );
-  iEvent.getByToken( phoTightIdMapToken_, tight_id_decisions );*/
-
-  for ( unsigned int i = 0; i < photonColl->size(); ++i ) {
-    const edm::Ptr<pat::Photon> photon = photonColl->ptrAt( i );
-
-    evt_.PhotonCand_pt[evt_.nPhotonCand] = photon->pt();
-    evt_.PhotonCand_eta[evt_.nPhotonCand] = photon->eta();
-    evt_.PhotonCand_phi[evt_.nPhotonCand] = photon->phi();
-    evt_.PhotonCand_e[evt_.nPhotonCand] = photon->energy();
-    evt_.PhotonCand_r9[evt_.nPhotonCand] = photon->r9();
-
-    evt_.PhotonCand_drtrue[evt_.nPhotonCand] = -999.;
-    evt_.PhotonCand_detatrue[evt_.nPhotonCand] = -999.;
-    evt_.PhotonCand_dphitrue[evt_.nPhotonCand] = -999.;
-    if ( runOnMC_ ) {
-      double photdr = 999., photdeta = 999., photdphi = 999.;
-      double endphotdr = 999., endphotdeta = 999., endphotdphi = 999.;
-      for ( unsigned int j = 0; j < evt_.nGenPhotCand; ++j ) { // matching with the 'true' photon object from MC
-        photdeta = ( evt_.PhotonCand_eta[evt_.nPhotonCand]-evt_.GenPhotCand_eta[j] );
-        photdphi = ( evt_.PhotonCand_phi[evt_.nPhotonCand]-evt_.GenPhotCand_phi[j] );
-        photdr = sqrt( photdeta*photdeta + photdphi*photdphi );
-        if ( photdr < endphotdr ) {
-          endphotdr = photdr;
-          endphotdeta = photdeta;
-          endphotdphi = photdphi;
-        }
-      }
-      evt_.PhotonCand_detatrue[evt_.nPhotonCand] = endphotdeta;
-      evt_.PhotonCand_dphitrue[evt_.nPhotonCand] = endphotdphi;
-      evt_.PhotonCand_drtrue[evt_.nPhotonCand] = endphotdr;
-    }
-
-    const std::vector<pat::Photon::IdPair> ids = photon->photonIDs();
-    for ( unsigned int j = 0; j < ids.size(); ++j ) {
-      pat::Photon::IdPair idp = ids.at( j );
-      //FIXME make me private attributes
-      if ( phoMediumIdLabel_.find( idp.first ) != std::string::npos )
-        evt_.PhotonCand_mediumID[evt_.nPhotonCand] = idp.second;
-      if ( phoTightIdLabel_.find( idp.first ) != std::string::npos )
-        evt_.PhotonCand_tightID[evt_.nPhotonCand] = idp.second;
-    }
-
-    //edm::RefToBase<pat::Photon> photonRef = photonColl->refAt( i );
-    //const edm::Ptr<reco::Photon> photonRef = photonColl->ptrAt( i );
-    //evt_.PhotonCand_mediumID[evt_.nPhotonCand] = medium_id_decisions->operator[]( photonRef );
-    //evt_.PhotonCand_tightID[evt_.nPhotonCand] = tight_id_decisions->operator[]( photonRef );
-
-    evt_.nPhotonCand++;
-    LogDebug( "GammaGammaLL" ) << "Passed photons retrieval stage. Got " << evt_.nPhotonCand << " photon(s)";
-  }
-}
-
-void
 GammaGammaLL::fetchProtons( const edm::Event& iEvent )
 {
   // Forward proton tracks
@@ -745,6 +670,10 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
     if ( evt_.nLocalProtCand == ggll::AnalysisEvent::MAX_LOCALPCAND-1 )
       throw cms::Exception( "GammaGammaLL" ) << "maximum number of local tracks in RPs is reached!\n"
         << "increase MAX_LOCALPCAND=" << ggll::AnalysisEvent::MAX_LOCALPCAND << " in GammaGammaLL.cc";
+
+    // transform the raw, 32-bit unsigned integer detId into the TOTEM "decimal" notation                                          
+    const unsigned int raw_id = 100*det_id.arm()+10*det_id.station()+det_id.rp();
+
     evt_.LocalProtCand_x[evt_.nLocalProtCand] = ( trk.getX() )/1.e3;
     evt_.LocalProtCand_y[evt_.nLocalProtCand] = ( trk.getY() )/1.e3;
     evt_.LocalProtCand_xSigma[evt_.nLocalProtCand] = ( trk.getXUnc() )/1.e3;
@@ -752,45 +681,67 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
     evt_.LocalProtCand_arm[evt_.nLocalProtCand] = det_id.arm();
     evt_.LocalProtCand_station[evt_.nLocalProtCand] = det_id.station();
     evt_.LocalProtCand_pot[evt_.nLocalProtCand] = det_id.rp();
+    evt_.LocalProtCand_rpid[evt_.nLocalProtCand] = raw_id;
     evt_.nLocalProtCand++;
     LogDebug( "GammaGammaLL" ) << "Proton track candidate with origin: ( " << trk.getX() << ", " << trk.getY() << " ) extracted!";
   }
   LogDebug( "GammaGammaLL" ) << "Passed TOTEM RP info retrieval stage. Got " << evt_.nLocalProtCand << " local track(s)";
-}
 
-void
-GammaGammaLL::fetchJets( const edm::Event& iEvent )
-{
-  // Get the Jet collection from the event
-  edm::Handle<edm::View<pat::Jet> > jetColl; // PAT
-  iEvent.getByToken( jetToken_, jetColl );
+  // Full reco protons
+  edm::Handle<vector<reco::ProtonTrack>> recoProtons;
+  iEvent.getByToken(recoProtonsToken_, recoProtons);
 
-  double totalJetEnergy = 0., HEJet_pt = 0., HEJet_eta = 0., HEJet_phi = 0., HEJet_e = 0.;
+  int ismultirp = -999;
+  unsigned int decRPId = -999;
+  unsigned int armId = -999;
+  float th_y = -999;
+  float th_x = -999;
+  float t = -999;
+  float xi = -999;
 
-  for ( unsigned int i = 0; i < jetColl->size() && evt_.nJetCand < ggll::AnalysisEvent::MAX_JETS; ++i ) {
-    const edm::Ptr<pat::Jet> jet = jetColl->ptrAt( i);
 
-    evt_.JetCand_e[evt_.nJetCand] = jet->energy();
-    evt_.JetCand_pt[evt_.nJetCand] = jet->pt();
-    evt_.JetCand_eta[evt_.nJetCand] = jet->eta();
-    evt_.JetCand_phi[evt_.nJetCand] = jet->phi();
-    totalJetEnergy += evt_.JetCand_e[evt_.nJetCand];
-    // Find kinematics quantities associated to the highest energy jet
-    if ( evt_.JetCand_e[evt_.nJetCand] > HEJet_e ) {
-      HEJet_e = evt_.JetCand_e[evt_.nJetCand];
-      HEJet_pt = evt_.JetCand_pt[evt_.nJetCand];
-      HEJet_eta = evt_.JetCand_eta[evt_.nJetCand];
-      HEJet_phi = evt_.JetCand_phi[evt_.nJetCand];
+  evt_.nRecoProtCand = 0;
+  for (const auto & proton : *recoProtons)
+    {
+      if (proton.valid())
+	{
+	  th_y = (proton.direction().y()) / (proton.direction().mag());
+	  th_x = (proton.direction().x()) / (proton.direction().mag());
+	  xi = proton.xi();
+
+	  // t                                                                                                                                           
+	  const double m = 0.938; // GeV                                                                                                               
+	  const double p = 6500.; // GeV	
+
+	  float t0 = 2.*m*m + 2.*p*p*(1.-xi) - 2.*sqrt( (m*m + p*p) * (m*m + p*p*(1.-xi)*(1.-xi)) );
+	  float th = sqrt(th_x * th_x + th_y * th_y);
+	  float S = sin(th/2.);
+	  t = t0 - 4. * p*p * (1.-xi) * S*S;
+
+	  if (proton.method == reco::ProtonTrack::rmSingleRP)
+	    {
+	      CTPPSDetId rpId(* proton.contributingRPIds.begin());
+	      decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
+	      ismultirp = 0;
+	    }
+	  if (proton.method == reco::ProtonTrack::rmMultiRP)
+	    {
+	      CTPPSDetId rpId(* proton.contributingRPIds.begin());
+	      armId = rpId.arm();
+	      ismultirp = 1;
+	    }
+
+	  evt_.ProtCand_xi[evt_.nRecoProtCand] = xi;
+	  evt_.ProtCand_t[evt_.nRecoProtCand] = t;
+          evt_.ProtCand_ThX[evt_.nRecoProtCand] = th_x;
+          evt_.ProtCand_ThY[evt_.nRecoProtCand] = th_y;
+          evt_.ProtCand_rpid[evt_.nRecoProtCand] = decRPId;
+	  evt_.ProtCand_arm[evt_.nRecoProtCand] = armId;
+	  evt_.ProtCand_ismultirp[evt_.nRecoProtCand] = ismultirp;
+	  evt_.nRecoProtCand++;
+	}
     }
-    evt_.nJetCand++;
-  }
-  evt_.HighestJet_pt = HEJet_pt;
-  evt_.HighestJet_eta = HEJet_eta;
-  evt_.HighestJet_phi = HEJet_phi;
-  evt_.HighestJet_e = HEJet_e;
-  evt_.SumJet_e = totalJetEnergy;
 
-  LogDebug( "GammaGammaLL" ) << "Passed Loop on jets";
 }
 
 void
@@ -927,7 +878,7 @@ GammaGammaLL::newTracksInfoRetrieval( int l1id, int l2id )
     }
 
     // Save track properties if within 5mm
-    if ( vtxdst < 0.5 ) {
+    if ( (saveExtraTracks_ == true) && (vtxdst < 0.5) ) {
       evt_.ExtraTrack_pair[evt_.nExtraTracks] = evt_.nPair;
       evt_.ExtraTrack_purity[evt_.nExtraTracks] = track->quality( reco::TrackBase::highPurity );
       evt_.ExtraTrack_nhits[evt_.nExtraTracks] = track->numberOfValidHits();
@@ -994,17 +945,9 @@ GammaGammaLL::newTracksInfoRetrieval( int l1id, int l2id )
   evt_.Pair_dpt[evt_.nPair] = fabs( l1.Pt()-l2.Pt() );
   evt_.Pair_3Dangle[evt_.nPair] = l1.Angle( l2.Vect() )/M_PI;
 
-  for ( unsigned int j = 0; j < evt_.nPhotonCand; ++j ) {
-    TLorentzVector pho;
-    pho.SetPtEtaPhiE( evt_.PhotonCand_pt[j], evt_.PhotonCand_eta[j], evt_.PhotonCand_phi[j], evt_.PhotonCand_e[j] );
-    evt_.PairGamma_pair[evt_.nPairGamma] = evt_.nPair;
-    evt_.PairGamma_mass[evt_.nPairGamma] = ( pair+pho ).M();
-    //std::cout << "Photon " << j << " added to pair " << evt_.PairGamma_pair[evt_.nPairGamma] << " to give a mass = " << evt_.PairGamma_mass[evt_.nPairGamma] << std::endl;
-    evt_.nPairGamma++;
-  }
-
   evt_.nPair++;
   nCandidates_++;
+
 
   return true;
 }
@@ -1014,7 +957,7 @@ void
 GammaGammaLL::beginJob()
 {
   // Filling the ntuple
-  evt_.attach( tree_, leptonsType_, runOnMC_ );
+  evt_.attach( tree_, leptonsType_, runOnMC_, saveExtraTracks_ );
   *evt_.HLT_Name = triggersList_;
 }
 
