@@ -92,7 +92,7 @@
 // PPS objects
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
-#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
 
 
 #include "DiffractiveForwardAnalysis/GammaGammaLeptonLepton/interface/HLTMatcher.h"
@@ -176,7 +176,8 @@ class GammaGammaLL : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::S
     edm::EDGetTokenT<edm::ValueMap<bool> > phoMediumIdMapToken_, phoTightIdMapToken_;*/
     edm::EDGetTokenT<double> fixedGridRhoFastjetAllToken_;
     edm::EDGetTokenT<edm::View<CTPPSLocalTrackLite> > ppsLocalTrackToken_;
-    edm::EDGetTokenT<std::vector<reco::ProtonTrack> > recoProtonsToken_;
+    edm::EDGetTokenT<std::vector<reco::ForwardProton> > recoProtonsSingleRPToken_;
+    edm::EDGetTokenT<std::vector<reco::ForwardProton> > recoProtonsMultiRPToken_;
 
     bool runOnMC_, printCandidates_;
     double minPtMC_, minEtaMC_;
@@ -231,7 +232,8 @@ GammaGammaLL::GammaGammaLL( const edm::ParameterSet& iConfig ) :
   phoTightIdMapToken_ ( consumes<edm::ValueMap<bool> >                 ( iConfig.getParameter<edm::InputTag>( "phoTightIdMap" ) ) ),*/
   fixedGridRhoFastjetAllToken_( consumes<double>                       ( iConfig.getParameter<edm::InputTag>( "fixedGridRhoFastjetAllLabel" ) ) ),
   ppsLocalTrackToken_ ( consumes<edm::View<CTPPSLocalTrackLite> >      ( iConfig.getParameter<edm::InputTag>( "ppsLocalTrackTag" ) ) ),
-  recoProtonsToken_   ( consumes<std::vector<reco::ProtonTrack> >      ( iConfig.getParameter<edm::InputTag>( "ppsRecoProtonTag" ) ) ),
+  recoProtonsSingleRPToken_   ( consumes<std::vector<reco::ForwardProton> >      ( iConfig.getParameter<edm::InputTag>( "ppsRecoProtonSingleRPTag" ) ) ),
+  recoProtonsMultiRPToken_   ( consumes<std::vector<reco::ForwardProton> >      ( iConfig.getParameter<edm::InputTag>( "ppsRecoProtonMultiRPTag" ) ) ),
   runOnMC_            ( iConfig.getParameter<bool>( "runOnMC" ) ),
   printCandidates_    ( iConfig.getParameter<bool>( "printCandidates" ) ),
   sqrts_              ( iConfig.getParameter<double>( "sqrtS" ) ),
@@ -361,8 +363,8 @@ GammaGammaLL::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
   LogDebug( "GammaGammaLL" ) << "Passed trigger filtering stage";
 
-  // Crossing angle information from DB for 2018
-  if(year_ == "2018")
+  // Crossing angle information from DB - available for all years in legacy re-RECO
+  if(year_ == "2018" || year_ == "2017" || year_ == "2016")
     {
       edm::ESHandle<LHCInfo> pSetup;
       const string label = "";
@@ -687,9 +689,11 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
   }
   LogDebug( "GammaGammaLL" ) << "Passed TOTEM RP info retrieval stage. Got " << evt_.nLocalProtCand << " local track(s)";
 
-  // Full reco protons
-  edm::Handle<vector<reco::ProtonTrack>> recoProtons;
-  iEvent.getByToken(recoProtonsToken_, recoProtons);
+  // Full reco protons - 2 separate collections for legacy re-reco
+  edm::Handle<vector<reco::ForwardProton>> recoMultiRPProtons;
+  iEvent.getByToken(recoProtonsMultiRPToken_, recoMultiRPProtons);
+  edm::Handle<vector<reco::ForwardProton>> recoSingleRPProtons;
+  iEvent.getByToken(recoProtonsSingleRPToken_, recoSingleRPProtons);
 
   int ismultirp = -999;
   unsigned int decRPId = -999;
@@ -699,37 +703,46 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
   float t = -999;
   float xi = -999;
 
-
   evt_.nRecoProtCand = 0;
-  for (const auto & proton : *recoProtons)
+
+  // Single-RP algorithm
+  for (const auto & proton : *recoSingleRPProtons)
     {
-      if (proton.valid())
+      if (proton.validFit())
+        {
+          th_y = proton.thetaY();
+	  th_x = proton.thetaX();
+          xi = proton.xi();
+          t = proton.t();
+
+	  CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->getRPId());
+	  decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
+          ismultirp = 0;
+
+          evt_.ProtCand_xi[evt_.nRecoProtCand] = xi;
+          evt_.ProtCand_t[evt_.nRecoProtCand] = t;
+          evt_.ProtCand_ThX[evt_.nRecoProtCand] = th_x;
+          evt_.ProtCand_ThY[evt_.nRecoProtCand] = th_y;
+          evt_.ProtCand_rpid[evt_.nRecoProtCand] = decRPId;
+          evt_.ProtCand_arm[evt_.nRecoProtCand] = armId;
+          evt_.ProtCand_ismultirp[evt_.nRecoProtCand] = ismultirp;
+          evt_.nRecoProtCand++;
+	}
+    }
+
+  // Multi-RP algorithm
+  for (const auto & proton : *recoMultiRPProtons)
+    {
+      if (proton.validFit())
 	{
-	  th_y = (proton.direction().y()) / (proton.direction().mag());
-	  th_x = (proton.direction().x()) / (proton.direction().mag());
+	  th_y = proton.thetaY();
+	  th_x = proton.thetaX();
 	  xi = proton.xi();
+	  t = proton.t();
 
-	  // t                                                                                                                                           
-	  const double m = 0.938; // GeV                                                                                                               
-	  const double p = 6500.; // GeV	
-
-	  float t0 = 2.*m*m + 2.*p*p*(1.-xi) - 2.*sqrt( (m*m + p*p) * (m*m + p*p*(1.-xi)*(1.-xi)) );
-	  float th = sqrt(th_x * th_x + th_y * th_y);
-	  float S = sin(th/2.);
-	  t = t0 - 4. * p*p * (1.-xi) * S*S;
-
-	  if (proton.method == reco::ProtonTrack::rmSingleRP)
-	    {
-	      CTPPSDetId rpId(* proton.contributingRPIds.begin());
-	      decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
-	      ismultirp = 0;
-	    }
-	  if (proton.method == reco::ProtonTrack::rmMultiRP)
-	    {
-	      CTPPSDetId rpId(* proton.contributingRPIds.begin());
-	      armId = rpId.arm();
-	      ismultirp = 1;
-	    }
+	  CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->getRPId());
+	  armId = rpId.arm();
+	  ismultirp = 1;
 
 	  evt_.ProtCand_xi[evt_.nRecoProtCand] = xi;
 	  evt_.ProtCand_t[evt_.nRecoProtCand] = t;
