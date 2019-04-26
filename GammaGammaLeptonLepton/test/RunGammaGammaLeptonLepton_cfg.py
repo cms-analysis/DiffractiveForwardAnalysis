@@ -36,7 +36,13 @@ process.source = cms.Source("PoolSource",
 #'file:/tmp/jjhollar/6482D69E-48D6-E711-9AF7-008CFAF71FB4.root'
 #'file:/tmp/jjhollar/F2C53386-ABFA-4A4F-B851-0065858DB53C.root'
 #'file:/tmp/jjhollar/14D52021-5DDE-E711-8A48-02163E01453B.root'
-'/store/data/Run2017C/DoubleMuon/AOD/PromptReco-v3/000/301/998/00000/8E0BF23F-8F8E-E711-9774-02163E019B27.root'
+#
+# at CERN eos
+#'/store/data/Run2017C/DoubleMuon/AOD/PromptReco-v3/000/301/998/00000/8E0BF23F-8F8E-E711-9774-02163E019B27.root'
+#
+#'/store/data/Run2017C/DoubleMuon/AOD/17Nov2017-v1/30000/90A083BD-CBD8-E711-A440-A4BF0108B5F2.root'
+'file:/tmp/jjhollar/90A083BD-CBD8-E711-A440-A4BF0108B5F2.root'
+
     ),
     #firstEvent = cms.untracked.uint32(0)
 )
@@ -123,23 +129,6 @@ setupAllVIDIdsInModule(process, 'RecoEgamma.PhotonIdentification.Identification.
 #     Proton RECO       #
 #########################
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
-#process.load("RecoCTPPS.ProtonReconstruction.year_2017_OF.ctppsProtonReconstructionOF_cfi")
-#process.load("RecoCTPPS.ProtonReconstruction.year_2018_OFDB.ctppsProtonReconstructionOFDB_cfi")
-# conditions DB for 2018                                                                                                                    
-                         
-#from CondCore.CondDB.CondDB_cfi import *
-#
-#CondDB.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
-#
-#process.PoolDBESSource2 = cms.ESSource("PoolDBESSource",
-#                                       CondDB,
-#                                       DumpStat = cms.untracked.bool(False),
-#                                       toGet = cms.VPSet(cms.PSet(
-#            record = cms.string('LHCInfoRcd'),
-#            #tag = cms.string("LHCInfoTest_prompt_v3")  
-#            tag = cms.string("LHCInfoEndFill_prompt_v1")
-#            )),
-#                                       )
 
 #JH - ESPrefer to get optical functions from CTPPSOpticalFunctionsESSource instead of global tag for now
 process.es_prefer_ppsOptics = cms.ESPrefer("CTPPSOpticalFunctionsESSource","ctppsOpticalFunctionsESSource")
@@ -191,16 +180,22 @@ process.p = cms.Path(
     process.egmPhotonIDSequence*
     process.egmGsfElectronIDSequence*
     # For testing on Prompt Reco. Rerun pixel+diamond tracking & LiteTracks
-    process.ctppsPixelRecHits*
-    process.ctppsPixelLocalTracks*
+    #    process.totemRPLocalReconstruction*
+    #    process.ctppsPixelLocalReconstruction*
+    #    process.ctppsDiamondLocalTracks*
+    #    process.ctppsLocalTrackLiteProducer*
+    # Only run high-level proton reco
+    #    process.ctppsProtons *                                                                                            
+    # Rerun lots of things!
+    process.totemRPLocalReconstruction *
     process.ctppsDiamondLocalTracks*
-    process.ctppsLocalTrackLiteProducer*
-    # For real re-RECO data, should be enough to only run high-level proton reco
-    process.ctppsProtons *                                                                                            
+    process.ctppsPixelLocalReconstruction *
+    process.ctppsLocalTrackLiteProducer *
+    process.ctppsProtons *
     process.ggll_aod
 )
 
 #process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
 process.outpath = cms.EndPath(patAlgosToolsTask)
 
-#print process.dumpPython()
+print process.dumpPython()
