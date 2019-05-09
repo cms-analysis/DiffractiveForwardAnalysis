@@ -130,8 +130,46 @@ setupAllVIDIdsInModule(process, 'RecoEgamma.PhotonIdentification.Identification.
 #########################
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 
-#JH - ESPrefer to get optical functions from CTPPSOpticalFunctionsESSource instead of global tag for now
-process.es_prefer_ppsOptics = cms.ESPrefer("CTPPSOpticalFunctionsESSource","ctppsOpticalFunctionsESSource")
+# get optics from Wagners's DB tag
+from CondCore.CondDB.CondDB_cfi import *
+process.CondDBOptics = CondDB.clone( connect = 'frontier://FrontierProd/CMS_CONDITIONS' )
+process.PoolDBESSourceOptics = cms.ESSource("PoolDBESSource",
+    process.CondDBOptics,
+    DumpStat = cms.untracked.bool(False),
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('CTPPSOpticsRcd'),
+        tag = cms.string("PPSOpticalFunctions_offline_v1")
+    )),
+)
+
+# get alignment from Clemencia's file
+from CondCore.CondDB.CondDB_cfi import *
+process.CondDBAlignment = CondDB.clone( connect = 'sqlite_file:/afs/cern.ch/user/c/cmora/public/CTPPSDB/AlignmentSQlite/CTPPSRPRealAlignment_table_v26Apr.db' )
+process.PoolDBESSourceAlignment = cms.ESSource("PoolDBESSource",
+    process.CondDBAlignment,
+    #timetype = cms.untracked.string('runnumber'),
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('RPRealAlignmentRecord'),
+        tag = cms.string('CTPPSRPAlignment_real_table_v26A19')
+    ))
+)
+
+# get LHCInfo from DB tag
+#from CondCore.CondDB.CondDB_cfi import *
+#CondDB.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
+#process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+#    CondDB,
+#    DumpStat = cms.untracked.bool(False),
+#    toGet = cms.VPSet(cms.PSet(
+#        record = cms.string('LHCInfoRcd'),
+#        tag = cms.string("LHCInfoEndFill_prompt_v2")
+#    ))
+#)
+
+
+#JH - ESPrefer to get optical functions from CTPPSOpticalFunctionsESSource instead of global tag for now                                                                           
+#process.es_prefer_ppsOptics = cms.ESPrefer("CTPPSOpticalFunctionsESSource","ctppsOpticalFunctionsESSource")
+process.es_prefer_ppsOptics = cms.ESPrefer("PoolDBESSource","PoolDBESSourceOptics")
 
 # For testing on old prompt reco data - need to rerun pixel tracking + LiteTracks first
 # Should not be needed for final version running on re-RECO data
@@ -181,13 +219,6 @@ process.p = cms.Path(
     process.hltFilter*
     process.egmPhotonIDSequence*
     process.egmGsfElectronIDSequence*
-    # For testing on Prompt Reco. Rerun pixel+diamond tracking & LiteTracks
-    #    process.totemRPLocalReconstruction*
-    #    process.ctppsPixelLocalReconstruction*
-    #    process.ctppsDiamondLocalTracks*
-    #    process.ctppsLocalTrackLiteProducer*
-    # Only run high-level proton reco
-    #    process.ctppsProtons *                                                                                            
     # Rerun lots of things!
     process.totemRPLocalReconstruction *
     process.ctppsDiamondLocalTracks*

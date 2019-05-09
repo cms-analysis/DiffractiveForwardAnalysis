@@ -192,7 +192,7 @@ namespace ggll
 
       // reco proton quantities
       unsigned int nRecoProtCand;
-      double ProtCand_xi[MAX_PRO], ProtCand_t[MAX_PRO], ProtCand_ThX[MAX_PRO], ProtCand_ThY[MAX_PRO];
+      double ProtCand_xi[MAX_PRO], ProtCand_t[MAX_PRO], ProtCand_ThX[MAX_PRO], ProtCand_ThY[MAX_PRO], ProtCand_time[MAX_PRO];
       int ProtCand_rpid[MAX_PRO], ProtCand_arm[MAX_PRO], ProtCand_ismultirp[MAX_PRO];
 
       void clear() {
@@ -349,6 +349,7 @@ namespace ggll
     	    ProtCand_rpid[i] = -1;
 	        ProtCand_arm[i] = -1;
     	    ProtCand_ismultirp[i] = -1;
+	    ProtCand_time[i] = -999.;
     	  }
       }
       void attach( TTree* tree, TreeType tt, bool mc, bool storetracks ) {
@@ -515,6 +516,7 @@ namespace ggll
           tree->Branch( "ProtCand_rpid", ProtCand_rpid, "ProtCand_rpid[nRecoProtCand]/I" );
           tree->Branch( "ProtCand_arm", ProtCand_arm, "ProtCand_arm[nRecoProtCand]/I" );
           tree->Branch( "ProtCand_ismultirp", ProtCand_ismultirp, "ProtCand_ismultirp[nRecoProtCand]/I" );
+          tree->Branch( "ProtCand_time", ProtCand_time, "ProtCand_time[nRecoProtCand]/D" );
         }
 
         // Extra tracks on vertex's information
