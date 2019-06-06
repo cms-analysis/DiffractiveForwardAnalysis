@@ -702,7 +702,13 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
   float th_x = -999;
   float t = -999;
   float xi = -999;
-  float prottime = -999.;
+  float trackx1 = -999.;
+  float tracky1 = -999.;
+  float trackx2 = -999.;
+  float tracky2 = -999.;
+  unsigned int trackrpid1 = -999;
+  unsigned int trackrpid2 = -999;
+  float time = -999.;
 
   evt_.nRecoProtCand = 0;
 
@@ -715,7 +721,10 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
 	  th_x = proton.thetaX();
           xi = proton.xi();
           t = proton.t();
-	  prottime = proton.time();
+	  time = proton.time(); 
+
+	  trackx1 = (*proton.contributingLocalTracks().begin())->getX();
+          tracky1 = (*proton.contributingLocalTracks().begin())->getY();
 
 	  CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->getRPId());
 	  decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
@@ -728,7 +737,10 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
           evt_.ProtCand_rpid[evt_.nRecoProtCand] = decRPId;
           evt_.ProtCand_arm[evt_.nRecoProtCand] = armId;
           evt_.ProtCand_ismultirp[evt_.nRecoProtCand] = ismultirp;
-	  evt_.ProtCand_time[evt_.nRecoProtCand] = prottime;
+          evt_.ProtCand_time[evt_.nRecoProtCand] = time;
+	  evt_.ProtCand_trackx1[evt_.nRecoProtCand] = trackx1;
+          evt_.ProtCand_tracky1[evt_.nRecoProtCand] = tracky1;
+	  evt_.ProtCand_rpid1[evt_.nRecoProtCand] = decRPId;
           evt_.nRecoProtCand++;
 	}
     }
@@ -742,10 +754,29 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
 	  th_x = proton.thetaX();
 	  xi = proton.xi();
 	  t = proton.t();
-          prottime = proton.time();
+          time = proton.time();
 
-	  CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->getRPId());
-	  armId = rpId.arm();
+	  int ij=0;
+	  for (const auto &tr : proton.contributingLocalTracks())
+	    {
+	      CTPPSDetId rpIdJ(tr->getRPId());
+	      unsigned int rpDecIdJ = rpIdJ.arm()*100 + rpIdJ.station()*10 + rpIdJ.rp();
+	      if(ij == 0)
+		{
+		  trackx1 = tr->getX();
+		  tracky1 = tr->getY();
+		  trackrpid1 = rpDecIdJ;
+		  armId = rpIdJ.arm();
+		}
+	      if(ij == 1)
+		{
+                  trackx2 = tr->getX();
+                  tracky2 = tr->getY();
+                  trackrpid2 = rpDecIdJ;
+		}
+	      ij++;
+	    }
+
 	  ismultirp = 1;
 
 	  evt_.ProtCand_xi[evt_.nRecoProtCand] = xi;
@@ -755,7 +786,13 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
           evt_.ProtCand_rpid[evt_.nRecoProtCand] = decRPId;
 	  evt_.ProtCand_arm[evt_.nRecoProtCand] = armId;
 	  evt_.ProtCand_ismultirp[evt_.nRecoProtCand] = ismultirp;
-          evt_.ProtCand_time[evt_.nRecoProtCand] = prottime;
+          evt_.ProtCand_time[evt_.nRecoProtCand] = time;
+          evt_.ProtCand_trackx1[evt_.nRecoProtCand] = trackx1;
+          evt_.ProtCand_tracky1[evt_.nRecoProtCand] = tracky1;
+          evt_.ProtCand_rpid1[evt_.nRecoProtCand] = trackrpid1;
+          evt_.ProtCand_trackx2[evt_.nRecoProtCand] = trackx2;
+          evt_.ProtCand_tracky2[evt_.nRecoProtCand] = tracky2;
+          evt_.ProtCand_rpid2[evt_.nRecoProtCand] = trackrpid2;
 	  evt_.nRecoProtCand++;
 	}
     }
