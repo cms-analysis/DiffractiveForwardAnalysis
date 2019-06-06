@@ -708,9 +708,20 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
   float tracky2 = -999.;
   unsigned int trackrpid1 = -999;
   unsigned int trackrpid2 = -999;
+  int pixshift1 = -999;
+  int pixshift2 = -999;
   float time = -999.;
 
   evt_.nRecoProtCand = 0;
+
+  /// Track information byte for bx-shifted runs:                                                                                                                               
+  /// reco_info = notShiftedRun    -> Default value for tracks reconstructed in non-bx-shifted ROCs                                                                             
+  /// reco_info = allShiftedPlanes -> Track reconstructed in a bx-shifted ROC with bx-shifted planes only                                                                       
+  /// reco_info = noShiftedPlanes  -> Track reconstructed in a bx-shifted ROC with non-bx-shifted planes only                                                                   
+  /// reco_info = mixedPlanes      -> Track reconstructed in a bx-shifted ROC both with bx-shifted and non-bx-shifted planes                                                    
+  /// reco_info = invalid          -> Dummy value. Assigned when reco_info is not computed                                                         
+  //  enum class CTPPSpixelLocalTrackReconstructionInfo {notShiftedRun = 0, allShiftedPlanes = 1, noShiftedPlanes = 2, mixedPlanes = 3, invalid = 5};
+
 
   // Single-RP algorithm
   for (const auto & proton : *recoSingleRPProtons)
@@ -726,6 +737,13 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
 	  trackx1 = (*proton.contributingLocalTracks().begin())->getX();
           tracky1 = (*proton.contributingLocalTracks().begin())->getY();
 
+	  CTPPSpixelLocalTrackReconstructionInfo pixtrackinfo1 = (*proton.contributingLocalTracks().begin())->getPixelTrackRecoInfo();
+	  if(pixtrackinfo1 == CTPPSpixelLocalTrackReconstructionInfo::notShiftedRun || pixtrackinfo1 == CTPPSpixelLocalTrackReconstructionInfo::noShiftedPlanes || 
+	     pixtrackinfo1 == CTPPSpixelLocalTrackReconstructionInfo::invalid)
+	    pixshift1 = 0;
+	  else
+	    pixshift1 = 1;
+
 	  CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->getRPId());
 	  decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
           ismultirp = 0;
@@ -740,6 +758,7 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
           evt_.ProtCand_time[evt_.nRecoProtCand] = time;
 	  evt_.ProtCand_trackx1[evt_.nRecoProtCand] = trackx1;
           evt_.ProtCand_tracky1[evt_.nRecoProtCand] = tracky1;
+	  evt_.ProtCand_trackpixshift1[evt_.nRecoProtCand] = pixshift1;
 	  evt_.ProtCand_rpid1[evt_.nRecoProtCand] = decRPId;
           evt_.nRecoProtCand++;
 	}
@@ -761,18 +780,31 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
 	    {
 	      CTPPSDetId rpIdJ(tr->getRPId());
 	      unsigned int rpDecIdJ = rpIdJ.arm()*100 + rpIdJ.station()*10 + rpIdJ.rp();
+
+	      CTPPSpixelLocalTrackReconstructionInfo pixtrackinfo = (*proton.contributingLocalTracks().begin())->getPixelTrackRecoInfo();
+
 	      if(ij == 0)
 		{
 		  trackx1 = tr->getX();
 		  tracky1 = tr->getY();
 		  trackrpid1 = rpDecIdJ;
 		  armId = rpIdJ.arm();
+		  if(pixtrackinfo == CTPPSpixelLocalTrackReconstructionInfo::notShiftedRun || pixtrackinfo == CTPPSpixelLocalTrackReconstructionInfo::noShiftedPlanes ||
+		     pixtrackinfo == CTPPSpixelLocalTrackReconstructionInfo::invalid)
+		    pixshift1 = 0;
+		  else
+		    pixshift1 = 1;
 		}
 	      if(ij == 1)
 		{
                   trackx2 = tr->getX();
                   tracky2 = tr->getY();
                   trackrpid2 = rpDecIdJ;
+                  if(pixtrackinfo == CTPPSpixelLocalTrackReconstructionInfo::notShiftedRun || pixtrackinfo == CTPPSpixelLocalTrackReconstructionInfo::noShiftedPlanes ||
+                     pixtrackinfo == CTPPSpixelLocalTrackReconstructionInfo::invalid)
+                    pixshift2 = 0;
+		  else
+		    pixshift2 = 1;
 		}
 	      ij++;
 	    }
@@ -792,6 +824,8 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
           evt_.ProtCand_rpid1[evt_.nRecoProtCand] = trackrpid1;
           evt_.ProtCand_trackx2[evt_.nRecoProtCand] = trackx2;
           evt_.ProtCand_tracky2[evt_.nRecoProtCand] = tracky2;
+          evt_.ProtCand_trackpixshift1[evt_.nRecoProtCand] = pixshift1;
+          evt_.ProtCand_trackpixshift2[evt_.nRecoProtCand] = pixshift2;
           evt_.ProtCand_rpid2[evt_.nRecoProtCand] = trackrpid2;
 	  evt_.nRecoProtCand++;
 	}

@@ -194,8 +194,9 @@ namespace ggll
       unsigned int nRecoProtCand;
       double ProtCand_xi[MAX_PRO], ProtCand_t[MAX_PRO], ProtCand_ThX[MAX_PRO], ProtCand_ThY[MAX_PRO];
       int ProtCand_rpid[MAX_PRO], ProtCand_arm[MAX_PRO], ProtCand_ismultirp[MAX_PRO], ProtCand_time[MAX_PRO];
-      double ProtCand_trackx1[MAX_PRO], ProtCand_tracky1[MAX_PRO], ProtCand_rpid1[MAX_PRO],
-	ProtCand_trackx2[MAX_PRO], ProtCand_tracky2[MAX_PRO], ProtCand_rpid2[MAX_PRO];
+      double ProtCand_trackx1[MAX_PRO], ProtCand_tracky1[MAX_PRO], ProtCand_trackx2[MAX_PRO], ProtCand_tracky2[MAX_PRO];
+      int ProtCand_rpid1[MAX_PRO], ProtCand_rpid2[MAX_PRO], ProtCand_trackpixshift1[MAX_PRO], ProtCand_trackpixshift2[MAX_PRO];
+      
 
       void clear() {
         // event-level branches
@@ -360,6 +361,8 @@ namespace ggll
             ProtCand_tracky2[i] = -999.;
             ProtCand_rpid1[i] = -1;
             ProtCand_rpid2[i] = -1;
+	    ProtCand_trackpixshift1[i] = -1;
+	    ProtCand_trackpixshift2[i] = -1;
 	  }
       }
       void attach( TTree* tree, TreeType tt, bool mc, bool storetracks ) {
@@ -532,6 +535,8 @@ namespace ggll
           tree->Branch( "ProtCand_tracky2", ProtCand_tracky2, "ProtCand_tracky2[nRecoProtCand]/D" );
           tree->Branch( "ProtCand_rpid1", ProtCand_rpid1, "ProtCand_rpid1[nRecoProtCand]/I" );
           tree->Branch( "ProtCand_rpid2", ProtCand_rpid2, "ProtCand_rpid2[nRecoProtCand]/I" );
+	  tree->Branch( "ProtCand_trackpixshift1", ProtCand_trackpixshift1, "ProtCand_trackpixshift1[nRecoProtCand]/I" );
+          tree->Branch( "ProtCand_trackpixshift2", ProtCand_trackpixshift2, "ProtCand_trackpixshift2[nRecoProtCand]/I" );
         }
 
         // Extra tracks on vertex's information
@@ -737,6 +742,8 @@ namespace ggll
           tree->SetBranchAddress( "ProtCand_tracky2", ProtCand_tracky2 );
           tree->SetBranchAddress( "ProtCand_rpid1", ProtCand_rpid1 );
           tree->SetBranchAddress( "ProtCand_rpid2", ProtCand_rpid2 );
+	  tree->SetBranchAddress( "ProtCand_trackpixshift1", ProtCand_trackpixshift1 );
+          tree->SetBranchAddress( "ProtCand_trackpixshift2", ProtCand_trackpixshift2 );
         }
 
         // Extra tracks on vertex's information
