@@ -189,11 +189,13 @@ namespace ggll
       double LocalProtCand_x[MAX_LOCALPCAND], LocalProtCand_y[MAX_LOCALPCAND], LocalProtCand_t[MAX_LOCALPCAND];
       double LocalProtCand_xSigma[MAX_LOCALPCAND], LocalProtCand_ySigma[MAX_LOCALPCAND], LocalProtCand_tSigma[MAX_LOCALPCAND];
       int LocalProtCand_arm[MAX_LOCALPCAND], LocalProtCand_station[MAX_LOCALPCAND], LocalProtCand_pot[MAX_LOCALPCAND], LocalProtCand_rpid[MAX_LOCALPCAND];
+      float LocalProtCand_time[MAX_LOCALPCAND];
 
       // reco proton quantities
       unsigned int nRecoProtCand;
       double ProtCand_xi[MAX_PRO], ProtCand_t[MAX_PRO], ProtCand_ThX[MAX_PRO], ProtCand_ThY[MAX_PRO];
-      int ProtCand_rpid[MAX_PRO], ProtCand_arm[MAX_PRO], ProtCand_ismultirp[MAX_PRO], ProtCand_time[MAX_PRO];
+      int ProtCand_rpid[MAX_PRO], ProtCand_arm[MAX_PRO], ProtCand_ismultirp[MAX_PRO];
+      float ProtCand_time[MAX_PRO];
       double ProtCand_trackx1[MAX_PRO], ProtCand_tracky1[MAX_PRO], ProtCand_trackx2[MAX_PRO], ProtCand_tracky2[MAX_PRO];
       int ProtCand_rpid1[MAX_PRO], ProtCand_rpid2[MAX_PRO], ProtCand_trackpixshift1[MAX_PRO], ProtCand_trackpixshift2[MAX_PRO];
       
@@ -342,6 +344,7 @@ namespace ggll
           LocalProtCand_x[i] = LocalProtCand_y[i] = LocalProtCand_t[i] = -999.;
           LocalProtCand_xSigma[i] = LocalProtCand_ySigma[i] = LocalProtCand_tSigma[i] = -999.;
           LocalProtCand_arm[i] = LocalProtCand_station[i] = LocalProtCand_pot[i] = LocalProtCand_rpid[i] = -1;
+	  LocalProtCand_time[i] = 0;
         }
 
 	nRecoProtCand = 0;
@@ -519,6 +522,7 @@ namespace ggll
           tree->Branch( "LocalProtCand_station", LocalProtCand_station, "LocalProtCand_station[nLocalProtCand]/I" );
           tree->Branch( "LocalProtCand_pot", LocalProtCand_pot, "LocalProtCand_pot[nLocalProtCand]/I" );
           tree->Branch( "LocalProtCand_rpid", LocalProtCand_rpid, "LocalProtCand_rpid[nLocalProtCand]/I" );
+          tree->Branch( "LocalProtCand_time", LocalProtCand_time, "LocalProtCand_time[nLocalProtCand]/F" );
 
           tree->Branch( "nRecoProtCand", &nRecoProtCand, "nRecoProtCand/i" );
           tree->Branch( "ProtCand_xi", ProtCand_xi, "ProtCand_xi[nRecoProtCand]/D" );
@@ -528,7 +532,7 @@ namespace ggll
           tree->Branch( "ProtCand_rpid", ProtCand_rpid, "ProtCand_rpid[nRecoProtCand]/I" );
           tree->Branch( "ProtCand_arm", ProtCand_arm, "ProtCand_arm[nRecoProtCand]/I" );
           tree->Branch( "ProtCand_ismultirp", ProtCand_ismultirp, "ProtCand_ismultirp[nRecoProtCand]/I" );
-          tree->Branch( "ProtCand_time", ProtCand_time, "ProtCand_time[nRecoProtCand]/D" );
+          tree->Branch( "ProtCand_time", ProtCand_time, "ProtCand_time[nRecoProtCand]/F" );
           tree->Branch( "ProtCand_trackx1", ProtCand_trackx1, "ProtCand_trackx1[nRecoProtCand]/D" );
           tree->Branch( "ProtCand_tracky1", ProtCand_tracky1, "ProtCand_tracky1[nRecoProtCand]/D" );
           tree->Branch( "ProtCand_trackx2", ProtCand_trackx2, "ProtCand_trackx2[nRecoProtCand]/D" );
@@ -726,6 +730,7 @@ namespace ggll
           tree->SetBranchAddress( "LocalProtCand_station", LocalProtCand_station );
           tree->SetBranchAddress( "LocalProtCand_pot", LocalProtCand_pot );
           tree->SetBranchAddress( "LocalProtCand_rpid", LocalProtCand_rpid );
+          tree->SetBranchAddress( "LocalProtCand_time", LocalProtCand_time );
 
 	  tree->SetBranchAddress( "nRecoProtCand", &nRecoProtCand );
 	  tree->SetBranchAddress( "ProtCand_xi", ProtCand_xi );

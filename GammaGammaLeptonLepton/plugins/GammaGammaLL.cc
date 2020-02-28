@@ -364,7 +364,7 @@ GammaGammaLL::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   LogDebug( "GammaGammaLL" ) << "Passed trigger filtering stage";
 
   // Crossing angle information from DB - available for all years in legacy re-RECO
-  if(year_ == "2018" || year_ == "2017" || year_ == "2016")
+  if(year_ == "2018" || year_ == "2017" || year_ == "2016") // || year_ == "2017MC")
     {
       edm::ESHandle<LHCInfo> pSetup;
       const string label = "";
@@ -684,6 +684,7 @@ GammaGammaLL::fetchProtons( const edm::Event& iEvent )
     evt_.LocalProtCand_station[evt_.nLocalProtCand] = det_id.station();
     evt_.LocalProtCand_pot[evt_.nLocalProtCand] = det_id.rp();
     evt_.LocalProtCand_rpid[evt_.nLocalProtCand] = raw_id;
+    evt_.LocalProtCand_time[evt_.nLocalProtCand] = trk.getTime();
     evt_.nLocalProtCand++;
     LogDebug( "GammaGammaLL" ) << "Proton track candidate with origin: ( " << trk.getX() << ", " << trk.getY() << " ) extracted!";
   }
