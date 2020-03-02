@@ -409,8 +409,8 @@ GammaGammaLL::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
   if ( fetchProtons_ ) {
     fetchProtons( iEvent );
-    if ( evt_.nLocalProtCand < 1 )
-      return;
+    //if ( evt_.nLocalProtCand < 1 )
+    //  return;
   }
 
   fetchJets( iEvent );

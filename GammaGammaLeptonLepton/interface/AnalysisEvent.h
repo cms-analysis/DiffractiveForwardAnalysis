@@ -493,18 +493,16 @@ namespace ggll
           tree->Branch( "GenPair_3Dangle", &GenPair_3Dangle, "GenPair_3Dangle/D" );
         }
 
-        if ( !mc ) {
-          tree->Branch( "nLocalProtCand", &nLocalProtCand, "nLocalProtCand/i" );
-          tree->Branch( "LocalProtCand_x", LocalProtCand_x, "LocalProtCand_x[nLocalProtCand]/D" );
-          tree->Branch( "LocalProtCand_y", LocalProtCand_y, "LocalProtCand_y[nLocalProtCand]/D" );
-          tree->Branch( "LocalProtCand_t", LocalProtCand_t, "LocalProtCand_t[nLocalProtCand]/D" );
-          tree->Branch( "LocalProtCand_xSigma", LocalProtCand_xSigma, "LocalProtCand_xSigma[nLocalProtCand]/D" );
-          tree->Branch( "LocalProtCand_ySigma", LocalProtCand_ySigma, "LocalProtCand_ySigma[nLocalProtCand]/D" );
-          tree->Branch( "LocalProtCand_tSigma", LocalProtCand_tSigma, "LocalProtCand_tSigma[nLocalProtCand]/D" );
-          tree->Branch( "LocalProtCand_arm", LocalProtCand_arm, "LocalProtCand_arm[nLocalProtCand]/I" );
-          tree->Branch( "LocalProtCand_station", LocalProtCand_station, "LocalProtCand_station[nLocalProtCand]/I" );
-          tree->Branch( "LocalProtCand_pot", LocalProtCand_pot, "LocalProtCand_pot[nLocalProtCand]/I" );
-        }
+        tree->Branch( "nLocalProtCand", &nLocalProtCand, "nLocalProtCand/i" );
+        tree->Branch( "LocalProtCand_x", LocalProtCand_x, "LocalProtCand_x[nLocalProtCand]/D" );
+        tree->Branch( "LocalProtCand_y", LocalProtCand_y, "LocalProtCand_y[nLocalProtCand]/D" );
+        tree->Branch( "LocalProtCand_t", LocalProtCand_t, "LocalProtCand_t[nLocalProtCand]/D" );
+        tree->Branch( "LocalProtCand_xSigma", LocalProtCand_xSigma, "LocalProtCand_xSigma[nLocalProtCand]/D" );
+        tree->Branch( "LocalProtCand_ySigma", LocalProtCand_ySigma, "LocalProtCand_ySigma[nLocalProtCand]/D" );
+        tree->Branch( "LocalProtCand_tSigma", LocalProtCand_tSigma, "LocalProtCand_tSigma[nLocalProtCand]/D" );
+        tree->Branch( "LocalProtCand_arm", LocalProtCand_arm, "LocalProtCand_arm[nLocalProtCand]/I" );
+        tree->Branch( "LocalProtCand_station", LocalProtCand_station, "LocalProtCand_station[nLocalProtCand]/I" );
+        tree->Branch( "LocalProtCand_pot", LocalProtCand_pot, "LocalProtCand_pot[nLocalProtCand]/I" );
 
         // Extra tracks on vertex's information
         tree->Branch( "nExtraTracks", &nExtraTracks, "nExtraTracks/i" );
@@ -709,18 +707,16 @@ namespace ggll
           tree->SetBranchAddress( "GenPair_3Dangle", &GenPair_3Dangle );
         }
 
-        if ( !mc ) {
-          tree->SetBranchAddress( "nLocalProtCand", &nLocalProtCand );
-          tree->SetBranchAddress( "LocalProtCand_x", LocalProtCand_x );
-          tree->SetBranchAddress( "LocalProtCand_y", LocalProtCand_y );
-          tree->SetBranchAddress( "LocalProtCand_t", LocalProtCand_t );
-          tree->SetBranchAddress( "LocalProtCand_xSigma", LocalProtCand_xSigma );
-          tree->SetBranchAddress( "LocalProtCand_ySigma", LocalProtCand_ySigma );
-          tree->SetBranchAddress( "LocalProtCand_tSigma", LocalProtCand_tSigma );
-          tree->SetBranchAddress( "LocalProtCand_arm", LocalProtCand_arm );
-          tree->SetBranchAddress( "LocalProtCand_station", LocalProtCand_station );
-          tree->SetBranchAddress( "LocalProtCand_pot", LocalProtCand_pot );
-        }
+        tree->SetBranchAddress( "nLocalProtCand", &nLocalProtCand );
+        tree->SetBranchAddress( "LocalProtCand_x", LocalProtCand_x );
+        tree->SetBranchAddress( "LocalProtCand_y", LocalProtCand_y );
+        tree->SetBranchAddress( "LocalProtCand_t", LocalProtCand_t );
+        tree->SetBranchAddress( "LocalProtCand_xSigma", LocalProtCand_xSigma );
+        tree->SetBranchAddress( "LocalProtCand_ySigma", LocalProtCand_ySigma );
+        tree->SetBranchAddress( "LocalProtCand_tSigma", LocalProtCand_tSigma );
+        tree->SetBranchAddress( "LocalProtCand_arm", LocalProtCand_arm );
+        tree->SetBranchAddress( "LocalProtCand_station", LocalProtCand_station );
+        tree->SetBranchAddress( "LocalProtCand_pot", LocalProtCand_pot );
 
         // Extra tracks on vertex's information
         tree->SetBranchAddress( "nExtraTracks", &nExtraTracks );

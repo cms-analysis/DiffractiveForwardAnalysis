@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ggll")
 
-runOnMC = False
+#runOnMC = False
+runOnMC = True
 useAOD = True # AOD or MiniAOD?
 
 #########################
@@ -16,8 +17,8 @@ process.options   = cms.untracked.PSet(
     allowUnscheduled = cms.untracked.bool(True),
 )
 
-#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #########################
@@ -27,7 +28,13 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 #'/store/data/Run2016G/DoubleEG/AOD/23Sep2016-v1/100000/0042DBD3-BA8E-E611-919E-002481ACDAA8.root',
-'/store/data/Run2017C/DoubleMuon/AOD/12Sep2017-v1/10000/029F251F-B1A2-E711-AAC3-001E67792890.root',
+#'/store/data/Run2017C/DoubleMuon/AOD/12Sep2017-v1/10000/029F251F-B1A2-E711-AAC3-001E67792890.root',
+
+##'/store/mc/RunIIFall17DRPremix/GGToWW_bSM-A0W1e-6_13TeV-fpmc-herwig6/AODSIM/PU2017_94X_mc2017_realistic_v11-v2/40000/FAB1B549-E128-E911-A65A-00266CF3E3C4.root',
+'file:/eos/user/m/mghahrem/MC-GGToZZ_bSM-A0Z-1e-5/EACF2357-F526-E911-A5CC-FA163E0B1665.root',
+#'file:/eos/user/m/mghahrem/MC-GGToZZ_bSM-A0Z-1e-5/DA08BEA6-E226-E911-9173-0CC47AFF02C4.root'
+
+
     ),
     #firstEvent = cms.untracked.uint32(0)
 )
@@ -51,7 +58,9 @@ process.hltFilter.HLTPaths = cms.vstring(
 process.load("Configuration.StandardSequences.GeometryDB_cff") ## FIXME need to ensure that this is the good one
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data')
+process.GlobalTag = GlobalTag(process.GlobalTag, '94X_mc2017_realistic_v11', '')
+
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
@@ -98,14 +107,20 @@ from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 
 switchOnVIDElectronIdProducer(process, DataFormat.AOD)
 #setupAllVIDIdsInModule(process, 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff', setupVIDElectronSelection)
-setupAllVIDIdsInModule(process, 'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff', setupVIDElectronSelection)
+
+###setupAllVIDIdsInModule(process, 'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff', setupVIDElectronSelection)
+
+###setupAllVIDIdsInModule(process, 'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_94X_V2_cff', setupVIDElectronSelection)
 
 #########################
 #       Photon ID       #
 #########################
 
 switchOnVIDPhotonIdProducer(process, DataFormat.AOD)
-setupAllVIDIdsInModule(process, 'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff', setupVIDPhotonSelection)
+###setupAllVIDIdsInModule(process, 'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff', setupVIDPhotonSelection)
+
+###setupAllVIDIdsInModule(process, 'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff', setupVIDPhotonSelection)
+
 
 #########################
 #       Analysis        #
@@ -122,12 +137,20 @@ process.ggll_aod.fetchProtons = cms.bool(True)
 
 # E/gamma identification
 process.ggll_aod.eleIdLabels = cms.PSet(
-    mediumLabel = cms.InputTag('mvaEleID-Spring16-GeneralPurpose-V1-wp90'),
-    tightLabel = cms.InputTag('mvaEleID-Spring16-GeneralPurpose-V1-wp80'),
+
+    mediumLabel = cms.InputTag('mvaEleID-Fall17-iso-V2-wp90'),
+    tightLabel = cms.InputTag('mvaEleID-Fall17-iso-V2-wp80'),
+
+    #mediumLabel = cms.InputTag('mvaEleID-Spring16-GeneralPurpose-V1-wp90'),
+    #tightLabel = cms.InputTag('mvaEleID-Spring16-GeneralPurpose-V1-wp80'),
 )
 process.ggll_aod.phoIdLabels = cms.PSet(
-    mediumLabel = cms.InputTag('mvaPhoID-Spring16-nonTrig-V1-wp90'),
-    tightLabel = cms.InputTag('mvaPhoID-Spring16-nonTrig-V1-wp80'),
+
+    mediumLabel = cms.InputTag('mvaPhoID-Fall17-iso-V2-wp90'),
+    tightLabel = cms.InputTag('mvaPhoID-Fall17-iso-V2-wp80'),
+
+ #mediumLabel = cms.InputTag('mvaPhoID-Spring16-nonTrig-V1-wp90'),
+ # tightLabel = cms.InputTag('mvaPhoID-Spring16-nonTrig-V1-wp80'),
 )
 #process.ggll_aod.eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90")
 #process.ggll_aod.eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80")
