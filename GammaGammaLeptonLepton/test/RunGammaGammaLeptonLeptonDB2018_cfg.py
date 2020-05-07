@@ -26,23 +26,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-#'/store/data/Run2016G/DoubleEG/AOD/23Sep2016-v1/100000/0042DBD3-BA8E-E611-919E-002481ACDAA8.root',
-#'/store/data/Run2017C/DoubleMuon/AOD/12Sep2017-v1/10000/029F251F-B1A2-E711-AAC3-001E67792890.root',
-#'/store/data/Run2018B/DoubleMuon/MINIAOD/17Sep2018-v1/00000/8E1342C6-AA35-9049-B101-B5B595EAAEE2.root'
-#'/store/data/Run2017C/DoubleMuon/AOD/17Nov2017-v1/30001/30DDB6DA-CBD8-E711-AF2A-A4BF0112BCB4.root'
-#'file:/tmp/jjhollar/8816F63B-C0D5-E711-B32B-002590D9D9F0.root'
-
-#'/store/data/Run2017D/DoubleMuon/AOD/17Nov2017-v1/30000/6482D69E-48D6-E711-9AF7-008CFAF71FB4.root'
-#'file:/tmp/jjhollar/6482D69E-48D6-E711-9AF7-008CFAF71FB4.root'
-#'file:/tmp/jjhollar/F2C53386-ABFA-4A4F-B851-0065858DB53C.root'
-#'file:/tmp/jjhollar/14D52021-5DDE-E711-8A48-02163E01453B.root'
-#
-# at CERN eos
-#'/store/data/Run2017C/DoubleMuon/AOD/PromptReco-v3/000/301/998/00000/8E0BF23F-8F8E-E711-9774-02163E019B27.root'
-#
-#'/store/data/Run2017C/DoubleMuon/AOD/17Nov2017-v1/30000/90A083BD-CBD8-E711-A440-A4BF0108B5F2.root'
-#'file:/tmp/jjhollar/90A083BD-CBD8-E711-A440-A4BF0108B5F2.root'
-'file:pickevents.root'
+'/store/data/Run2018A/DoubleMuon/AOD/17Sep2018-v2/60000/32D7FDE9-748B-ED43-A45D-587019CC5D92.root'
+ #       'file:/tmp/jjhollar/32D7FDE9-748B-ED43-A45D-587019CC5D92.root'
     ),
     #firstEvent = cms.untracked.uint32(0)
 )
@@ -65,10 +50,40 @@ process.hltFilter.HLTPaths = cms.vstring(
 #########################
 #      Preskimming      #
 #########################
-process.load("Configuration.StandardSequences.GeometryDB_cff") ## FIXME need to ensure that this is the good one
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# declare global tag
+process.load("Configuration.StandardSequences.GeometryDB_cff") ## FIXME need to ensure that this is the good one                                     
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data')
+process.GlobalTag = GlobalTag(process.GlobalTag, "106X_dataRun2_testPPS_v1")
+
+#JH - for tests of 2018 alignment candidate
+#from CalibPPS.ESProducers.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi import *
+process.ctppsRPAlignmentCorrectionsDataESSourceXML = cms.ESSource("CTPPSRPAlignmentCorrectionsDataESSourceXML",
+    verbosity = cms.untracked.uint32(0),
+
+    MeasuredFiles = cms.vstring(),
+    RealFiles = cms.vstring(),
+    MisalignedFiles = cms.vstring()
+)
+
+process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring(
+  # internal pixel alignment
+  "CalibPPS/ESProducers/data/alignment/RPixGeometryCorrections-2017-2018.xml",
+
+  # global alignment of tracking RPs (strips and pixels)
+  "CalibPPS/ESProducers/data/alignment/alignment_export_2019_05_09.1.xml",
+
+  # alignment of timing RPs (diamonds and UFSDs)
+  "CalibPPS/ESProducers/data/alignment/timing_RP_2017_preTS2_v2.xml",
+  "CalibPPS/ESProducers/data/alignment/timing_RP_2017_postTS2_v2.xml",
+  "CalibPPS/ESProducers/data/alignment/timing_RP_2018_v2.xml"
+)
+
+process.esPreferLocalAlignment = cms.ESPrefer("CTPPSRPAlignmentCorrectionsDataESSourceXML", "ctppsRPAlignmentCorrectionsDataESSourceXML")
+
+
+
+
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
@@ -131,15 +146,13 @@ setupAllVIDIdsInModule(process, 'RecoEgamma.PhotonIdentification.Identification.
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 
 #JH - ESPrefer to get optical functions from CTPPSOpticalFunctionsESSource instead of global tag for now
-process.es_prefer_ppsOptics = cms.ESPrefer("CTPPSOpticalFunctionsESSource","ctppsOpticalFunctionsESSource")
 
 # For testing on old prompt reco data - need to rerun pixel tracking + LiteTracks first
 # Should not be needed for final version running on re-RECO data
 process.ctppsProtons.tagLocalTrackLite = cms.InputTag("ctppsLocalTrackLiteProducer","","ggll")
 process.ctppsLocalTrackLiteProducer.includePixels = cms.bool(True)
 process.ctppsLocalTrackLiteProducer.includeStrips = cms.bool(True)
-process.ctppsProtons.doSingleRPReconstruction = cms.bool(True)
-process.ctppsProtons.doMultiRPReconstruction = cms.bool(True)
+process.ctppsLocalTrackLiteProducer.includeDiamonds = cms.bool(True)
 
 #########################
 #       Analysis        #
@@ -154,7 +167,7 @@ process.ggll_aod.leptonsType = cms.string('Muon')
 process.ggll_aod.runOnMC = cms.bool(runOnMC)
 process.ggll_aod.fetchProtons = cms.bool(True)
 process.ggll_aod.saveExtraTracks = cms.bool(False)
-process.ggll_aod.year = cms.string('2017')
+process.ggll_aod.year = cms.string('2018')
 
 
 # E/gamma identification
@@ -189,10 +202,12 @@ process.p = cms.Path(
     # Only run high-level proton reco
     #    process.ctppsProtons *                                                                                            
     # Rerun lots of things!
-    process.totemRPLocalReconstruction *
-    process.ctppsDiamondLocalTracks*
-    process.ctppsPixelLocalReconstruction *
-    process.ctppsLocalTrackLiteProducer *
+    process.totemRPUVPatternFinder * 
+    process.totemRPLocalTrackFitter * 
+    process.ctppsDiamondRecHits * 
+    process.ctppsDiamondLocalTracks * 
+    process.ctppsPixelLocalTracks * 
+    process.ctppsLocalTrackLiteProducer * 
     process.ctppsProtons *
     process.ggll_aod
 )

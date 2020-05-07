@@ -57,11 +57,14 @@ namespace ggll
       static constexpr unsigned int MAX_JETS = 40;
       /// Maximum number of reconstructed local tracks in RPs
       static constexpr unsigned int MAX_LOCALPCAND = 120;
+      /// Maximum number of reconstructed protons
+      static constexpr unsigned int MAX_PRO = 120;
 
       ////// Tree contents //////
 
       // Run/event quantities
       unsigned int BX, Run, LumiSection, EventNum;
+      float CrossingAngle;
       //int LHCFillNum, LHCBeamMode;
       //double AvgInstDelLumi, BunchInstLumi[3];
 
@@ -185,11 +188,23 @@ namespace ggll
       unsigned int nLocalProtCand;
       double LocalProtCand_x[MAX_LOCALPCAND], LocalProtCand_y[MAX_LOCALPCAND], LocalProtCand_t[MAX_LOCALPCAND];
       double LocalProtCand_xSigma[MAX_LOCALPCAND], LocalProtCand_ySigma[MAX_LOCALPCAND], LocalProtCand_tSigma[MAX_LOCALPCAND];
-      int LocalProtCand_arm[MAX_LOCALPCAND], LocalProtCand_station[MAX_LOCALPCAND], LocalProtCand_pot[MAX_LOCALPCAND];
+      int LocalProtCand_arm[MAX_LOCALPCAND], LocalProtCand_station[MAX_LOCALPCAND], LocalProtCand_pot[MAX_LOCALPCAND], LocalProtCand_rpid[MAX_LOCALPCAND];
+      float LocalProtCand_time[MAX_LOCALPCAND];
+
+      // reco proton quantities
+      unsigned int nRecoProtCand;
+      double ProtCand_xi[MAX_PRO], ProtCand_t[MAX_PRO], ProtCand_ThX[MAX_PRO], ProtCand_ThY[MAX_PRO], ProtCand_ystar[MAX_PRO];
+      int ProtCand_rpid[MAX_PRO], ProtCand_arm[MAX_PRO], ProtCand_ismultirp[MAX_PRO];
+      float ProtCand_time[MAX_PRO];
+      double ProtCand_trackx1[MAX_PRO], ProtCand_tracky1[MAX_PRO], ProtCand_trackx2[MAX_PRO], ProtCand_tracky2[MAX_PRO];
+      int ProtCand_rpid1[MAX_PRO], ProtCand_rpid2[MAX_PRO], ProtCand_trackpixshift1[MAX_PRO], ProtCand_trackpixshift2[MAX_PRO];
+      double ProtCand_trackreducedchi21[MAX_PRO], ProtCand_trackreducedchi22[MAX_PRO], ProtCand_trackthx1[MAX_PRO], ProtCand_trackthy1[MAX_PRO], ProtCand_trackthx2[MAX_PRO], ProtCand_trackthy2[MAX_PRO];
+      int ProtCand_trackndof1[MAX_PRO], ProtCand_trackndof2[MAX_PRO];
 
       void clear() {
         // event-level branches
         BX = Run = LumiSection = EventNum = 0;
+	CrossingAngle = 0.0;
 
         // high-level trigger
         nHLT = 0;
@@ -329,16 +344,48 @@ namespace ggll
         for ( unsigned int i = 0; i < MAX_LOCALPCAND; ++i ) {
           LocalProtCand_x[i] = LocalProtCand_y[i] = LocalProtCand_t[i] = -999.;
           LocalProtCand_xSigma[i] = LocalProtCand_ySigma[i] = LocalProtCand_tSigma[i] = -999.;
-          LocalProtCand_arm[i] = LocalProtCand_station[i] = LocalProtCand_pot[i] = -1;
+          LocalProtCand_arm[i] = LocalProtCand_station[i] = LocalProtCand_pot[i] = LocalProtCand_rpid[i] = -1;
+	  LocalProtCand_time[i] = 0;
         }
+
+	nRecoProtCand = 0;
+	for (unsigned int i = 0; i < MAX_PRO; ++i )
+	  {
+	    ProtCand_xi[i] = -999.;
+	    ProtCand_t[i] = -999.;
+	    ProtCand_ThX[i] = -999.;
+	    ProtCand_ThY[i] = -999.;
+	    ProtCand_ystar[i] = -999.;
+	    ProtCand_rpid[i] = -1;
+	    ProtCand_arm[i] = -1;
+	    ProtCand_time[i] = -999.;
+	    ProtCand_ismultirp[i] = -1;
+	    ProtCand_trackx1[i] = -999.;
+	    ProtCand_tracky1[i] = -999.;
+            ProtCand_trackx2[i] = -999.;
+            ProtCand_tracky2[i] = -999.;
+            ProtCand_rpid1[i] = -1;
+            ProtCand_rpid2[i] = -1;
+	    ProtCand_trackpixshift1[i] = -1;
+	    ProtCand_trackpixshift2[i] = -1;
+	    ProtCand_trackreducedchi21[i] = -999.; 
+	    ProtCand_trackreducedchi22[i] = -999.; 
+	    ProtCand_trackthx1[i] = -999.; 
+	    ProtCand_trackthy1[i] = -999.; 
+	    ProtCand_trackthx2[i] = -999.; 
+	    ProtCand_trackthy2[i] = -999.;
+	    ProtCand_trackndof1[i] = -1; 
+	    ProtCand_trackndof2[i] = -1;
+	  }
       }
-      void attach( TTree* tree, TreeType tt, bool mc ) {
+      void attach( TTree* tree, TreeType tt, bool mc, bool storetracks ) {
         if ( !tree ) return;
 
         tree->Branch( "Run", &Run, "Run/i" );
         tree->Branch( "LumiSection", &LumiSection, "LumiSection/i" );
         tree->Branch( "BX", &BX, "BX/i" );
         tree->Branch( "EventNum", &EventNum, "EventNum/i" );
+	tree->Branch( "CrossingAngle", &CrossingAngle, "CrossingAngle/F");
 
         tree->Branch( "nHLT", &nHLT, "nHLT/i" );
         tree->Branch( "HLT_Accept", HLT_Accept, "HLT_Accept[nHLT]/I" );
@@ -415,25 +462,7 @@ namespace ggll
             tree->Branch( "GenEleCand_e", GenEleCand_e, "GenEleCand_e[nGenEleCand]/D" );
           }
         }
-        tree->Branch( "nPhotonCand", &nPhotonCand, "nPhotonCand/i" );
-        tree->Branch( "PhotonCand_pt", PhotonCand_pt, "PhotonCand_pt[nPhotonCand]/D" );
-        tree->Branch( "PhotonCand_eta", PhotonCand_eta, "PhotonCand_eta[nPhotonCand]/D" );
-        tree->Branch( "PhotonCand_phi", PhotonCand_phi, "PhotonCand_phi[nPhotonCand]/D" );
-        tree->Branch( "PhotonCand_e", PhotonCand_e, "PhotonCand_e[nPhotonCand]/D" );
-        tree->Branch( "PhotonCand_r9", PhotonCand_r9, "PhotonCand_r9[nPhotonCand]/D" );
-        tree->Branch( "PhotonCand_drtrue", PhotonCand_drtrue, "PhotonCand_drtrue[nPhotonCand]/D" );
-        tree->Branch( "PhotonCand_detatrue", PhotonCand_detatrue, "PhotonCand_detatrue[nPhotonCand]/D" );
-        tree->Branch( "PhotonCand_dphitrue", PhotonCand_dphitrue, "PhotonCand_dphitrue[nPhotonCand]/D" );
-        tree->Branch( "PhotonCand_mediumID", PhotonCand_mediumID, "PhotonCand_mediumID[nPhotonCand]/I" );
-        tree->Branch( "PhotonCand_tightID", PhotonCand_tightID, "PhotonCand_tightID[nPhotonCand]/I" );
         if ( mc ) {
-          tree->Branch( "nGenPhotCand", &nGenPhotCand, "nGenPhotCand/i" );
-          tree->Branch( "nGenPhotCandOutOfAccept", &nGenPhotCandOutOfAccept, "nGenPhotCandOutOfAccept/I" );
-          tree->Branch( "GenPhotCand_pt", GenPhotCand_pt, "GenPhotCand_pt[nGenPhotCand]/D" );
-          tree->Branch( "GenPhotCand_eta", GenPhotCand_eta, "GenPhotCand_eta[nGenPhotCand]/D" );
-          tree->Branch( "GenPhotCand_phi", GenPhotCand_phi, "GenPhotCand_phi[nGenPhotCand]/D" );
-          tree->Branch( "GenPhotCand_e", GenPhotCand_e, "GenPhotCand_e[nGenPhotCand]/D" );
-
           tree->Branch( "nGenProtCand", &nGenProtCand, "nGenProtCand/i" );
           tree->Branch( "GenProtCand_pt", GenProtCand_pt, "GenProtCand_pt[nGenProtCand]/D" );
           tree->Branch( "GenProtCand_eta", GenProtCand_eta, "GenProtCand_eta[nGenProtCand]/D" );
@@ -480,9 +509,6 @@ namespace ggll
         tree->Branch( "KalmanVertexCand_y", KalmanVertexCand_y, "KalmanVertexCand_y[nPair]/D" );
         tree->Branch( "KalmanVertexCand_z", KalmanVertexCand_z, "KalmanVertexCand_z[nPair]/D" );
 
-        tree->Branch( "nPairGamma", &nPairGamma, "nPairGamma/i" );
-        tree->Branch( "PairGamma_pair", PairGamma_pair, "PairGamma_pair[nPairGamma]/I" );
-        tree->Branch( "PairGamma_mass", PairGamma_mass, "PairGamma_mass[nPairGamma]/D" );
         if ( mc ) {
           tree->Branch( "GenPair_mass", &GenPair_mass, "GenPair_mass/D" );
           tree->Branch( "GenPair_pt", &GenPair_pt, "GenPair_pt/D" );
@@ -493,34 +519,69 @@ namespace ggll
           tree->Branch( "GenPair_3Dangle", &GenPair_3Dangle, "GenPair_3Dangle/D" );
         }
 
-        tree->Branch( "nLocalProtCand", &nLocalProtCand, "nLocalProtCand/i" );
-        tree->Branch( "LocalProtCand_x", LocalProtCand_x, "LocalProtCand_x[nLocalProtCand]/D" );
-        tree->Branch( "LocalProtCand_y", LocalProtCand_y, "LocalProtCand_y[nLocalProtCand]/D" );
-        tree->Branch( "LocalProtCand_t", LocalProtCand_t, "LocalProtCand_t[nLocalProtCand]/D" );
-        tree->Branch( "LocalProtCand_xSigma", LocalProtCand_xSigma, "LocalProtCand_xSigma[nLocalProtCand]/D" );
-        tree->Branch( "LocalProtCand_ySigma", LocalProtCand_ySigma, "LocalProtCand_ySigma[nLocalProtCand]/D" );
-        tree->Branch( "LocalProtCand_tSigma", LocalProtCand_tSigma, "LocalProtCand_tSigma[nLocalProtCand]/D" );
-        tree->Branch( "LocalProtCand_arm", LocalProtCand_arm, "LocalProtCand_arm[nLocalProtCand]/I" );
-        tree->Branch( "LocalProtCand_station", LocalProtCand_station, "LocalProtCand_station[nLocalProtCand]/I" );
-        tree->Branch( "LocalProtCand_pot", LocalProtCand_pot, "LocalProtCand_pot[nLocalProtCand]/I" );
+	//        if ( !mc ) {
+	if(1) {
+          tree->Branch( "nLocalProtCand", &nLocalProtCand, "nLocalProtCand/i" );
+          tree->Branch( "LocalProtCand_x", LocalProtCand_x, "LocalProtCand_x[nLocalProtCand]/D" );
+          tree->Branch( "LocalProtCand_y", LocalProtCand_y, "LocalProtCand_y[nLocalProtCand]/D" );
+          tree->Branch( "LocalProtCand_t", LocalProtCand_t, "LocalProtCand_t[nLocalProtCand]/D" );
+          tree->Branch( "LocalProtCand_xSigma", LocalProtCand_xSigma, "LocalProtCand_xSigma[nLocalProtCand]/D" );
+          tree->Branch( "LocalProtCand_ySigma", LocalProtCand_ySigma, "LocalProtCand_ySigma[nLocalProtCand]/D" );
+          tree->Branch( "LocalProtCand_tSigma", LocalProtCand_tSigma, "LocalProtCand_tSigma[nLocalProtCand]/D" );
+          tree->Branch( "LocalProtCand_arm", LocalProtCand_arm, "LocalProtCand_arm[nLocalProtCand]/I" );
+          tree->Branch( "LocalProtCand_station", LocalProtCand_station, "LocalProtCand_station[nLocalProtCand]/I" );
+          tree->Branch( "LocalProtCand_pot", LocalProtCand_pot, "LocalProtCand_pot[nLocalProtCand]/I" );
+          tree->Branch( "LocalProtCand_rpid", LocalProtCand_rpid, "LocalProtCand_rpid[nLocalProtCand]/I" );
+          tree->Branch( "LocalProtCand_time", LocalProtCand_time, "LocalProtCand_time[nLocalProtCand]/F" );
+
+          tree->Branch( "nRecoProtCand", &nRecoProtCand, "nRecoProtCand/i" );
+          tree->Branch( "ProtCand_xi", ProtCand_xi, "ProtCand_xi[nRecoProtCand]/D" );
+          tree->Branch( "ProtCand_t", ProtCand_t, "ProtCand_t[nRecoProtCand]/D" );
+          tree->Branch( "ProtCand_ThX", ProtCand_ThX, "ProtCand_ThX[nRecoProtCand]/D" );
+          tree->Branch( "ProtCand_ThY", ProtCand_ThY, "ProtCand_ThY[nRecoProtCand]/D" );
+	  tree->Branch( "ProtCand_ystar", ProtCand_ystar, "ProtCand_ystar[nRecoProtCand]/D" );
+          tree->Branch( "ProtCand_rpid", ProtCand_rpid, "ProtCand_rpid[nRecoProtCand]/I" );
+          tree->Branch( "ProtCand_arm", ProtCand_arm, "ProtCand_arm[nRecoProtCand]/I" );
+          tree->Branch( "ProtCand_ismultirp", ProtCand_ismultirp, "ProtCand_ismultirp[nRecoProtCand]/I" );
+          tree->Branch( "ProtCand_time", ProtCand_time, "ProtCand_time[nRecoProtCand]/F" );
+          tree->Branch( "ProtCand_trackx1", ProtCand_trackx1, "ProtCand_trackx1[nRecoProtCand]/D" );
+          tree->Branch( "ProtCand_tracky1", ProtCand_tracky1, "ProtCand_tracky1[nRecoProtCand]/D" );
+          tree->Branch( "ProtCand_trackx2", ProtCand_trackx2, "ProtCand_trackx2[nRecoProtCand]/D" );
+          tree->Branch( "ProtCand_tracky2", ProtCand_tracky2, "ProtCand_tracky2[nRecoProtCand]/D" );
+          tree->Branch( "ProtCand_rpid1", ProtCand_rpid1, "ProtCand_rpid1[nRecoProtCand]/I" );
+          tree->Branch( "ProtCand_rpid2", ProtCand_rpid2, "ProtCand_rpid2[nRecoProtCand]/I" );
+	  tree->Branch( "ProtCand_trackpixshift1", ProtCand_trackpixshift1, "ProtCand_trackpixshift1[nRecoProtCand]/I" );
+          tree->Branch( "ProtCand_trackpixshift2", ProtCand_trackpixshift2, "ProtCand_trackpixshift2[nRecoProtCand]/I" );
+	  tree->Branch( "ProtCand_trackreducedchi21", ProtCand_trackreducedchi21, "ProtCand_trackreducedchi21[nRecoProtCand]/D" );
+	  tree->Branch( "ProtCand_trackreducedchi22", ProtCand_trackreducedchi22, "ProtCand_trackreducedchi22[nRecoProtCand]/D" );
+	  tree->Branch( "ProtCand_trackthx1" , ProtCand_trackthx1, "ProtCand_trackthx1[nRecoProtCand]/D" );
+	  tree->Branch( "ProtCand_trackthy1", ProtCand_trackthy1, "ProtCand_trackthy1[nRecoProtCand]/D" );
+	  tree->Branch( "ProtCand_trackthx2", ProtCand_trackthx2, "ProtCand_trackthx2[nRecoProtCand]/D" );
+	  tree->Branch( "ProtCand_trackthy2", ProtCand_trackthy2, "ProtCand_trackthy2[nRecoProtCand]/D" );
+	  tree->Branch( "ProtCand_trackndof1", ProtCand_trackndof1, "ProtCand_trackndof1[nRecoProtCand]/I" );
+	  tree->Branch( "ProtCand_trackndof2", ProtCand_trackndof2, "ProtCand_trackndof2[nRecoProtCand]/I" );
+        }
 
         // Extra tracks on vertex's information
-        tree->Branch( "nExtraTracks", &nExtraTracks, "nExtraTracks/i" );
-        tree->Branch( "ExtraTrack_pair", ExtraTrack_pair, "ExtraTrack_pair[nExtraTracks]/I" );
-        tree->Branch( "ExtraTrack_purity", ExtraTrack_purity, "ExtraTrack_purity[nExtraTracks]/I" );
-        tree->Branch( "ExtraTrack_nhits", ExtraTrack_nhits, "ExtraTrack_nhits[nExtraTracks]/i" );
-        tree->Branch( "ExtraTrack_charge", ExtraTrack_charge, "ExtraTrack_charge[nExtraTracks]/I" );
-        tree->Branch( "ExtraTrack_ndof", ExtraTrack_ndof, "ExtraTrack_ndof[nExtraTracks]/i" );
-        tree->Branch( "ExtraTrack_px", ExtraTrack_px, "ExtraTrack_px[nExtraTracks]/D" );
-        tree->Branch( "ExtraTrack_py", ExtraTrack_py, "ExtraTrack_py[nExtraTracks]/D" );
-        tree->Branch( "ExtraTrack_pz", ExtraTrack_pz, "ExtraTrack_pz[nExtraTracks]/D" );
-        tree->Branch( "ExtraTrack_chi2", ExtraTrack_chi2, "ExtraTrack_chi2[nExtraTracks]/D" );
-        tree->Branch( "ExtraTrack_vtxdxyz", ExtraTrack_vtxdxyz, "ExtraTrack_vtxdxyz[nExtraTracks]/D" );
-        tree->Branch( "ExtraTrack_vtxT", ExtraTrack_vtxT, "ExtraTrack_vtxT[nExtraTracks]/D" );
-        tree->Branch( "ExtraTrack_vtxZ", ExtraTrack_vtxZ, "ExtraTrack_vtxZ[nExtraTracks]/D" );
-        tree->Branch( "ExtraTrack_x", ExtraTrack_x, "ExtraTrack_x[nExtraTracks]/D" );
-        tree->Branch( "ExtraTrack_y", ExtraTrack_y, "ExtraTrack_y[nExtraTracks]/D" );
-        tree->Branch( "ExtraTrack_z", ExtraTrack_z, "ExtraTrack_z[nExtraTracks]/D" );
+	if(storetracks == true)
+	  {
+	    tree->Branch( "nExtraTracks", &nExtraTracks, "nExtraTracks/i" );
+	    tree->Branch( "ExtraTrack_pair", ExtraTrack_pair, "ExtraTrack_pair[nExtraTracks]/I" );
+	    tree->Branch( "ExtraTrack_purity", ExtraTrack_purity, "ExtraTrack_purity[nExtraTracks]/I" );
+	    tree->Branch( "ExtraTrack_nhits", ExtraTrack_nhits, "ExtraTrack_nhits[nExtraTracks]/i" );
+	    tree->Branch( "ExtraTrack_charge", ExtraTrack_charge, "ExtraTrack_charge[nExtraTracks]/I" );
+	    tree->Branch( "ExtraTrack_ndof", ExtraTrack_ndof, "ExtraTrack_ndof[nExtraTracks]/i" );
+	    tree->Branch( "ExtraTrack_px", ExtraTrack_px, "ExtraTrack_px[nExtraTracks]/D" );
+	    tree->Branch( "ExtraTrack_py", ExtraTrack_py, "ExtraTrack_py[nExtraTracks]/D" );
+	    tree->Branch( "ExtraTrack_pz", ExtraTrack_pz, "ExtraTrack_pz[nExtraTracks]/D" );
+	    tree->Branch( "ExtraTrack_chi2", ExtraTrack_chi2, "ExtraTrack_chi2[nExtraTracks]/D" );
+	    tree->Branch( "ExtraTrack_vtxdxyz", ExtraTrack_vtxdxyz, "ExtraTrack_vtxdxyz[nExtraTracks]/D" );
+	    tree->Branch( "ExtraTrack_vtxT", ExtraTrack_vtxT, "ExtraTrack_vtxT[nExtraTracks]/D" );
+	    tree->Branch( "ExtraTrack_vtxZ", ExtraTrack_vtxZ, "ExtraTrack_vtxZ[nExtraTracks]/D" );
+	    tree->Branch( "ExtraTrack_x", ExtraTrack_x, "ExtraTrack_x[nExtraTracks]/D" );
+	    tree->Branch( "ExtraTrack_y", ExtraTrack_y, "ExtraTrack_y[nExtraTracks]/D" );
+	    tree->Branch( "ExtraTrack_z", ExtraTrack_z, "ExtraTrack_z[nExtraTracks]/D" );
+	  }
         tree->Branch( "nQualityExtraTrack", &nQualityExtraTrack, "nQualityExtraTrack/i" );
         tree->Branch( "ClosestExtraTrack_vtxdxyz", ClosestExtraTrack_vtxdxyz, "ClosestExtraTrack_vtxdxyz[nPair]/D" );
         tree->Branch( "ClosestExtraTrack_id", ClosestExtraTrack_id, "ClosestExtraTrack_id[nPair]/I" );
@@ -528,31 +589,19 @@ namespace ggll
         tree->Branch( "ClosestHighPurityExtraTrack_id", ClosestHighPurityExtraTrack_id, "ClosestHighPurityExtraTrack_id[nPair]/I" );
 
         // Jets/MET information
-        tree->Branch( "nJetCand", &nJetCand, "nJetCand/i" );
-        tree->Branch( "JetCand_pt", JetCand_pt, "JetCand_pt[nJetCand]/D" );
-        tree->Branch( "JetCand_eta", JetCand_eta, "JetCand_eta[nJetCand]/D" );
-        tree->Branch( "JetCand_phi", JetCand_phi, "JetCand_phi[nJetCand]/D" );
-        tree->Branch( "JetCand_e", JetCand_e, "JetCand_e[nJetCand]/D" );
-        tree->Branch( "HighestJet_pt", &HighestJet_pt, "HighestJet_pt/D" );
-        tree->Branch( "HighestJet_eta", &HighestJet_eta, "HighestJet_eta/D" );
-        tree->Branch( "HighestJet_phi", &HighestJet_phi, "HighestJet_phi/D" );
-        tree->Branch( "HighestJet_e", &HighestJet_e, "HighestJet_e/D" );
-        tree->Branch( "SumJet_e", &SumJet_e, "SumJet_e/D" );
-        tree->Branch( "Etmiss", &Etmiss, "Etmiss/D" );
-        tree->Branch( "Etmiss_phi", &Etmiss_phi, "Etmiss_phi/D" );
-        tree->Branch( "Etmiss_significance", &Etmiss_significance, "Etmiss_significance/D" );
 
         // Pileup reweighting
         tree->Branch( "Weight", &Weight, "Weight/D" );
         tree->Branch( "PUWeightTrue", &PUWeightTrue, "PUWeightTrue/D" );
       }
-      void load( TTree* tree, TreeType tt, bool mc ) {
+      void load( TTree* tree, TreeType tt, bool mc, bool storetracks ) {
         if ( !tree ) return;
 
         tree->SetBranchAddress( "Run", &Run );
         tree->SetBranchAddress( "LumiSection", &LumiSection );
         tree->SetBranchAddress( "BX", &BX );
         tree->SetBranchAddress( "EventNum", &EventNum );
+	tree->SetBranchAddress( "CrossingAngle", &CrossingAngle );
 
         tree->SetBranchAddress( "nHLT", &nHLT );
         tree->SetBranchAddress( "HLT_Accept", HLT_Accept );
@@ -629,25 +678,8 @@ namespace ggll
             tree->SetBranchAddress( "GenEleCand_e", GenEleCand_e );
           }
         }
-        tree->SetBranchAddress( "nPhotonCand", &nPhotonCand );
-        tree->SetBranchAddress( "PhotonCand_pt", PhotonCand_pt );
-        tree->SetBranchAddress( "PhotonCand_eta", PhotonCand_eta );
-        tree->SetBranchAddress( "PhotonCand_phi", PhotonCand_phi );
-        tree->SetBranchAddress( "PhotonCand_e", PhotonCand_e );
-        tree->SetBranchAddress( "PhotonCand_r9", PhotonCand_r9 );
-        tree->SetBranchAddress( "PhotonCand_drtrue", PhotonCand_drtrue );
-        tree->SetBranchAddress( "PhotonCand_detatrue", PhotonCand_detatrue );
-        tree->SetBranchAddress( "PhotonCand_dphitrue", PhotonCand_dphitrue );
-        tree->SetBranchAddress( "PhotonCand_mediumID", PhotonCand_mediumID );
-        tree->SetBranchAddress( "PhotonCand_tightID", PhotonCand_tightID );
-        if ( mc ) {
-          tree->SetBranchAddress( "nGenPhotCand", &nGenPhotCand );
-          tree->SetBranchAddress( "nGenPhotCandOutOfAccept", &nGenPhotCandOutOfAccept );
-          tree->SetBranchAddress( "GenPhotCand_pt", GenPhotCand_pt );
-          tree->SetBranchAddress( "GenPhotCand_eta", GenPhotCand_eta );
-          tree->SetBranchAddress( "GenPhotCand_phi", GenPhotCand_phi );
-          tree->SetBranchAddress( "GenPhotCand_e", GenPhotCand_e );
 
+        if ( mc ) {
           tree->SetBranchAddress( "nGenProtCand", &nGenProtCand );
           tree->SetBranchAddress( "GenProtCand_pt", GenProtCand_pt );
           tree->SetBranchAddress( "GenProtCand_eta", GenProtCand_eta );
@@ -694,9 +726,6 @@ namespace ggll
         tree->SetBranchAddress( "KalmanVertexCand_y", KalmanVertexCand_y );
         tree->SetBranchAddress( "KalmanVertexCand_z", KalmanVertexCand_z );
 
-        tree->SetBranchAddress( "nPairGamma", &nPairGamma );
-        tree->SetBranchAddress( "PairGamma_pair", PairGamma_pair );
-        tree->SetBranchAddress( "PairGamma_mass", PairGamma_mass );
         if ( mc ) {
           tree->SetBranchAddress( "GenPair_mass", &GenPair_mass );
           tree->SetBranchAddress( "GenPair_pt", &GenPair_pt );
@@ -707,55 +736,78 @@ namespace ggll
           tree->SetBranchAddress( "GenPair_3Dangle", &GenPair_3Dangle );
         }
 
-        tree->SetBranchAddress( "nLocalProtCand", &nLocalProtCand );
-        tree->SetBranchAddress( "LocalProtCand_x", LocalProtCand_x );
-        tree->SetBranchAddress( "LocalProtCand_y", LocalProtCand_y );
-        tree->SetBranchAddress( "LocalProtCand_t", LocalProtCand_t );
-        tree->SetBranchAddress( "LocalProtCand_xSigma", LocalProtCand_xSigma );
-        tree->SetBranchAddress( "LocalProtCand_ySigma", LocalProtCand_ySigma );
-        tree->SetBranchAddress( "LocalProtCand_tSigma", LocalProtCand_tSigma );
-        tree->SetBranchAddress( "LocalProtCand_arm", LocalProtCand_arm );
-        tree->SetBranchAddress( "LocalProtCand_station", LocalProtCand_station );
-        tree->SetBranchAddress( "LocalProtCand_pot", LocalProtCand_pot );
+	//        if ( !mc ) {
+	if(1) {
+          tree->SetBranchAddress( "nLocalProtCand", &nLocalProtCand );
+          tree->SetBranchAddress( "LocalProtCand_x", LocalProtCand_x );
+          tree->SetBranchAddress( "LocalProtCand_y", LocalProtCand_y );
+          tree->SetBranchAddress( "LocalProtCand_t", LocalProtCand_t );
+          tree->SetBranchAddress( "LocalProtCand_xSigma", LocalProtCand_xSigma );
+          tree->SetBranchAddress( "LocalProtCand_ySigma", LocalProtCand_ySigma );
+          tree->SetBranchAddress( "LocalProtCand_tSigma", LocalProtCand_tSigma );
+          tree->SetBranchAddress( "LocalProtCand_arm", LocalProtCand_arm );
+          tree->SetBranchAddress( "LocalProtCand_station", LocalProtCand_station );
+          tree->SetBranchAddress( "LocalProtCand_pot", LocalProtCand_pot );
+          tree->SetBranchAddress( "LocalProtCand_rpid", LocalProtCand_rpid );
+          tree->SetBranchAddress( "LocalProtCand_time", LocalProtCand_time );
+
+	  tree->SetBranchAddress( "nRecoProtCand", &nRecoProtCand );
+	  tree->SetBranchAddress( "ProtCand_xi", ProtCand_xi );
+          tree->SetBranchAddress( "ProtCand_t", ProtCand_t );
+          tree->SetBranchAddress( "ProtCand_ThX", ProtCand_ThX );
+          tree->SetBranchAddress( "ProtCand_ThY", ProtCand_ThY );
+	  tree->SetBranchAddress( "ProtCand_ystar", ProtCand_ystar );
+          tree->SetBranchAddress( "ProtCand_rpid", ProtCand_rpid );
+          tree->SetBranchAddress( "ProtCand_arm", ProtCand_arm );
+          tree->SetBranchAddress( "ProtCand_ismultirp", ProtCand_ismultirp );
+          tree->SetBranchAddress( "ProtCand_time", ProtCand_time );
+          tree->SetBranchAddress( "ProtCand_trackx1", ProtCand_trackx1 );
+          tree->SetBranchAddress( "ProtCand_tracky1", ProtCand_tracky1 );
+          tree->SetBranchAddress( "ProtCand_trackx2", ProtCand_trackx2 );
+          tree->SetBranchAddress( "ProtCand_tracky2", ProtCand_tracky2 );
+          tree->SetBranchAddress( "ProtCand_rpid1", ProtCand_rpid1 );
+          tree->SetBranchAddress( "ProtCand_rpid2", ProtCand_rpid2 );
+	  tree->SetBranchAddress( "ProtCand_trackpixshift1", ProtCand_trackpixshift1 );
+          tree->SetBranchAddress( "ProtCand_trackpixshift2", ProtCand_trackpixshift2 );
+          tree->SetBranchAddress( "ProtCand_trackreducedchi21", ProtCand_trackreducedchi21 );
+	  tree->SetBranchAddress( "ProtCand_trackreducedchi22", ProtCand_trackreducedchi22 );
+	  tree->SetBranchAddress( "ProtCand_trackthx1", ProtCand_trackthx1 );
+          tree->SetBranchAddress( "ProtCand_trackthy1", ProtCand_trackthy1 );
+          tree->SetBranchAddress( "ProtCand_trackthx2", ProtCand_trackthx2 );
+          tree->SetBranchAddress( "ProtCand_trackthy2", ProtCand_trackthy2 );
+          tree->SetBranchAddress( "ProtCand_trackndof1", ProtCand_trackndof1 );
+          tree->SetBranchAddress( "ProtCand_trackndof2", ProtCand_trackndof2 );
+
+        }
 
         // Extra tracks on vertex's information
-        tree->SetBranchAddress( "nExtraTracks", &nExtraTracks );
-        tree->SetBranchAddress( "ExtraTrack_pair", ExtraTrack_pair );
-        tree->SetBranchAddress( "ExtraTrack_purity", ExtraTrack_purity );
-        tree->SetBranchAddress( "ExtraTrack_nhits", ExtraTrack_nhits );
-        tree->SetBranchAddress( "ExtraTrack_charge", ExtraTrack_charge );
-        tree->SetBranchAddress( "ExtraTrack_ndof", ExtraTrack_ndof );
-        tree->SetBranchAddress( "ExtraTrack_px", ExtraTrack_px );
-        tree->SetBranchAddress( "ExtraTrack_py", ExtraTrack_py );
-        tree->SetBranchAddress( "ExtraTrack_pz", ExtraTrack_pz );
-        tree->SetBranchAddress( "ExtraTrack_chi2", ExtraTrack_chi2 );
-        tree->SetBranchAddress( "ExtraTrack_vtxdxyz", ExtraTrack_vtxdxyz );
-        tree->SetBranchAddress( "ExtraTrack_vtxT", ExtraTrack_vtxT );
-        tree->SetBranchAddress( "ExtraTrack_vtxZ", ExtraTrack_vtxZ );
-        tree->SetBranchAddress( "ExtraTrack_x", ExtraTrack_x );
-        tree->SetBranchAddress( "ExtraTrack_y", ExtraTrack_y );
-        tree->SetBranchAddress( "ExtraTrack_z", ExtraTrack_z );
+	if (storetracks == true)
+	  {
+	    tree->SetBranchAddress( "nExtraTracks", &nExtraTracks );
+	    tree->SetBranchAddress( "ExtraTrack_pair", ExtraTrack_pair );
+	    tree->SetBranchAddress( "ExtraTrack_purity", ExtraTrack_purity );
+	    tree->SetBranchAddress( "ExtraTrack_nhits", ExtraTrack_nhits );
+	    tree->SetBranchAddress( "ExtraTrack_charge", ExtraTrack_charge );
+	    tree->SetBranchAddress( "ExtraTrack_ndof", ExtraTrack_ndof );
+	    tree->SetBranchAddress( "ExtraTrack_px", ExtraTrack_px );
+	    tree->SetBranchAddress( "ExtraTrack_py", ExtraTrack_py );
+	    tree->SetBranchAddress( "ExtraTrack_pz", ExtraTrack_pz );
+	    tree->SetBranchAddress( "ExtraTrack_chi2", ExtraTrack_chi2 );
+	    tree->SetBranchAddress( "ExtraTrack_vtxdxyz", ExtraTrack_vtxdxyz );
+	    tree->SetBranchAddress( "ExtraTrack_vtxT", ExtraTrack_vtxT );
+	    tree->SetBranchAddress( "ExtraTrack_vtxZ", ExtraTrack_vtxZ );
+	    tree->SetBranchAddress( "ExtraTrack_x", ExtraTrack_x );
+	    tree->SetBranchAddress( "ExtraTrack_y", ExtraTrack_y );
+	    tree->SetBranchAddress( "ExtraTrack_z", ExtraTrack_z );
+	  }
         tree->SetBranchAddress( "nQualityExtraTrack", &nQualityExtraTrack );
         tree->SetBranchAddress( "ClosestExtraTrack_vtxdxyz", ClosestExtraTrack_vtxdxyz );
         tree->SetBranchAddress( "ClosestExtraTrack_id", ClosestExtraTrack_id );
         tree->SetBranchAddress( "ClosestHighPurityExtraTrack_vtxdxyz", ClosestHighPurityExtraTrack_vtxdxyz );
         tree->SetBranchAddress( "ClosestHighPurityExtraTrack_id", ClosestHighPurityExtraTrack_id );
-
+	
         // Jets/MET information
-        tree->SetBranchAddress( "nJetCand", &nJetCand );
-        tree->SetBranchAddress( "JetCand_pt", JetCand_pt );
-        tree->SetBranchAddress( "JetCand_eta", JetCand_eta );
-        tree->SetBranchAddress( "JetCand_phi", JetCand_phi );
-        tree->SetBranchAddress( "JetCand_e", JetCand_e );
-        tree->SetBranchAddress( "HighestJet_pt", &HighestJet_pt );
-        tree->SetBranchAddress( "HighestJet_eta", &HighestJet_eta );
-        tree->SetBranchAddress( "HighestJet_phi", &HighestJet_phi );
-        tree->SetBranchAddress( "HighestJet_e", &HighestJet_e );
-        tree->SetBranchAddress( "SumJet_e", &SumJet_e );
-        tree->SetBranchAddress( "Etmiss", &Etmiss );
-        tree->SetBranchAddress( "Etmiss_phi", &Etmiss_phi );
-        tree->SetBranchAddress( "Etmiss_significance", &Etmiss_significance );
-
+	
         // Pileup reweighting
         tree->SetBranchAddress( "Weight", &Weight );
         tree->SetBranchAddress( "PUWeightTrue", &PUWeightTrue );

@@ -28,6 +28,9 @@ ggll_aod = cms.EDAnalyzer('GammaGammaLL',
     metTag = cms.InputTag('patMETs'),
     photonTag = cms.InputTag('selectedPatPhotons'),
     ppsLocalTrackTag = cms.InputTag('ctppsLocalTrackLiteProducer'),
+    ppsRecoProtonSingleRPTag = cms.InputTag("ctppsProtons", "singleRP"),
+    ppsRecoProtonMultiRPTag = cms.InputTag("ctppsProtons", "multiRP"),
+
     genParticleTag = cms.InputTag('genParticles'),
 
     # Pileup reweighting
