@@ -1,10 +1,10 @@
-#define Dimuons2017Macro_cxx
-#include "Dimuons2017Macro.h"
+#define Dimuons2018Macro_cxx
+#include "Dimuons2018Macro.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 
-bool Dimuons2017Macro::FiducalCuts(Float_t trackx220, Float_t tracky220, Int_t arm, Int_t run)
+bool Dimuons2018Macro::FiducalCuts(Float_t trackx210, Float_t tracky210, Float_t trackx220, Float_t tracky220, Int_t arm, Int_t run)
 {
   float pixelX0_rotated = 0;
   float pixelY0_rotated = 0;
@@ -14,247 +14,230 @@ bool Dimuons2017Macro::FiducalCuts(Float_t trackx220, Float_t tracky220, Int_t a
   float they210 = 0.0;
 
 
-  float xmin_45_210, xmin_45_220, ymin_45_210, ymin_45_220,
+  float xmin_45_210, xmin_45_220, ymin_45_210, ymin_45_220, 
     xmax_45_210, xmax_45_220, ymax_45_210, ymax_45_220,
     xmin_56_210, xmin_56_220, ymin_56_210, ymin_56_220,
     xmax_56_210, xmax_56_220, ymax_56_210, ymax_56_220;
+  
+  if((run >= 315252) && (run <= 316995))
+    {
+      // 2018A                                                                                                                                  
+      xmin_45_210 = 2.850; xmax_45_210 = 17.927; ymin_45_210 = -11.598; ymax_45_210 = 3.698;
+      xmin_45_220 = 2.421; xmax_45_220 = 24.620; ymin_45_220 = -10.898; ymax_45_220 = 4.398;
+      xmin_56_210 = 3.275; xmax_56_210 = 18.498; ymin_56_210 = -11.298; ymax_56_210 = 3.298;
+      xmin_56_220 = 2.421; xmax_56_220 = 20.045; ymin_56_220 = -10.398; ymax_56_220 = 5.098;
+    }
+  if((run >= 316998) && (run <= 317696))
+    {
+      // 2018B1                                                                                                                                 
+      xmin_45_210 = 2.850; xmax_45_210 = 17.927; ymin_45_210 = -11.598; ymax_45_210 = 3.698;
+      xmin_45_220 = 2.421; xmax_45_220 = 24.620; ymin_45_220 = -10.898; ymax_45_220 = 4.198;
+      xmin_56_210 = 3.275; xmax_56_210 = 18.070; ymin_56_210 = -11.198; ymax_56_210 = 4.098;
+      xmin_56_220 = 2.564; xmax_56_220 = 20.045; ymin_56_220 = -10.398; ymax_56_220 = 5.098;
+    }
+  if((run >= 318622) && (run <= 319312))
+    {
+      // 2018B2                                                                                                                                 
+      xmin_45_210 = 2.564; xmax_45_210 = 17.640; ymin_45_210 = -11.598; ymax_45_210 = 4.198;
+      xmin_45_220 = 2.140; xmax_45_220 = 24.479; ymin_45_220 = -11.398; ymax_45_220 = 3.798;
+      xmin_56_210 = 3.275; xmax_56_210 = 17.931; ymin_56_210 = -10.498; ymax_56_210 = 4.098;
+      xmin_56_220 = 2.279; xmax_56_220 = 24.760; ymin_56_220 = -10.598; ymax_56_220 = 4.498;
+    }
+  if((run >= 319313) && (run <= 320393))
+    {
+      // 2018C                                                                                                                                  
+      xmin_45_210 = 2.564; xmax_45_210 = 17.930; ymin_45_210 = -11.098; ymax_45_210 = 4.198;
+      xmin_45_220 = 2.421; xmax_45_220 = 24.620; ymin_45_220 = -11.398; ymax_45_220 = 3.698;
+      xmin_56_210 = 3.275; xmax_56_210 = 17.931; ymin_56_210 = -10.498; ymax_56_210 = 4.698;
+      xmin_56_220 = 2.279; xmax_56_220 = 24.760; ymin_56_220 = -10.598; ymax_56_220 = 4.398;
+    }
+  if((run >= 320394) && (run <= 322633))
+    {
+      // 2018D1                                                                                                                                 
+      xmin_45_210 = 2.850; xmax_45_210 = 17.931; ymin_45_210 = -11.098; ymax_45_210 = 4.098;
+      xmin_45_220 = 2.421; xmax_45_220 = 24.620; ymin_45_220 = -11.398; ymax_45_220 = 3.698;
+      xmin_56_210 = 3.275; xmax_56_210 = 17.931; ymin_56_210 = -10.498; ymax_56_210 = 4.698;
+      xmin_56_220 = 2.279; xmax_56_220 = 24.760; ymin_56_220 = -10.598; ymax_56_220 = 4.398;
+    }
+  if((run >= 323363) && (run <= 325273))
+    {
+      // 2018D2                                                                                                                                 
+      xmin_45_210 = 2.850; xmax_45_210 = 17.931; ymin_45_210 = -10.598; ymax_45_210 = 4.498;
+      xmin_45_220 = 2.421; xmax_45_220 = 24.620; ymin_45_220 = -11.698; ymax_45_220 = 3.298;
+      xmin_56_210 = 3.275; xmax_56_210 = 17.931; ymin_56_210 =  -9.998; ymax_56_210 = 4.698;
+      xmin_56_220 = 2.279; xmax_56_220 = 24.760; ymin_56_220 = -10.598; ymax_56_220 = 3.898;
+    }
+
+  pixelX0_rotated = trackx210 * TMath::Cos((-8. / 180.) * TMath::Pi()) -
+    tracky210 * TMath::Sin((-8. / 180.) * TMath::Pi());
+  pixelY0_rotated = trackx210 * TMath::Sin((-8. / 180.) * TMath::Pi()) +
+    tracky210 * TMath::Cos((-8. / 180.) * TMath::Pi());
 
   thex210 = pixelX0_rotated;
   they210 = pixelY0_rotated;
 
   thex220 = trackx220;
   they220 = tracky220;
-
-
-  if((run >= 297020) && (run <= 299329))
-    {
-      // 2017B
-      xmin_45_220 = 1.995; xmax_45_220 = 24.479; ymin_45_220 = -11.098; ymax_45_220 = 4.298;
-      xmin_56_220 = 2.422; xmax_56_220 = 24.620; ymin_56_220 = -10.698; ymax_56_220 = 4.698;
-    }
-  if((run >= 299337) && (run <= 300785))
-    {
-      // 2017C1 
-      xmin_45_220 = 1.860; xmax_45_220 = 24.334; ymin_45_220 = -11.098; ymax_45_220 = 4.298;
-      xmin_56_220 = 2.422; xmax_56_220 = 24.620; ymin_56_220 = -10.698; ymax_56_220 = 4.698;
-    }
-  if((run >= 300806) && (run <= 302029))
-    {
-      // 2017C2 copied from C1      
-      xmin_45_220 = 1.860; xmax_45_220 = 24.334; ymin_45_220 = -11.098; ymax_45_220 = 4.298;
-      xmin_56_220 = 2.422; xmax_56_220 = 24.620; ymin_56_220 = -10.698; ymax_56_220 = 4.698;
-    }
-  if((run >= 302030) && (run <= 303434))
-    {
-      // 2017D - copied from C1 
-      xmin_45_220 = 1.860; xmax_45_220 = 24.334; ymin_45_220 = -11.098; ymax_45_220 = 4.298;
-      xmin_56_220 = 2.422; xmax_56_220 = 24.620; ymin_56_220 = -10.698; ymax_56_220 = 4.698;
-    }
-  if((run >= 303435) && (run <= 304826))
-    {
-      // 2017E 
-      xmin_45_220 = 1.995; xmax_45_220 = 24.479; ymin_45_220 = -10.098; ymax_45_220 = 4.998;
-      xmin_56_220 = 2.422; xmax_56_220 = 24.620; ymin_56_220 =  -9.698; ymax_56_220 = 5.498;
-    }
-  if((run >= 304911) && (run <= 305114))
-    {
-      // 2017F1 
-      xmin_45_220 = 1.995; xmax_45_220 = 24.479; ymin_45_220 = -10.098; ymax_45_220 = 4.998;
-      xmin_56_220 = 2.422; xmax_56_220 = 24.620; ymin_56_220 =  -9.798; ymax_56_220 = 5.398;
-    }
-  if((run >= 305178) && (run <= 305902))
-    {
-      // 2017F2 - copied from F1                                                                                                                                      
-      xmin_45_220 = 1.995; xmax_45_220 = 24.479; ymin_45_220 = -10.098; ymax_45_220 = 4.998;
-      xmin_56_220 = 2.422; xmax_56_220 = 24.620; ymin_56_220 =  -9.798; ymax_56_220 = 5.398;
-    }
-  if((run >= 305965) && (run <= 306462))
-    {
-      // 2017F3 - copied from F1                                                                                                                                      
-      xmin_45_220 = 1.995; xmax_45_220 = 24.479; ymin_45_220 = -10.098; ymax_45_220 = 4.998;
-      xmin_56_220 = 2.422; xmax_56_220 = 24.620; ymin_56_220 =  -9.798; ymax_56_220 = 5.398;
-    }
-
-
+  
   bool pass = false;
 
   if(arm == 0)
     {
-      if(((thex220 >= xmin_45_220) && (thex220 <= xmax_45_220)) &&
-         ((they220 >= ymin_45_220) && (they220 <= ymax_45_220)))
-        {
-          pass = true;
-        }
+      if(((thex210 >= xmin_45_210) && (thex210 <= xmax_45_210)) && 
+	 ((they210 >= ymin_45_210) && (they210 <= ymax_45_210)) &&
+	 ((thex220 >= xmin_45_220) && (thex220 <= xmax_45_220)) &&
+	 ((they220 >= ymin_45_220) && (they220 <= ymax_45_220)))
+	{
+	  pass = true;
+	}
     }
   if(arm == 1)
     {
-      if(((thex220 >= xmin_56_220) && (thex220 <= xmax_56_220)) &&
+      if(((thex210 >= xmin_56_210) && (thex210 <= xmax_56_210)) &&
+         ((they210 >= ymin_56_210) && (they210 <= ymax_56_210)) &&
+         ((thex220 >= xmin_56_220) && (thex220 <= xmax_56_220)) &&
          ((they220 >= ymin_56_220) && (they220 <= ymax_56_220)))
         {
           pass = true;
         }
     }
 
+  if(pass == false)
+    {
+      std::cout << "\t\t\tIn pixel fiducial cuts: x, y, x, y = " << thex210 << ", " << they210 << ", " 
+		<< thex220 << ", " << they220 << std::endl;
+      if(arm == 0)
+	std::cout << "\t\t\t\tArm 45 Limits = " << xmin_45_210 << "-" << xmax_45_210 << ", " 
+		  << ymin_45_210 << "-" << ymax_45_210 << ", " 
+		  << xmin_45_220 << "-" << xmax_45_220 << ", "
+		  << ymin_45_220 << "-" << ymax_45_220 << std::endl;
+      if(arm == 1)
+	std::cout << "\t\t\t\tArm 56 Limits = " << xmin_56_210 << "-" << xmax_56_210 << ", "
+		  << ymin_56_210 << "-" << ymax_56_210 << ", "
+		  << xmin_56_220 << "-" << xmax_56_220 << ", "
+		  << ymin_56_220 << "-" << ymax_56_220 << std::endl;
+      
+    }
+
+  
   return pass;
 }
 
-float Dimuons2017Macro::MultiRPEffCorr(Float_t trackx210, Float_t tracky210, Float_t trackx220, Float_t tracky220, Int_t arm, Int_t run)
+float Dimuons2018Macro::MultiRPEffCorr(Float_t trackx210, Float_t tracky210, Float_t trackx220, Float_t tracky220, Int_t arm, Int_t run)
 {
-  float effcorrpixrad = 1.0;
-  float effcorrstrrad = 1.0;
-  float effcorrstrmultitrk = 1.0;
+  float effcorrpixrad210 = 1.0;
+  float effcorrpixrad220 = 1.0;
+  float effcorrmultitrk = 1.0;
 
   Int_t theera = 0;
-  if((run >= 297020) && (run <= 299329))
-    theera = 1; // 2017B
-  if((run >= 299337) && (run <= 300785))
-    theera = 2; // 2017C1
-  if((run >= 300806) && (run <= 302029))
-    theera = 3; // 2017C2                                                                                                                                
-  if((run >= 302030) && (run <= 303434))
-    theera = 4; // 2017D                                                                                                                                 
-  if((run >= 303435) && (run <= 304826))
-    theera = 5; // 2017E                                                                                                                                 
-  if((run >= 304911) && (run <= 305114)) 
-    theera = 6; // 2017F1
-  if((run >= 305178) && (run <= 305902))
-    theera = 7; // 2017F2                                                                                                                                
-  if((run >= 305965) && (run <= 306462))
-    theera = 8; // 2017F3                                                                                                                                
 
-  // Rad damage + strips multi-track
+  if((run >= 315252) && (run <= 316995))
+    theera = 1; // 2018A                                                                                                                                   
+  if((run >= 316998) && (run <= 317696))
+    theera = 2; // 2018B1                                                                                                                                  
+  if((run >= 318622) && (run <= 319312))
+    theera = 3; // 2018B2                                                                                                                                  
+  if((run >= 319313) && (run <= 320393))
+    theera = 4; // 2018C                                                                                                                                   
+  if((run >= 320394) && (run <= 322633))
+    theera = 5; // 2018D1                                                                                                                                   
+  if((run >= 323363) && (run <= 325273))
+    theera = 6; // 2018D2                                                                                                                                  
+
+  // Rad damage
   if(theera == 1)
     {
       if(arm == 0)
         {
-          effcorrpixrad = hpixeffB45->GetBinContent(hpixeffB45->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffB45->GetBinContent(hstreffB45->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffB45->GetBinContent(1);
+          effcorrpixrad220 = hpixeffA45220->GetBinContent(hpixeffA45220->FindBin(trackx220,tracky220));
+          effcorrpixrad210 = hpixeffA45210->GetBinContent(hpixeffA45210->FindBin(trackx210,tracky210));
         }
       if(arm == 1)
         {
-          effcorrpixrad = hpixeffB56->GetBinContent(hpixeffB56->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffB56->GetBinContent(hstreffB56->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffB56->GetBinContent(1);
+          effcorrpixrad220 = hpixeffA56220->GetBinContent(hpixeffA56220->FindBin(trackx220,tracky220));
+          effcorrpixrad210 = hpixeffA56210->GetBinContent(hpixeffA56210->FindBin(trackx210,tracky210));
         }
     }
   if(theera == 2)
     {
       if(arm == 0)
         {
-          effcorrpixrad = hpixeffC145->GetBinContent(hpixeffC145->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffC145->GetBinContent(hstreffC145->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffC145->GetBinContent(1);
+          effcorrpixrad220 = hpixeffB145220->GetBinContent(hpixeffB145220->FindBin(trackx220,tracky220));
+          effcorrpixrad210 = hpixeffB145210->GetBinContent(hpixeffB145210->FindBin(trackx210,tracky210));
         }
       if(arm == 1)
         {
-          effcorrpixrad = hpixeffC156->GetBinContent(hpixeffC156->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffC156->GetBinContent(hstreffC156->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffC156->GetBinContent(1);
+          effcorrpixrad220 = hpixeffB156220->GetBinContent(hpixeffB156220->FindBin(trackx220,tracky220));
+          effcorrpixrad210 = hpixeffB156210->GetBinContent(hpixeffB156210->FindBin(trackx210,tracky210));
         }
     }
-  if(theera == 3) // Same as C1 until 3+3 results available
+  if(theera == 3)
     {
       if(arm == 0)
         {
-          effcorrpixrad = hpixeffC145->GetBinContent(hpixeffC145->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffC245->GetBinContent(hstreffC245->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffC245->GetBinContent(1);
+          effcorrpixrad220 = hpixeffB245220->GetBinContent(hpixeffB245220->FindBin(trackx220,tracky220));
+          effcorrpixrad210 = hpixeffB245210->GetBinContent(hpixeffB245210->FindBin(trackx210,tracky210));
         }
       if(arm == 1)
         {
-          effcorrpixrad = hpixeffC156->GetBinContent(hpixeffC156->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffC256->GetBinContent(hstreffC256->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffC256->GetBinContent(1);
+          effcorrpixrad220 = hpixeffB256220->GetBinContent(hpixeffB256220->FindBin(trackx220,tracky220));
+          effcorrpixrad210 = hpixeffB256210->GetBinContent(hpixeffB256210->FindBin(trackx210,tracky210));
         }
     }
-  if(theera == 4) // Same as C1 until 3+3 results available
+  if(theera == 4)
     {
       if(arm == 0)
         {
-          effcorrpixrad = hpixeffC145->GetBinContent(hpixeffC145->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffD45->GetBinContent(hstreffD45->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffD45->GetBinContent(1);
+          effcorrpixrad220 = hpixeffC45220->GetBinContent(hpixeffC45220->FindBin(trackx220,tracky220));
+          effcorrpixrad210 = hpixeffC45210->GetBinContent(hpixeffC45210->FindBin(trackx210,tracky210));
         }
       if(arm == 1)
         {
-          effcorrpixrad = hpixeffC156->GetBinContent(hpixeffC156->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffD56->GetBinContent(hstreffD56->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffD56->GetBinContent(1);
+          effcorrpixrad220 = hpixeffC56220->GetBinContent(hpixeffC56220->FindBin(trackx220,tracky220));
+          effcorrpixrad210 = hpixeffC56210->GetBinContent(hpixeffC56210->FindBin(trackx210,tracky210));
         }
     }
   if(theera == 5)
     {
       if(arm == 0)
         {
-          effcorrpixrad = hpixeffE45->GetBinContent(hpixeffE45->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffE45->GetBinContent(hstreffE45->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffE45->GetBinContent(1);
+          effcorrpixrad220 = hpixeffD145220->GetBinContent(hpixeffD145220->FindBin(trackx220,tracky220));
+          effcorrpixrad210 = hpixeffD145210->GetBinContent(hpixeffD145210->FindBin(trackx210,tracky210));
         }
       if(arm == 1)
         {
-          effcorrpixrad = hpixeffE56->GetBinContent(hpixeffE56->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffE56->GetBinContent(hstreffE56->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffE56->GetBinContent(1);
+          effcorrpixrad220 = hpixeffD156220->GetBinContent(hpixeffD156220->FindBin(trackx220,tracky220));
+          effcorrpixrad210 = hpixeffD156210->GetBinContent(hpixeffD156210->FindBin(trackx210,tracky210));
         }
     }
   if(theera == 6)
     {
       if(arm == 0)
         {
-          effcorrpixrad = hpixeffF145->GetBinContent(hpixeffF145->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffF145->GetBinContent(hstreffF145->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffF145->GetBinContent(1);
+          effcorrpixrad220 = hpixeffD245220->GetBinContent(hpixeffD245220->FindBin(trackx220,tracky220));
+          effcorrpixrad210 = hpixeffD245210->GetBinContent(hpixeffD245210->FindBin(trackx210,tracky210));
         }
       if(arm == 1)
         {
-          effcorrpixrad = hpixeffF156->GetBinContent(hpixeffF156->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffF156->GetBinContent(hstreffF156->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffF156->GetBinContent(1);
-        }
-    }
-  if(theera == 7) // Same as F1 until 3+3 results available
-    {
-      if(arm == 0)
-        {
-          effcorrpixrad = hpixeffF145->GetBinContent(hpixeffF145->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffF245->GetBinContent(hstreffF245->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffF245->GetBinContent(1);
-        }
-      if(arm == 1)
-        {
-          effcorrpixrad = hpixeffF156->GetBinContent(hpixeffF156->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffF256->GetBinContent(hstreffF256->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffF256->GetBinContent(1);
-        }
-    }
-  if(theera == 8) // Same as F1 until 3+3 results available
-    {
-      if(arm == 0)
-        {
-          effcorrpixrad = hpixeffF145->GetBinContent(hpixeffF145->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffF345->GetBinContent(hstreffF345->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffF345->GetBinContent(1);
-        }
-      if(arm == 1)
-        {
-          effcorrpixrad = hpixeffF156->GetBinContent(hpixeffF156->FindBin(trackx220,tracky220));
-          effcorrstrrad = hstreffF356->GetBinContent(hstreffF356->FindBin(trackx210,tracky210));
-          effcorrstrmultitrk = hmultistreffF356->GetBinContent(1);
+          effcorrpixrad220 = hpixeffD256220->GetBinContent(hpixeffD256220->FindBin(trackx220,tracky220));
+          effcorrpixrad210 = hpixeffD256210->GetBinContent(hpixeffD256210->FindBin(trackx210,tracky210));
         }
     }
 
+  std::cout << "Efficiencies:" << std::endl
+	    << "\t x(210) = " << trackx210 << ", y(210) = " << tracky210 << ", x(220) = " << trackx220 << ", y(220) = " << tracky220 << std::endl 
+	    << "\tEra = " << theera << ", arm = " << arm << ", run = " << run << ", eff210 = " << effcorrpixrad210 << ", eff220 = " << effcorrpixrad220 << std::endl;
 
-    float efftotal = (effcorrpixrad*effcorrstrrad*effcorrstrmultitrk);
-    
-    return efftotal;
+  float efftotal = (effcorrpixrad210 * effcorrpixrad220);
+  
+  return efftotal;
 }
 
-void Dimuons2017Macro::Loop(Int_t multi, Int_t mc, Int_t sb, Int_t yr, Int_t nearfar)
+void Dimuons2018Macro::Loop(Int_t multi, Int_t mc, Int_t sb, Int_t yr, Int_t nearfar)
 {
 //   In a ROOT session, you can do:
-//      root> .L Dimuons2017Macro.C
-//      root> Dimuons2017Macro t
+//      root> .L Dimuons2018Macro.C
+//      root> Dimuons2018Macro t
 //      root> t.GetEntry(12); // Fill t data members with entry number 12
 //      root> t.Show();       // Show values of entry 12
 //      root> t.Show(16);     // Read and show values of entry 16
@@ -364,8 +347,8 @@ void Dimuons2017Macro::Loop(Int_t multi, Int_t mc, Int_t sb, Int_t yr, Int_t nea
 
    // 0.02-0.05, 0.05-0.075, and 0.075-0.25
 
-   ofstream ofs("TextOutputSingleMultiCorr2017.txt");
-   ofstream ofs2("TextOutputMultiRPwithFidEffAndYstar2017.txt");
+   ofstream ofs("TextOutputSingleMultiCorr.txt");
+   ofstream ofs2("TextOutputMultiRPwithFidEffAndYstar2018.txt");
 
    ofs2 << "Run,LS,Event,Arm,xing angle,xi(p),xi(mumu),ximatch,t,theta*x,theta*y,y*,eff" << std::endl;
 
@@ -451,7 +434,6 @@ void Dimuons2017Macro::Loop(Int_t multi, Int_t mc, Int_t sb, Int_t yr, Int_t nea
       Float_t proty56multi210 = 0.0;
       Float_t protx56multi220 = 0.0;
       Float_t proty56multi220 = 0.0;
-
       Float_t mumuxi45 = 0.0;
       Float_t mumuxi56 = 0.0;
       Float_t prott45 = 0.0;
@@ -561,27 +543,30 @@ void Dimuons2017Macro::Loop(Int_t multi, Int_t mc, Int_t sb, Int_t yr, Int_t nea
 	      prott45 = -1.0*ProtCand_t[p];
 	      protthx45 = ProtCand_ThX[p];
 	      protthy45 = ProtCand_ThY[p];
-	      protystar45 = ProtCand_ystar[p];
+              protystar45 = ProtCand_ystar[p];
               protxi45multi = protxi45;
 
-	      // JH: shift up 8%
-	      //	      protxi45 = protxi45 - (0.08*protxi45);
-	      // JH: shift up by Jan's systematics file
-	      //	      grsyst45 = (TGraphErrors *)fsyst->Get("2017_preTS2/multi rp-0/g_xi_unc_vs_xi");
-              grsyst45 = (TGraphErrors *)fsyst->Get("2017_preTS2/multi rp-0/xi/g_systematics_vs_xi");
+              // JH: shift up 8%                                                                                                            
+	      //              protxi45 = protxi45 - (0.08*protxi45);
+              // JH: shift up by Jan's systematics file - old version for DPS                                                              
+	      //              grsyst45 = (TGraphErrors *)fsyst->Get("2018_postTS2/multi rp-0/g_xi_unc_vs_xi");
+	      grsyst45 = (TGraphErrors *)fsyst->Get("2018_postTS2/multi rp-0/xi/g_systematics_vs_xi");
 	      std::cout << "Getting syst. shift for proton with xi = " << protxi45 << std::endl;
-	      float systshift = grsyst45->Eval(protxi45);
-	      std::cout << "xi(orig) = " << protxi45 << " + shift of " << systshift << " (" << systshift/protxi45 << "%)" << std::endl;
-	      protxi45 = protxi45 - systshift;
+              float systshift = grsyst45->Eval(protxi45);
+	      std::cout << "xi(orig) = " << protxi45 << " + shift of " << systshift << " (" << systshift/protxi45 << \
+		"%)" << std::endl;
+              protxi45 = protxi45 - systshift;
+	      
 
-	      // Tracks for eff. correction
-	      protx45multi220 = ProtCand_trackx1[p];
+
+              // Tracks for eff. correction                                                                                                 
+              protx45multi220 = ProtCand_trackx1[p];
               proty45multi220 = ProtCand_tracky1[p];
               protx45multi210 = ProtCand_trackx2[p];
               proty45multi210 = ProtCand_tracky2[p];
 
-	      // Fiducial cuts
-	      if((FiducalCuts(protx45multi220, proty45multi220, 0, Run) == true) || (ismc == 1))
+	      //              if((FiducalCuts(protx45multi210, proty45multi210, protx45multi220, proty45multi220, 0, Run) == true))
+	      if(1)
 		{
 		  hres45mult->Fill(1 - (protxi45/mumuxisol1));
 		  hressummult->Fill(1 - (protxi45/mumuxisol1));
@@ -609,9 +594,12 @@ void Dimuons2017Macro::Loop(Int_t multi, Int_t mc, Int_t sb, Int_t yr, Int_t nea
 		      
 		      ofs2 << Run << "," << LumiSection << "," << EventNum << ",45," << CrossingAngle << "," << protxi45 << "," << mumuxisol1 << ","
 			   << 1 - (protxi45/mumuxisol1) << "," << prott45 
-			   << ", " << protthx45 << ", " << protthy45 << ", " << ", " << protystar45 << ", " << efficiency 
+                           << ", " << protthx45 << ", " << protthy45 << ", " << ", " << protystar45 << ", " << efficiency
 			   << std::endl;
 		      
+		      if((FiducalCuts(protx45multi210, proty45multi210, protx45multi220, proty45multi220, 0, Run) == false))
+			std::cout << "\t\tFailed fiducial cuts: " << protx45multi210 << ", " << proty45multi210 << ", " 
+				  << protx45multi220 << ", " << proty45multi220 << std::endl;
 		    }
 		  else
 		    hpzmumumultantimatch45->Fill(mumu.Pz());
@@ -624,25 +612,27 @@ void Dimuons2017Macro::Loop(Int_t multi, Int_t mc, Int_t sb, Int_t yr, Int_t nea
 	      prott56 = -1.0*ProtCand_t[p];
               protthx56 = ProtCand_ThX[p];
               protthy56 = ProtCand_ThY[p];
-	      protystar56 = ProtCand_ystar[p];
+              protystar56 = ProtCand_ystar[p];
               protxi56multi = protxi56;
 
-              // JH: shift up 8%                                                                                    
-	      //              protxi56multi = protxi56 - (0.08*protxi56);
-              // JH: shift up by Jan's systematics file                                                             
-	      //              grsyst56 = (TGraphErrors *)fsyst->Get("2017_preTS2/multi rp-1/g_xi_unc_vs_xi");
-              grsyst56 = (TGraphErrors *)fsyst->Get("2017_preTS2/multi rp-1/xi/g_systematics_vs_xi");
+              // JH: shift up 8%                                                                                                            
+              protxi56 = protxi56 - (0.08*protxi56);
+              // JH: shift up by Jan's systematics file - old version for DPS                                                              
+	      //              grsyst56 = (TGraphErrors *)fsyst->Get("2018_postTS2/multi rp-1/g_xi_unc_vs_xi");
+              grsyst56 = (TGraphErrors *)fsyst->Get("2018_postTS2/multi rp-1/xi/g_systematics_vs_xi");
               float systshift = grsyst56->Eval(protxi56);
 	      std::cout << "xi(orig) = " << protxi56 << " + shift of " << systshift << " (" << systshift/protxi56 << "%)" << std::endl;
               protxi56 = protxi56 - systshift;
 
-              // Tracks for eff. correction                                                                                                                                  
+
+              // Tracks for eff. correction                                                                                                 
               protx56multi220 = ProtCand_trackx1[p];
               proty56multi220 = ProtCand_tracky1[p];
               protx56multi210 = ProtCand_trackx2[p];
               proty56multi210 = ProtCand_tracky2[p];
 
-              if((FiducalCuts(protx56multi220, proty56multi220, 1, Run) == true) || (ismc == 1))
+	      //              if((FiducalCuts(protx56multi210, proty56multi210, protx56multi220, proty56multi220, 1, Run) == true))
+	      if(1)
                 {
 		  hres56mult->Fill(1 - (protxi56/mumuxisol2));
 		  hressummult->Fill(1 - (protxi56/mumuxisol2));
@@ -672,8 +662,12 @@ void Dimuons2017Macro::Loop(Int_t multi, Int_t mc, Int_t sb, Int_t yr, Int_t nea
 		      
 		      ofs2 << Run << "," << LumiSection << "," << EventNum << ",56," << CrossingAngle << "," << protxi56 << "," << mumuxisol2 << ","
 			   << 1 - (protxi56/mumuxisol2) << "," << prott56 
-			   << ", " << protthx56 << ", " << protthy56 << ", " << protystar56 << ", " << efficiency
+                           << ", " << protthx56 << ", " << protthy56 << ", " << protystar56 << ", " << efficiency
 			   << std::endl;
+
+                      if((FiducalCuts(protx56multi210, proty56multi210, protx56multi220, proty56multi220, 1, Run) == false))
+			std::cout << "\t\tFailed fiducial cuts: " << protx56multi210 << ", " << proty56multi210 << ", "
+                                  << protx56multi220 << ", " << proty56multi220 << std::endl;
 		      
 		    }
 		  else

@@ -4,8 +4,8 @@
 // from TChain ggll_aod/ntp1/
 //////////////////////////////////////////////////////////
 
-#ifndef Dimuons2017Macro_h
-#define Dimuons2017Macro_h
+#ifndef Dimuons2018Macro_h
+#define Dimuons2018Macro_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -14,7 +14,7 @@
 // Header file for the classes stored in the TTree if any.
 #include "vector"
 
-class Dimuons2017Macro {
+class Dimuons2018Macro {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -108,10 +108,10 @@ public :
    Int_t           ProtCand_arm[50];   //[nRecoProtCand]
    Int_t           ProtCand_ismultirp[50];   //[nRecoProtCand]
    Int_t           ProtCand_trackpixshift1[50]; //[nRecoProtCand]
-   Double_t        ProtCand_trackx1[50]; //[nRecoProtCand]                                                                                                  
-   Double_t        ProtCand_tracky1[50]; //[nRecoProtCand]                                                                                                                    
-   Double_t        ProtCand_trackx2[50]; //[nRecoProtCand]                                                                                                                    
-   Double_t        ProtCand_tracky2[50]; //[nRecoProtCand]                                                                                                                    
+   Double_t        ProtCand_trackx1[50]; //[nRecoProtCand]                                                                                                
+   Double_t        ProtCand_tracky1[50]; //[nRecoProtCand]                                                                                                
+   Double_t        ProtCand_trackx2[50]; //[nRecoProtCand]                                                                                                
+   Double_t        ProtCand_tracky2[50]; //[nRecoProtCand]                                                                                                
    UInt_t          nExtraTracks;
    Int_t           ExtraTrack_pair[2000];   //[nExtraTracks]
    Int_t           ExtraTrack_purity[2000];   //[nExtraTracks]
@@ -211,10 +211,10 @@ public :
    TBranch        *b_ProtCand_arm;   //!
    TBranch        *b_ProtCand_ismultirp;   //!
    TBranch        *b_ProtCand_trackpixshift1;   //!
-   TBranch        *b_ProtCand_trackx1; //!
-   TBranch        *b_ProtCand_tracky1; //!
-   TBranch        *b_ProtCand_trackx2; //!
-   TBranch        *b_ProtCand_tracky2; //!
+   TBranch        *b_ProtCand_trackx1; //!                                                                                                               
+   TBranch        *b_ProtCand_tracky1; //!                                                                                                               
+   TBranch        *b_ProtCand_trackx2; //!                                                                                                               
+   TBranch        *b_ProtCand_tracky2; //!                                                                                                               
    TBranch        *b_nExtraTracks;   //!
    TBranch        *b_ExtraTrack_pair;   //!
    TBranch        *b_ExtraTrack_purity;   //!
@@ -225,40 +225,28 @@ public :
    TBranch        *b_ExtraTrack_py;   //!
    TBranch        *b_nGenMuonCand;   //!                                                                                                                                                     
    TBranch        *b_GenMuonCand_pt;   //!                                                                                                                                                  
-   TBranch        *b_GenMuonCand_eta;   //!                                                                                                                                                 
-   // Efficiency correction histograms                                                                                                                                     
-   TH2F *hpixeffB45, *hpixeffC145, *hpixeffE45, *hpixeffF145;
-   TH2F *hpixeffB56, *hpixeffC156, *hpixeffE56, *hpixeffF156;
-   TH2F *hpixeff2017PreTS245, *hpixeff2017PostTS245;
-   TH2F *hpixeff2017PreTS256, *hpixeff2017PostTS256;
+   TBranch        *b_GenMuonCand_eta;   //!                                                                                                               
 
-   TH2F *hstreffB45, *hstreffC145, *hstreffC245, *hstreffD45, *hstreffE45, *hstreffF145, *hstreffF245, *hstreffF345;
-   TH2F *hstreffB56, *hstreffC156, *hstreffC256, *hstreffD56, *hstreffE56, *hstreffF156, *hstreffF256, *hstreffF356;
-   TH2F *hstreff2017PreTS245, *hstreff2017PostTS245;
-   TH2F *hstreff2017PreTS256, *hstreff2017PostTS256;
-
-   TH1F *hmultistreffB45, *hmultistreffC145, *hmultistreffC245, *hmultistreffD45, *hmultistreffE45, *hmultistreffF145, *hmultistreffF245, *hmultistreffF345;
-   TH1F *hmultistreffB56, *hmultistreffC156, *hmultistreffC256, *hmultistreffD56, *hmultistreffE56, *hmultistreffF156, *hmultistreffF256, *hmultistreffF356;
-   TH1F *hmultistreff2017PreTS245, *hmultistreff2017PostTS245;
-   TH1F *hmultistreff2017PreTS256, *hmultistreff2017PostTS256;
-
-   // Systematics 
+   // Efficiency correction histograms                                                                                                                   
+   TH2F *hpixeffA45210, *hpixeffB145210, *hpixeffB245210, *hpixeffC45210, *hpixeffD145210, *hpixeffD245210;
+   TH2F *hpixeffA56210, *hpixeffB156210, *hpixeffB256210, *hpixeffC56210, *hpixeffD156210, *hpixeffD256210;
+   TH2F *hpixeffA45220, *hpixeffB145220, *hpixeffB245220, *hpixeffC45220, *hpixeffD145220, *hpixeffD245220;
+   TH2F *hpixeffA56220, *hpixeffB156220, *hpixeffB256220, *hpixeffC56220, *hpixeffD156220, *hpixeffD256220;
+                         
+   // Systematics                                                                                                     
    TFile *fsyst;
    TGraphErrors *grsyst45;
    TGraphErrors *grsyst56;
+         
 
-
-   TRandom *rnd;
-
-
-   Dimuons2017Macro(TTree *tree=0);
-   virtual ~Dimuons2017Macro();
+   Dimuons2018Macro(TTree *tree=0);
+   virtual ~Dimuons2018Macro();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
    virtual void     Loop(Int_t multi=0, Int_t mc=0, Int_t sb=1, Int_t yr=2017, Int_t nearfar=0);
-   virtual bool     FiducalCuts(Float_t trackx220, Float_t tracky220, Int_t arm, Int_t run);
+   virtual bool     FiducalCuts(Float_t trackx210, Float_t tracky210, Float_t trackx220, Float_t tracky220, Int_t arm, Int_t run);
    virtual Float_t  MultiRPEffCorr(Float_t trackx210, Float_t tracky210, Float_t trackx220, Float_t tracky220, Int_t arm, Int_t run);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
@@ -266,8 +254,8 @@ public :
 
 #endif
 
-#ifdef Dimuons2017Macro_cxx
-Dimuons2017Macro::Dimuons2017Macro(TTree *tree) : fChain(0) 
+#ifdef Dimuons2018Macro_cxx
+Dimuons2018Macro::Dimuons2018Macro(TTree *tree) : fChain(0) 
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -297,12 +285,6 @@ Dimuons2017Macro::Dimuons2017Macro(TTree *tree) : fChain(0)
       chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/ProtonReconstruction_DoubleMu2017F_finalUL_merge.root/ggll_aod/ntp1");
       */
 
-      // 2017, re-MiniAOD test
-      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/2017/pps_2017B_dimuontestreminiaod/DoubleMuon/pps_2017B_dimuontestreminiaod/200507_105943/0000/pps_2017B_dimuontestreminiaod.root/ggll_aod/ntp1");
-      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/2017/pps_2017C_dimuontestreminiaod/DoubleMuon/pps_2017C_dimuontestreminiaod/200507_110619/0000/pps_2017C_dimuontestreminiaod.root/ggll_aod/ntp1");
-      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/2017/pps_2017D_dimuontestreminiaod_v2/DoubleMuon/pps_2017D_dimuontestreminiaod/200508_000704/0000/crab_pps_2017D_dimuontestreminiaod.root/ggll_aod/ntp1");
-      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/2017/pps_2017E_dimuontestreminiaod/DoubleMuon/pps_2017E_dimuontestreminiaod/200507_110945/0000/crab_pps_2017E_dimuontestreminiaod.root/ggll_aod/ntp1");
-      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/2017/pps_2017F_dimuontestreminiaod/DoubleMuon/pps_2017F_dimuontestreminiaod/200507_111241/0000/pps_2017F_dimuontestreminiaod.root/ggll_aod/ntp1");
 
       //      chain->Add("output_xangleall2017MC.root");
       //      chain->Add("output_xangleall2017MC_noPUprotons.root");
@@ -312,10 +294,23 @@ Dimuons2017Macro::Dimuons2017Macro(TTree *tree) : fChain(0)
       //      chain->Add("../test/output_xangleall2018MC.root");
       //      chain->Add("../test/output_xangleall2017postTS2MC.root");
 
-      // Final for DPS
-      //      chain->Add("output_MC_2017preTS2.root/ggll_aod/ntp1");
-      //      chain->Add("output_MC_2017preTS2.root/ggll_aod/ntp1");
-      chain->Add("../reminiaodtests/output_MC_2017preTS2.root/ggll_aod/ntp1");
+
+      // 2018, final legacy tests
+      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/ProtonReconstruction_DoubleMu2018A_finalUL_merge.root/ggll_aod/ntp1");
+      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/ProtonReconstruction_DoubleMu2018B_finalUL_merge.root/ggll_aod/ntp1");
+      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/ProtonReconstruction_DoubleMu2018C_finalUL_merge.root/ggll_aod/ntp1");
+      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/ProtonReconstruction_DoubleMu2018D_finalUL_merge.root/ggll_aod/ntp1");
+      //      chain->Add("output_xangleall2018MC.root");
+
+      // 2018D, re-MiniAOD tests
+      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/ProtonReconstruction_DoubleMu2018A_reMiniAODtestUL_merge.root/ggll_aod/ntp1");
+      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/ProtonReconstruction_DoubleMu2018B_reMiniAODtestUL_merge.root/ggll_aod/ntp1");
+      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/ProtonReconstruction_DoubleMu2018C_reMiniAODtestUL_merge.root/ggll_aod/ntp1");
+      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/ProtonReconstruction_DoubleMu2018Dpart1_reMiniAODtestUL_merge.root/ggll_aod/ntp1");
+      //      chain->Add("/eos/cms/store/group/phys_pps/ProtonRecoValidation/Dileptons/FinalUltraLegacy/ProtonReconstruction_DoubleMu2018Dpart2_reMiniAODtestUL_merge.root/ggll_aod/ntp1");
+
+      // final DPS MC
+      chain->Add("../reminiaodtests/output_MC_2018.root/ggll_aod/ntp1");
 
 	tree = chain;
 #endif // SINGLE_TREE
@@ -323,86 +318,54 @@ Dimuons2017Macro::Dimuons2017Macro(TTree *tree) : fChain(0)
    }
    Init(tree);
 
-   // Systematics
+   // Systematics                                                                                                     
+   // Old version for DPS
    //   fsyst = TFile::Open("/tmp/jjhollar/xi_uncertainty.root");
    fsyst = TFile::Open("reco_charactersitics_version1.root");
 
-   // Setup for efficiency corrections ("killing"), or just reading
-   rnd = new TRandom();
-   rnd->SetSeed(123456);
-
-   Float_t lumiB = 2.361;
-   Float_t lumiC1 = 5.3;
-   Float_t lumiC = 8.577;
-   Float_t lumiD = 4.075;
-   Float_t lumiE = 8.959;
-   Float_t lumiF1 = 1.7;
-   Float_t lumiF = 13.214;
-
-   // Pixels - lumi-weighted averages for pre- and post-TS2                                                                                              
    TFile *fpixeff = TFile::Open("pixelEfficiencies_radiation.root");
-   hpixeffB45 = (TH2F *)fpixeff->Get("Pixel/2017/2017B/h45_220_2017B_all_2D"); // 2.4fb                                                                  
-   hpixeffB56 = (TH2F *)fpixeff->Get("Pixel/2017/2017B/h56_220_2017B_all_2D");
-   hpixeffC145 = (TH2F *)fpixeff->Get("Pixel/2017/2017C1/h45_220_2017C1_all_2D"); // 5.3fb                                                               
-   hpixeffC156 = (TH2F *)fpixeff->Get("Pixel/2017/2017C1/h56_220_2017C1_all_2D");
-   hpixeffE45 = (TH2F *)fpixeff->Get("Pixel/2017/2017E/h45_220_2017E_all_2D"); // 9fb                                                                    
-   hpixeffE56 = (TH2F *)fpixeff->Get("Pixel/2017/2017E/h56_220_2017E_all_2D");
-   hpixeffF145 = (TH2F *)fpixeff->Get("Pixel/2017/2017F1/h45_220_2017F1_all_2D"); // 1.7fb                                                               
-   hpixeffF156 = (TH2F *)fpixeff->Get("Pixel/2017/2017F1/h56_220_2017F1_all_2D");
+   hpixeffA45210 = (TH2F *)fpixeff->Get("Pixel/2018/2018A/h45_210_2018A_all_2D");
+   hpixeffB145210 = (TH2F *)fpixeff->Get("Pixel/2018/2018B1/h45_210_2018B1_all_2D");
+   hpixeffB245210 = (TH2F *)fpixeff->Get("Pixel/2018/2018B2/h45_210_2018B2_all_2D");
+   hpixeffC45210 = (TH2F *)fpixeff->Get("Pixel/2018/2018C/h45_210_2018C_all_2D");
+   hpixeffD145210 = (TH2F *)fpixeff->Get("Pixel/2018/2018D1/h45_210_2018D1_all_2D");
+   hpixeffD245210 = (TH2F *)fpixeff->Get("Pixel/2018/2018D2/h45_210_2018D2_all_2D");
 
-   // Strips - lumi-weighted averages for pre- and post-TS2                                                                                              
-   TFile *fstripeff = TFile::Open("PreliminaryEfficiencies_October92019_1D2DMultiTrack.root");
-   hstreffB45 = (TH2F *)fstripeff->Get("Strips/2017/2017B/h45_2017B_all_2D");
-   hstreffC145 = (TH2F *)fstripeff->Get("Strips/2017/2017C1/h45_2017C1_all_2D");
-   hstreffC245 = (TH2F *)fstripeff->Get("Strips/2017/2017C2/h45_2017C2_all_2D");
-   hstreffD45 = (TH2F *)fstripeff->Get("Strips/2017/2017D/h45_2017D_all_2D");
-   hstreffE45 = (TH2F *)fstripeff->Get("Strips/2017/2017E/h45_2017E_all_2D");
-   hstreffF145 = (TH2F *)fstripeff->Get("Strips/2017/2017F1/h45_2017F1_all_2D");
-   hstreffF245 = (TH2F *)fstripeff->Get("Strips/2017/2017F2/h45_2017F2_all_2D");
-   hstreffF345 = (TH2F *)fstripeff->Get("Strips/2017/2017F3/h45_2017F3_all_2D");
+   hpixeffA56210 = (TH2F *)fpixeff->Get("Pixel/2018/2018A/h56_210_2018A_all_2D");
+   hpixeffB156210 = (TH2F *)fpixeff->Get("Pixel/2018/2018B1/h56_210_2018B1_all_2D");
+   hpixeffB256210 = (TH2F *)fpixeff->Get("Pixel/2018/2018B2/h56_210_2018B2_all_2D");
+   hpixeffC56210 = (TH2F *)fpixeff->Get("Pixel/2018/2018C/h56_210_2018C_all_2D");
+   hpixeffD156210 = (TH2F *)fpixeff->Get("Pixel/2018/2018D1/h56_210_2018D1_all_2D");
+   hpixeffD256210 = (TH2F *)fpixeff->Get("Pixel/2018/2018D2/h56_210_2018D2_all_2D");
 
-   hstreffB56 = (TH2F *)fstripeff->Get("Strips/2017/2017B/h56_2017B_all_2D");
-   hstreffC156 = (TH2F *)fstripeff->Get("Strips/2017/2017C1/h56_2017C1_all_2D");
-   hstreffC256 = (TH2F *)fstripeff->Get("Strips/2017/2017C2/h56_2017C2_all_2D");
-   hstreffD56 = (TH2F *)fstripeff->Get("Strips/2017/2017D/h56_2017D_all_2D");
-   hstreffE56 = (TH2F *)fstripeff->Get("Strips/2017/2017E/h56_2017E_all_2D");
-   hstreffF156 = (TH2F *)fstripeff->Get("Strips/2017/2017F1/h56_2017F1_all_2D");
-   hstreffF256 = (TH2F *)fstripeff->Get("Strips/2017/2017F2/h56_2017F2_all_2D");
-   hstreffF356 = (TH2F *)fstripeff->Get("Strips/2017/2017F3/h56_2017F3_all_2D");
+   hpixeffA45220 = (TH2F *)fpixeff->Get("Pixel/2018/2018A/h45_220_2018A_all_2D");
+   hpixeffB145220 = (TH2F *)fpixeff->Get("Pixel/2018/2018B1/h45_220_2018B1_all_2D");
+   hpixeffB245220 = (TH2F *)fpixeff->Get("Pixel/2018/2018B2/h45_220_2018B2_all_2D");
+   hpixeffC45220 = (TH2F *)fpixeff->Get("Pixel/2018/2018C/h45_220_2018C_all_2D");
+   hpixeffD145220 = (TH2F *)fpixeff->Get("Pixel/2018/2018D1/h45_220_2018D1_all_2D");
+   hpixeffD245220 = (TH2F *)fpixeff->Get("Pixel/2018/2018D2/h45_220_2018D2_all_2D");
 
-   // Multi-track for strips                                                                                                                             
-   hmultistreffB45 = (TH1F *)fstripeff->Get("Strips/2017/2017B/h45multitrackeff_2017B_avg_RP3");
-   hmultistreffC145 = (TH1F *)fstripeff->Get("Strips/2017/2017C1/h45multitrackeff_2017C1_avg_RP3");
-   hmultistreffC245 = (TH1F *)fstripeff->Get("Strips/2017/2017C2/h45multitrackeff_2017C2_avg_RP3");
-   hmultistreffD45 = (TH1F *)fstripeff->Get("Strips/2017/2017D/h45multitrackeff_2017D_avg_RP3");
-   hmultistreffE45 = (TH1F *)fstripeff->Get("Strips/2017/2017E/h45multitrackeff_2017E_avg_RP3");
-   hmultistreffF145 = (TH1F *)fstripeff->Get("Strips/2017/2017F1/h45multitrackeff_2017F1_avg_RP3");
-   hmultistreffF245 = (TH1F *)fstripeff->Get("Strips/2017/2017F2/h45multitrackeff_2017F2_avg_RP3");
-   hmultistreffF345 = (TH1F *)fstripeff->Get("Strips/2017/2017F3/h45multitrackeff_2017F3_avg_RP3");
-
-   hmultistreffB56 = (TH1F *)fstripeff->Get("Strips/2017/2017B/h56multitrackeff_2017B_avg_RP103");
-   hmultistreffC156 = (TH1F *)fstripeff->Get("Strips/2017/2017C1/h56multitrackeff_2017C1_avg_RP103");
-   hmultistreffC256 = (TH1F *)fstripeff->Get("Strips/2017/2017C2/h56multitrackeff_2017C2_avg_RP103");
-   hmultistreffD56 = (TH1F *)fstripeff->Get("Strips/2017/2017D/h56multitrackeff_2017D_avg_RP103");
-   hmultistreffE56 = (TH1F *)fstripeff->Get("Strips/2017/2017E/h56multitrackeff_2017E_avg_RP103");
-   hmultistreffF156 = (TH1F *)fstripeff->Get("Strips/2017/2017F1/h56multitrackeff_2017F1_avg_RP103");
-   hmultistreffF256 = (TH1F *)fstripeff->Get("Strips/2017/2017F2/h56multitrackeff_2017F2_avg_RP103");
-   hmultistreffF356 = (TH1F *)fstripeff->Get("Strips/2017/2017F3/h56multitrackeff_2017F3_avg_RP103");
+   hpixeffA56220 = (TH2F *)fpixeff->Get("Pixel/2018/2018A/h56_220_2018A_all_2D");
+   hpixeffB156220 = (TH2F *)fpixeff->Get("Pixel/2018/2018B1/h56_220_2018B1_all_2D");
+   hpixeffB256220 = (TH2F *)fpixeff->Get("Pixel/2018/2018B2/h56_220_2018B2_all_2D");
+   hpixeffC56220 = (TH2F *)fpixeff->Get("Pixel/2018/2018C/h56_220_2018C_all_2D");
+   hpixeffD156220 = (TH2F *)fpixeff->Get("Pixel/2018/2018D1/h56_220_2018D1_all_2D");
+   hpixeffD256220 = (TH2F *)fpixeff->Get("Pixel/2018/2018D2/h56_220_2018D2_all_2D");
 }
 
-Dimuons2017Macro::~Dimuons2017Macro()
+Dimuons2018Macro::~Dimuons2018Macro()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
 
-Int_t Dimuons2017Macro::GetEntry(Long64_t entry)
+Int_t Dimuons2018Macro::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!fChain) return 0;
    return fChain->GetEntry(entry);
 }
-Long64_t Dimuons2017Macro::LoadTree(Long64_t entry)
+Long64_t Dimuons2018Macro::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!fChain) return -5;
@@ -415,7 +378,7 @@ Long64_t Dimuons2017Macro::LoadTree(Long64_t entry)
    return centry;
 }
 
-void Dimuons2017Macro::Init(TTree *tree)
+void Dimuons2018Macro::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -519,7 +482,7 @@ void Dimuons2017Macro::Init(TTree *tree)
    fChain->SetBranchAddress("ProtCand_arm", ProtCand_arm, &b_ProtCand_arm);
    fChain->SetBranchAddress("ProtCand_ismultirp", ProtCand_ismultirp, &b_ProtCand_ismultirp);
    fChain->SetBranchAddress("ProtCand_trackpixshift1", ProtCand_trackpixshift1, &b_ProtCand_trackpixshift1);
-   fChain->SetBranchAddress("ProtCand_trackx1", ProtCand_trackx1, &b_ProtCand_trackx1);                                                                         
+   fChain->SetBranchAddress("ProtCand_trackx1", ProtCand_trackx1, &b_ProtCand_trackx1);
    fChain->SetBranchAddress("ProtCand_tracky1", ProtCand_tracky1, &b_ProtCand_tracky1);
    fChain->SetBranchAddress("ProtCand_trackx2", ProtCand_trackx2, &b_ProtCand_trackx2);
    fChain->SetBranchAddress("ProtCand_tracky2", ProtCand_tracky2, &b_ProtCand_tracky2);
@@ -538,7 +501,7 @@ void Dimuons2017Macro::Init(TTree *tree)
    Notify();
 }
 
-Bool_t Dimuons2017Macro::Notify()
+Bool_t Dimuons2018Macro::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -549,18 +512,18 @@ Bool_t Dimuons2017Macro::Notify()
    return kTRUE;
 }
 
-void Dimuons2017Macro::Show(Long64_t entry)
+void Dimuons2018Macro::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t Dimuons2017Macro::Cut(Long64_t entry)
+Int_t Dimuons2018Macro::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
    return 1;
 }
-#endif // #ifdef Dimuons2017Macro_cxx
+#endif // #ifdef Dimuons2018Macro_cxx
